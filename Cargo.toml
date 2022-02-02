@@ -5,4 +5,5 @@ members = [
     "input-cursor",
     "query-parser",
     "schema-parser",
+    "shared",
 ]

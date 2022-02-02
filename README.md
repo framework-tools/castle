@@ -3,7 +3,7 @@
 Intended to be used inside of a rust web api server.
 
 1. Define a schema string, including the resolvers
-2. 
+2.
 
 
 
@@ -153,7 +153,7 @@ function some_fn() -> Result<void, Error> {
     if result.is_err() return result as Result<void, Error>
 
     switch result.is_ok() {
-        
+
     }
 
     return val;
@@ -166,3 +166,5 @@ try {
 }
 
 ```
+
+

@@ -1,5 +1,5 @@
 //! Module implementing the lexer cursor. This is used for managing the input byte stream.
-use crate::ast::Position;
+use super::Position;
 use std::io::{self, Bytes, Error, Read};
 
 /// Cursor over the source code.
@@ -12,12 +12,12 @@ pub struct Cursor<R> {
 impl<R> Cursor<R> {
     /// Gets the current position of the cursor in the source code.
     #[inline]
-    pub(super) fn pos(&self) -> Position {
+    pub fn pos(&self) -> Position {
         self.pos
     }
     /// Advances the position to the next column.
     #[inline]
-    pub(super) fn next_column(&mut self) {
+    pub fn next_column(&mut self) {
         let current_line = self.pos.line_number();
         let next_column = self.pos.column_number() + 1;
         self.pos = Position::new(current_line, next_column);
@@ -25,7 +25,7 @@ impl<R> Cursor<R> {
 
     /// Advances the position to the next line.
     #[inline]
-    fn next_line(&mut self) {
+    pub fn next_line(&mut self) {
         let next_line = self.pos.line_number() + 1;
         self.pos = Position::new(next_line, 1);
     }
@@ -46,25 +46,25 @@ where
 
     /// Peeks the next byte.
     #[inline]
-    pub(super) fn peek(&mut self) -> Result<Option<u8>, Error> {
+    pub fn peek(&mut self) -> Result<Option<u8>, Error> {
         self.iter.peek_byte()
     }
 
     /// Peeks the next n bytes, the maximum number of peeked bytes is 4 (n <= 4).
     #[inline]
-    pub(super) fn peek_n(&mut self, n: u8) -> Result<u32, Error> {
+    pub fn peek_n(&mut self, n: u8) -> Result<u32, Error> {
         self.iter.peek_n_bytes(n)
     }
 
     /// Peeks the next UTF-8 character in u32 code point.
     #[inline]
-    pub(super) fn peek_char(&mut self) -> Result<Option<u32>, Error> {
+    pub fn peek_char(&mut self) -> Result<Option<u32>, Error> {
         self.iter.peek_char()
     }
 
     /// Compares the byte passed in to the next byte, if they match true is returned and the buffer is incremented
     #[inline]
-    pub(super) fn next_is(&mut self, byte: u8) -> io::Result<bool> {
+    pub fn next_is(&mut self, byte: u8) -> io::Result<bool> {
         Ok(match self.peek()? {
             Some(next) if next == byte => {
                 let _ = self.next_byte()?;
@@ -81,7 +81,7 @@ where
     /// The buffer is not incremented.
     #[allow(dead_code)]
     #[inline]
-    pub(super) fn next_is_char_pred<F>(&mut self, pred: &F) -> io::Result<bool>
+    pub fn next_is_char_pred<F>(&mut self, pred: &F) -> io::Result<bool>
     where
         F: Fn(u32) -> bool,
     {
@@ -94,7 +94,7 @@ where
 
     /// Retrieves the next byte.
     #[inline]
-    pub(crate) fn next_byte(&mut self) -> Result<Option<u8>, Error> {
+    pub fn next_byte(&mut self) -> Result<Option<u8>, Error> {
         let byte = self.iter.next_byte()?;
 
         match byte {
@@ -126,7 +126,7 @@ where
 
     /// Retrieves the next UTF-8 character.
     #[inline]
-    pub(crate) fn next_char(&mut self) -> Result<Option<u32>, Error> {
+    pub fn next_char(&mut self) -> Result<Option<u32>, Error> {
         let ch = self.iter.next_char()?;
 
         match ch {
