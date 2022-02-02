@@ -1,5 +1,8 @@
 [workspace]
 
 members = [
-    "castle"
+    "castle",
+    "input-stream",
+    "query-parser",
+    "schema-parser",
 ]

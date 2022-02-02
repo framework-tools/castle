@@ -5,3 +5,15 @@ version = 3
 [[package]]
 name = "castle"
 version = "0.1.0"
+
+[[package]]
+name = "input-stream"
+version = "0.1.0"
+
+[[package]]
+name = "query-parser"
+version = "0.1.0"
+
+[[package]]
+name = "schema-parser"
+version = "0.1.0"
