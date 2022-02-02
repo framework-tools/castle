@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 input-cursor = { path = "../input-cursor" }
 serde = { version = "1.0.117", features = ["derive"] }
+shared = { path = "../shared" }

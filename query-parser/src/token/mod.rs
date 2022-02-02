@@ -1,3 +1,3 @@
-mod token;
+pub mod token;
 
 pub use token::Token;

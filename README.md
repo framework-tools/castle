@@ -20,7 +20,12 @@ const CASTLE_SCHEMA = r#"
 "#;
 
 
-async fn me(wants: HashSet<String>, context: Context) -> Result<Serde::Value, Error> {
+enum Want {
+    SingleField(Box<str>),
+    Projection(HashSet<Want>)
+}
+
+async fn me(wants: HashSet<Want>, context: Context) -> Result<Serde::Value, Error> {
     let query: String = query!{
         let user = root.users.{context.user};
 
@@ -80,6 +85,14 @@ me {
     last_name
     email
     profile_picture(48)
+    icon match {
+        SVGIcon {
+
+        }
+        Emoji {
+
+        }
+    }
 }
 
 let json = {
@@ -94,6 +107,15 @@ let json = {
     }
 }
 ```
+
+keywords = [
+    as
+    true,
+    false,
+    None
+    Some
+    match
+]
 
 ```ts
 interface Resolvers {

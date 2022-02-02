@@ -7,3 +7,7 @@ edition = "2021"
 
 [dependencies]
 input-cursor = { path = "../input-cursor" }
+serde = { version = "1.0.117", features = ["derive"] }
+rmp-serde = "0.15.5"
+byte = "0.2.6"
+uuid = { version = "0.8", features = ["serde", "v4"] }

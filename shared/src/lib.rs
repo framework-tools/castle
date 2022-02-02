@@ -1,13 +1,24 @@
 use std::fmt;
 
 use input_cursor::{Position, Span};
+use serde::{Deserialize, Serialize};
 
+extern crate rmp_serde as rmps;
+
+#[derive(Debug, Deserialize, Serialize)]
 pub enum CastleError {
-    Io(Box<str>),
+    IO(Box<str>),
     AbruptEOF,
     Lexer(Box<str>, Position),
     Parser(Box<str>, Span),
 }
+
+impl From<std::io::Error> for CastleError {
+    fn from(err: std::io::Error) -> Self {
+        Self::IO(err.to_string().into())
+    }
+}
+
 
 impl CastleError {
     pub fn lex<Msg, Pos>(msg: Msg, pos: Pos) -> Self
@@ -30,7 +41,7 @@ impl CastleError {
 impl fmt::Display for CastleError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Io(msg) => write!(f, "IO error: {}", msg),
+            Self::IO(msg) => write!(f, "IO error: {}", msg),
             Self::AbruptEOF => write!(f, "Unexpected EOF"),
             Self::Lexer(msg, pos) => write!(f, "Lexer error: {} at {}", msg, pos),
             Self::Parser(msg, span) => write!(f, "Parser error: {} at {}", msg, span),
@@ -45,7 +56,7 @@ trait ExtendedErrorDisplay {
 impl ExtendedErrorDisplay for CastleError {
     fn extended_error(&self, src: &str) -> String {
         match self {
-            Self::Io(msg) => format!("IO error: {}", msg),
+            Self::IO(msg) => format!("IO error: {}", msg),
             Self::AbruptEOF => format!("Unexpected EOF"),
             Self::Lexer(msg, pos) => pretty_print_lexer_error(msg, pos, src),
             Self::Parser(msg, span) => pretty_print_parser_error(msg, span, src),
