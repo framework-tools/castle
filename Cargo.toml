@@ -2,7 +2,7 @@
 
 members = [
     "castle",
-    "input-stream",
+    "input-cursor",
     "query-parser",
     "schema-parser",
 ]
