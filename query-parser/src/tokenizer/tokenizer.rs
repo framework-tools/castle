@@ -1,7 +1,7 @@
 
 use std::{io::Read, collections::VecDeque};
 
-use input_cursor::{Cursor};
+use input_cursor::{Cursor, Position};
 use shared::CastleError;
 
 use crate::{token::{Token, token::{TokenKind, Punctuator, Numeric}}, ast::syntax_definitions::{expressions::{Expression, PrimitiveValue}, keyword::Keyword}, tokenizer::{parse_identifier::parse_identifier, parse_newline::parse_newline, parse_string::parse_string}};
@@ -236,7 +236,8 @@ where
     }
 }
 
-pub fn get_character_with_peek(cursor, start) -> Result<char, CastleError> {
+pub fn get_character_with_peek<R>(cursor: &mut Cursor<R>, start: Position) -> Result<char, CastleError> 
+where R: Read {
     let c = cursor.peek_char()?.ok_or(CastleError::AbruptEOF)?;
     let ch = char::try_from(c).ok().ok_or(CastleError::lex("invalid character",cursor.pos()))?;
     return Ok(ch)

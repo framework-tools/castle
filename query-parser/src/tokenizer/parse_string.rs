@@ -5,17 +5,14 @@ use shared::CastleError;
 
 use crate::token::{Token, token::TokenKind};
 
+use super::tokenizer::get_character_with_peek;
+
 pub fn parse_string<R>( cursor: &mut Cursor<R>, start: Position ) -> Result<Token, CastleError> 
 where R: Read {
     cursor.next_char(); // skip the first quote
     let mut string = String::new();
     loop {
-        let c = cursor.next_char()?.ok_or(CastleError::AbruptEOF)?;
-        let ch = char::try_from(c).ok().ok_or(CastleError::lex(
-            "invalid character",
-            cursor.pos(),
-        ))?;
-
+        let ch = get_character_with_peek(cursor, start)?;
         // handle escape character \ (backslash)
         if ch == '\\' { string = handle_escape_characters(cursor, string)?; } 
         else if ch == '"' { break; }
@@ -38,12 +35,7 @@ where R: Read {
     // \/     Forward slash
     // \"     Double quote
 
-    let c = cursor.next_char()?.ok_or(CastleError::AbruptEOF)?;
-
-    let ch = char::try_from(c).ok().ok_or(CastleError::lex(
-        "invalid character",
-        cursor.pos(),
-    ))?;
+    let ch = get_character_with_peek(cursor, cursor.pos())?;
     let x = 'b';
     match ch {
         'b' => string.push('\u{0008}'),
@@ -77,7 +69,7 @@ where R: Read {
         '"' => string.push('"'),
         _ => {
             return Err(CastleError::lex(
-                format!("Invalid escape sequence: {}", c),
+                format!("Invalid escape sequence: {}", ch),
                 cursor.pos(),
             ));
         }

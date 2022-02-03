@@ -5,6 +5,8 @@ use shared::CastleError;
 
 use crate::token::{Token, token::{TokenKind, Numeric}};
 
+use super::tokenizer::get_character_with_peek;
+
 
 
 /// peek next character
@@ -17,14 +19,14 @@ pub fn parse_number<R>(cursor: &mut Cursor<R>, start: Position) -> Result<Token,
 where R: Read {
     let num_as_string = String::new();
     loop {
-        let ch = get_character_with_peek(cursor, start);
+        let ch = get_character_with_peek(cursor, start)?;
         if ch.is_digit(10) || ch == '.' || ch == '-' {
             num_as_string.push(ch);
             cursor.next_char()?;
         } 
         else { break; }
     }
-    let number =  convert_num_as_string_to_token(num_as_string, start, cursor);
+    let number =  convert_num_as_string_to_token(num_as_string, start, &mut cursor);
     return number
 }
 
