@@ -4,7 +4,7 @@ use shared::CastleError;
 
 use crate::{ast::syntax_definitions::want::Want, tokenizer::{tokenizer::Tokenizer}, token::{token::{TokenKind, Punctuator}, Token}};
 
-use super::{create_object_projection::create_object_projection};
+use super::parse_object_projection::parse_object_projection;
 
 
 /// Parses a query into a set of wants.
@@ -28,24 +28,22 @@ pub fn parse_query(query: &str) -> Result<HashSet<Want>, CastleError> {
 ///     - if empty break
 /// - return hashset of wants
 fn parse_tokens<R>(tokenizer: &mut Tokenizer<R>) -> Result<HashSet<Want>, CastleError> 
-where R: Read 
-{
+where R: Read {
     let mut wants = HashSet::new();
     loop {
         let token = tokenizer.next(true)?;
-        println!("Token: {:#?}", &token);
         match token {
-            Some(token) => { wants.insert(match_current_token_to_want(token, tokenizer)?); },
+            Some(token) => { 
+                let want = match_token_to_want(token, tokenizer)?;
+                wants.insert(want);
+            },
             None => break
         }
     };
     return Ok(wants)
 }
 
-fn match_current_token_to_want<R>(
-    token: Token, 
-    tokenizer: &mut Tokenizer<R>,
-) -> Result<Want, CastleError>
+fn match_token_to_want<R>(token: Token, tokenizer: &mut Tokenizer<R>) -> Result<Want, CastleError>
 where R: Read{
     return match token.kind {
         TokenKind::Identifier(identifier) => Ok(match_peeked_token_to_want(identifier, tokenizer)?),
@@ -53,19 +51,15 @@ where R: Read{
     }
 }
 
-fn match_peeked_token_to_want<R> (
-    identifier: Box<str>,  
-    tokenizer: &mut Tokenizer<R>,
-) -> Result<Want, CastleError>
+fn match_peeked_token_to_want<R> (identifier: Box<str>, tokenizer: &mut Tokenizer<R>) -> Result<Want, CastleError>
 where R: Read {
     let next_token = tokenizer.peek(true)?;
-    println!("next Token: {:#?}" , &next_token);
     return match next_token {
         Some(next_token) => {
             match &next_token.kind {
                 TokenKind::Punctuator(Punctuator::OpenBlock) => {
                     tokenizer.next(true)?;
-                    create_object_projection(identifier, tokenizer)
+                    parse_object_projection(identifier, tokenizer)
                 },
                 _ => Ok(Want::SingleField(identifier.clone()))
             }

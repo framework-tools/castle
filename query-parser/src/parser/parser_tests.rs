@@ -7,8 +7,6 @@ use crate::parser::parse_query::parse_query;
 use crate::ast::syntax_definitions::want::Want;
 use crate::ast::syntax_definitions::want::ObjectProjection;
 
-
-
 #[cfg(test)]
 #[test]
 fn can_parse_empty_query() {
@@ -36,9 +34,31 @@ fn can_parse_single_field() -> Result<(), CastleError> {
 fn can_parse_two_fields() -> Result<(), CastleError> {
     let query = "first_name last_name";
 
-    let mut fields = Vec::new();
-    fields.push(Box::new(Want::SingleField("first_name".into())));
-    fields.push(Box::new(Want::SingleField("last_name".into())));
+    let actual = parse_query(query);
+
+    let want1 = Box::new(Want::SingleField("first_name".into()));
+    let want2 = Box::new(Want::SingleField("last_name".into()));
+
+    let mut expected: HashSet<Want> = HashSet::new();
+    expected.insert(*want1.clone());
+    expected.insert(*want2.clone());
+
+    match actual {
+        Ok(actual) => {
+            assert_eq!(expected.get(&*want1), actual.get(&*want1));
+            assert_eq!(expected.get(&*want2), actual.get(&*want2));
+            return Ok(());
+        },
+        Err(e) => return Err(e)
+    };
+}
+
+#[test]
+fn can_parse_two_fields_different_lines() -> Result<(), CastleError> {
+    let query = "
+    first_name 
+    last_name
+    ";
 
     let actual = parse_query(query);
 
@@ -60,6 +80,40 @@ fn can_parse_two_fields() -> Result<(), CastleError> {
 }
 
 #[test]
+fn can_parse_four_fields_different_lines() -> Result<(), CastleError> {
+    let query = "
+    first_name 
+    last_name
+    time
+    email
+    ";
+
+    let actual = parse_query(query);
+
+    let want1 = Box::new(Want::SingleField("first_name".into()));
+    let want2 = Box::new(Want::SingleField("last_name".into()));
+    let want3 = Box::new(Want::SingleField("time".into()));
+    let want4 = Box::new(Want::SingleField("email".into()));
+
+    let mut expected: HashSet<Want> = HashSet::new();
+    expected.insert(*want1.clone());
+    expected.insert(*want2.clone());
+    expected.insert(*want3.clone());
+    expected.insert(*want4.clone());
+
+    match actual {
+        Ok(actual) => {
+            assert_eq!(expected.get(&*want1), actual.get(&*want1));
+            assert_eq!(expected.get(&*want2), actual.get(&*want2));
+            assert_eq!(expected.get(&*want3), actual.get(&*want3));
+            assert_eq!(expected.get(&*want4), actual.get(&*want4));
+            return Ok(());
+        },
+        Err(e) => return Err(e)
+    };
+}
+
+#[test]
 fn can_parse_object_projection_with_single_field() -> Result<(), CastleError> {
     let query = "me {
         first_name
@@ -74,14 +128,10 @@ fn can_parse_object_projection_with_single_field() -> Result<(), CastleError> {
     });
     expected.insert(want.clone());
     
-    let actual = parse_query(query);
-    match actual {
-        Ok(actual) => {
-            assert_eq!(expected.get(&want), actual.get(&want));
-            return Ok(())
-        },
-        Err(e) => return Err(e)
-    };
+    let actual = parse_query(query)?;
+
+    assert_eq!(expected.get(&want), actual.get(&want));
+    return Ok(())
 }
 
 #[test]
@@ -94,6 +144,29 @@ fn can_parse_complex_object_projection_with_two_fields() {
         let mut fields = Vec::new();
         fields.push(Box::new(Want::SingleField("first_name".into())));
         fields.push(Box::new(Want::SingleField("last_name".into())));
+    
+        let mut expected: HashSet<Want> = HashSet::new();
+        expected.insert(Want::Projection(ObjectProjection {
+            identifier: Some("me".into()),
+            fields
+        }));
+
+        let actual = parse_query(query).unwrap();
+        assert_eq!(expected, actual);
+}
+
+#[test]
+fn can_parse_complex_object_projection_with_three_fields() {
+    let query = "me {
+        first_name,
+        last_name,
+        role
+    }";
+    
+        let mut fields = Vec::new();
+        fields.push(Box::new(Want::SingleField("first_name".into())));
+        fields.push(Box::new(Want::SingleField("last_name".into())));
+        fields.push(Box::new(Want::SingleField("role".into())));
     
         let mut expected: HashSet<Want> = HashSet::new();
         expected.insert(Want::Projection(ObjectProjection {
