@@ -1,14 +1,14 @@
 use std::collections::HashSet;
 
-#[derive(Debug, Hash, Eq)]
+#[derive(Debug, PartialEq, Eq, Hash)]
 pub enum Want {
     SingleField(Box<str>),
     Projection(ObjectProjection)
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Hash)]
 pub struct ObjectProjection {
     identifier: Option<String>,
-    fields: HashSet<Want>
+    fields: Vec<Want>
 }
 

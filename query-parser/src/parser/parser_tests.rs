@@ -13,7 +13,11 @@ fn can_parse_empty_query() {
     let query = "";
     let expected = HashSet::new();
     let actual = parse_query(query).unwrap();
-    assert_eq!(expected, actual);
+    loop {
+        for key in expected {
+            let key_is_present = actual.contains(key);
+        }
+    }
 }
 
 #[test]
