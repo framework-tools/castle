@@ -22,6 +22,7 @@ pub fn parse_query(query: &str) -> Result<HashSet<Want>, CastleError> {
 /// takes in tokens and returns a hashset of wants (parsed query)
 /// - create a empty hashset of wants
 /// - loop through tokens
+///     - if token is identifier without object before semi-colon
 ///     - if empty break
 /// - return hashset of wants
 fn parse_tokens<R>(tokenizer: &mut Tokenizer<R>) -> Result<HashSet<Want>, CastleError> 
