@@ -24,8 +24,8 @@ fn can_parse_empty_query() {
 fn can_parse_single_field() {
     let query = "first_name";
     
-        let mut fields = HashSet::new();
-        fields.insert("first_name".into());
+        let mut fields = Vec::new();
+        fields.push(Box::new(Want::SingleField("first_name".into())));
     
         let mut expected: HashSet<Want> = HashSet::new();
         expected.insert(Want::SingleField(Box::<str>::from("first_name")));
@@ -38,10 +38,9 @@ fn can_parse_single_field() {
 fn can_parse_two_fields() {
     let query = "first_name, last_name";
     
-        let mut fields = HashSet::new();
-        fields.insert("first_name".into());
-        fields.insert("last_name".into());
-
+        let mut fields = Vec::new();
+        fields.push(Box::new(Want::SingleField("first_name".into())));
+        fields.push(Box::new(Want::SingleField("last_name".into())));
     
         let mut expected: HashSet<Want> = HashSet::new();
         expected.insert(Want::SingleField(Box::<str>::from("first_name")));
@@ -58,12 +57,12 @@ fn can_parse_complex_object_projection_with_single_field() {
         first_name
     }";
     
-        let mut fields = HashSet::new();
-        fields.insert("first_name".into());
+        let mut fields = Vec::new();
+        fields.push(Box::new(Want::SingleField("first_name".into())));
     
         let mut expected: HashSet<Want> = HashSet::new();
-        expected.insert(Want::ObjectProjection(ObjectProjection {
-            identifier: "me".into(),
+        expected.insert(Want::Projection(ObjectProjection {
+            identifier: Some("me".into()),
             fields
         }));
         let actual = parse_query(query).unwrap();
@@ -77,14 +76,13 @@ fn can_parse_complex_object_projection_with_two_fields() {
         last_name
     }";
     
-        let mut fields = HashSet::new();
-        fields.insert("first_name".into());
-        fields.insert("last_name".into());
-
+        let mut fields = Vec::new();
+        fields.push(Box::new(Want::SingleField("first_name".into())));
+        fields.push(Box::new(Want::SingleField("last_name".into())));
     
         let mut expected: HashSet<Want> = HashSet::new();
-        expected.insert(Want::ObjectProjection(ObjectProjection {
-            identifier: "me".into(),
+        expected.insert(Want::Projection(ObjectProjection {
+            identifier: Some("me".into()),
             fields
         }));
 
@@ -109,16 +107,16 @@ fn can_parse_complex_object_projection() {
     }
 }";
 
-    let mut fields = HashSet::new();
-    fields.insert("first_name".into());
-    fields.insert("last_name".into());
-    fields.insert("email".into());
-    fields.insert("profile_picture".into());
-    fields.insert("icon".into());
+    let mut fields = Vec::new();
+    fields.push(Box::new(Want::SingleField("first_name".into())));
+    fields.push(Box::new(Want::SingleField("last_name".into())));
+    fields.push(Box::new(Want::SingleField("email".into())));
+    fields.push(Box::new(Want::SingleField("profile_picture".into())));
+    fields.push(Box::new(Want::SingleField("icon".into())));
 
     let mut expected: HashSet<Want> = HashSet::new();
-    expected.insert(Want::ObjectProjection(ObjectProjection {
-        identifier: "me".into(),
+    expected.insert(Want::Projection(ObjectProjection {
+        identifier: Some("me".into()),
         fields
     }));
     let actual = parse_query(query).unwrap();
@@ -159,15 +157,15 @@ fn can_parse_two_objects_and_two_fields() {
         device";
     
         let mut fields = Vec::new();
-        fields.push("first_name".into());
+        fields.push(Box::new(Want::SingleField("first_name".into())));
 
-        let mut expected: Vec<Want> = Vec::new();
-        expected.push(Want::ObjectProjection(ObjectProjection {
-            identifier: "me".into(),
+        let mut expected: HashSet<Want> = HashSet::new();
+        expected.insert(Want::Projection(ObjectProjection {
+            identifier: Some("me".into()),
             fields
         }));
-        expected.insert(Want::ObjectProjection(ObjectProjection {
-            identifier: "user".into(),
+        expected.insert(Want::Projection(ObjectProjection {
+            identifier: Some("user".into()),
             fields
         }));
         expected.insert(Want::SingleField(Box::<str>::from("location")));
