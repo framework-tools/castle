@@ -4,7 +4,7 @@ use std::{io::Read, collections::VecDeque};
 use input_cursor::{Cursor, Position};
 use shared::CastleError;
 
-use crate::{token::{Token, token::{TokenKind, Punctuator, Numeric}}, ast::syntax_definitions::{expressions::{Expression, PrimitiveValue}, keyword::Keyword}, tokenizer::{parse_newline::parse_newline, parse_string::parse_string}};
+use crate::{token::{Token, token::{TokenKind, Punctuator, Numeric}}, ast::syntax_definitions::{expressions::{Expression, PrimitiveValue, F64}, keyword::Keyword}, tokenizer::{parse_newline::parse_newline, parse_string::parse_string}};
 
 use super::{parse_operator::parse_operator, parse_numbers::parse_number, parse_identifier_or_keyword::parse_identifier_or_keyword};
 pub struct Tokenizer<R> {
@@ -215,7 +215,7 @@ where
             TokenKind::StringLiteral(str) => PrimitiveValue::String(str),
             TokenKind::NumericLiteral(numeric) => match numeric {
                 Numeric::Integer(i) => PrimitiveValue::Int(i),
-                Numeric::Float(f) => PrimitiveValue::Float(f),
+                Numeric::Float(f) => PrimitiveValue::Float(F64::new(f)),
                 Numeric::UnsignedInteger(u) => PrimitiveValue::UInt(u),
             },
             _ => {

@@ -15,7 +15,8 @@ where R: Read{
         match token {
             Some(token) => match &token.kind {
                 TokenKind::Identifier(identifier) => {
-                    let field = Want::new_single_field(identifier.clone());
+                    let arguments = None; //need to implement
+                    let field = Want::new_single_field(identifier.clone(), arguments);
                     fields.push(Box::new(field));
                 },
                 TokenKind::Punctuator(Punctuator::Comma) => {},

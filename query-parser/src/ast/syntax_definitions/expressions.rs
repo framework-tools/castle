@@ -9,13 +9,31 @@ pub enum Expression {
 }
 
 
-#[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Clone, Deserialize, Serialize, Hash, Eq)]
 pub enum PrimitiveValue {
     String(Box<str>),
-    Float(f64),
+    Float(F64),
     Int(i64),
     UInt(u64),
     Boolean(bool),
+}
+
+#[derive(Debug, PartialEq, Clone, Deserialize, Serialize, Hash, Eq)]
+pub struct F64 {
+    pub integer_part: i64,
+    pub decimal_part: i64,
+}
+
+impl F64 {
+    pub fn new(f: f64) -> Self {
+        let integer_part = f.floor() as i64;
+        let decimal_part = ((f - integer_part as f64) * 10_f64.powi(10)) as i64;
+
+        return Self {
+            integer_part,
+            decimal_part,
+        }
+    }
 }
 
 #[derive(Debug, PartialEq)]

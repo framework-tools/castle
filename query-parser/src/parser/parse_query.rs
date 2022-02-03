@@ -54,6 +54,7 @@ where R: Read{
 fn match_peeked_token_to_want<R> (identifier: Box<str>, tokenizer: &mut Tokenizer<R>) -> Result<Want, CastleError>
 where R: Read {
     let next_token = tokenizer.peek(true)?;
+    let arguments = None; //need to implement
     return match next_token {
         Some(next_token) => {
             match &next_token.kind {
@@ -61,10 +62,10 @@ where R: Read {
                     tokenizer.next(true)?;
                     parse_object_projection(identifier, tokenizer)
                 },
-                _ => Ok(Want::SingleField(identifier.clone()))
+                _ => Ok(Want::new_single_field(identifier, arguments))
             }
         },
-        None => Ok(Want::SingleField(identifier.clone()))
+        None => Ok(Want::new_single_field(identifier, arguments))
     }
 }
 
