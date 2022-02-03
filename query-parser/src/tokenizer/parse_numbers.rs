@@ -17,7 +17,7 @@ use super::tokenizer::get_character_with_peek;
 /// create token and return
 pub fn parse_number<R>(cursor: &mut Cursor<R>, start: Position) -> Result<Token, CastleError> 
 where R: Read {
-    let num_as_string = String::new();
+    let mut num_as_string = String::new();
     loop {
         let ch = get_character_with_peek(cursor, start)?;
         if ch.is_digit(10) || ch == '.' || ch == '-' {
@@ -26,7 +26,7 @@ where R: Read {
         } 
         else { break; }
     }
-    let number =  convert_num_as_string_to_token(num_as_string, start, &mut cursor);
+    let number =  convert_num_as_string_to_token(num_as_string, start, cursor);
     return number
 }
 

@@ -5,7 +5,11 @@ use shared::CastleError;
 use crate::{ast::syntax_definitions::want::Want, tokenizer::tokenizer::Tokenizer};
 
 
-
+/// Parses a query into a set of wants.
+/// - get bytes from query string
+/// - convert bytes into tokens
+/// - convert tokens into a hashset of wants
+/// - return hashset of wants(parsed query)
 pub fn parse_query(query: &str) -> Result<HashSet<Want>, CastleError> {
     let bytes = query.as_bytes();
     let mut tokenizer = Tokenizer::new(bytes);
@@ -15,13 +19,27 @@ pub fn parse_query(query: &str) -> Result<HashSet<Want>, CastleError> {
     Ok(statements)
 }
 
-
+/// takes in tokens and returns a hashset of wants (parsed query)
+/// - create a empty hashset of wants
+/// - loop through tokens
+///     - if empty break
+/// - return hashset of wants
 fn parse_tokens<R>(tokenizer: &mut Tokenizer<R>) -> Result<HashSet<Want>, CastleError> 
 where R: Read 
 {
-    let mut wants = Vec::new();
-
-    Ok(wants)
+    let mut wants = HashSet::new();
+    loop {
+        let token = tokenizer.next(true)?;
+        match token {
+            Some(token) => {
+                
+            },
+            None => break
+        }
+        // let want = parse_token(tokenizer, token)?;
+        // wants.insert(want);
+    }
+    return Ok(wants)
 }
 
 fn check_end_of_file<R>(tokenizer: &mut Tokenizer<R>) -> Result<(), CastleError> 
