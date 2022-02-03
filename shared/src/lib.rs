@@ -11,6 +11,7 @@ pub enum CastleError {
     AbruptEOF,
     Lexer(Box<str>, Position),
     Parser(Box<str>, Span),
+    Unimplemented(Box<str>)
 }
 
 impl From<std::io::Error> for CastleError {
@@ -45,6 +46,7 @@ impl fmt::Display for CastleError {
             Self::AbruptEOF => write!(f, "Unexpected EOF"),
             Self::Lexer(msg, pos) => write!(f, "Lexer error: {} at {}", msg, pos),
             Self::Parser(msg, span) => write!(f, "Parser error: {} at {}", msg, span),
+            Self::Unimplemented(msg) => write!(f, "Unimplemented: {}", msg),
         }
     }
 }
@@ -60,6 +62,7 @@ impl ExtendedErrorDisplay for CastleError {
             Self::AbruptEOF => format!("Unexpected EOF"),
             Self::Lexer(msg, pos) => pretty_print_lexer_error(msg, pos, src),
             Self::Parser(msg, span) => pretty_print_parser_error(msg, span, src),
+            Self::Unimplemented(msg) => format!("Unimplemented: {}", msg),
         }
     }
 }

@@ -168,23 +168,19 @@ where
         Ok(())
     }
 
-    pub fn expect_keyword(
-        &mut self,
-        keyword: &Keyword,
-        skip_line_terminators: bool,
-    ) -> Result<(), CastleError> {
-        let keyword_token = self.next(skip_line_terminators)?.ok_or(CastleError::AbruptEOF)?;
-        if keyword_token.kind != TokenKind::Keyword(*keyword) {
-            return Err(CastleError::parse(
-                format!(
-                    "Expected keyword '{:?}', but got '{:?}'",
-                    keyword, keyword_token.kind
-                ),
-                keyword_token.span,
-            ));
-        }
-        Ok(())
-    }
+    // pub fn expect_keyword(&mut self, keyword: &Keyword, skip_line_terminators: bool,) -> Result<(), CastleError> {
+    //     let keyword_token = self.next(skip_line_terminators)?.ok_or(CastleError::AbruptEOF)?;
+    //     if keyword_token.kind != TokenKind::Keyword(keyword) {
+    //         return Err(CastleError::parse(
+    //             format!(
+    //                 "Expected keyword '{:?}', but got '{:?}'",
+    //                 keyword, keyword_token.kind
+    //             ),
+    //             keyword_token.span,
+    //         ));
+    //     }
+    //     Ok(())
+    // }
 
     pub fn peek_keyword(&mut self, skip_line_terminators: bool) -> Result<Option<&Keyword>, CastleError>
     where

@@ -13,6 +13,6 @@ where R: Read {
     
     let ch = get_character_with_peek(cursor, start)?;
 
-    return Ok(Token::operator_as_str_to_token(&ch, start, cursor.pos()))
+    return Ok(Token::operator_as_str_to_token(&ch, start, cursor.pos())?)
 }
 

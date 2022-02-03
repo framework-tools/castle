@@ -8,16 +8,12 @@ use crate::{parser::parse_query::parse_query, ast::syntax_definitions::want::{Wa
 #[cfg(test)]
 #[test]
 fn can_parse_empty_query() {
-    use std::collections::HashSet;
 
     let query = "";
     let expected = HashSet::new();
     let actual = parse_query(query).unwrap();
-    loop {
-        for key in expected {
-            let key_is_present = actual.contains(key);
-        }
-    }
+    assert_eq!(expected, actual);
+
 }
 
 #[test]
@@ -147,8 +143,9 @@ fn can_parse_object_and_single_field() {
 
 #[test]
 fn can_parse_two_objects_and_two_fields() {
-    let query = "me {
-        first_name
+    let query = "
+        me {
+            first_name
         }
         user {
             username
@@ -164,6 +161,10 @@ fn can_parse_two_objects_and_two_fields() {
             identifier: Some("me".into()),
             fields
         }));
+
+        let mut fields = Vec::new();
+        fields.push(Box::new(Want::SingleField("username".into())));
+
         expected.insert(Want::Projection(ObjectProjection {
             identifier: Some("user".into()),
             fields

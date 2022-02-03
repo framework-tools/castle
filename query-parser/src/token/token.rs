@@ -1,6 +1,7 @@
 use std::{fmt::{Formatter, self, Display}, io::Read};
 
 use input_cursor::{Span, Cursor, Position};
+use shared::CastleError;
 
 use crate::ast::syntax_definitions::keyword::Keyword;
 
@@ -39,14 +40,15 @@ impl Token {
         }
     }
 
-    pub fn operator_as_str_to_token(ch: &char, start:Position, end: Position) -> Self{
+    pub fn operator_as_str_to_token(ch: &char, start:Position, end: Position) -> Result<Self, CastleError>{
         match ch {
-            '{' => Token::new(TokenKind::Punctuator(Punctuator::OpenBlock), Span::new(start, end)),
-            '}' => Token::new(TokenKind::Punctuator(Punctuator::CloseBlock), Span::new(start, end)),
-            ':' => Token::new(TokenKind::Punctuator(Punctuator::Colon), Span::new(start, end)),
-            ',' => Token::new(TokenKind::Punctuator(Punctuator::Comma), Span::new(start, end)),
-            '(' => Token::new(TokenKind::Punctuator(Punctuator::OpenParen), Span::new(start, end)),
-            ')' => Token::new(TokenKind::Punctuator(Punctuator::CloseParen), Span::new(start, end))
+            '{' => Ok(Token::new(TokenKind::Punctuator(Punctuator::OpenBlock), Span::new(start, end))),
+            '}' => Ok(Token::new(TokenKind::Punctuator(Punctuator::CloseBlock), Span::new(start, end))),
+            ':' => Ok(Token::new(TokenKind::Punctuator(Punctuator::Colon), Span::new(start, end))),
+            ',' => Ok(Token::new(TokenKind::Punctuator(Punctuator::Comma), Span::new(start, end))),
+            '(' => Ok(Token::new(TokenKind::Punctuator(Punctuator::OpenParen), Span::new(start, end))),
+            ')' => Ok(Token::new(TokenKind::Punctuator(Punctuator::CloseParen), Span::new(start, end))),
+            _ => Err(CastleError::Unimplemented("Unimplemented Operator".into()))
         }
     }
 
