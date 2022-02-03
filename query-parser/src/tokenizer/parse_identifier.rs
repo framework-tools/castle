@@ -6,10 +6,8 @@ use shared::CastleError;
 use crate::{token::{Token, token::TokenKind}, ast::syntax_definitions::keyword::Keyword};
 
 
-pub fn parse_identifier<R>(
-    cursor: &mut Cursor<R>,
-    start: Position,
-) -> Result<Token, CastleError> where R: Read {
+pub fn parse_identifier<R>(cursor: &mut Cursor<R>, start: Position) -> Result<Token, CastleError> 
+where R: Read {
     let mut identifier_name = get_identifier_from_chars(cursor)?;
 
     let keyword = Keyword::from(&identifier_name[..]);
