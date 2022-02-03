@@ -2,7 +2,7 @@ use std::{io::Read, collections::HashSet};
 
 use shared::CastleError;
 
-use crate::{ast::syntax_definitions::want::Want, tokenizer::{tokenizer::Tokenizer}, token::{token::{TokenKind, Punctuator}, Token, self}};
+use crate::{ast::syntax_definitions::want::Want, tokenizer::{tokenizer::Tokenizer}, token::{token::{TokenKind, Punctuator}, Token}};
 
 use super::{create_object_projection::create_object_projection};
 

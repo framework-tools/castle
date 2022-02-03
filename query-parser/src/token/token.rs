@@ -1,6 +1,6 @@
-use std::{fmt::{Formatter, self, Display}, io::Read};
+use std::{fmt::{Formatter, self, Display}};
 
-use input_cursor::{Span, Cursor, Position};
+use input_cursor::{Span, Position};
 use shared::CastleError;
 
 use crate::ast::syntax_definitions::keyword::Keyword;

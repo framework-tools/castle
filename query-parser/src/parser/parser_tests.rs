@@ -3,14 +3,15 @@ use std::collections::HashSet;
 
 use shared::CastleError;
 
-use crate::{parser::parse_query::parse_query, ast::syntax_definitions::want::{Want, ObjectProjection}};
+use crate::parser::parse_query::parse_query; 
+use crate::ast::syntax_definitions::want::Want;
+use crate::ast::syntax_definitions::want::ObjectProjection;
 
 
 
 #[cfg(test)]
 #[test]
 fn can_parse_empty_query() {
-
     let query = "";
     let expected = HashSet::new();
     let actual = parse_query(query).unwrap();

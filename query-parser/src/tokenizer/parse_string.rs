@@ -9,7 +9,7 @@ use super::tokenizer::get_character_with_peek;
 
 pub fn parse_string<R>( cursor: &mut Cursor<R>, start: Position ) -> Result<Token, CastleError> 
 where R: Read {
-    cursor.next_char(); // skip the first quote
+    cursor.next_char()?; // skip the first quote
     let mut string = String::new();
     loop {
         let ch = get_character_with_peek(cursor, start)?;
@@ -36,7 +36,6 @@ where R: Read {
     // \"     Double quote
     let mut string = string;
     let ch = get_character_with_peek(cursor, cursor.pos())?;
-    let x = 'b';
     match ch {
         'b' => string.push('\u{0008}'),
         'f' => string.push('\u{000C}'),

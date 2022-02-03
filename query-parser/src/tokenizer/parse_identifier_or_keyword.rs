@@ -7,7 +7,7 @@ use crate::{token::{Token, token::TokenKind}, ast::syntax_definitions::keyword::
 
 pub fn parse_identifier_or_keyword<R>(cursor: &mut Cursor<R>, start: Position) -> Result<Token, CastleError> 
 where R: Read {
-    let mut word = get_word_from_chars(cursor)?;
+    let word = get_word_from_chars(cursor)?;
     let option_keyword = Keyword::from_str_to_option_keyword(&word[..]);
     return match option_keyword {
         Some(keyword) => Ok(Token::new(TokenKind::Keyword(keyword), Span::new(start, cursor.pos()))),

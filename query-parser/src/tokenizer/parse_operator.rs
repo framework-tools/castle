@@ -1,9 +1,9 @@
 use std::io::Read;
 
-use input_cursor::{Cursor, Position, Span};
+use input_cursor::{Cursor, Position};
 use shared::CastleError;
 
-use crate::token::{Token, token::{TokenKind, Punctuator}};
+use crate::token::{Token};
 
 use super::tokenizer::get_character_with_peek;
 

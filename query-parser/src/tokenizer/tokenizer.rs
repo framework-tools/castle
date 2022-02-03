@@ -70,10 +70,6 @@ where
             } else {
                 return Ok(None);
             }
-            // white_space_index += 1;
-            // if white_space_index == 30 {
-            //     break;
-            // }
         };
         if let Ok(c) = char::try_from(next_ch) {
             let token = match c {
