@@ -2,7 +2,7 @@ use std::{io::Read, collections::HashSet};
 
 use shared::CastleError;
 
-use crate::{ast::syntax_definitions::want::Want, tokenizer::{tokenizer::Tokenizer}, token::{token::{TokenKind, Punctuator}, Token}};
+use crate::{ast::syntax_definitions::want::Want, tokenizer::{tokenizer::Tokenizer}, token::{token::{TokenKind, Punctuator}, Token, self}};
 
 use super::{create_object_projection::create_object_projection};
 
@@ -30,26 +30,48 @@ pub fn parse_query(query: &str) -> Result<HashSet<Want>, CastleError> {
 fn parse_tokens<R>(tokenizer: &mut Tokenizer<R>) -> Result<HashSet<Want>, CastleError> 
 where R: Read 
 {
-    let mut err: Option<Result<HashSet<Want>, CastleError>> = None;
     let mut wants = HashSet::new();
     loop {
         let token = tokenizer.next(true)?;
         println!("Token: {:#?}", &token);
         match token {
-            Some(token) => {
-                match token.kind {
-                    TokenKind::Identifier(identifier) => {wants.insert(match_peeked_token_to_want(identifier, tokenizer)?);}
-                    _ => {
-                        err = Some(Err(CastleError::Parser( format!("unexpected token, expected identifier, close block or comma, got {:?}", token.kind).into(), token.span)));
-                        break;
-                    }
-                };
-            },
+            Some(token) => { wants.insert(match_current_token_to_want(token, tokenizer)?); },
             None => break
         }
     };
-    
-    return get_parse_result(wants, err)
+    return Ok(wants)
+}
+
+fn match_current_token_to_want<R>(
+    token: Token, 
+    tokenizer: &mut Tokenizer<R>,
+) -> Result<Want, CastleError>
+where R: Read{
+    return match token.kind {
+        TokenKind::Identifier(identifier) => Ok(match_peeked_token_to_want(identifier, tokenizer)?),
+        _ => Err(CastleError::Parser( format!("unexpected token, expected identifier, close block or comma, got {:?}", token.kind).into(), token.span))
+    }
+}
+
+fn match_peeked_token_to_want<R> (
+    identifier: Box<str>,  
+    tokenizer: &mut Tokenizer<R>,
+) -> Result<Want, CastleError>
+where R: Read {
+    let next_token = tokenizer.peek(true)?;
+    println!("next Token: {:#?}" , &next_token);
+    return match next_token {
+        Some(next_token) => {
+            match &next_token.kind {
+                TokenKind::Punctuator(Punctuator::OpenBlock) => {
+                    tokenizer.next(true)?;
+                    create_object_projection(identifier, tokenizer)
+                },
+                _ => Ok(Want::SingleField(identifier.clone()))
+            }
+        },
+        None => Ok(Want::SingleField(identifier.clone()))
+    }
 }
 
 fn check_end_of_file<R>(tokenizer: &mut Tokenizer<R>) -> Result<(), CastleError> 
@@ -62,31 +84,4 @@ where R: Read {
         ));
     }
     else{ return Ok(()) }
-}
-
-fn match_peeked_token_to_want<R> (
-    identifier: Box<str>,  
-    tokenizer: &mut Tokenizer<R>,
-) -> Result<Want, CastleError>
-where R: Read {
-    let next_token = tokenizer.peek(true)?;
-    return match next_token {
-        Some(next_token) => {
-            match &next_token.kind {
-                TokenKind::Punctuator(Punctuator::OpenBlock) => {
-                tokenizer.next(true)?;
-                create_object_projection(identifier, tokenizer)
-            },
-            _ => Ok(Want::SingleField(identifier.clone()))
-            }
-        },
-        None => { 
-            Ok(Want::SingleField(identifier.clone()))
-        }
-    }
-}
-
-fn get_parse_result(wants: HashSet<Want>, err:Option<Result<HashSet<Want>, CastleError>>) -> Result<HashSet<Want>, CastleError> {
-    if let Some(err) = err {return err} 
-    else {return Ok(wants)}
 }

@@ -32,9 +32,7 @@ impl<R> Cursor<R> {
 }
 
 impl<R> Cursor<R>
-where
-    R: Read,
-{
+where R: Read {
     /// Creates a new Lexer cursor.
     #[inline]
     pub fn new(inner: R) -> Self {
@@ -141,7 +139,7 @@ where
             // '\n' | '\u{2028}' | '\u{2029}'
             Some(0xA) | Some(0x2028) | Some(0x2029) => self.next_line(),
             Some(_) => self.next_column(),
-            _ => {}
+            None => self.next_column()
         }
 
         Ok(ch)

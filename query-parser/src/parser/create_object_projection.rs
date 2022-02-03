@@ -5,11 +5,13 @@ use shared::CastleError;
 
 pub fn create_object_projection<R>(identifier: Box<str>, tokenizer: &mut Tokenizer<R>) -> Result<Want, CastleError> 
 where R: Read{
+    
     let identifier = Some(identifier);
     let mut fields = Vec::new();
     let mut err: Option<Result<Want, CastleError>> = None;
+    
     tokenizer.next(true)?; // skip open block
-
+    println!("yes");
     loop {
         let token = tokenizer.peek(true)?;
         println!("Token inside object projection: {:#?}", &token);

@@ -26,9 +26,7 @@ where
     }
 
     pub fn new(reader: R) -> Self
-    where
-        R: Read,
-    {
+    where R: Read{
         Self {
             cursor: Cursor::new(reader),
             peeked: VecDeque::new(),
@@ -41,7 +39,7 @@ where
     {
         let token = match self.peeked.pop_front() {
             Some(token) => Some(token),
-            None => self.advance()?,
+            None => {self.advance()?}
         };
 
         match token {
@@ -64,14 +62,18 @@ where
         let (start, next_ch) = loop {
             let start = self.cursor.pos();
             if let Some(next_ch) = self.cursor.peek_char()? {
-                // Ignore whitespace
+                // Ignore space
                 if !Self::is_whitespace(next_ch) {
-                    break (start, next_ch);
+                    break (start, next_ch)
                 }
                 self.cursor.next_char()?; // consume whitespace
             } else {
                 return Ok(None);
             }
+            // white_space_index += 1;
+            // if white_space_index == 30 {
+            //     break;
+            // }
         };
         if let Ok(c) = char::try_from(next_ch) {
             let token = match c {
