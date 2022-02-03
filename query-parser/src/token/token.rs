@@ -1,6 +1,6 @@
-use std::fmt::{Formatter, self, Display};
+use std::{fmt::{Formatter, self, Display}, io::Read};
 
-use input_cursor::Span;
+use input_cursor::{Span, Cursor, Position};
 
 use crate::ast::syntax_definitions::keyword::Keyword;
 
@@ -10,7 +10,7 @@ pub struct Token {
     pub span: Span
 }
 
-#[derive(Debug, PartialEq,)]
+#[derive(Debug, PartialEq)]
 pub enum TokenKind {
     BooleanLiteral(bool),
     Identifier(Box<str>),
@@ -36,6 +36,17 @@ impl Token {
         Self {
             kind,
             span
+        }
+    }
+
+    pub fn operator_as_str_to_token(ch: &char, start:Position, end: Position) -> Self{
+        match ch {
+            '{' => Token::new(TokenKind::Punctuator(Punctuator::OpenBlock), Span::new(start, end)),
+            '}' => Token::new(TokenKind::Punctuator(Punctuator::CloseBlock), Span::new(start, end)),
+            ':' => Token::new(TokenKind::Punctuator(Punctuator::Colon), Span::new(start, end)),
+            ',' => Token::new(TokenKind::Punctuator(Punctuator::Comma), Span::new(start, end)),
+            '(' => Token::new(TokenKind::Punctuator(Punctuator::OpenParen), Span::new(start, end)),
+            ')' => Token::new(TokenKind::Punctuator(Punctuator::CloseParen), Span::new(start, end))
         }
     }
 
@@ -115,4 +126,17 @@ pub enum Punctuator {
     CloseParen, // )
     OpenBracket, // [
     CloseBracket, // ]
+}
+
+impl From<Keyword> for TokenKind {
+    fn from(keyword: Keyword) -> Self {
+        return match keyword {
+            Keyword::True => TokenKind::BooleanLiteral(true),
+            Keyword::False => TokenKind::BooleanLiteral(false),
+            Keyword::As => TokenKind::Keyword(Keyword::As),
+            Keyword::Some => TokenKind::Keyword(Keyword::Some),
+            Keyword::None => TokenKind::Keyword(Keyword::None),
+            Keyword::Match => TokenKind::Keyword(Keyword::Match),
+        }
+    }
 }

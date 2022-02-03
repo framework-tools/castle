@@ -3,7 +3,13 @@ use std::collections::HashSet;
 
 
 #[derive(Debug)]
-enum Want {
+pub enum Want {
     SingleField(Box<str>),
-    Projection(HashSet<Want>)
+    Projection(ObjectProjection)
+}
+
+#[derive(Debug)]
+pub struct ObjectProjection {
+    identifier: Option<String>,
+    fields: HashSet<Want>
 }

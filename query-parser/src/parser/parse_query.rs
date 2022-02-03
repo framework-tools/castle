@@ -1,7 +1,7 @@
 use std::{io::Read, collections::HashSet};
 
 use shared::CastleError;
-use crate::{ast::syntax_definitions::want::Statement, tokenizer::{tokenizer::Tokenizer, self}};
+use crate::{ tokenizer::{tokenizer::Tokenizer, self}, ast::syntax_definitions::want::Want};
 
 
 pub fn parse_query(query: &str) -> Result<HashSet<Want>, CastleError> {
@@ -13,7 +13,7 @@ pub fn parse_query(query: &str) -> Result<HashSet<Want>, CastleError> {
     let token = tokenizer.peek(false)?;
     if token.is_some() {
         return Err(CastleError::Parser(
-            format!("Expected EOF, found: {}", token.unwrap().kind()).into(),
+            format!("Expected EOF, found: {:?}", token.unwrap().kind()).into(),
             *token.unwrap().span(),
         ));
     }
