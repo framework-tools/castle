@@ -124,7 +124,7 @@ fn can_parse_complex_object_projection() {
     let actual = parse_query(query).unwrap();
     assert_eq!(expected, actual);
 }
-
+//working one
 #[test]
 fn can_parse_object_and_single_field() {
     let query = "me {
@@ -132,12 +132,12 @@ fn can_parse_object_and_single_field() {
         }
         username";
     
-        let mut fields = HashSet::new();
-        fields.insert("first_name".into());
+        let mut fields = Vec::new();
+        fields.push(Box::new(Want::SingleField("first_name".into())));
 
         let mut expected: HashSet<Want> = HashSet::new();
-        expected.insert(Want::ObjectProjection(ObjectProjection {
-            identifier: "me".into(),
+        expected.insert(Want::Projection(ObjectProjection {
+            identifier: Some("me".into()),
             fields
         }));
         expected.insert(Want::SingleField(Box::<str>::from("username")));
@@ -158,11 +158,11 @@ fn can_parse_two_objects_and_two_fields() {
         location
         device";
     
-        let mut fields = HashSet::new();
-        fields.insert("first_name".into());
+        let mut fields = Vec::new();
+        fields.push("first_name".into());
 
-        let mut expected: HashSet<Want> = HashSet::new();
-        expected.insert(Want::ObjectProjection(ObjectProjection {
+        let mut expected: Vec<Want> = Vec::new();
+        expected.push(Want::ObjectProjection(ObjectProjection {
             identifier: "me".into(),
             fields
         }));

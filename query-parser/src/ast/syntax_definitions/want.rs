@@ -9,6 +9,6 @@ pub enum Want {
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub struct ObjectProjection {
     identifier: Option<String>,
-    fields: Vec<Want>
+    fields: Vec<Box<Want>>
 }
 
