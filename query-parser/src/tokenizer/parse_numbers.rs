@@ -5,7 +5,6 @@ use shared::CastleError;
 
 use crate::token::{Token, token::{TokenKind, Numeric}};
 
-1234.5
 
 
 /// peek next character
