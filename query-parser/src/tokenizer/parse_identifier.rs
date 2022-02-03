@@ -9,7 +9,6 @@ use crate::{token::{Token, token::TokenKind}, ast::syntax_definitions::keyword::
 pub fn parse_identifier<R>(cursor: &mut Cursor<R>, start: Position) -> Result<Token, CastleError> 
 where R: Read {
     let mut identifier_name = get_identifier_from_chars(cursor)?;
-
     let keyword = Keyword::from(&identifier_name[..]);
     let token_kind = TokenKind::from(keyword);
     return Ok(Token::new(token_kind, Span::new(start, cursor.pos())))
@@ -21,8 +20,8 @@ fn get_identifier_from_chars<R>(cursor: &mut Cursor<R>) -> Result<String, Castle
         let c = cursor.peek_char()?.ok_or(CastleError::AbruptEOF)?;
         if let Ok(ch) = char::try_from(c) {
             if ch.is_ascii_alphanumeric() || ch == '_' {
-                cursor.next_char()?;
                 identifier_name.push(ch);
+                cursor.next_char()?;
             } else {
                 break;
             }
