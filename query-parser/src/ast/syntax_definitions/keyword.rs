@@ -9,16 +9,16 @@ pub enum Keyword {
     Match
 }
 
-impl From<&str> for Keyword {
-    fn from(s: &str) -> Self {
+impl Keyword {
+    pub fn from_str_to_option_keyword(s: &str) -> Option<Self> {
         match s {
-            "as" => Keyword::As,
-            "true" => Keyword::True,
-            "false" => Keyword::False,
-            "none" => Keyword::None,
-            "some" => Keyword::Some,
-            "match" => Keyword::Match,
-            _ => panic!("Unknown keyword: {}", s)
+            "as" => Some(Keyword::As),
+            "true" => Some(Keyword::True),
+            "false" => Some(Keyword::False),
+            "none" => Some(Keyword::None),
+            "some" => Some(Keyword::Some),
+            "match" => Some(Keyword::Match),
+            _ => None
         }
     }
 }
