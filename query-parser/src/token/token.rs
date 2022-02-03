@@ -5,7 +5,7 @@ use shared::CastleError;
 
 use crate::ast::syntax_definitions::keyword::Keyword;
 
-
+#[derive(Debug, PartialEq)]
 pub struct Token {
     pub kind: TokenKind,
     pub span: Span
