@@ -1,8 +1,6 @@
 use std::collections::HashSet;
 
-
-
-#[derive(Debug)]
+#[derive(Debug, Hash, Eq)]
 pub enum Want {
     SingleField(Box<str>),
     Projection(ObjectProjection)
@@ -13,3 +11,4 @@ pub struct ObjectProjection {
     identifier: Option<String>,
     fields: HashSet<Want>
 }
+
