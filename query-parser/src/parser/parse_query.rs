@@ -61,7 +61,7 @@ where R: Read {
             match &next_token.kind {
                 TokenKind::Punctuator(Punctuator::OpenBlock) => {
                     tokenizer.next(true)?;
-                    parse_object_projection(identifier.name, tokenizer)
+                    parse_object_projection(identifier.name, tokenizer, false)
                 },
                 _ => Ok(Want::new_single_field(identifier.name, arguments))
             }

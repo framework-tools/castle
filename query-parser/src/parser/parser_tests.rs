@@ -351,22 +351,24 @@ fn can_parse_object_projection_with_nested_object() {
 
 #[test]
 fn can_parse_object_projection_with_match() {
-    let query = "me {
-    first_name
-    last_name
-    email
-    profile_picture(48)
-    icon: match {
-        SVGIcon: {
-            url
-            size
+    let query = "
+        me {
+            first_name
+            last_name
+            email
+            profile_picture(48)
+            icon: match {
+                SVGIcon: {
+                    url
+                    size
+                }
+                Emoji: {
+                    emoji
+                    size
+                }
+            }
         }
-        Emoji: {
-            emoji
-            size
-        }
-    }
-}";
+    ";
     let svg_fields = vec![
         Want::new_single_field("url".into(), None).into(),
         Want::new_single_field("size".into(), None).into()
@@ -397,6 +399,7 @@ fn can_parse_object_projection_with_match() {
         match_statements: None
     }));
     let actual = parse_query(query).unwrap();
+    println!("actual: {:#?}", actual);
     assert_eq!(expected, actual);
 }
 
