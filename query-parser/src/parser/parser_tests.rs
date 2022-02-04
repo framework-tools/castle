@@ -392,10 +392,14 @@ match_statements: Some(match_fields).into());
     assert_eq!(expected, actual);
 }
 
-let query = "
+#[test]
+fn trying_to_break_test_v1() {
+    let query = "
     me {
-
+        (
     }
-"
-
-parse_query(query).is_err();
+    ";
+    
+    parse_query(query).is_err();
+    
+}
