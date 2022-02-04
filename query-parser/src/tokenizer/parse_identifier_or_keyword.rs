@@ -3,13 +3,15 @@ use std::io::Read;
 use input_cursor::{Cursor, Position, Span};
 use shared::CastleError;
 
-use crate::{token::{Token, token::{TokenKind, Identifier}}, ast::syntax_definitions::{keyword::Keyword, expressions::PrimitiveValue}};
+use crate::{token::{Token, token::{TokenKind, Identifier, Numeric}}, ast::syntax_definitions::{keyword::Keyword, expressions::{PrimitiveValue}}};
+
+use super::tokenizer::advance_and_parse_token;
 
 pub fn parse_identifier_or_keyword<R>(cursor: &mut Cursor<R>, start: Position) -> Result<Token, CastleError> 
 where R: Read {
     let (word, field_has_arguments) = get_word_from_chars(cursor)?;
     let arguments;
-    if field_has_arguments { arguments = get_field_arguments(cursor, start)?; }
+    if field_has_arguments { arguments = Some(get_field_arguments(cursor)?); }
     else { arguments = None }
     let option_keyword = Keyword::from_str_to_option_keyword(&word[..]);
     return match option_keyword {
@@ -30,6 +32,7 @@ fn get_word_from_chars<R>(cursor: &mut Cursor<R>) -> Result<(String, bool), Cast
                 match c {
                     Some(c) => if let Ok(ch) = char::try_from(c) {
                         if ch == '(' { //start of arguments
+                            cursor.next_char()?;
                             return Ok((identifier_name, true))
                             
                         } else if ch.is_ascii_alphanumeric() || ch == '_' {
@@ -48,23 +51,67 @@ fn get_word_from_chars<R>(cursor: &mut Cursor<R>) -> Result<(String, bool), Cast
     return Ok((identifier_name, false))
 }
 
-//need to parse in tokenizer not cursor
-pub fn get_field_arguments<R>(cursor: &mut Cursor<R>, start: Position) -> Result<Option<Vec<PrimitiveValue>>, CastleError> 
+/// Takes in Cursor returns arguments token
+///  - The '(' is already consumed
+///  - if ')' return token
+///  - else if, ',' create token from argument, then push token to arguments
+///  - else push character to current argument
+pub fn get_field_arguments<R>(cursor: &mut Cursor<R> ) -> Result<Vec<PrimitiveValue>, CastleError> 
 where R: Read {
-    return Ok(None)
-    // let mut arguments = Vec::new();
-    // loop {
-    //     let c = cursor.next_char()?;
-    //     match c {
-    //         Some(ch) => {
-    //             if ch == ')' {
-    //                 return Ok(Some(arguments))
-    //             } else {
-    //                 let token = tokeniser
-    //                 //need to parse primitive values then push
-    //             }
-    //         }
-    //         None => return Ok(Some(arguments)),
-    //     }
-    // }
+    let mut arguments = Vec::new();
+    let mut argument_as_string = String::new();
+    let mut err = None;
+    loop {
+        let c = cursor.next_char()?;
+        match c {
+            Some(ch) => {
+                let ch = char::try_from(ch).ok().ok_or(CastleError::lex("invalid character", cursor.pos()))?;
+                if ch == ')' {
+                    let primitive_value = parse_primitive_value(argument_as_string.clone())?;
+                    arguments.push(primitive_value.into());
+                    return Ok(arguments)
+                } 
+                else if ch == ','{
+                    let primitive_value = parse_primitive_value(argument_as_string.clone())?;
+                    arguments.push(primitive_value.into());
+                    argument_as_string.clear();
+                }
+                else if ch == ' ' || ch == '\n'{
+                    //do nothing
+                }
+                else {
+                    argument_as_string.push(ch);
+                }
+
+            }
+            None => { err = Some(Err(CastleError::AbruptEOF)); break; }
+
+        }
+    }
+    return match err {
+        Some(err) => err,
+        None => Ok(arguments)
+    } 
 }
+
+fn parse_primitive_value(value: String) -> Result<PrimitiveValue, CastleError> {
+    if value.contains('"') {
+        return Ok(PrimitiveValue::String(value.into()))
+    }
+    else if value == "true" {
+        return Ok(PrimitiveValue::Boolean(true))
+    }
+    else if value == "false" {
+        return Ok(PrimitiveValue::Boolean(false))
+    }
+    else if value.contains('.') {
+        return Ok(PrimitiveValue::Float(value.parse().unwrap()))
+    }
+    else if value.contains('-'){
+        return Ok(PrimitiveValue::Int(value.parse().unwrap()))
+    }
+    else {
+        return Ok(PrimitiveValue::UInt(value.parse().unwrap()))
+    }
+}
+

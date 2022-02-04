@@ -21,6 +21,7 @@ pub enum TokenKind {
     LineTerminator,
     Comment,
     Keyword(Keyword),
+    Arguments(Vec<Box<Token>>)
 }
 
 #[derive(Debug, PartialEq)]

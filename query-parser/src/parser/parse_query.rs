@@ -2,7 +2,7 @@ use std::{io::Read, collections::{HashSet, HashMap}};
 
 use shared::CastleError;
 
-use crate::{ast::syntax_definitions::want::Want, tokenizer::{tokenizer::Tokenizer}, token::{token::{TokenKind, Punctuator}, Token}};
+use crate::{ast::syntax_definitions::want::Want, tokenizer::{tokenizer::Tokenizer}, token::{token::{TokenKind, Punctuator, Identifier}, Token}};
 
 use super::parse_object_projection::parse_object_projection;
 
@@ -47,26 +47,26 @@ where R: Read {
 fn match_token_to_want<R>(token: Token, tokenizer: &mut Tokenizer<R>) -> Result<Want, CastleError>
 where R: Read{
     return match token.kind {
-        TokenKind::Identifier(identifier) => Ok(match_peeked_token_to_want(identifier.name, tokenizer)?),
+        TokenKind::Identifier(identifier) => Ok(match_peeked_token_to_want(identifier, tokenizer)?),
         _ => Err(CastleError::Parser( format!("unexpected token, expected identifier, close block or comma, got {:?}", token.kind).into(), token.span))
     }
 }
 
-fn match_peeked_token_to_want<R> (identifier: Box<str>, tokenizer: &mut Tokenizer<R>) -> Result<Want, CastleError>
+fn match_peeked_token_to_want<R> (identifier: Identifier, tokenizer: &mut Tokenizer<R>) -> Result<Want, CastleError>
 where R: Read {
     let next_token = tokenizer.peek(true)?;
-    let arguments = None; //need to implement
+    let arguments = identifier.arguments;
     return match next_token {
         Some(next_token) => {
             match &next_token.kind {
                 TokenKind::Punctuator(Punctuator::OpenBlock) => {
                     tokenizer.next(true)?;
-                    parse_object_projection(identifier, tokenizer)
+                    parse_object_projection(identifier.name, tokenizer)
                 },
-                _ => Ok(Want::new_single_field(identifier, arguments))
+                _ => Ok(Want::new_single_field(identifier.name, arguments))
             }
         },
-        None => Ok(Want::new_single_field(identifier, arguments))
+        None => Ok(Want::new_single_field(identifier.name, arguments))
     }
 }
 
