@@ -367,35 +367,35 @@ fn can_parse_object_projection_with_match() {
         }
     }
 }";
-    let match_fields = let inner_fields = vec![
+    let svg_fields = vec![
         Want::new_single_field("url".into(), None).into(),
-        Want::new_projection("size".into(), size_fields.into(), None).into()
+        Want::new_single_field("size".into(), None).into()
     ].into();
+    let emoji_fields = vec![
+        Want::new_single_field("emoji".into(), None).into(),
+        Want::new_single_field("size".into(), None).into()
+    ].into();
+
+    let match_fields = vec![
+        Want::new_projection("SVGIcon".into(), Some(svg_fields), None).into(),
+        Want::new_projection("Emoji".into(), Some(emoji_fields), None).into()
+    ].into();
+
     let mut fields = Vec::new();
     fields.push(Want::new_single_field("first_name".into(), None).into());
     fields.push(Want::new_single_field("last_name".into(), None).into());
     fields.push(Want::new_single_field("email".into(), None).into());
     fields.push(Want::new_single_field("profile_picture".into(), Some(vec![PrimitiveValue::UInt(48)])).into());
-    fields.push(Want::new_projection(
-    "icon".into(), 
-        None,
-match_statements: Some(match_fields).into());
+    fields.push(Want::new_projection("icon".into(), None, Some(match_fields)).into());
 
     // need to add match functionality in parser before we can write the last field
     // make sure you add this before starting testing
     let mut expected: HashMap<Box<str>, Want> = HashMap::new();
     expected.insert("me".into(),Want::Projection(ObjectProjection {
         identifier: "me".into(),
-        fields
+        fields: Some(fields),
+        match_statements: None
     }));
     let actual = parse_query(query).unwrap();
     assert_eq!(expected, actual);
 }
-
-let query = "
-    me {
-
-    }
-"
-
-parse_query(query).is_err();

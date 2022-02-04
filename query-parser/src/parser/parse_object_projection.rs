@@ -11,23 +11,25 @@ where R: Read{
     
     loop {
         let token = tokenizer.next(true)?;
+        println!("token: {:#?}", token);
         match token {
             Some(token) => match token.kind {
                 TokenKind::Identifier(Identifier {name, arguments}) => {
                     let peeked_token = tokenizer.peek(false)?;
+                    println!("peeked_token: {:#?}", peeked_token);
                     match peeked_token {
                         Some(peeked_token) => match peeked_token.kind {
                             TokenKind::Punctuator(Punctuator::Colon) => {
                                 let peeked_token = tokenizer.peek(true)?;
+                                println!("peeked_token: {:#?}", peeked_token);
                                 match peeked_token {
                                     Some(peeked_token) => match &peeked_token.kind {
-                                        TokenKind::Keyword(keyword) => {
-                                            if keyword == &Keyword::Match {
-                                                tokenizer.next(true)?; // consume the match keyword
-                                                let match_statement = parse_match_statement(tokenizer)?;
-                                                let field = Want::new_projection(name.clone(), None, match_statement);
-                                                fields.push(field.into());
-                                            }
+                                        TokenKind::Keyword(Keyword::Match) => {
+                                            tokenizer.next(true)?; // consume the match keyword
+                                            tokenizer.next(true)?; // consume the open block
+                                            let match_statement = parse_match_statement(tokenizer)?;
+                                            let field = Want::new_projection(name.clone(), None, match_statement);
+                                            fields.push(field.into());
                                         }
                                         _ => {}
                                     },
