@@ -482,7 +482,8 @@ fn trying_to_break_test_v1() {
     }
     ";
     
-    parse_query(query).is_err();
+    let answer = parse_query(query).is_err();
+    assert!(answer);
 }
 
 #[test]
@@ -495,7 +496,8 @@ fn trying_to_break_test_v2() {
     }
     ";
     
-    parse_query(query).is_err();
+    let answer = parse_query(query).is_err();
+    assert!(answer);
 }
 
 #[test]
@@ -511,5 +513,73 @@ fn trying_to_break_test_v3() {
     }
     ";
     
-    parse_query(query).is_err();
+    let answer = parse_query(query).is_err();
+    assert!(answer);
+}
+
+#[test]
+fn trying_to_break_test_v4() {
+    let query = "
+    me {
+        first_name    
+        last_name 
+
+        email      
+        profile_picture(
+            48
+        )
+        icon: match {
+            SVGIcon: {     
+                url  
+                size    
+            }
+            Emoji: 
+            
+            
+            
+            
+            
+            
+            
+            {
+                
+                emoji
+
+                size     
+            }
+        }
+    }
+";
+    let svg_fields = vec![
+        Want::new_single_field("url".into(), None).into(),
+        Want::new_single_field("size".into(), None).into()
+    ].into();
+    let emoji_fields = vec![
+        Want::new_single_field("emoji".into(), None).into(),
+        Want::new_single_field("size".into(), None).into()
+    ].into();
+
+    let match_fields = vec![
+        Want::new_projection("SVGIcon".into(), Some(svg_fields), None).into(),
+        Want::new_projection("Emoji".into(), Some(emoji_fields), None).into()
+    ].into();
+
+    let mut fields = Vec::new();
+    fields.push(Want::new_single_field("first_name".into(), None).into());
+    fields.push(Want::new_single_field("last_name".into(), None).into());
+    fields.push(Want::new_single_field("email".into(), None).into());
+    fields.push(Want::new_single_field("profile_picture".into(), Some(vec![PrimitiveValue::UInt(48)])).into());
+    fields.push(Want::new_projection("icon".into(), None, Some(match_fields)).into());
+
+    // need to add match functionality in parser before we can write the last field
+    // make sure you add this before starting testing
+    let mut expected: HashMap<Box<str>, Want> = HashMap::new();
+    expected.insert("me".into(),Want::Projection(ObjectProjection {
+        identifier: "me".into(),
+        fields: Some(fields),
+        match_statements: None
+    }));
+    let actual = parse_query(query).unwrap();
+    println!("actual: {:#?}", actual);
+    assert_eq!(expected, actual);
 }

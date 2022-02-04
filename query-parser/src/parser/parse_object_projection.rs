@@ -3,6 +3,8 @@ use std::{io::Read};
 use crate::{ast::syntax_definitions::{want::{Want, ObjectProjection, SingleField}, keyword::{Keyword}}, token::{token::{TokenKind, Punctuator, Identifier}}, tokenizer::{tokenizer::Tokenizer, self}};
 use shared::CastleError;
 
+use super::parse_inner_object::parse_inner_object;
+
 pub fn parse_object_projection<R>(identifier: Box<str>, tokenizer: &mut Tokenizer<R>, should_skip_start: bool) -> Result<Want, CastleError> 
 where R: Read{
     
@@ -15,7 +17,7 @@ where R: Read{
         match token {
             Some(token) => match token.kind {
                 TokenKind::Identifier(Identifier {name, arguments}) => {
-                    let peeked_token = tokenizer.peek(false)?;
+                    let peeked_token = tokenizer.peek(true)?;
                     match peeked_token {
                         Some(peeked_token) => match peeked_token.kind {
                             TokenKind::Punctuator(Punctuator::Colon) => {
@@ -31,9 +33,7 @@ where R: Read{
                                             fields.push(field.into());
                                         },
                                         TokenKind::Punctuator(Punctuator::OpenBlock) => {
-                                            tokenizer.next(true)?; // consume the open block
-                                            let object_projection = parse_object_projection(name.clone(), tokenizer, false)?;
-                                            fields.push(object_projection.into());
+                                            fields = parse_inner_object(tokenizer, fields, name.clone())?;
                                         },
                                         _ => break // end of object projection
                                     },
