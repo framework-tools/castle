@@ -409,5 +409,33 @@ fn trying_to_break_test_v1() {
     ";
     
     parse_query(query).is_err();
+}
+
+#[test]
+fn trying_to_break_test_v2() {
+    let query = "
+    me {
+        ( {
+            )
+        }
+    }
+    ";
     
+    parse_query(query).is_err();
+}
+
+#[test]
+fn trying_to_break_test_v3() {
+    let query = "
+    breaking_test {
+        ( {
+            )gerg
+        }
+        ( {
+            )gergerge
+        }
+    }
+    ";
+    
+    parse_query(query).is_err();
 }
