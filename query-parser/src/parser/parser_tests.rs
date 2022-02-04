@@ -1,5 +1,5 @@
 use std::hash::Hash;
-use std::collections::HashSet;
+use std::collections::HashMap;
 
 use shared::CastleError;
 
@@ -14,7 +14,7 @@ use crate::ast::syntax_definitions::want::ObjectProjection;
 #[test]
 fn can_parse_empty_query() {
     let query = "";
-    let expected = HashSet::new();
+    let expected = HashMap::new();
     let actual = parse_query(query).unwrap();
     assert_eq!(expected, actual);
 }
@@ -23,8 +23,8 @@ fn can_parse_empty_query() {
 fn can_parse_single_field() -> Result<(), CastleError> {
     let query = "first_name";
 
-    let mut expected: HashSet<Want> = HashSet::new();
-    expected.insert(Want::new_single_field("first_name".into(), None));
+    let mut expected: HashMap<Box<str>, Want> = HashMap::new();
+    expected.insert("first_name".into(), Want::new_single_field("first_name".into(), None));
 
     let actual = parse_query(query)?;
     assert_eq!(expected, actual);
@@ -35,13 +35,11 @@ fn can_parse_single_field() -> Result<(), CastleError> {
 fn can_parse_two_fields() -> Result<(), CastleError> {
     let query = "first_name last_name";
 
-    let actual = parse_query(query);
-
     let want1 = Want::new_single_field("first_name".into(), None);
     let want2 = Want::new_single_field("last_name".into(), None);
 
-    let mut expected: HashSet<Want> = HashSet::new();
-    expected.insert(want1.clone());
+    let mut expected: HashMap<String, Want> = HashMap::new();
+    expected.insert("first_name".into(), want1.clone());
     expected.insert(want2.clone());
 
     let actual = parse_query(query)?;
@@ -59,7 +57,7 @@ fn can_parse_two_fields_different_lines() -> Result<(), CastleError> {
     let want1 = Want::new_single_field("first_name".into(), None);
     let want2 = Want::new_single_field("last_name".into(), None);
 
-    let mut expected: HashSet<Want> = HashSet::new();
+    let mut expected: HashMap<String, Want> = HashMap::new();
     expected.insert(want1.clone());
     expected.insert(want2.clone());
 
@@ -77,14 +75,12 @@ fn can_parse_four_fields_different_lines() -> Result<(), CastleError> {
     email
     ";
 
-    let actual = parse_query(query);
-
     let want1 = Want::new_single_field("first_name".into(), None);
     let want2 = Want::new_single_field("last_name".into(), None);
     let want3 = Want::new_single_field("time".into(), None);
     let want4 = Want::new_single_field("email".into(), None);
 
-    let mut expected: HashSet<Want> = HashSet::new();
+    let mut expected: HashMap<String, Want> = HashMap::new();
     expected.insert(want1);
     expected.insert(want2);
     expected.insert(want3);
@@ -103,7 +99,7 @@ fn can_parse_object_projection_with_single_field() -> Result<(), CastleError> {
     
     let mut fields = Vec::new();
     fields.push(Want::new_single_field("first_name".into(), None).into());
-    let mut expected: HashSet<Want> = HashSet::new();
+    let mut expected: HashMap<String, Want> = HashMap::new();
     let want = Want::Projection(ObjectProjection {
         identifier: Some("me".into()),
         fields
@@ -127,7 +123,7 @@ fn can_parse_complex_object_projection_with_two_fields() {
         fields.push(Want::new_single_field("first_name".into(), None).into());
         fields.push(Want::new_single_field("last_name".into(), None).into());
     
-        let mut expected: HashSet<Want> = HashSet::new();
+        let mut expected: HashMap<String, Want> = HashMap::new();
         expected.insert(Want::Projection(ObjectProjection {
             identifier: Some("me".into()),
             fields
@@ -150,7 +146,7 @@ fn can_parse_complex_object_projection_with_three_fields() {
         fields.push(Want::new_single_field("last_name".into(), None).into());
         fields.push(Want::new_single_field("role".into(), None).into());
     
-        let mut expected: HashSet<Want> = HashSet::new();
+        let mut expected: HashMap<String, Want> = HashMap::new();
         expected.insert(Want::Projection(ObjectProjection {
             identifier: Some("me".into()),
             fields
@@ -171,7 +167,7 @@ fn can_parse_object_and_single_field() {
         let mut fields = Vec::new();
         fields.push(Want::new_single_field("lol".into(), None).into());
 
-        let mut expected: HashSet<Want> = HashSet::new();
+        let mut expected: HashMap<String, Want> = HashMap::new();
         expected.insert(Want::Projection(ObjectProjection {
             identifier: Some("me".into()),
             fields
@@ -199,14 +195,14 @@ fn can_parse_two_objects_and_two_fields() {
         let mut fields = Vec::new();
         fields.push(Want::new_single_field("first_name".into(), None).into());
 
-        let mut expected: HashSet<Want> = HashSet::new();
+        let mut expected: HashMap<String, Want> = HashMap::new();
         expected.insert(Want::Projection(ObjectProjection {
             identifier: Some("me".into()),
             fields
         }));
 
         let mut fields = Vec::new();
-        fields.push(Want::new_single_field("first_name".into(), None).into());
+        fields.push(Want::new_single_field("username".into(), None).into());
         fields.push(Want::new_single_field("log_in_count".into(), None).into());
         expected.insert(Want::Projection(ObjectProjection {
             identifier: Some("user".into()),
@@ -215,8 +211,8 @@ fn can_parse_two_objects_and_two_fields() {
         expected.insert(Want::new_single_field("location".into(), None).into());
         expected.insert(Want::new_single_field("device".into(), None).into());
 
-        let actual = parse_query(query);
-        assert_eq!(expected, actual.unwrap());
+        let actual = parse_query(query).unwrap();
+        assert_eq!(expected, actual);
 }
 
 #[test]
@@ -236,7 +232,7 @@ fn can_parse_object_projection_with_argument() {
     fields.push(Want::new_single_field("email".into(), None).into());
     fields.push(Want::new_single_field("profile_picture".into(), Some(vec![PrimitiveValue::UInt(48)])).into());
 
-    let mut expected: HashSet<Want> = HashSet::new();
+    let mut expected: HashMap<String, Want> = HashMap::new();
     expected.insert(Want::Projection(ObjectProjection {
         identifier: Some("me".into()),
         fields
@@ -252,7 +248,8 @@ fn can_parse_object_projection_with_multiple_arguments() {
         first_name
         last_name
         email
-        color(0, 0, 10.4)
+        profile_pic(4, 60, 32, 0.5)
+        heading(\"#FF0000\", true)
     }
 }";
 
@@ -266,9 +263,39 @@ fn can_parse_object_projection_with_multiple_arguments() {
         PrimitiveValue::Float( F64 { integer_part: 10, decimal_part: 4 } )
     ])).into());
 
-    let mut expected: HashSet<Want> = HashSet::new();
+    let mut expected: HashMap<String, Want> = HashMap::new();
     expected.insert(Want::Projection(ObjectProjection {
         identifier: Some("me".into()),
+        fields
+    }));
+    let actual = parse_query(query).unwrap();
+    assert_eq!(expected, actual);
+}
+
+#[test]
+fn can_parse_object_projection_with_inner_object() {
+    let query = "
+    me {
+        name: {
+            first_name
+            last_name
+        }
+        last_name
+        email
+    }
+}";
+
+    let mut fields = Vec::new();
+    fields.push(Want::new_projection("name".into(), vec![
+        Want::new_single_field("first_name".into(), None).into(),
+        Want::new_single_field("last_name".into(), None).into()
+    ]).into());
+    fields.push(Want::new_single_field("email".into(), None).into());
+    fields.push(Want::new_single_field("profile_picture".into(), Some(vec![PrimitiveValue::UInt(48)])).into());
+
+    let mut expected: HashMap<String, Want> = HashMap::new();
+    expected.insert(Want::Projection(ObjectProjection {
+        identifier: "me".into(),
         fields
     }));
     let actual = parse_query(query).unwrap();
@@ -300,7 +327,7 @@ fn can_parse_object_projection_with_match() {
     fields.push(Want::new_single_field("email".into(), None).into());
     // need to add match functionality in parser before we can write the last field
     // make sure you add this before starting testing
-    let mut expected: HashSet<Want> = HashSet::new();
+    let mut expected: HashMap<String, Want> = HashMap::new();
     expected.insert(Want::Projection(ObjectProjection {
         identifier: Some("me".into()),
         fields

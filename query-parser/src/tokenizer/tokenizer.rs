@@ -200,7 +200,7 @@ where
         .ok_or(CastleError::AbruptEOF)?;
 
         match identifier.kind {
-            TokenKind::Identifier(str) => Ok(str),
+            TokenKind::Identifier(str) => Ok(str.name),
             _ => Err(CastleError::parse(
                 format!("Expected identifier, got '{:?}'", identifier.kind),
                 identifier.span,

@@ -3,7 +3,7 @@ use std::io::Read;
 use input_cursor::{Cursor, Position, Span};
 use shared::CastleError;
 
-use crate::{token::{Token, token::TokenKind}, ast::syntax_definitions::{keyword::Keyword, expressions::PrimitiveValue}};
+use crate::{token::{Token, token::{TokenKind, Identifier}}, ast::syntax_definitions::{keyword::Keyword, expressions::PrimitiveValue}};
 
 pub fn parse_identifier_or_keyword<R>(cursor: &mut Cursor<R>, start: Position) -> Result<Token, CastleError> 
 where R: Read {
@@ -14,7 +14,10 @@ where R: Read {
     let option_keyword = Keyword::from_str_to_option_keyword(&word[..]);
     return match option_keyword {
         Some(keyword) => Ok(Token::new(TokenKind::Keyword(keyword), Span::new(start, cursor.pos()))),
-        None => Ok(Token::new(TokenKind::Identifier(word.into()), Span::new(start, cursor.pos())))
+        None => Ok(Token::new(TokenKind::Identifier(Identifier {
+            name: word.into(),
+            arguments
+        }), Span::new(start, cursor.pos())))
     }
 }
 

@@ -3,7 +3,7 @@ use std::{fmt::{Formatter, self, Display}};
 use input_cursor::{Span, Position};
 use shared::CastleError;
 
-use crate::ast::syntax_definitions::keyword::Keyword;
+use crate::ast::syntax_definitions::{keyword::Keyword, expressions::PrimitiveValue};
 
 #[derive(Debug, PartialEq)]
 pub struct Token {
@@ -14,13 +14,19 @@ pub struct Token {
 #[derive(Debug, PartialEq)]
 pub enum TokenKind {
     BooleanLiteral(bool),
-    Identifier(Box<str>),
+    Identifier(Identifier),
     NumericLiteral(Numeric),
     Punctuator(Punctuator),
     StringLiteral(Box<str>),
     LineTerminator,
     Comment,
     Keyword(Keyword),
+}
+
+#[derive(Debug, PartialEq)]
+pub struct Identifier {
+    pub name: Box<str>,
+    pub arguments: Option<Vec<PrimitiveValue>>
 }
 
 #[derive(Debug, PartialEq)]

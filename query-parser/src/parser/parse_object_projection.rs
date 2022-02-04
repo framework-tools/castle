@@ -6,7 +6,6 @@ use shared::CastleError;
 pub fn parse_object_projection<R>(identifier: Box<str>, tokenizer: &mut Tokenizer<R>) -> Result<Want, CastleError> 
 where R: Read{
     
-    let identifier = Some(identifier);
     let mut fields = Vec::new();
     let mut err: Option<Result<Want, CastleError>> = None;
     
@@ -16,7 +15,7 @@ where R: Read{
             Some(token) => match &token.kind {
                 TokenKind::Identifier(identifier) => {
                     let arguments = None; //need to implement
-                    let field = Want::new_single_field(identifier.clone(), arguments);
+                    let field = Want::new_single_field(identifier.name.clone(), arguments);
                     fields.push(Box::new(field));
                 },
                 TokenKind::Punctuator(Punctuator::Comma) => {},

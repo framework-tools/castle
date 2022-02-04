@@ -5,7 +5,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, PartialEq)]
 pub enum Expression {
     PrimitiveValue(PrimitiveValue),
-    Projection(ProjectionExpression), // obj::{ ... }
 }
 
 
@@ -34,25 +33,18 @@ impl F64 {
             decimal_part,
         }
     }
+
+    pub fn create_float(self) -> f64 {
+        let integer_part = self.integer_part as f64;
+        let decimal_part = self.decimal_part as f64;
+
+        return integer_part + decimal_part / 10_f64.powi(10);
+    }
 }
 
-#[derive(Debug, PartialEq)]
-pub struct ProjectionExpression {
-    pub identifier: Box<str>,
-    pub fields: Projection,
-}
-
-#[derive(Debug, PartialEq)]
-pub enum Projection {
-    Object(FieldProjection),
-    Array(FieldProjection),
-}
-
-pub type FieldProjection = HashMap<String, FieldStatement>;
-
-#[derive(Debug, PartialEq)]
-pub struct FieldStatement {
-    pub name: Box<str>,
-    pub value: Option<Expression>,
-    pub sub_projection: Option<Projection>,
+#[test]
+fn test_create_float(){
+    let float_struct = F64::new(1.2345);
+    let float = float_struct.create_float();
+    assert_eq!(float, 1.2345);
 }

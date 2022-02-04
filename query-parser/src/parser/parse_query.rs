@@ -1,4 +1,4 @@
-use std::{io::Read, collections::HashSet};
+use std::{io::Read, collections::{HashSet, HashMap}};
 
 use shared::CastleError;
 
@@ -12,7 +12,7 @@ use super::parse_object_projection::parse_object_projection;
 /// - convert bytes into tokens
 /// - convert tokens into a hashset of wants
 /// - return hashset of wants(parsed query)
-pub fn parse_query(query: &str) -> Result<HashSet<Want>, CastleError> {
+pub fn parse_query(query: &str) -> Result<HashMap<Box<str>, Want>, CastleError> {
     let bytes = query.as_bytes();
     let mut tokenizer = Tokenizer::new(bytes);
 
@@ -27,15 +27,16 @@ pub fn parse_query(query: &str) -> Result<HashSet<Want>, CastleError> {
 ///     - if token is identifier & next token excluding /n is not open block -> add single field want to hashset
 ///     - if empty break
 /// - return hashset of wants
-fn parse_tokens<R>(tokenizer: &mut Tokenizer<R>) -> Result<HashSet<Want>, CastleError> 
+fn parse_tokens<R>(tokenizer: &mut Tokenizer<R>) -> Result<HashMap<Box<str>, Want>, CastleError> 
 where R: Read {
-    let mut wants = HashSet::new();
+    let mut wants = HashMap::new();
     loop {
         let token = tokenizer.next(true)?;
         match token {
             Some(token) => { 
                 let want = match_token_to_want(token, tokenizer)?;
-                wants.insert(want);
+                let identifier = want.get_identifier();
+                wants.insert(identifier, want);
             },
             None => break
         }
@@ -46,7 +47,7 @@ where R: Read {
 fn match_token_to_want<R>(token: Token, tokenizer: &mut Tokenizer<R>) -> Result<Want, CastleError>
 where R: Read{
     return match token.kind {
-        TokenKind::Identifier(identifier) => Ok(match_peeked_token_to_want(identifier, tokenizer)?),
+        TokenKind::Identifier(identifier) => Ok(match_peeked_token_to_want(identifier.name, tokenizer)?),
         _ => Err(CastleError::Parser( format!("unexpected token, expected identifier, close block or comma, got {:?}", token.kind).into(), token.span))
     }
 }

@@ -1,4 +1,6 @@
 
+use std::collections::{HashMap, HashSet};
+
 use super::expressions::PrimitiveValue;
 
 #[derive(Debug, PartialEq, Hash, Clone, Eq)]
@@ -16,7 +18,7 @@ pub struct SingleField {
 
 #[derive(Debug, PartialEq, Hash, Clone, Eq)]
 pub struct ObjectProjection {
-    pub identifier: Option<Box<str>>,
+    pub identifier: Box<str>,
     pub fields: Vec<Box<Want>>
 }
 
@@ -28,11 +30,18 @@ impl Want {
         })
     }
 
-    pub fn new_projection(identifier: Option<Box<str>>, fields: Vec<Box<Want>>) -> Self {
+    pub fn new_projection(identifier: Box<str>, fields: Vec<Box<Want>>) -> Self {
         Want::Projection(ObjectProjection {
             identifier,
             fields
         })
+    }
+
+    pub fn get_identifier(&self) -> Box<str> {
+        return match self {
+            Want::SingleField(single_field) => single_field.identifier.clone(),
+            Want::Projection(projection) => projection.identifier.clone()
+        }
     }
 }
 
@@ -46,7 +55,7 @@ impl SingleField {
 }
 
 impl ObjectProjection {
-    pub fn new(identifier: Option<Box<str>>, fields: Vec<Box<Want>>) -> Want {
+    pub fn new(identifier: Box<str>, fields: Vec<Box<Want>>) -> Want {
         Want::Projection(ObjectProjection {
             identifier,
             fields
