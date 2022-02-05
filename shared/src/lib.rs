@@ -13,7 +13,8 @@ pub enum CastleError {
     Parser(Box<str>, Span),
     EmptyObject(Box<str>),
     Unimplemented(Box<str>),
-    Schema(Box<str>, Span)
+    Schema(Box<str>, Span),
+    UndefinedSchemaType(Box<str>)
 }
 
 impl From<std::io::Error> for CastleError {
@@ -50,7 +51,8 @@ impl fmt::Display for CastleError {
             Self::Parser(msg, span) => write!(f, "Parser error: {} at {}", msg, span),
             Self::EmptyObject(msg) => write!(f, "Empty object: {}", msg),
             Self::Unimplemented(msg) => write!(f, "Unimplemented: {}", msg),
-            Self::Schema(msg, span) => write!(f, "Schema error: {} at {}", msg, span)
+            Self::Schema(msg, span) => write!(f, "Schema error: {} at {}", msg, span),
+            Self::UndefinedSchemaType(msg) => write!(f, "Undefined schema type: {}", msg),
         }
     }
 }
@@ -68,8 +70,8 @@ impl ExtendedErrorDisplay for CastleError {
             Self::Parser(msg, span) => pretty_print_parser_error(msg, span, src),
             Self::EmptyObject(msg) => format!("Empty object: {}", msg),
             Self::Unimplemented(msg) => format!("Unimplemented: {}", msg),
-            Self::Schema(msg, span) => format!("Schema error: {} at {}", msg, span)
-            
+            Self::Schema(msg, span) => format!("Schema error: {} at {}", msg, span),
+            Self::UndefinedSchemaType(msg) => format!("Undefined schema type: {}", msg),
         }
     }
 }

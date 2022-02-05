@@ -395,7 +395,6 @@ fn can_parse_object_projection_with_match() {
         match_statements: None
     }));
     let actual = parse_query(query).unwrap();
-    println!("actual: {:#?}", actual);
     assert_eq!(expected, actual);
 }
 

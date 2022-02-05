@@ -1,50 +1,38 @@
+
+
 #[derive(Debug, PartialEq)]
 pub struct SchemaField {
     pub name: Box<str>,
-    pub schema_type: Type,
+    pub type_: Type,
 }
 #[derive(Debug, PartialEq)]
 pub enum Type {
     PrimitiveType(PrimitiveType),
+    SchemaType(Box<str>),
+    VecType(Box<str>),
 }
+
 #[derive(Debug, PartialEq)]
 pub enum PrimitiveType {
     String,
     Int,
     Float,
     Bool,
-    Date,
-    DateTime,
-    Time,
-    Timestamp,
-    Uuid,
-    Json,
-    Jsonb,
-    Array,
-    Enum,
-    Set,
-    Range,
-    UserDefined,
+    Uuid
 }
 
 impl PrimitiveType {
+    //this function should create a new variable from s so we can 
+    //match and ignore whether the characters are upper or lowercase
     pub fn from_str_to_option_primitive_type(s: &str) -> Option<Self> {
+        let s = s.to_lowercase();
+        let s = s.as_str();
         match s {
             "string" => Some(PrimitiveType::String),
             "int" => Some(PrimitiveType::Int),
             "float" => Some(PrimitiveType::Float),
             "bool" => Some(PrimitiveType::Bool),
-            "date" => Some(PrimitiveType::Date),
-            "datetime" => Some(PrimitiveType::DateTime),
-            "time" => Some(PrimitiveType::Time),
-            "timestamp" => Some(PrimitiveType::Timestamp),
             "uuid" => Some(PrimitiveType::Uuid),
-            "json" => Some(PrimitiveType::Json),
-            "jsonb" => Some(PrimitiveType::Jsonb),
-            "array" => Some(PrimitiveType::Array),
-            "enum" => Some(PrimitiveType::Enum),
-            "set" => Some(PrimitiveType::Set),
-            "range" => Some(PrimitiveType::Range),
             _ => None
         }
     }

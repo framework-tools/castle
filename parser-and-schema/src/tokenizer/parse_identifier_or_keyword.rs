@@ -3,7 +3,7 @@ use std::io::Read;
 use input_cursor::{Cursor, Position, Span};
 use shared::CastleError;
 
-use crate::{token::{Token, token::{TokenKind, Identifier}}, ast::syntax_definitions::{keyword::Keyword, expressions::{PrimitiveValue}}, parser::schema_parser::types::{schema_field::{PrimitiveType, SchemaType}, schema_type::Type}};
+use crate::{token::{Token, token::{TokenKind, Identifier}}, ast::syntax_definitions::{keyword::Keyword, expressions::{PrimitiveValue}}, parser::schema_parser::types::{schema_field::{PrimitiveType}}};
 
 pub fn parse_identifier_or_keyword_or_type<R>(cursor: &mut Cursor<R>, start: Position) -> Result<Token, CastleError> 
 where R: Read {
@@ -23,7 +23,6 @@ where R: Read {
                     arguments
                     }), Span::new(start, cursor.pos())))
             }
-            
         }
     }
 }
