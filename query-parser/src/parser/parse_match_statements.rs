@@ -19,8 +19,6 @@ where R: Read {
 /// Parses a match statement
 /// loop through tokens
 /// parse object projection for each possible match statement
-/// 
-/// 
 fn get_match_arms<R>(tokenizer: &mut Tokenizer<R>) -> Result<Option<Vec<Box<Want>>>, CastleError>
 where R: Read{
     let mut match_statements = Vec::new();

@@ -7,46 +7,51 @@ use super::{parse_inner_object::parse_inner_object, parse_match_statements::pars
 
 pub fn parse_object_projection<R>(identifier: Box<str>, tokenizer: &mut Tokenizer<R>, should_skip_start: bool) -> Result<Want, CastleError> 
 where R: Read{
-    let mut fields = Vec::new();
     if should_skip_start { skip_ident_colon_and_openblock(tokenizer)?; }
 
-    loop_through_tokens_and_parse(tokenizer, &mut fields)?;
+    let fields = loop_through_tokens_and_parse_fields(tokenizer)?;
     let parsed_object = create_obj(identifier, fields);
     return parsed_object
 }
 
 
-fn loop_through_tokens_and_parse<R>(tokenizer: &mut Tokenizer<R>, fields: &mut Vec<Box<Want>>) -> Result<(), CastleError> 
+fn loop_through_tokens_and_parse_fields<R>(tokenizer: &mut Tokenizer<R>) -> Result<Vec<Box<Want>>, CastleError> 
 where R: Read{
+    let mut fields: Vec<Box<Want>> = Vec::new();
+    let mut should_break;
+    let mut err = None;
     loop {
         let token = tokenizer.next(true)?;
-        let should_break = match_current_token_to_field(tokenizer, token, fields)?;
+        match token {
+            Some(token) => should_break = match_current_token_to_field(tokenizer, token, &mut fields)?,
+            None => { err = Some(CastleError::AbruptEOF); break; }
+        };
         if should_break { break; }
+    
     }
-    return Ok(())
+    if err.is_some() { return Err(err.unwrap()); }
+    else { return Ok(fields) }
 }
 
-fn match_current_token_to_field(tokenizer: &mut Tokenizer<impl Read>, token: Option<Token>, fields: &mut Vec<Box<Want>>) -> Result<bool, CastleError> {
-    match token {
-        Some(token) => match token.kind {
-            TokenKind::Identifier(Identifier {name, arguments}) => {
-                let should_break = parse_field(tokenizer, fields, name, arguments)?;
-                if should_break { return Ok(true) }
-                else { return Ok(false) }
-            },
-            TokenKind::Punctuator(Punctuator::Comma) => { return Ok(false )},
-            TokenKind::Punctuator(Punctuator::CloseBlock) => { return Ok(true) },
-            _ => {
-                create_err_for_parser(&token)?;
-                return Ok(true)
-            }
+fn match_current_token_to_field(tokenizer: &mut Tokenizer<impl Read>, token: Token, fields: &mut Vec<Box<Want>>) 
+-> Result<bool, CastleError> {
+    match token.kind {
+        TokenKind::Identifier(Identifier {name, arguments}) => {
+            let should_break = parse_field(tokenizer, fields, name, arguments)?;
+            if should_break { return Ok(true) }
+            else { return Ok(false) }
         },
-        None => return Ok(true),
+        TokenKind::Punctuator(Punctuator::Comma) => { return Ok(false )},
+        TokenKind::Punctuator(Punctuator::CloseBlock) => { return Ok(true) },
+        _ => {
+            create_err_for_parser(&token)?;
+            return Ok(true)
+        }
     }
 }
 
-fn parse_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut Vec<Box<Want>>, name: Box<str>, arguments: Option<Vec<PrimitiveValue>>) -> Result<bool, CastleError> 
-where R: Read {
+fn parse_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut Vec<Box<Want>>, name: Box<str>, arguments: Option<Vec<PrimitiveValue>>) 
+-> Result<bool, CastleError> where R: Read {
     let peeked_token = tokenizer.peek(true)?;
     match peeked_token {
         Some(peeked_token) => match peeked_token.kind {
