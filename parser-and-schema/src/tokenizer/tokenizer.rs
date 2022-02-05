@@ -4,9 +4,9 @@ use std::{io::Read, collections::VecDeque};
 use input_cursor::{Cursor, Position};
 use shared::CastleError;
 
-use crate::{token::{Token, token::{TokenKind, Punctuator, Numeric}}, ast::syntax_definitions::{expressions::{Expression, PrimitiveValue}, keyword::Keyword}, tokenizer::{parse_newline::parse_newline, parse_string::parse_string}};
+use crate::{token::{Token, token::{TokenKind, Punctuator, Numeric}}, ast::syntax_definitions::{expressions::{PrimitiveValue}, keyword::Keyword}, tokenizer::{parse_newline::parse_newline, parse_string::parse_string}};
 
-use super::{parse_operator::parse_operator, parse_numbers::parse_number, parse_identifier_or_keyword::parse_identifier_or_keyword};
+use super::{parse_operator::parse_operator, parse_numbers::parse_number, parse_identifier_or_keyword::{parse_identifier_or_keyword_or_type}};
 pub struct Tokenizer<R> {
     pub cursor: Cursor<R>,
     pub peeked: VecDeque<Token>
@@ -218,7 +218,7 @@ where R: Read {
             ':' | '{' | '}' | '[' | ']' | ',' | ';' | '@' | '#' | '(' | ')'  => parse_operator(cursor, start)?,
 
             _ if c.is_digit(10) => parse_number(cursor, start)?,
-            _ if c.is_ascii_alphabetic() => parse_identifier_or_keyword(cursor, start)?,
+            _ if c.is_ascii_alphabetic() => parse_identifier_or_keyword_or_type(cursor, start)?,
             _ => {
                 return Err(CastleError::Lexer(
                     format!(

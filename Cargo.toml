@@ -3,7 +3,6 @@
 members = [
     "castle",
     "input-cursor",
-    "query-parser",
-    "schema-parser",
+    "parser-and-schema",
     "shared",
 ]

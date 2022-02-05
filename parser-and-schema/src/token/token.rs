@@ -3,7 +3,7 @@ use std::{fmt::{Formatter, self, Display}};
 use input_cursor::{Span, Position};
 use shared::CastleError;
 
-use crate::ast::syntax_definitions::{keyword::Keyword, expressions::PrimitiveValue};
+use crate::{ast::syntax_definitions::{keyword::Keyword, expressions::PrimitiveValue}, parser::schema_parser::types::schema_field::PrimitiveType};
 
 #[derive(Debug, PartialEq)]
 pub struct Token {
@@ -21,7 +21,8 @@ pub enum TokenKind {
     LineTerminator,
     Comment,
     Keyword(Keyword),
-    Arguments(Vec<Box<Token>>)
+    Arguments(Vec<Box<Token>>),
+    PrimitiveType(PrimitiveType)
 }
 
 #[derive(Debug, PartialEq)]
@@ -146,6 +147,7 @@ impl From<Keyword> for TokenKind {
             Keyword::Some => TokenKind::Keyword(Keyword::Some),
             Keyword::None => TokenKind::Keyword(Keyword::None),
             Keyword::Match => TokenKind::Keyword(Keyword::Match),
+            Keyword::Type => TokenKind::Keyword(Keyword::Type)
         }
     }
 }

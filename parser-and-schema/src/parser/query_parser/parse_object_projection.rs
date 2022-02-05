@@ -11,12 +11,13 @@ where R: Read{
 
     let fields = loop_through_tokens_and_parse_fields(tokenizer)?;
     let parsed_object = create_obj(identifier, fields);
+
     return parsed_object
 }
 
 
 fn loop_through_tokens_and_parse_fields<R>(tokenizer: &mut Tokenizer<R>) -> Result<HashMap<Box<str>, Want>, CastleError> 
-where R: Read{
+where R: Read {
     let mut fields: HashMap<Box<str>, Want> = HashMap::new();
     let mut should_break;
     let mut err = None;
@@ -29,7 +30,13 @@ where R: Read{
         if should_break { break; }
     
     }
+    handle_errors_for_fields(err, &mut fields)?;
+    return Ok(fields)
+}
+
+fn handle_errors_for_fields(err: Option<CastleError>, fields: &mut HashMap<Box<str>, Want> ) -> Result<&mut HashMap<Box<str>, Want>, CastleError> {
     if err.is_some() { return Err(err.unwrap()); }
+    else if fields.is_empty() { return Err(CastleError::EmptyObject("can't create empty object".into())) }
     else { return Ok(fields) }
 }
 

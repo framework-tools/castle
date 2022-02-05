@@ -112,10 +112,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "schema-parser"
-version = "0.1.0"
-
-[[package]]
 name = "serde"
 version = "1.0.136"
 source = "registry+https://github.com/rust-lang/crates.io-index"

@@ -6,7 +6,7 @@ use shared::CastleError;
 
 use crate::ast::syntax_definitions::expressions::PrimitiveValue;
 use crate::ast::syntax_definitions::want::SingleField;
-use crate::parser::parse_query::parse_query; 
+use crate::parser::query_parser::parse_query::parse_query;
 use crate::ast::syntax_definitions::want::Want;
 use crate::ast::syntax_definitions::want::ObjectProjection;
 
