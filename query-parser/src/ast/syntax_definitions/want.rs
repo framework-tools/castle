@@ -15,14 +15,12 @@ pub struct SingleField {
     pub arguments: Option<Vec<PrimitiveValue>>
 }
 
-
 #[derive(Debug, PartialEq, Clone)]
 pub struct ObjectProjection {
     pub identifier: Box<str>,
-    pub fields: Option<Vec<Box<Want>>>,
-    pub match_statements: Option<Vec<Box<Want>>>
+    pub fields: Option<HashMap<Box<str>, Want>>,
+    pub match_statements: Option<HashMap<Box<str>, Want>>
 }
-
 
 impl Want {
     pub fn new_single_field(identifier: Box<str>, arguments: Option<Vec<PrimitiveValue>>) -> Self {
@@ -32,7 +30,7 @@ impl Want {
         })
     }
 
-    pub fn new_projection(identifier: Box<str>, fields: Option<Vec<Box<Want>>>, match_statements: Option<Vec<Box<Want>>>) -> Self {
+    pub fn new_projection(identifier: Box<str>, fields: Option<HashMap<Box<str>, Want>>, match_statements: Option<HashMap<Box<str>, Want>>) -> Self {
         Want::Projection(ObjectProjection {
             identifier,
             fields,
@@ -58,7 +56,7 @@ impl SingleField {
 }
 
 impl ObjectProjection {
-    pub fn new(identifier: Box<str>, fields: Option<Vec<Box<Want>>>, match_statements: Option<Vec<Box<Want>>>) -> Want {
+    pub fn new(identifier: Box<str>, fields: Option<HashMap<Box<str>, Want>>, match_statements: Option<HashMap<Box<str>, Want>>) -> Want {
         Want::Projection(ObjectProjection {
             identifier,
             fields,

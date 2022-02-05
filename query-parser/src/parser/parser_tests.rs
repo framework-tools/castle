@@ -97,8 +97,8 @@ fn can_parse_object_projection_with_single_field() -> Result<(), CastleError> {
         first_name
     }";
     
-    let mut fields = Vec::new();
-    fields.push(Want::new_single_field("first_name".into(), None).into());
+    let mut fields = HashMap::new();
+    fields.insert("first_name".into(), Want::new_single_field("first_name".into(), None).into());
     let mut expected: HashMap<Box<str>, Want> = HashMap::new();
     let want = Want::Projection(ObjectProjection {
         identifier: "me".into(),
@@ -120,9 +120,9 @@ fn can_parse_complex_object_projection_with_two_fields() {
         last_name
     }";
     
-        let mut fields = Vec::new();
-        fields.push(Want::new_single_field("first_name".into(), None).into());
-        fields.push(Want::new_single_field("last_name".into(), None).into());
+        let mut fields = HashMap::new();
+        fields.insert("first_name".into(), Want::new_single_field("first_name".into(), None).into());
+        fields.insert("last_name".into(), Want::new_single_field("last_name".into(), None).into());
     
         let mut expected: HashMap<Box<str>, Want> = HashMap::new();
 
@@ -144,10 +144,10 @@ fn can_parse_complex_object_projection_with_three_fields() {
         role
     }";
     
-        let mut fields = Vec::new();
-        fields.push(Want::new_single_field("first_name".into(), None).into());
-        fields.push(Want::new_single_field("last_name".into(), None).into());
-        fields.push(Want::new_single_field("role".into(), None).into());
+        let mut fields = HashMap::new();
+        fields.insert("first_name".into(), Want::new_single_field("first_name".into(), None).into());
+        fields.insert("last_name".into(), Want::new_single_field("last_name".into(), None).into());
+        fields.insert("role".into(), Want::new_single_field("role".into(), None).into());
     
         let mut expected: HashMap<Box<str>, Want> = HashMap::new();
         expected.insert("me".into(),Want::Projection(ObjectProjection {
@@ -169,8 +169,8 @@ fn can_parse_object_and_single_field() {
         lets_gooo
         ";
     
-        let mut fields = Vec::new();
-        fields.push(Want::new_single_field("lol".into(), None).into());
+        let mut fields = HashMap::new();
+        fields.insert("lol".into(), Want::new_single_field("lol".into(), None).into());
 
         let mut expected: HashMap<Box<str>, Want> = HashMap::new();
         expected.insert("me".into(), Want::Projection(ObjectProjection {
@@ -197,8 +197,8 @@ fn can_parse_two_objects_and_two_fields() {
         location
         device";
     
-        let mut fields = Vec::new();
-        fields.push(Want::new_single_field("first_name".into(), None).into());
+        let mut fields = HashMap::new();
+        fields.insert("first_name".into(), Want::new_single_field("first_name".into(), None).into());
 
         let mut expected: HashMap<Box<str>, Want> = HashMap::new();
         expected.insert("me".into(),Want::Projection(ObjectProjection {
@@ -207,9 +207,9 @@ fn can_parse_two_objects_and_two_fields() {
             match_statements: None
         }));
 
-        let mut fields = Vec::new();
-        fields.push(Want::new_single_field("username".into(), None).into());
-        fields.push(Want::new_single_field("log_in_count".into(), None).into());
+        let mut fields = HashMap::new();
+        fields.insert("username".into(), Want::new_single_field("username".into(), None).into());
+        fields.insert("log_in_count".into(), Want::new_single_field("log_in_count".into(), None).into());
         expected.insert("user".into(), Want::Projection(ObjectProjection {
             identifier: "user".into(),
             fields: Some(fields),
@@ -233,11 +233,11 @@ fn can_parse_object_projection_with_argument() {
     }
     ";
 
-    let mut fields = Vec::new();
-    fields.push(Want::new_single_field("first_name".into(), None).into());
-    fields.push(Want::new_single_field("last_name".into(), None).into());
-    fields.push(Want::new_single_field("email".into(), None).into());
-    fields.push(Want::new_single_field("profile_picture".into(), Some(vec![PrimitiveValue::UInt(48)])).into());
+    let mut fields = HashMap::new();
+    fields.insert("first_name".into(), Want::new_single_field("first_name".into(), None).into());
+    fields.insert("last_name".into(), Want::new_single_field("last_name".into(), None).into());
+    fields.insert("email".into(), Want::new_single_field("email".into(), None).into());
+    fields.insert("profile_picture".into(), Want::new_single_field("profile_picture".into(), Some(vec![PrimitiveValue::UInt(48)])).into());
 
     let mut expected: HashMap<Box<str>, Want> = HashMap::new();
     expected.insert("me".into(),Want::Projection(ObjectProjection {
@@ -260,17 +260,17 @@ fn can_parse_object_projection_with_multiple_arguments() {
         heading(\"#FF0000\", true)
     }";
 
-    let mut fields = Vec::new();
-    fields.push(Want::new_single_field("first_name".into(), None).into());
-    fields.push(Want::new_single_field("last_name".into(), None).into());
-    fields.push(Want::new_single_field("email".into(), None).into());
-    fields.push(Want::new_single_field("profile_pic".into(), Some(vec![
+    let mut fields = HashMap::new();
+    fields.insert("first_name".into(), Want::new_single_field("first_name".into(), None).into());
+    fields.insert("last_name".into(), Want::new_single_field("last_name".into(), None).into());
+    fields.insert("email".into(), Want::new_single_field("email".into(), None).into());
+    fields.insert("profile_pic".into(), Want::new_single_field("profile_pic".into(), Some(vec![
         PrimitiveValue::UInt(4),
         PrimitiveValue::UInt(60),
         PrimitiveValue::UInt(32),
         PrimitiveValue::Float(0.5)
     ])).into());
-    fields.push(Want::new_single_field("heading".into(), Some(vec![
+    fields.insert("heading".into(), Want::new_single_field("heading".into(), Some(vec![
         PrimitiveValue::String("\"#FF0000\"".into()),
         PrimitiveValue::Boolean(true)
     ])).into());
@@ -297,14 +297,14 @@ fn can_parse_object_projection_with_inner_object() {
         email(48)
     }";
 
-    let mut fields = Vec::new();
-    let inner_field = Some(vec![
-        Want::new_single_field("first_name".into(), None).into(),
-        Want::new_single_field("last_name".into(), None).into()
-    ].into());
-    fields.push(Want::new_projection("name".into(), inner_field, None).into());
-    fields.push(Want::new_single_field("last_name".into(), None).into());
-    fields.push(Want::new_single_field("email".into(), Some(vec![PrimitiveValue::UInt(48)])).into());
+    let mut fields = HashMap::new();
+    let mut inner_fields = HashMap::new();
+    inner_fields.insert("first_name".into(), Want::new_single_field("first_name".into(), None).into());
+    inner_fields.insert("last_name".into(), Want::new_single_field("last_name".into(), None).into());
+
+    fields.insert("name".into(), Want::new_projection("name".into(), Some(inner_fields), None).into());
+    fields.insert("last_name".into(), Want::new_single_field("last_name".into(), None).into());
+    fields.insert("email".into(), Want::new_single_field("email".into(), Some(vec![PrimitiveValue::UInt(48)])).into());
 
     let mut expected: HashMap<Box<str>, Want> = HashMap::new();
     expected.insert("me".into(),Want::Projection(ObjectProjection {
@@ -328,16 +328,16 @@ fn can_parse_object_projection_with_nested_object() {
         }
     }";
 
-    let mut size_fields = Vec::new();
-    size_fields.push(Want::new_single_field("width".into(), None).into());
-    size_fields.push(Want::new_single_field("height".into(), None).into());
+    let mut size_fields = HashMap::new();
+    size_fields.insert("width".into(),Want::new_single_field("width".into(), None).into());
+    size_fields.insert("height".into(),Want::new_single_field("height".into(), None).into());
 
-    let mut fields = Vec::new();
-    let inner_fields = vec![
-        Want::new_single_field("url".into(), None).into(),
-        Want::new_projection("size".into(), size_fields.into(), None).into()
-    ].into();
-    fields.push(Want::new_projection("profile_pic".into(), Some(inner_fields), None).into());
+    let mut fields = HashMap::new();
+    let mut inner_fields = HashMap::new();
+    inner_fields.insert("url".into(), Want::new_single_field("url".into(), None).into());
+    inner_fields.insert("size".into(), Want::new_projection("size".into(), Some(size_fields), None).into());
+
+    fields.insert("profile_pic".into(), Want::new_projection("profile_pic".into(), Some(inner_fields), None).into());
 
     let mut expected: HashMap<Box<str>, Want> = HashMap::new();
     expected.insert("me".into(),Want::Projection(ObjectProjection {
@@ -369,29 +369,25 @@ fn can_parse_object_projection_with_match() {
             }
         }
     ";
-    let svg_fields = vec![
-        Want::new_single_field("url".into(), None).into(),
-        Want::new_single_field("size".into(), None).into()
-    ].into();
-    let emoji_fields = vec![
-        Want::new_single_field("emoji".into(), None).into(),
-        Want::new_single_field("size".into(), None).into()
-    ].into();
+    let mut svg_fields = HashMap::new();
+    svg_fields.insert("url".into(), Want::new_single_field("url".into(), None).into());
+    svg_fields.insert("size".into(), Want::new_single_field("size".into(), None).into());
 
-    let match_fields = vec![
-        Want::new_projection("SVGIcon".into(), Some(svg_fields), None).into(),
-        Want::new_projection("Emoji".into(), Some(emoji_fields), None).into()
-    ].into();
+    let mut emoji_fields = HashMap::new();
+    emoji_fields.insert("emoji".into(), Want::new_single_field("emoji".into(), None).into());
+    emoji_fields.insert("size".into(), Want::new_single_field("size".into(), None).into());
 
-    let mut fields = Vec::new();
-    fields.push(Want::new_single_field("first_name".into(), None).into());
-    fields.push(Want::new_single_field("last_name".into(), None).into());
-    fields.push(Want::new_single_field("email".into(), None).into());
-    fields.push(Want::new_single_field("profile_picture".into(), Some(vec![PrimitiveValue::UInt(48)])).into());
-    fields.push(Want::new_projection("icon".into(), None, Some(match_fields)).into());
+    let mut match_fields = HashMap::new();
+    match_fields.insert("SVGIcon".into(), Want::new_projection("SVGIcon".into(), Some(svg_fields), None).into());
+    match_fields.insert("Emoji".into(), Want::new_projection("Emoji".into(), Some(emoji_fields), None).into());
 
-    // need to add match functionality in parser before we can write the last field
-    // make sure you add this before starting testing
+    let mut fields = HashMap::new();
+    fields.insert("first_name".into(), Want::new_single_field("first_name".into(), None).into());
+    fields.insert("last_name".into(), Want::new_single_field("last_name".into(), None).into());
+    fields.insert("email".into(), Want::new_single_field("email".into(), None).into());
+    fields.insert("profile_picture".into(), Want::new_single_field("profile_picture".into(), Some(vec![PrimitiveValue::UInt(48)])).into());
+    fields.insert("icon".into(), Want::new_projection("icon".into(), None, Some(match_fields)).into());
+
     let mut expected: HashMap<Box<str>, Want> = HashMap::new();
     expected.insert("me".into(),Want::Projection(ObjectProjection {
         identifier: "me".into(),
@@ -431,38 +427,36 @@ fn can_parse_object_projection_with_complex_match() {
             }
         }
     ";
-    let size_match = vec![
-        Want::new_projection("rectangle".into(), Some(vec![
-            Want::new_single_field("width".into(), None).into(),
-            Want::new_single_field("height".into(), None).into()
-        ].into()), None).into(),
-        Want::new_projection("square".into(), Some(vec![
-            Want::new_single_field("side".into(), None).into()
-        ].into()), None).into()
-    ].into();
-    let svg_fields = vec![
-        Want::new_single_field("url".into(), Some(vec![PrimitiveValue::UInt(48)])).into(),
-        Want::new_projection("size".into(), None, Some(size_match)).into()
-    ].into();
-    let emoji_fields = vec![
-        Want::new_single_field("emoji".into(), None).into(),
-        Want::new_single_field("size".into(), None).into()
-    ].into();
+    let mut rectangle_fields = HashMap::new();
+    rectangle_fields.insert("width".into(), Want::new_single_field("width".into(), None).into());
+    rectangle_fields.insert("height".into(), Want::new_single_field("height".into(), None).into());
 
-    let match_fields = vec![
-        Want::new_projection("SVGIcon".into(), Some(svg_fields), None).into(),
-        Want::new_projection("Emoji".into(), Some(emoji_fields), None).into()
-    ].into();
+    let mut square_fields = HashMap::new();
+    square_fields.insert("side".into(), Want::new_single_field("side".into(), None).into());
 
-    let mut fields = Vec::new();
-    fields.push(Want::new_single_field("first_name".into(), None).into());
-    fields.push(Want::new_single_field("last_name".into(), None).into());
-    fields.push(Want::new_single_field("email".into(), None).into());
-    fields.push(Want::new_single_field("profile_picture".into(), Some(vec![PrimitiveValue::UInt(48)])).into());
-    fields.push(Want::new_projection("icon".into(), None, Some(match_fields)).into());
+    let mut size_match = HashMap::new();
+    size_match.insert("rectangle".into(), Want::new_projection("rectangle".into(), Some(rectangle_fields), None).into());
+    size_match.insert("square".into(), Want::new_projection("square".into(), Some(square_fields), None).into());
 
-    // need to add match functionality in parser before we can write the last field
-    // make sure you add this before starting testing
+    let mut svg_fields = HashMap::new();
+    svg_fields.insert("url".into(), Want::new_single_field("url".into(), Some(vec![PrimitiveValue::UInt(48)])).into());
+    svg_fields.insert("size".into(), Want::new_projection("size".into(), None, Some(size_match)).into());
+
+    let mut emoji_fields = HashMap::new();
+    emoji_fields.insert("emoji".into(), Want::new_single_field("emoji".into(), None).into());
+    emoji_fields.insert("size".into(), Want::new_single_field("size".into(), None).into());
+
+    let mut match_fields = HashMap::new();
+    match_fields.insert("SVGIcon".into(), Want::new_projection("SVGIcon".into(), Some(svg_fields), None).into());
+    match_fields.insert("Emoji".into(), Want::new_projection("Emoji".into(), Some(emoji_fields), None).into());
+
+    let mut fields = HashMap::new();
+    fields.insert("first_name".into(), Want::new_single_field("first_name".into(), None).into());
+    fields.insert("last_name".into(), Want::new_single_field("last_name".into(), None).into());
+    fields.insert("email".into(), Want::new_single_field("email".into(), None).into());
+    fields.insert("profile_picture".into(), Want::new_single_field("profile_picture".into(), Some(vec![PrimitiveValue::UInt(48)])).into());
+    fields.insert("icon".into(), Want::new_projection("icon".into(), None, Some(match_fields)).into());
+
     let mut expected: HashMap<Box<str>, Want> = HashMap::new();
     expected.insert("me".into(),Want::Projection(ObjectProjection {
         identifier: "me".into(),
@@ -550,29 +544,26 @@ fn trying_to_break_test_v4() {
         }
     }
 ";
-    let svg_fields = vec![
-        Want::new_single_field("url".into(), None).into(),
-        Want::new_single_field("size".into(), None).into()
-    ].into();
-    let emoji_fields = vec![
-        Want::new_single_field("emoji".into(), None).into(),
-        Want::new_single_field("size".into(), None).into()
-    ].into();
 
-    let match_fields = vec![
-        Want::new_projection("SVGIcon".into(), Some(svg_fields), None).into(),
-        Want::new_projection("Emoji".into(), Some(emoji_fields), None).into()
-    ].into();
+    let mut svg_fields = HashMap::new();
+    svg_fields.insert("url".into(), Want::new_single_field("url".into(), None));
+    svg_fields.insert("size".into(), Want::new_single_field("size".into(), None));
 
-    let mut fields = Vec::new();
-    fields.push(Want::new_single_field("first_name".into(), None).into());
-    fields.push(Want::new_single_field("last_name".into(), None).into());
-    fields.push(Want::new_single_field("email".into(), None).into());
-    fields.push(Want::new_single_field("profile_picture".into(), Some(vec![PrimitiveValue::UInt(48)])).into());
-    fields.push(Want::new_projection("icon".into(), None, Some(match_fields)).into());
+    let mut emoji_fields = HashMap::new();
+    emoji_fields.insert("emoji".into(), Want::new_single_field("emoji".into(), None));
+    emoji_fields.insert("size".into(), Want::new_single_field("size".into(), None));
 
-    // need to add match functionality in parser before we can write the last field
-    // make sure you add this before starting testing
+    let mut match_fields = HashMap::new();
+    match_fields.insert("SVGIcon".into(), Want::new_projection("SVGIcon".into(), Some(svg_fields), None));
+    match_fields.insert("Emoji".into(), Want::new_projection("Emoji".into(), Some(emoji_fields), None));
+
+    let mut fields = HashMap::new();
+    fields.insert("first_name".into(), Want::new_single_field("first_name".into(), None));
+    fields.insert("last_name".into(), Want::new_single_field("last_name".into(), None));
+    fields.insert("email".into(), Want::new_single_field("email".into(), None));
+    fields.insert("profile_picture".into(), Want::new_single_field("profile_picture".into(), Some(vec![PrimitiveValue::UInt(48)])).into());
+    fields.insert("icon".into(), Want::new_projection("icon".into(), None, Some(match_fields)).into());
+
     let mut expected: HashMap<Box<str>, Want> = HashMap::new();
     expected.insert("me".into(),Want::Projection(ObjectProjection {
         identifier: "me".into(),
@@ -582,4 +573,15 @@ fn trying_to_break_test_v4() {
     let actual = parse_query(query).unwrap();
     println!("actual: {:#?}", actual);
     assert_eq!(expected, actual);
+}
+
+#[test]
+fn should_not_parse_object_with_no_fields_and_no_match() {
+    let query = "
+    me {
+
+    }";
+
+    let answer = parse_query(query).is_err();
+    assert!(answer);
 }

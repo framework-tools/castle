@@ -1,4 +1,4 @@
-use std::{io::Read};
+use std::{io::Read, collections::HashMap};
 
 use crate::{ast::syntax_definitions::{want::{Want, ObjectProjection, SingleField}, keyword::{Keyword}, expressions::PrimitiveValue}, token::{token::{TokenKind, Punctuator, Identifier}, Token}, tokenizer::{tokenizer::Tokenizer}};
 use shared::CastleError;
@@ -15,9 +15,9 @@ where R: Read{
 }
 
 
-fn loop_through_tokens_and_parse_fields<R>(tokenizer: &mut Tokenizer<R>) -> Result<Vec<Box<Want>>, CastleError> 
+fn loop_through_tokens_and_parse_fields<R>(tokenizer: &mut Tokenizer<R>) -> Result<HashMap<Box<str>, Want>, CastleError> 
 where R: Read{
-    let mut fields: Vec<Box<Want>> = Vec::new();
+    let mut fields: HashMap<Box<str>, Want> = HashMap::new();
     let mut should_break;
     let mut err = None;
     loop {
@@ -33,7 +33,7 @@ where R: Read{
     else { return Ok(fields) }
 }
 
-fn match_current_token_to_field(tokenizer: &mut Tokenizer<impl Read>, token: Token, fields: &mut Vec<Box<Want>>) 
+fn match_current_token_to_field(tokenizer: &mut Tokenizer<impl Read>, token: Token, fields: &mut HashMap<Box<str>, Want>) 
 -> Result<bool, CastleError> {
     match token.kind {
         TokenKind::Identifier(Identifier {name, arguments}) => {
@@ -50,7 +50,7 @@ fn match_current_token_to_field(tokenizer: &mut Tokenizer<impl Read>, token: Tok
     }
 }
 
-fn parse_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut Vec<Box<Want>>, name: Box<str>, arguments: Option<Vec<PrimitiveValue>>) 
+fn parse_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str>, Want>, name: Box<str>, arguments: Option<Vec<PrimitiveValue>>) 
 -> Result<bool, CastleError> where R: Read {
     let peeked_token = tokenizer.peek(true)?;
     match peeked_token {
@@ -61,8 +61,8 @@ fn parse_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut Vec<Box<Want>>, nam
                 else { return Ok(false) }
             }
             _ => {
-                let field = Want::SingleField(SingleField{ identifier: name, arguments });
-                fields.push(field.into());
+                let field = Want::SingleField(SingleField{ identifier: name.clone(), arguments });
+                fields.insert(name, field);
                 return Ok(false)
             }
         },
@@ -78,7 +78,7 @@ where R: Read {
     return Ok(())
 }
 
-fn check_match_or_object_then_parse<R>(tokenizer: &mut Tokenizer<R>, fields: &mut Vec<Box<Want>>, name: Box<str>) -> Result<bool, CastleError> 
+fn check_match_or_object_then_parse<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str>, Want>, name: Box<str>) -> Result<bool, CastleError> 
 where R: Read {
     tokenizer.next(true)?; // consume ':'
     let peeked_token = tokenizer.peek(true)?;
@@ -98,7 +98,7 @@ where R: Read {
     }
 }
 
-fn create_obj(identifier: Box<str>, fields: Vec<Box<Want>>) -> Result<Want, CastleError> {
+fn create_obj(identifier: Box<str>, fields: HashMap<Box<str>, Want>) -> Result<Want, CastleError> {
         let object_projection = ObjectProjection {
             identifier,
             fields: Some(fields),

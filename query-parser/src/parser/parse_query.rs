@@ -1,4 +1,4 @@
-use std::{io::Read, collections::{HashSet, HashMap}};
+use std::{io::Read, collections::{HashMap}};
 
 use shared::CastleError;
 
