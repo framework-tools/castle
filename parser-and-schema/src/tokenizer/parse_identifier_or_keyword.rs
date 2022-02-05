@@ -64,7 +64,7 @@ pub fn get_field_arguments<R>(cursor: &mut Cursor<R> ) -> Result<Vec<PrimitiveVa
 where R: Read {
     let mut arguments = Vec::new();
     let mut argument_as_string = String::new();
-    let mut err = None;
+    let err ;
     loop {
         let c = cursor.next_char()?;
         match c {
