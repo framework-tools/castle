@@ -4,7 +4,7 @@ use shared::CastleError;
 
 use crate::tokenizer::tokenizer::Tokenizer;
 
-use super::{types::schema_type::SchemaType, parse_schema_type::check_token_and_parse_schema_type_or_break, handle_schema_errors::get_parsed_schema_or_err};
+use super::{types::schema_type::SchemaType, parse_schema_type::check_token_and_parse_schema_type_or_break, handle_schema_errors::check_for_undefined_schema_types};
 
 /// takes in schema as string and returns parsed schema as hashmap
 ///     - creates tokenizer
@@ -24,5 +24,6 @@ pub fn parse_schema(schema: &str) -> Result<HashMap<Box<str>, SchemaType>, Castl
         let at_end_of_schema = check_token_and_parse_schema_type_or_break(token, &mut tokenizer, &mut parsed_schema)?;
         if at_end_of_schema { break; }
     }
-    return get_parsed_schema_or_err(parsed_schema)
+    check_for_undefined_schema_types(&parsed_schema)?;
+    return Ok(parsed_schema)
 }
