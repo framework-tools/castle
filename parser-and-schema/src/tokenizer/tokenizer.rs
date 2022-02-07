@@ -51,7 +51,7 @@ where
     where
         R: Read,
     {
-        return advance_and_parse_token(&mut self.cursor)
+        return advance_and_parse_token(self)
     }
 
     pub fn peek_n(
@@ -191,8 +191,10 @@ where R: Read {
 
 
 
-pub fn advance_and_parse_token<R>(cursor: &mut Cursor<R>) -> Result<Option<Token>, CastleError>
+pub fn advance_and_parse_token<R>(tokenizer: &mut Tokenizer<R>) -> Result<Option<Token>, CastleError>
 where R: Read {
+    let mut cursor = &mut tokenizer.cursor;
+
     // skip whitespaces
     let (start, next_ch) = loop {
         let start = cursor.pos();
@@ -218,7 +220,7 @@ where R: Read {
             ':' | '{' | '}' | '[' | ']' | ',' | ';' | '@' | '#' | '(' | ')'  => parse_operator(cursor, start)?,
 
             _ if c.is_digit(10) => parse_number(cursor, start)?,
-            _ if c.is_ascii_alphabetic() => parse_identifier_or_keyword_or_type(cursor, start)?,
+            _ if c.is_ascii_alphabetic() => parse_identifier_or_keyword_or_type(tokenizer, start)?,
             _ => {
                 return Err(CastleError::Lexer(
                     format!(

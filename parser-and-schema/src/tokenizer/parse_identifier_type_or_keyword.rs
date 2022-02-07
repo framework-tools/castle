@@ -5,19 +5,19 @@ use shared::CastleError;
 
 use crate::{token::{Token}};
 
-use super::{parse_keyword::get_keyword_or_continue, parse_arguments::get_arguments, parse_vec_type::get_vec_type_from_word};
+use super::{parse_keyword::get_keyword_or_continue, parse_arguments::get_arguments, parse_vec_type::get_vec_type_from_word, tokenizer::Tokenizer};
 
-pub fn parse_identifier_or_keyword_or_type<R>(cursor: &mut Cursor<R>, start: Position) -> Result<Token, CastleError> 
+pub fn parse_identifier_or_keyword_or_type<R>(tokenizer: &mut Tokenizer<R>, start: Position) -> Result<Token, CastleError> 
 where R: Read {
-    let (word, field_has_arguments) = get_word_from_chars(cursor)?;
+    let (word, field_has_arguments) = get_word_from_chars(&mut tokenizer.cursor)?;
 
-    if word == "Vec" { return get_vec_type_from_word(cursor, word, start) }
+    if word == "Vec" { return get_vec_type_from_word(&mut tokenizer.cursor, word, start) }
     let arguments;
-    if field_has_arguments { arguments = Some(get_arguments(cursor)?); } // this also is used for tuples on enums
+    if field_has_arguments { arguments = Some(get_arguments(tokenizer)?); } // this also is used for tuples on enums
     else { arguments = None }
     // get keyword or continue will check every case of word
     // and will return a keyword, type, or identifier token
-    let token = get_keyword_or_continue(cursor, word, start, arguments);
+    let token = get_keyword_or_continue(&mut tokenizer.cursor, word, start, arguments);
     return token
 }
 

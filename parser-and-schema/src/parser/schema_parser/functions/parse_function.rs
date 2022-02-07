@@ -56,7 +56,7 @@ fn parse_function_return_type<R>(tokenizer: &mut Tokenizer<R>) -> Result<Type, C
 where R: Read {
     let token = tokenizer.next(false)?; //skip chevron right from return arrow
     println!("token before: {:?}", token);
-    let return_type = parse_type(&mut tokenizer.cursor)?;
+    let return_type = parse_type(tokenizer)?;
     tokenizer.next(false)?; //skip open block
     return Ok(return_type)
 }
