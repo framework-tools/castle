@@ -33,7 +33,7 @@ fn can_parse_simple_type() {
             age: Int,
         }";
 
-    let mut user_fields = create_type_fields_for_tests(vec![
+    let user_fields = create_type_fields_for_tests(vec![
         ("id".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid)),
         ("name".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String)),
         ("age".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int)),
@@ -65,7 +65,7 @@ fn can_parse_simple_type_more_fields_and_no_commas() {
             log_in_count: Int
         }";
 
-    let mut user_fields = create_type_fields_for_tests(vec![
+    let user_fields = create_type_fields_for_tests(vec![
         ("id".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid)),
         ("name".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String)),
         ("age".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int)),
@@ -106,7 +106,7 @@ fn can_parse_two_types() {
             industry: String,
         }";
 
-    let mut user_fields = create_type_fields_for_tests(vec![
+    let user_fields = create_type_fields_for_tests(vec![
         ("id".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid)),
         ("name".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String)),
         ("age".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int)),
@@ -154,7 +154,7 @@ fn can_parse_two_types_with_defined_value() {
             industry: String,
         }";
 
-    let mut user_fields = create_type_fields_for_tests(vec![
+    let user_fields = create_type_fields_for_tests(vec![
         ("id".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid)),
         ("name".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String)),
         ("age".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int)),
@@ -170,31 +170,12 @@ fn can_parse_two_types_with_defined_value() {
         fields: user_fields,
     }); 
     
-    let mut organization_fields: HashMap<Box<str>, SchemaField> = HashMap::new();
-    organization_fields.insert(
-        "id".into(),
-        SchemaField {
-            name: "id".into(),
-            type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid),
-            directives: None,
-        },
-    );
-    organization_fields.insert(
-        "name".into(),
-        SchemaField {
-            name: "name".into(),
-            type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
-            directives: None,
-        },
-    );
-    organization_fields.insert(
-        "industry".into(),
-        SchemaField {
-            name: "industry".into(),
-            type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
-            directives: None,
-        },
-    );
+    let organization_fields: HashMap<Box<str>, SchemaField> = create_type_fields_for_tests(vec![
+        ("id".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid)),
+        ("name".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String)),
+        ("industry".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String)),
+    ]);
+
     expected.insert("Organization".into(), SchemaType {
         identifier: "Organization".into(),
         fields: organization_fields,
@@ -230,94 +211,27 @@ fn parser_breaks_if_unknown_schema_type() {
             industry: String,
         }";
 
-    let mut user_fields = HashMap::new();
-    user_fields.insert(
-        "id".into(),
-        SchemaField {
-            name: "id".into(),
-            type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid),
-            directives: None,
-        },
-    );
-    user_fields.insert(
-        "name".into(),
-        SchemaField {
-            name: "name".into(),
-            type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
-            directives: None,
-        },
-    );
-    user_fields.insert(
-        "age".into(),
-        SchemaField {
-            name: "age".into(),
-            type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int),
-            directives: None,
-        },
-    );
-    user_fields.insert(
-        "is_admin".into(),
-        SchemaField {
-            name: "is_admin".into(),
-            type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Bool),
-            directives: None,
-        },
-    );
-    user_fields.insert(
-        "location".into(),
-        SchemaField {
-            name: "location".into(),
-            type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
-            directives: None,
-        },
-    );
-    user_fields.insert(
-        "log_in_count".into(),
-        SchemaField {
-            name: "log_in_count".into(),
-            type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int),
-            directives: None,
-        },
-    );
-    user_fields.insert(
-        "organization".into(),
-        SchemaField {
-            name: "organization".into(),
-            type_: parser::schema_parser::types::schema_field::Type::SchemaType("Organization".into()),
-            directives: None,
-        },
-    );
+    let user_fields = create_type_fields_for_tests(vec![
+        ("id".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid)),
+        ("name".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String)),
+        ("age".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int)),
+        ("is_admin".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Bool)),
+        ("location".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String)),
+        ("log_in_count".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int)),
+        ("organization".into(), parser::schema_parser::types::schema_field::Type::SchemaType("Company".into())),
+    ]);
+    
+    let organization_fields: HashMap<Box<str>, SchemaField> = create_type_fields_for_tests(vec![
+        ("id".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid)),
+        ("name".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String)),
+        ("industry".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String)),
+    ]);
+
     let mut expected: HashMap<Box<str>, SchemaType> = HashMap::new();
     expected.insert("User".into(), SchemaType {
         identifier: "User".into(),
         fields: user_fields,
-    }); 
-    
-    let mut organization_fields: HashMap<Box<str>, SchemaField> = HashMap::new();
-    organization_fields.insert(
-        "id".into(),
-        SchemaField {
-            name: "id".into(),
-            type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid),
-            directives: None,
-        },
-    );
-    organization_fields.insert(
-        "name".into(),
-        SchemaField {
-            name: "name".into(),
-            type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
-            directives: None,
-        },
-    );
-    organization_fields.insert(
-        "industry".into(),
-        SchemaField {
-            name: "industry".into(),
-            type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
-            directives: None,
-        },
-    );
+    });
     expected.insert("Organization".into(), SchemaType {
         identifier: "Organization".into(),
         fields: organization_fields,
@@ -400,11 +314,6 @@ fn can_parse_two_types_with_vec_type() {
             directives: None,
         },
     );
-    let mut expected = HashMap::new();
-    expected.insert("User".into(), SchemaType {
-        identifier: "User".into(),
-        fields: user_fields,
-    }); 
     
     let mut organization_fields: HashMap<Box<str>, SchemaField> = HashMap::new();
     organization_fields.insert(
@@ -439,6 +348,12 @@ fn can_parse_two_types_with_vec_type() {
             directives: None,
         },
     );
+    
+    let mut expected = HashMap::new();
+    expected.insert("User".into(), SchemaType {
+        identifier: "User".into(),
+        fields: user_fields,
+    }); 
     expected.insert("Organization".into(), SchemaType {
         identifier: "Organization".into(),
         fields: organization_fields,
