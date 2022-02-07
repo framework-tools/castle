@@ -4,7 +4,7 @@ use shared::CastleError;
 
 use crate::{token::{Token, token::{TokenKind, Identifier, Punctuator}}, tokenizer::tokenizer::Tokenizer, ast::syntax_definitions::{keyword::Keyword, schema_definition::SchemaDefinition}};
 
-use super::{types::{schema_type::SchemaType, schema_field::SchemaField}, parse_schema_field::parse_schema_field};
+use super::{types::{schema_type::SchemaType, schema_field::SchemaField}, parse_schema_field::parse_schema_field, enums::parse_enum::parse_enum_definition};
 
 
 pub fn check_token_and_parse_schema_or_break<R>(
@@ -50,7 +50,7 @@ where R: Read{
     return Ok(SchemaType { identifier, fields });
 }
 
-fn get_identifier_skip_open_block<R>(token: Option<Token>, tokenizer: &mut Tokenizer<R>) -> Result<Box<str>, CastleError> 
+pub fn get_identifier_skip_open_block<R>(token: Option<Token>, tokenizer: &mut Tokenizer<R>) -> Result<Box<str>, CastleError> 
 where R: Read{
     let identifier = match token {
         Some(token) => match token.kind {
