@@ -1,4 +1,4 @@
-use std::io::Read;
+use std::{io::Read};
 
 use input_cursor::{Cursor, Position, Span};
 use shared::CastleError;
@@ -9,48 +9,68 @@ use super::tokenizer::advance_and_parse_token;
 
 pub fn parse_identifier_or_keyword_or_type<R>(cursor: &mut Cursor<R>, start: Position) -> Result<Token, CastleError> 
 where R: Read {
-    let (mut word, field_has_arguments) = get_word_from_chars(cursor)?;
+    let (word, field_has_arguments) = get_word_from_chars(cursor)?;
     let arguments;
     if field_has_arguments { arguments = Some(get_arguments(cursor)?); } // this also is used for tuples on enums
     else { arguments = None }
+    // get keyword or continue will check every case of word
+    // and will return a keyword, type, or identifier token
+    let token = get_keyword_or_continue(cursor, word, start, arguments);
+    return token
+}
+
+fn get_keyword_or_continue<R>(cursor: &mut Cursor<R>, word: String, start: Position, arguments: Option<Vec<Argument>>) -> Result<Token, CastleError>
+where R: Read {
     let option_keyword = Keyword::from_str_to_option_keyword(&word[..]);
     return match option_keyword {
-        Some(keyword) => Ok(Token::new(TokenKind::Keyword(keyword), Span::new(start, cursor.pos()))),
-        None => {
-            let primitive_type = PrimitiveType::from_str_to_option_primitive_type(&word[..]);
-            match primitive_type {
-                Some(primitive_type) => Ok(Token::new(TokenKind::PrimitiveType(primitive_type), Span::new(start, cursor.pos()))),
-                None => {
-                    let ch = cursor.peek()?;
-                    match ch {
-                        Some(ch) => {
-                            let char = char::try_from(ch).ok().ok_or(CastleError::lex("invalid character",cursor.pos()))?;
-                            if char == '<' {
-                                loop {
-                                    let char = cursor.next_char()?.unwrap();
-                                    let char = char::try_from(char).ok().ok_or(CastleError::lex("invalid character",cursor.pos()))?;
-                                    if char == '>' { word.push(char); break; } 
-                                    else { word.push(char); }
-                                }
-                                let vec_type = VecType::new(&word);
-                                match vec_type {
-                                    Some(type_) => return Ok(Token::new(TokenKind::VecType(VecType::get_vec_type_struct(type_)), Span::new(start, cursor.pos()))),
-                                    None => return Err(CastleError::AbruptEOF)
-                                }
-                            } else {
-                                return Ok(Token::new(TokenKind::Identifier(Identifier {
-                                    name: word.into(),
-                                    arguments
-                                    }), Span::new(start, cursor.pos())))
-                            }
-                        }
-                        None => {
-                            return Err(CastleError::Unimplemented(format!("Expected identifier or keyword, but found EOF").into()));
-                        }
-                    }
-                }
+        Some(keyword) => Ok(Token::new(TokenKind::Keyword(keyword), Span::new(start, cursor.pos()))), // return keyword
+        None => get_primitive_type_or_continue(cursor, word, start, arguments) // if not keyword, 
+    }
+}
+
+fn get_primitive_type_or_continue<R>(cursor: &mut Cursor<R>, word: String, start: Position, arguments: Option<Vec<Argument>>) -> Result<Token, CastleError>
+where R: Read {
+    let primitive_type = PrimitiveType::from_str_to_option_primitive_type(&word[..]);
+    match primitive_type {
+        Some(primitive_type) => Ok(Token::new(TokenKind::PrimitiveType(primitive_type), Span::new(start, cursor.pos()))),
+        None => get_vec_type_or_identifier(cursor, word, start, arguments)
+    }
+}
+
+fn get_vec_type_or_identifier<R>(cursor: &mut Cursor<R>, word: String, start: Position, arguments: Option<Vec<Argument>>) -> Result<Token, CastleError>
+where R: Read {
+    let ch = cursor.peek()?;
+    match ch {
+        Some(ch) => {
+            let char = char::try_from(ch).ok().ok_or(CastleError::lex("invalid character",cursor.pos()))?;
+            if char == '<' {
+                get_vec_type_from_word(cursor, word, start)
+            } else {
+                return Ok(Token::new(TokenKind::Identifier(Identifier {
+                    name: word.into(),
+                    arguments
+                    }), Span::new(start, cursor.pos())))
             }
-        }
+        },
+        None => return Ok(Token::new(TokenKind::Identifier(Identifier {
+            name: word.into(),
+            arguments
+            }), Span::new(start, cursor.pos())))
+    }
+}
+fn get_vec_type_from_word<R>(cursor: &mut Cursor<R>, word: String, start: Position) -> Result<Token, CastleError>
+where R: Read {
+    let mut word = word;
+    loop {
+        let char = cursor.next_char()?.unwrap();
+        let char = char::try_from(char).ok().ok_or(CastleError::lex("invalid character",cursor.pos()))?;
+        if char == '>' { word.push(char); break; } 
+        else { word.push(char); }
+    }
+    let vec_type = VecType::new(&word);
+    match vec_type {
+        Some(type_) => return Ok(Token::new(TokenKind::VecType(VecType::get_vec_type_struct(type_)), Span::new(start, cursor.pos()))),
+        None => return Err(CastleError::AbruptEOF)
     }
 }
 
@@ -111,7 +131,9 @@ where R: Read {
                         None => return Err(CastleError::AbruptEOF)
                     };
                 }
-                else if ch == ' ' || ch == '\n'{ } //do nothing
+                else if ch == ' ' || ch == '\n'{ 
+                    cursor.next_char()?;
+                }
                 else {
                     let token = advance_and_parse_token(cursor)?;
                     match token {
@@ -124,7 +146,6 @@ where R: Read {
                 }
             }
             None => { err = Some(Err(CastleError::AbruptEOF)); break; }
-
         }
     }
     return match err {

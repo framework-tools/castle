@@ -38,14 +38,15 @@ impl Argument {
                         if first_char.is_uppercase() { return Ok(Argument::Type(Type::SchemaTypeOrEnum(name))) } 
                         else { return Ok(Argument::Identifier(name)) }
                     },
-                    None => Err(CastleError::Unimplemented("argument cannot be empty".into()))
+                    None => Err(CastleError::Unimplemented("argument cannot be empty 1".into()))
                 }
             },
             _ => {
+
                 let primitive_value = PrimitiveValue::new_from_token_kind(token.kind);
                 match primitive_value {
                     Some(primitive_value) => return Ok(Argument::PrimitiveValue(primitive_value)),
-                    None => Err(CastleError::Unimplemented("argument cannot be empty".into()))
+                    None => Err(CastleError::Unimplemented("argument cannot be empty 2".into()))
                 }
             }
         }
