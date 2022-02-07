@@ -61,7 +61,7 @@ fn can_parse_simple_type() {
     }); 
     
     let actual = parse_schema(query).unwrap();
-    assert_eq!(expected, actual);
+    assert_eq!(expected, actual.schema_types);
 }
 
 #[test]
