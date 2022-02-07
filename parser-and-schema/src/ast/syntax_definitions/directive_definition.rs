@@ -6,12 +6,12 @@ use super::expressions::PrimitiveValue;
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct DirectiveDefinition {
-    pub name: String,
+    pub name: Box<str>,
     pub arguments: Vec<DirectiveArgument>
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct DirectiveArgument {
-    pub name: String,
+    pub name: Box<str>,
     pub value: PrimitiveValue
 }

@@ -13,7 +13,7 @@ pub struct SchemaField {
 pub enum Type {
     PrimitiveType(PrimitiveType),
     SchemaType(Box<str>),
-    VecType(Box<str>),
+    VecType(Box<Type>),
 }
 
 #[derive(Debug, PartialEq)]

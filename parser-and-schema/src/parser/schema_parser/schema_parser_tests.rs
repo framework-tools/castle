@@ -513,8 +513,8 @@ fn can_parse_two_types_with_vec_type() {
         type Organization {
             id: uuid,
             name: String,
-            users: [User],
-            industry: String,
+            industries: Vec<String>,
+            users: Vec<User>
         }";
 
     let mut user_fields = HashMap::new();
@@ -593,19 +593,29 @@ fn can_parse_two_types_with_vec_type() {
         "users".into(),
         SchemaField {
             name: "users".into(),
-            type_: parser::schema_parser::types::schema_field::Type::VecType("User".into()),
+            type_: parser::schema_parser::types::schema_field::Type::VecType(Type::SchemaType("User".into()).into()),
             directives: None,
         },
     );
 
     organization_fields.insert(
-        "industry".into(),
+        "industries".into(),
         SchemaField {
-            name: "industry".into(),
-            type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
+            name: "industries".into(),
+            type_: parser::schema_parser::types::schema_field::Type::VecType(Type::PrimitiveType(PrimitiveType::String).into()),
             directives: None,
         },
     );
     let actual = parse_schema(query).unwrap();
     assert_eq!(expected, actual.schema_types);
 }
+
+
+// To Implement:
+// - Parse Enums (Unit types)
+// - Parse Enums with primitive values
+// - Parse Enums with type values - incl checking for undefined types
+// - Parse functions
+// - Parse directives
+// - Parse implements
+// - Parse traits ???

@@ -1,4 +1,10 @@
-use super::Type;
+use std::collections::HashMap;
+
+use crate::parser::schema_parser::types::schema_field::Type;
+
+use super::fn_definition::FnDefinition;
+
+
 
 
 
@@ -6,5 +12,5 @@ use super::Type;
 pub struct ImplDefinition {
     pub impl_trait: Option<Type>,
     pub impl_for: Type,
-    // TODO add impl body
+    pub functions: HashMap<Box<str>, FnDefinition>
 }
