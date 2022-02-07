@@ -5,6 +5,7 @@ use shared::CastleError;
 
 
 use crate::ast::syntax_definitions::expressions::PrimitiveValue;
+use crate::ast::syntax_definitions::want::Argument;
 use crate::ast::syntax_definitions::want::SingleField;
 use crate::parser::query_parser::parse_query::parse_query;
 use crate::ast::syntax_definitions::want::Want;
@@ -39,8 +40,8 @@ fn can_parse_two_fields() -> Result<(), CastleError> {
     let want2 = Want::new_single_field("last_name".into(), None);
 
     let mut expected: HashMap<Box<str>, Want> = HashMap::new();
-    expected.insert("first_name".into(), want1.clone());
-    expected.insert("last_name".into(),want2.clone());
+    expected.insert("first_name".into(), want1);
+    expected.insert("last_name".into(),want2);
 
     let actual = parse_query(query)?;
     assert_eq!(expected, actual);
@@ -58,8 +59,8 @@ fn can_parse_two_fields_different_lines() -> Result<(), CastleError> {
     let want2 = Want::new_single_field("last_name".into(), None);
 
     let mut expected: HashMap<Box<str>, Want> = HashMap::new();
-    expected.insert("first_name".into(), want1.clone());
-    expected.insert("last_name".into(), want2.clone());
+    expected.insert("first_name".into(), want1);
+    expected.insert("last_name".into(), want2);
 
     let actual = parse_query(query)?;
     assert_eq!(expected, actual);
@@ -105,7 +106,7 @@ fn can_parse_object_projection_with_single_field() -> Result<(), CastleError> {
         fields: Some(fields),
         match_statements: None
     });
-    expected.insert("me".into(), want.clone());
+    expected.insert("me".into(), want);
     
     let actual = parse_query(query)?;
 
@@ -237,7 +238,9 @@ fn can_parse_object_projection_with_argument() {
     fields.insert("first_name".into(), Want::new_single_field("first_name".into(), None).into());
     fields.insert("last_name".into(), Want::new_single_field("last_name".into(), None).into());
     fields.insert("email".into(), Want::new_single_field("email".into(), None).into());
-    fields.insert("profile_picture".into(), Want::new_single_field("profile_picture".into(), Some(vec![PrimitiveValue::UInt(48)])).into());
+    fields.insert("profile_picture".into(), Want::new_single_field("profile_picture".into(), Some(vec![
+        Argument::PrimitiveValue(PrimitiveValue::UInt(48)), 
+    ])).into());
 
     let mut expected: HashMap<Box<str>, Want> = HashMap::new();
     expected.insert("me".into(),Want::Projection(ObjectProjection {

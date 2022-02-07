@@ -1,21 +1,55 @@
 
 use std::collections::HashMap;
 
-use super::expressions::PrimitiveValue;
+use shared::CastleError;
 
-#[derive(Debug, PartialEq, Clone)]
+use crate::{token::{Token, token::{TokenKind, Identifier}}, parser::schema_parser::types::schema_field::Type};
+
+use super::{expressions::PrimitiveValue, keyword::Keyword};
+
+#[derive(Debug, PartialEq)]
 pub enum Want {
     SingleField(SingleField),
     Projection(ObjectProjection)
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq)]
 pub struct SingleField {
     pub identifier: Box<str>,
-    pub arguments: Option<Vec<PrimitiveValue>>
+    pub arguments: Option<Vec<Argument>>
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq)]
+pub enum Argument {
+    Type(Type),
+    Identifier(Box<str>),
+    PrimitiveValue(PrimitiveValue)
+}
+
+impl Argument {
+    pub fn new(token: Token) -> Result<Self, CastleError> {
+        match token.kind {
+            TokenKind::PrimitiveType(primitive_type) => return Ok(Argument::Type(Type::PrimitiveType(primitive_type))),
+            TokenKind::VecType(vec_type) => return Ok(Argument::Type(Type::VecType(vec_type))),
+            TokenKind::Identifier(Identifier { name, ..}) => {
+                let first_char = name.chars().nth(0);
+                match first_char {
+                    Some(first_char) => {
+                        if first_char.is_uppercase() { return Ok(Argument::Type(Type::SchemaTypeOrEnum(name))) } 
+                        else { return Ok(Argument::Identifier(name)) }
+                    },
+                    None => Err(CastleError::Unimplemented("argument cannot be empty".into()))
+                }
+            },
+            _ => {
+                let primitive_value = PrimitiveValue::new(token)?;
+                return Ok(Argument::PrimitiveValue(primitive_value))
+            }
+        }
+    }
+}
+
+#[derive(Debug, PartialEq)]
 pub struct ObjectProjection {
     pub identifier: Box<str>,
     pub fields: Option<HashMap<Box<str>, Want>>,
@@ -23,7 +57,7 @@ pub struct ObjectProjection {
 }
 
 impl Want {
-    pub fn new_single_field(identifier: Box<str>, arguments: Option<Vec<PrimitiveValue>>) -> Self {
+    pub fn new_single_field(identifier: Box<str>, arguments: Option<Vec<Argument>>) -> Self {
         Want::SingleField(SingleField {
             identifier,
             arguments
@@ -47,7 +81,7 @@ impl Want {
 }
 
 impl SingleField {
-    pub fn new(identifier: Box<str>, arguments: Option<Vec<PrimitiveValue>>) -> Want {
+    pub fn new(identifier: Box<str>, arguments: Option<Vec<Argument>>) -> Want {
         Want::SingleField(SingleField {
             identifier,
             arguments
