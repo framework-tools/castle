@@ -1,6 +1,6 @@
 use std::{collections::HashMap, vec};
 
-use crate::{parser::{schema_parser::{types::{schema_field::{SchemaField}, schema_type::SchemaType, type_system::Type, primitive_type::PrimitiveType, vec_type::VecType}, schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}}, self}, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, schema_definition::SchemaDefinition, argument::Argument, fn_definition::FnDefinition}};
+use crate::{parser::{schema_parser::{types::{schema_field::{SchemaField}, schema_type::SchemaType, type_system::Type, primitive_type::PrimitiveType, vec_type::VecType}, schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}}, self, query_parser::query_tests_utils::insert_each_field_into_fields}, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, schema_definition::SchemaDefinition, argument::Argument, fn_definition::FnDefinition}};
 
 use super::parse_schema::parse_schema;
 
@@ -550,6 +550,55 @@ fn can_parse_function_with_args_and_return_type(){
     assert_eq!(expected, actual);
 }
 
+fn can_parse_option_type(){
+    let schema = "
+        type User {
+            id: uuid,
+            name: Option(String),
+            profile_pic: Option(ProfilePic),
+        }
+
+        type ProfilePic {
+            url: String,
+            width: Int,
+            height: Int,
+        }
+    ";
+
+    let profile_pic_fields = create_type_fields_for_tests(vec![
+        ("url".into(), Type::PrimitiveType(PrimitiveType::String)),
+        ("width".into(), Type::PrimitiveType(PrimitiveType::Int)),
+        ("height".into(), Type::PrimitiveType(PrimitiveType::Int)),
+    ]);
+
+    let user_fields = create_type_fields_for_tests(vec![
+        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid)),
+        ("name".into(), Type::OptionType(Box::new(Type::PrimitiveType(PrimitiveType::String)))),
+        ("profile_pic".into(), Type::OptionType(Box::new(Type::SchemaTypeOrEnum("ProfilePic".into())))),
+    ]);
+
+    let expected_types = create_schema_types_for_test(vec![
+        ("User".into(), SchemaType::new("User".into(), user_fields)),
+        ("ProfilePic".into(), SchemaType::new("ProfilePic".into(), profile_pic_fields)),
+    ]);
+
+    let expected = SchemaDefinition {
+        schema_types: expected_types,
+        enums: HashMap::new(),
+        traits: HashMap::new(),
+        impls: HashMap::new(),
+        functions: HashMap::new(),
+    };
+    assert_eq!(expected, parse_schema(schema).unwrap());
+}
+
+// fn can_parse_directives(){
+//     let schema = "
+//         type User {
+//             name:
+//         }
+//     "
+// }
 
 // To Implement:
 // - Parse functions
