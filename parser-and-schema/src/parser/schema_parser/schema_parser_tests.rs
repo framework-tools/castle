@@ -49,6 +49,7 @@ fn can_parse_simple_type() {
         SchemaField {
             name: "age".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int),
+            directives: None
         },
     );
     let mut expected = HashMap::new();
