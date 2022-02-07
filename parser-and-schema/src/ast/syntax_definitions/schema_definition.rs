@@ -18,7 +18,10 @@ pub struct SchemaDefinition {
 impl SchemaDefinition {
     pub fn new() -> SchemaDefinition {
         SchemaDefinition {
-            schema_types: HashMap::new();
+            schema_types: HashMap::new(),
+            traits: HashMap::new(),
+            enums: HashMap::new(),
+            fns: HashMap::new()
         }
     }
 }
