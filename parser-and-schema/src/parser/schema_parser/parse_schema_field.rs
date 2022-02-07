@@ -43,7 +43,7 @@ where R: Read{
     }
 }
 
-fn get_identifier<R>(token: Option<Token>, tokenizer: &mut Tokenizer<R>) -> Result<Box<str>, CastleError> 
+pub fn get_identifier<R>(token: Option<Token>, tokenizer: &mut Tokenizer<R>) -> Result<Box<str>, CastleError> 
 where R: Read{
     match token {
         Some(token) => match token.kind {
