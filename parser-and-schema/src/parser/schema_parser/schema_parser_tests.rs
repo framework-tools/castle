@@ -1,4 +1,8 @@
-use crate::parser::{schema_parser::types::{schema_field::{SchemaField, PrimitiveType, Type}, schema_type::SchemaType}, self};
+use std::collections::HashMap;
+
+use crate::{parser::{schema_parser::types::{schema_field::{SchemaField, PrimitiveType, Type}, schema_type::SchemaType}, self}, token::token::VecType, ast::syntax_definitions::enum_definition::{EnumDefinition, EnumVariant, EnumData}};
+
+use super::parse_schema::parse_schema;
 
 
 
@@ -590,25 +594,181 @@ fn can_parse_two_types_with_vec_type() {
         },
     );
     organization_fields.insert(
-        "users".into(),
-        SchemaField {
-            name: "users".into(),
-            type_: parser::schema_parser::types::schema_field::Type::VecType(Type::SchemaType("User".into()).into()),
-            directives: None,
-        },
-    );
-
-    organization_fields.insert(
         "industries".into(),
         SchemaField {
             name: "industries".into(),
-            type_: parser::schema_parser::types::schema_field::Type::VecType(Type::PrimitiveType(PrimitiveType::String).into()),
+            type_: parser::schema_parser::types::schema_field::Type::VecType(VecType { inner_type: Type::PrimitiveType(PrimitiveType::String).into() }),
             directives: None,
         },
     );
+    organization_fields.insert(
+        "users".into(),
+        SchemaField {
+            name: "users".into(),
+            type_: parser::schema_parser::types::schema_field::Type::VecType(VecType { inner_type: Type::SchemaType("User".into()).into() }),
+            directives: None,
+        },
+    );
+    expected.insert("Organization".into(), SchemaType {
+        identifier: "Organization".into(),
+        fields: organization_fields,
+    });
     let actual = parse_schema(query).unwrap();
     assert_eq!(expected, actual.schema_types);
 }
+
+#[test]
+fn can_parse_enum_schema() {
+    let query = "
+        enum Color {
+            Red,
+            Green,
+            Blue
+        }
+    ";
+
+    let mut enum_variants = HashMap::new();
+    enum_variants.insert("Red".into(), EnumData { name: "Red".into(), variant: EnumVariant::EnumUnit, directives: HashMap::new() });
+    enum_variants.insert("Green".into(), EnumData { name: "Green".into(), variant: EnumVariant::EnumUnit, directives: HashMap::new() });
+    enum_variants.insert("Blue".into(), EnumData { name: "Blue".into(), variant: EnumVariant::EnumUnit, directives: HashMap::new() });
+    let enum_ = EnumDefinition {
+        name: "Color".into(),
+        variants: enum_variants,
+        directives: HashMap::new()
+    };
+
+    let mut expected: HashMap<Box<str>, EnumDefinition> = HashMap::new();
+    expected.insert("Color".into(), enum_);
+
+    let actual = parse_schema(query).unwrap();
+    assert_eq!(expected, actual.enums);
+}
+
+// #[test]
+// fn can_parse_enum_schema_with_values() {
+//     use std::collections::HashMap;
+
+//     use crate::parser::schema_parser::parse_schema::parse_schema;
+
+//     let query = "
+//         type User {
+//             id: uuid,
+//             name: String,
+//             age: Int,
+//             is_admin: bool,
+//             location: String,
+//             log_in_count: Int
+//         }
+        
+//         type Organization {
+//             id: uuid,
+//             name: String,
+//             industries: Vec<String>,
+//             users: Vec<User>
+//         }
+        
+//         enum FrameworkTypes {
+//             ProfilePic(String),
+//             User(User),
+//             Organization(Organization),
+//         }
+//         ";
+
+//     let mut user_fields = HashMap::new();
+//     user_fields.insert(
+//         "id".into(),
+//         SchemaField {
+//             name: "id".into(),
+//             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid),
+//             directives: None,
+//         },
+//     );
+//     user_fields.insert(
+//         "name".into(),
+//         SchemaField {
+//             name: "name".into(),
+//             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
+//             directives: None,
+//         },
+//     );
+//     user_fields.insert(
+//         "age".into(),
+//         SchemaField {
+//             name: "age".into(),
+//             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int),
+//             directives: None,
+//         },
+//     );
+//     user_fields.insert(
+//         "is_admin".into(),
+//         SchemaField {
+//             name: "is_admin".into(),
+//             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Bool),
+//             directives: None,
+//         },
+//     );
+//     user_fields.insert(
+//         "location".into(),
+//         SchemaField {
+//             name: "location".into(),
+//             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
+//             directives: None,
+//         },
+//     );
+//     user_fields.insert(
+//         "log_in_count".into(),
+//         SchemaField {
+//             name: "log_in_count".into(),
+//             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int),
+//             directives: None,
+//         },
+//     );
+//     let mut expected = HashMap::new();
+//     expected.insert("User".into(), SchemaType {
+//         identifier: "User".into(),
+//         fields: user_fields,
+//     }); 
+    
+//     let mut organization_fields: HashMap<Box<str>, SchemaField> = HashMap::new();
+//     organization_fields.insert(
+//         "id".into(),
+//         SchemaField {
+//             name: "id".into(),
+//             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid),
+//             directives: None,
+//         },
+//     );
+//     organization_fields.insert(
+//         "name".into(),
+//         SchemaField {
+//             name: "name".into(),
+//             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
+//             directives: None,
+//         },
+//     );
+//     organization_fields.insert(
+//         "industries".into(),
+//         SchemaField {
+//             name: "industries".into(),
+//             type_: parser::schema_parser::types::schema_field::Type::VecType(VecType { inner_type: Type::PrimitiveType(PrimitiveType::String).into() }),
+//             directives: None,
+//         },
+//     );
+//     organization_fields.insert(
+//         "users".into(),
+//         SchemaField {
+//             name: "users".into(),
+//             type_: parser::schema_parser::types::schema_field::Type::VecType(VecType { inner_type: Type::SchemaType("User".into()).into() }),
+//             directives: None,
+//         },
+//     );
+//     expected.insert("Organization".into(), SchemaType {
+//         identifier: "Organization".into(),
+//         fields: organization_fields,
+//     });
+//     let actual = parse_schema(query).unwrap();
+//     assert_eq!(expected, actual.schema_types);
+// }
 
 
 // To Implement:

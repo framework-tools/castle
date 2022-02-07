@@ -3,11 +3,11 @@ use std::io::Read;
 use input_cursor::{Cursor, Position, Span};
 use shared::CastleError;
 
-use crate::{token::{Token, token::{TokenKind, Identifier}}, ast::syntax_definitions::{keyword::Keyword, expressions::{PrimitiveValue}}, parser::schema_parser::types::{schema_field::{PrimitiveType}}};
+use crate::{token::{Token, token::{TokenKind, Identifier, VecType}}, ast::syntax_definitions::{keyword::Keyword, expressions::{PrimitiveValue}}, parser::schema_parser::types::{schema_field::{PrimitiveType}}};
 
 pub fn parse_identifier_or_keyword_or_type<R>(cursor: &mut Cursor<R>, start: Position) -> Result<Token, CastleError> 
 where R: Read {
-    let (word, field_has_arguments) = get_word_from_chars(cursor)?;
+    let (mut word, field_has_arguments) = get_word_from_chars(cursor)?;
     let arguments;
     if field_has_arguments { arguments = Some(get_field_arguments(cursor)?); }
     else { arguments = None }
@@ -18,10 +18,45 @@ where R: Read {
             let primitive_type = PrimitiveType::from_str_to_option_primitive_type(&word[..]);
             match primitive_type {
                 Some(primitive_type) => Ok(Token::new(TokenKind::PrimitiveType(primitive_type), Span::new(start, cursor.pos()))),
-                None => Ok(Token::new(TokenKind::Identifier(Identifier {
-                    name: word.into(),
-                    arguments
-                    }), Span::new(start, cursor.pos())))
+                None => {
+                    let ch = cursor.peek()?;
+                    match ch {
+                        Some(ch) => {
+                            let char = char::try_from(ch).ok().ok_or(CastleError::lex("invalid character",cursor.pos()))?;
+                            if char == '<' {
+                                loop {
+                                    let char = cursor.next_char()?.unwrap();
+                                    let char = char::try_from(char).ok().ok_or(CastleError::lex("invalid character",cursor.pos()))?;
+                                    if char == '>' { word.push(char); break; } 
+                                    else { word.push(char); }
+                                }
+                                let vec_type = VecType::new(&word);
+                                match vec_type {
+                                    Some(type_) => return Ok(Token::new(TokenKind::VecType(VecType::get_vec_type_struct(type_)), Span::new(start, cursor.pos()))),
+                                    None => return Err(CastleError::AbruptEOF)
+                                }
+                            } else {
+                                return Ok(Token::new(TokenKind::Identifier(Identifier {
+                                    name: word.into(),
+                                    arguments
+                                    }), Span::new(start, cursor.pos())))
+                            }
+                        }
+                        None => {
+                            return Err(CastleError::Unimplemented(format!("Expected identifier or keyword, but found EOF").into()));
+                        }
+                    }
+                    let vec_type = VecType::new(&word);
+                    match vec_type {
+                        Some(type_) => Ok(Token::new(TokenKind::VecType(VecType::get_vec_type_struct(type_)), Span::new(start, cursor.pos()))),
+                        None => {
+                            Ok(Token::new(TokenKind::Identifier(Identifier {
+                                name: word.into(),
+                                arguments
+                                }), Span::new(start, cursor.pos())))
+                        }
+                    }
+                }
             }
         }
     }

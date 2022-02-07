@@ -7,7 +7,8 @@ pub enum Keyword {
     None,
     Some,
     Match,
-    Type
+    Type,
+    Enum
 }
 
 impl Keyword {
@@ -20,6 +21,7 @@ impl Keyword {
             "some" => Some(Keyword::Some),
             "match" => Some(Keyword::Match),
             "type" => Some(Keyword::Type),
+            "enum" => Some(Keyword::Enum),
             _ => None
         }
     }

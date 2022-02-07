@@ -7,7 +7,7 @@ use crate::{token::{Token, token::{TokenKind, Identifier, Punctuator}}, tokenize
 use super::{types::{schema_type::SchemaType, schema_field::SchemaField}, parse_schema_field::parse_schema_field};
 
 
-pub fn check_token_and_parse_schema_type_or_break<R>(
+pub fn check_token_and_parse_schema_or_break<R>(
     token: Option<Token>, 
     tokenizer: &mut Tokenizer<R>,
     parsed_schema: &mut SchemaDefinition
@@ -19,6 +19,11 @@ pub fn check_token_and_parse_schema_type_or_break<R>(
                 parsed_schema.schema_types.insert(schema_type.identifier.clone(), schema_type);
                 return Ok(false)
             },
+            TokenKind::Keyword(Keyword::Enum) => {
+                let enum_definition = parse_enum_definition(tokenizer)?;
+                parsed_schema.enums.insert(enum_definition.name.clone(), enum_definition);
+                return Ok(false)
+            },  
             _ => return Err(CastleError::Schema(format!("1. Unexpected token: {:?}", token.kind).into(), token.span))
         },
         None => return Ok(true)

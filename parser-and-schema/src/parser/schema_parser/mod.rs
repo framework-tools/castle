@@ -4,3 +4,4 @@ pub mod types;
 pub mod handle_schema_errors;
 pub mod parse_schema_type;
 pub mod parse_schema_field;
+pub mod enums;

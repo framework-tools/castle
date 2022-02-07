@@ -2,7 +2,7 @@ use std::io::Read;
 
 use shared::CastleError;
 
-use crate::{tokenizer::tokenizer::Tokenizer, token::{token::{TokenKind, Punctuator}, Token}};
+use crate::{tokenizer::tokenizer::Tokenizer, token::{token::{TokenKind, Punctuator, VecType}, Token}};
 
 use super::types::schema_field::{SchemaField, Type, PrimitiveType};
 
@@ -35,6 +35,7 @@ where R: Read{
         Some(token) => match token.kind {
             TokenKind::PrimitiveType(primitive_type) => return get_primitive_type(primitive_type, tokenizer),
             TokenKind::Identifier(identifier) => return get_schema_type(identifier.name, tokenizer),
+            TokenKind::VecType(type_) => return get_vec_type(type_, tokenizer),
             // Need to implement with types from AST
             _ => Err(CastleError::Schema(format!("Expected type, found: {:?}", token.kind).into(), token.span))
         },
@@ -55,18 +56,23 @@ where R: Read{
 
 fn get_primitive_type<R>(primitive_type: PrimitiveType, tokenizer: &mut Tokenizer<R>) -> Result<Type, CastleError> 
 where R: Read{
-    let option_peeked_token = tokenizer.peek(true)?;
-    let peeked_token = match option_peeked_token {
-        Some(token) => token,
-        None => return Err(CastleError::AbruptEOF)
-    };
-    if peeked_token.kind == TokenKind::Punctuator(Punctuator::Comma) {
-        tokenizer.next(true)?; // skip comma
-    }
+    skip_comma(tokenizer)?;
     return Ok(Type::PrimitiveType(primitive_type))
 }
 
 fn get_schema_type<R>(identifier: Box<str>, tokenizer: &mut Tokenizer<R>) -> Result<Type, CastleError> 
+where R: Read{
+    skip_comma(tokenizer)?;
+    return Ok(Type::SchemaType(identifier))
+}
+
+fn get_vec_type<R>(vec_type: VecType, tokenizer: &mut Tokenizer<R>) -> Result<Type, CastleError>
+    where R: Read{
+    skip_comma(tokenizer)?;
+    return Ok(Type::VecType(vec_type))
+}
+
+fn skip_comma<R>(tokenizer: &mut Tokenizer<R>) -> Result<(), CastleError> 
 where R: Read{
     let option_peeked_token = tokenizer.peek(true)?;
     let peeked_token = match option_peeked_token {
@@ -76,5 +82,5 @@ where R: Read{
     if peeked_token.kind == TokenKind::Punctuator(Punctuator::Comma) {
         tokenizer.next(true)?; // skip comma
     }
-    return Ok(Type::SchemaType(identifier))
+    return Ok(());
 }

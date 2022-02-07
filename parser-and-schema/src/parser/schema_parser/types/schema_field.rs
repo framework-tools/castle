@@ -1,4 +1,4 @@
-use crate::ast::syntax_definitions::directive_definition::DirectiveDefinition;
+use crate::{ast::syntax_definitions::directive_definition::DirectiveDefinition, token::token::VecType};
 
 
 
@@ -13,7 +13,7 @@ pub struct SchemaField {
 pub enum Type {
     PrimitiveType(PrimitiveType),
     SchemaType(Box<str>),
-    VecType(Box<Type>),
+    VecType(VecType),
 }
 
 #[derive(Debug, PartialEq)]
@@ -40,5 +40,23 @@ impl PrimitiveType {
             _ => None
         }
     }
-    
+}
+
+impl Type {
+    pub fn new(s: String) -> Self {
+        let option_primitive = PrimitiveType::from_str_to_option_primitive_type(&s);
+        match option_primitive {
+            Some(primitive) => Type::PrimitiveType(primitive),
+            None => {
+                let option_vec = VecType::new(&s);
+                match option_vec {
+                    Some(type_) => {
+                        let vec_type = VecType::get_vec_type_struct(type_);
+                        return Type::VecType(vec_type)
+                    },
+                    None => Type::SchemaType(s.into())
+                }
+            }
+        }
+    }
 }
