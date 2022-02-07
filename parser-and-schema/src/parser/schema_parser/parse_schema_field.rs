@@ -63,7 +63,7 @@ where R: Read{
 fn get_schema_type<R>(identifier: Box<str>, tokenizer: &mut Tokenizer<R>) -> Result<Type, CastleError> 
 where R: Read{
     skip_comma(tokenizer)?;
-    return Ok(Type::SchemaType(identifier))
+    return Ok(Type::SchemaTypeOrEnum(identifier))
 }
 
 fn get_vec_type<R>(vec_type: VecType, tokenizer: &mut Tokenizer<R>) -> Result<Type, CastleError>

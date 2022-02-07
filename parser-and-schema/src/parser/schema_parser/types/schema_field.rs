@@ -54,7 +54,7 @@ impl Type {
                         let vec_type = VecType::get_vec_type_struct(type_);
                         return Type::VecType(vec_type)
                     },
-                    None => Type::SchemaType(s.into())
+                    None => Type::SchemaTypeOrEnum(s.into())
                 }
             }
         }

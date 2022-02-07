@@ -42,8 +42,11 @@ impl Argument {
                 }
             },
             _ => {
-                let primitive_value = PrimitiveValue::new(token)?;
-                return Ok(Argument::PrimitiveValue(primitive_value))
+                let primitive_value = PrimitiveValue::new_from_token_kind(token.kind);
+                match primitive_value {
+                    Some(primitive_value) => return Ok(Argument::PrimitiveValue(primitive_value)),
+                    None => Err(CastleError::Unimplemented("argument cannot be empty".into()))
+                }
             }
         }
     }
