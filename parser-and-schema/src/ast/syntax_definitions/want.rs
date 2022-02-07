@@ -1,11 +1,6 @@
 
-use std::collections::HashMap;
-
-use shared::CastleError;
-
-use crate::{token::{Token, token::{TokenKind, Identifier}}, parser::schema_parser::types::schema_field::Type};
-
-use super::{expressions::PrimitiveValue, keyword::Keyword};
+use std::{collections::HashMap};
+use crate::ast::syntax_definitions::argument::Argument;
 
 #[derive(Debug, PartialEq)]
 pub enum Want {
@@ -17,40 +12,6 @@ pub enum Want {
 pub struct SingleField {
     pub identifier: Box<str>,
     pub arguments: Option<Vec<Argument>>
-}
-
-#[derive(Debug, PartialEq)]
-pub enum Argument {
-    Type(Type),
-    Identifier(Box<str>),
-    PrimitiveValue(PrimitiveValue)
-}
-
-impl Argument {
-    pub fn new(token: Token) -> Result<Self, CastleError> {
-        match token.kind {
-            TokenKind::PrimitiveType(primitive_type) => return Ok(Argument::Type(Type::PrimitiveType(primitive_type))),
-            TokenKind::VecType(vec_type) => return Ok(Argument::Type(Type::VecType(vec_type))),
-            TokenKind::Identifier(Identifier { name, ..}) => {
-                let first_char = name.chars().nth(0);
-                match first_char {
-                    Some(first_char) => {
-                        if first_char.is_uppercase() { return Ok(Argument::Type(Type::SchemaTypeOrEnum(name))) } 
-                        else { return Ok(Argument::Identifier(name)) }
-                    },
-                    None => Err(CastleError::Unimplemented("argument cannot be empty 1".into()))
-                }
-            },
-            _ => {
-
-                let primitive_value = PrimitiveValue::new_from_token_kind(token.kind);
-                match primitive_value {
-                    Some(primitive_value) => return Ok(Argument::PrimitiveValue(primitive_value)),
-                    None => Err(CastleError::Unimplemented("argument cannot be empty 2".into()))
-                }
-            }
-        }
-    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -68,7 +29,7 @@ impl Want {
         })
     }
 
-    pub fn new_projection(identifier: Box<str>, fields: Option<HashMap<Box<str>, Want>>, match_statements: Option<HashMap<Box<str>, Want>>) -> Self {
+    pub fn new_object_projection(identifier: Box<str>, fields: Option<HashMap<Box<str>, Want>>, match_statements: Option<HashMap<Box<str>, Want>>) -> Self {
         Want::Projection(ObjectProjection {
             identifier,
             fields,

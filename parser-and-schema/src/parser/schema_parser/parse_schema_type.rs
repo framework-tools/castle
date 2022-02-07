@@ -4,14 +4,14 @@ use shared::CastleError;
 
 use crate::{token::{Token, token::{TokenKind, Identifier, Punctuator}}, tokenizer::tokenizer::Tokenizer, ast::syntax_definitions::{keyword::Keyword, schema_definition::SchemaDefinition}};
 
-use super::{types::{schema_type::SchemaType, schema_field::SchemaField}, parse_schema_field::parse_schema_field, enums::parse_enum::parse_enum_definition};
+use super::{types::{schema_type::SchemaType, schema_field::SchemaField}, parse_schema_field::parse_schema_field, enums::parse_enum::parse_enum_definition, functions::parse_function::parse_function};
 
 
 pub fn check_token_and_parse_schema_or_break<R>(
-    token: Option<Token>, 
     tokenizer: &mut Tokenizer<R>,
     parsed_schema: &mut SchemaDefinition
 ) -> Result<bool, CastleError> where R: Read {
+    let token = tokenizer.next(true)?;
     match token {
         Some(token) => match token.kind {
             TokenKind::Keyword(Keyword::Type) => {
@@ -24,6 +24,11 @@ pub fn check_token_and_parse_schema_or_break<R>(
                 parsed_schema.enums.insert(enum_definition.name.clone(), enum_definition);
                 return Ok(false)
             },  
+            TokenKind::Keyword(Keyword::Fn) => {
+                let function_definition = parse_function(tokenizer)?;
+                parsed_schema.functions.insert(function_definition.name.clone(), function_definition);
+                return Ok(false)
+            }
             _ => return Err(CastleError::Schema(format!("1. Unexpected token: {:?}", token.kind).into(), token.span))
         },
         None => return Ok(true)
@@ -63,7 +68,7 @@ where R: Read{
     return Ok(identifier.name)
 }
 
-fn check_token_and_parse_schema_field_or_break<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str>, SchemaField>) -> Result<bool, CastleError> 
+pub fn check_token_and_parse_schema_field_or_break<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str>, SchemaField>) -> Result<bool, CastleError> 
 where R: Read {
     let token = tokenizer.peek(true)?; // get field identifier or closeblock
     match token {
@@ -76,7 +81,7 @@ where R: Read {
                 tokenizer.next(true)?; // skip closeblock
                 return Ok(true) //should break loop
             },
-            _ => return Err(CastleError::Schema(format!("2. Unexpected token: {:?}", token.kind).into(), token.span))
+            _ => return Err(CastleError::Schema(format!("3. Unexpected token: {:?}", token.kind).into(), token.span))
         },
         None => return Err(CastleError::AbruptEOF)
     }

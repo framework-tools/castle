@@ -1,7 +1,9 @@
 use std::{io::Read, collections::HashMap};
 
-use crate::{ast::syntax_definitions::{want::{Want, ObjectProjection, SingleField, Argument}, keyword::{Keyword}}, token::{token::{TokenKind, Punctuator, Identifier}, Token}, tokenizer::{tokenizer::Tokenizer}};
+use crate::{ast::syntax_definitions::{want::{Want, ObjectProjection, SingleField}, keyword::{Keyword}}, token::{token::{TokenKind, Punctuator, Identifier}, Token}, tokenizer::{tokenizer::Tokenizer}};
 use shared::CastleError;
+
+use crate::ast::syntax_definitions::argument::Argument;
 
 use super::{parse_inner_object::parse_inner_object, parse_match_statements::parse_match_statements};
 

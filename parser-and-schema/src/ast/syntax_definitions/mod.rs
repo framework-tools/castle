@@ -7,3 +7,4 @@ pub mod enum_definition;
 pub mod fn_definition;
 pub mod trait_definition;
 pub mod impl_definition;
+pub mod argument;

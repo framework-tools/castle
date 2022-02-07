@@ -19,9 +19,8 @@ pub fn parse_schema(schema: &str) -> Result<SchemaDefinition, CastleError> {
     let mut parsed_schema: SchemaDefinition = SchemaDefinition::new();
 
     loop {
-        let token = tokenizer.next(true)?;
         //function below parses schema types and inserts into parsed_schema
-        let at_end_of_schema = check_token_and_parse_schema_or_break(token, &mut tokenizer, &mut parsed_schema)?;
+        let at_end_of_schema = check_token_and_parse_schema_or_break(&mut tokenizer, &mut parsed_schema)?;
         if at_end_of_schema { break; }
     }
     check_for_undefined_schema_types(&parsed_schema.schema_types)?;

@@ -11,7 +11,7 @@ where R: Read {
     tokenizer.next(true)?; // consume the match keyword
     tokenizer.next(true)?; // consume the open block
     let match_statements = get_match_arms(tokenizer)?;
-    let field = Want::new_projection(name.clone(), None, Some(match_statements));
+    let field = Want::new_object_projection(name.clone(), None, Some(match_statements));
     fields.insert(name.clone(), field);
     return Ok(())
 }

@@ -1,5 +1,6 @@
-use crate::parser::schema_parser::types::schema_field::Type;
+use crate::parser::schema_parser::types::type_system::Type;
 
+use super::argument::Argument;
 
 
 
@@ -7,9 +8,20 @@ use crate::parser::schema_parser::types::schema_field::Type;
 #[derive(Debug, PartialEq)]
 pub struct FnDefinition {
     pub name: Box<str>,
-    pub args: Vec<Type>,
-    pub return_type: Type,
+    pub args: Option<Vec<Argument>>,
+    pub return_type: Option<Type>,
     pub body: Vec<FnStatement>
+}
+
+impl FnDefinition {
+    pub fn new() -> Self {
+        Self {
+            name: "".to_string().into(),
+            args: None,
+            return_type: None,
+            body: Vec::new()
+        }
+    }
 }
 
 

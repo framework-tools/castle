@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use shared::CastleError;
 
-use super::types::{schema_type::SchemaType, schema_field::Type};
+use super::types::{schema_type::SchemaType, type_system::Type};
 
 /// Takes in parsed schema and checks each field for any undefined types
 ///     - For each Type loop

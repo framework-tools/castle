@@ -1,6 +1,7 @@
 
 
 use serde::{Deserialize, Serialize};
+use shared::CastleError;
 
 use crate::token::token::{TokenKind, Numeric};
 
@@ -22,6 +23,27 @@ pub enum PrimitiveValue {
 }
 
 impl PrimitiveValue {
+    pub fn new_from_str(value: String) -> Result<PrimitiveValue, CastleError> {
+        if value.contains('"') {
+            return Ok(PrimitiveValue::String(value.into()))
+        }
+        else if value == "true" {
+            return Ok(PrimitiveValue::Boolean(true))
+        }
+        else if value == "false" {
+            return Ok(PrimitiveValue::Boolean(false))
+        }
+        else if value.contains('.') {
+            return Ok(PrimitiveValue::Float(value.parse().unwrap()))
+        }
+        else if value.contains('-'){
+            return Ok(PrimitiveValue::Int(value.parse().unwrap()))
+        }
+        else {
+            return Ok(PrimitiveValue::UInt(value.parse().unwrap()))
+        }
+    }
+    
     pub fn new_from_token_kind(token_kind: TokenKind) -> Option<Self> {
         match token_kind {
             TokenKind::StringLiteral(s) => Some(PrimitiveValue::String(s)),

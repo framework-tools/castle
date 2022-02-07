@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
-use crate::parser::schema_parser::types::schema_field::SchemaField;
-use crate::parser::schema_parser::types::schema_field::Type;
+use crate::parser::schema_parser::types::{schema_field::SchemaField, type_system::Type};
 
 use super::directive_definition::DirectiveDefinition;
 
