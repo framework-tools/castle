@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{parser::{schema_parser::{types::{schema_field::{SchemaField, PrimitiveType, Type}, schema_type::SchemaType}, schema_tests_utils::create_type_fields_for_tests}, self}, token::token::VecType, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, schema_definition::SchemaDefinition}};
+use crate::{parser::{schema_parser::{types::{schema_field::{SchemaField, PrimitiveType, Type}, schema_type::SchemaType}, schema_tests_utils::create_type_fields_for_tests}, self}, token::token::VecType, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, schema_definition::SchemaDefinition, want::Argument}};
 
 use super::parse_schema::parse_schema;
 
@@ -161,7 +161,7 @@ fn can_parse_two_types_with_defined_value() {
         ("is_admin".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Bool)),
         ("location".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String)),
         ("log_in_count".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int)),
-        ("organization".into(), parser::schema_parser::types::schema_field::Type::SchemaType("Organization".into())),
+        ("organization".into(), parser::schema_parser::types::schema_field::Type::SchemaTypeOrEnum("Organization".into())),
     ]);
 
     let mut expected: HashMap<Box<str>, SchemaType> = HashMap::new();
@@ -218,7 +218,7 @@ fn parser_breaks_if_unknown_schema_type() {
         ("is_admin".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Bool)),
         ("location".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String)),
         ("log_in_count".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int)),
-        ("organization".into(), parser::schema_parser::types::schema_field::Type::SchemaType("Company".into())),
+        ("organization".into(), parser::schema_parser::types::schema_field::Type::SchemaTypeOrEnum("Company".into())),
     ]);
     
     let organization_fields: HashMap<Box<str>, SchemaField> = create_type_fields_for_tests(vec![
@@ -344,7 +344,7 @@ fn can_parse_two_types_with_vec_type() {
         "users".into(),
         SchemaField {
             name: "users".into(),
-            type_: parser::schema_parser::types::schema_field::Type::VecType(VecType { inner_type: Type::SchemaType("User".into()).into() }),
+            type_: parser::schema_parser::types::schema_field::Type::VecType(VecType { inner_type: Type::SchemaTypeOrEnum("User".into()).into() }),
             directives: None,
         },
     );
@@ -624,7 +624,7 @@ fn can_parse_enum_schema_with_values() {
         "users".into(),
         SchemaField {
             name: "users".into(),
-            type_: parser::schema_parser::types::schema_field::Type::VecType(VecType { inner_type: Type::SchemaType("User".into()).into() }),
+            type_: parser::schema_parser::types::schema_field::Type::VecType(VecType { inner_type: Type::SchemaTypeOrEnum("User".into()).into() }),
             directives: None,
         },
     );
@@ -634,10 +634,15 @@ fn can_parse_enum_schema_with_values() {
     });
 
     let mut enum_variants = HashMap::new();
-    enum_variants.insert("ProfilePic".into(), EnumVariant { name: "ProfilePic".into(), enum_data_type: EnumDataType::EnumTuple(parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String)), directives: HashMap::new() });
-    enum_variants.insert("User".into(), EnumVariant { name: "User".into(), enum_data_type: EnumDataType::EnumTuple(parser::schema_parser::types::schema_field::Type::SchemaType("User".into())), directives: HashMap::new() });
-    enum_variants.insert("Organization".into(), EnumVariant { name: "Organization".into(), enum_data_type: EnumDataType::EnumTuple(parser::schema_parser::types::schema_field::Type::SchemaType("Organization".into())), directives: HashMap::new() });
-
+    enum_variants.insert("ProfilePic".into(), EnumVariant { name: "ProfilePic".into(), enum_data_type: EnumDataType::EnumTuple(vec![
+        Argument::Type(Type::PrimitiveType(PrimitiveType::String)) 
+    ]), directives: HashMap::new() });
+    enum_variants.insert("User".into(), EnumVariant { name: "User".into(), enum_data_type: EnumDataType::EnumTuple(vec![
+        Argument::Type(Type::SchemaTypeOrEnum("User".into())) 
+    ]), directives: HashMap::new() });
+    enum_variants.insert("Organization".into(), EnumVariant { name: "Organization".into(), enum_data_type: EnumDataType::EnumTuple(vec![
+        Argument::Type(Type::SchemaTypeOrEnum("Organization".into())) 
+    ]), directives: HashMap::new() });
     let mut enums = HashMap::new();
     enums.insert(
         "FrameworkTypes".into(),

@@ -92,24 +92,36 @@ where R: Read {
     let mut arguments = Vec::new();
     let err ;
     loop {
-        let c = cursor.next_char()?;
+        let c = cursor.peek()?;
         match c {
             Some(ch) => {
                 let ch = char::try_from(ch).ok().ok_or(CastleError::lex("invalid character", cursor.pos()))?;
                 if ch == ')' {
+                    cursor.next_char()?; // skip close paren
                     return Ok(arguments)
                 } 
                 else if ch == ','{
+                    cursor.next_char()?; // skip comma
                     let token = advance_and_parse_token(cursor)?;
                     match token {
                         Some(token) => {
-                            let argument = Argument::new(token);
+                            let argument = Argument::new(token)?;
                             arguments.push(argument)
                         },
                         None => return Err(CastleError::AbruptEOF)
                     };
                 }
                 else if ch == ' ' || ch == '\n'{ } //do nothing
+                else {
+                    let token = advance_and_parse_token(cursor)?;
+                    match token {
+                        Some(token) => {
+                            let argument = Argument::new(token)?;
+                            arguments.push(argument)
+                        },
+                        None => return Err(CastleError::AbruptEOF)
+                    };
+                }
             }
             None => { err = Some(Err(CastleError::AbruptEOF)); break; }
 
@@ -122,7 +134,6 @@ where R: Read {
 }
 
 fn parse_primitive_value(value: String) -> Result<PrimitiveValue, CastleError> {
-    println!("value where error: {:?}", value);
     if value.contains('"') {
         return Ok(PrimitiveValue::String(value.into()))
     }

@@ -7,7 +7,7 @@ use crate::{tokenizer::tokenizer::{self, Tokenizer}, ast::syntax_definitions::{e
 pub fn parse_enum_definition<R>(tokenizer: &mut tokenizer::Tokenizer<R>) -> Result<EnumDefinition, CastleError>
     where R: Read {
         let mut variants = HashMap::new();
-        let token = tokenizer.next(true)?; /// enum keyword is already passed
+        let token = tokenizer.next(true)?; // enum keyword is already passed
         let identifier = get_identifier_skip_open_block(token, tokenizer)?;
 
         loop {
