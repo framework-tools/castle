@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{parser::{schema_parser::types::{schema_field::{SchemaField, PrimitiveType, Type}, schema_type::SchemaType}, self}, token::token::VecType, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumData}, schema_definition::SchemaDefinition}};
+use crate::{parser::{schema_parser::{types::{schema_field::{SchemaField, PrimitiveType, Type}, schema_type::SchemaType}, schema_tests_utils::create_type_fields_for_tests}, self}, token::token::VecType, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumData}, schema_definition::SchemaDefinition}};
 
 use super::parse_schema::parse_schema;
 
@@ -33,31 +33,12 @@ fn can_parse_simple_type() {
             age: Int,
         }";
 
-    let mut user_fields = HashMap::new();
-    user_fields.insert(
-        "id".into(),
-        SchemaField {
-            name: "id".into(),
-            type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid),
-            directives: None,
-        },
-    );
-    user_fields.insert(
-        "name".into(),
-        SchemaField {
-            name: "name".into(),
-            type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
-            directives: None,
-        },
-    );
-    user_fields.insert(
-        "age".into(),
-        SchemaField {
-            name: "age".into(),
-            type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int),
-            directives: None
-        },
-    );
+    let mut user_fields = create_type_fields_for_tests(vec![
+        ("id".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid)),
+        ("name".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String)),
+        ("age".into(), parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int)),
+    ]);
+    
     let mut expected = HashMap::new();
     expected.insert("User".into(), SchemaType {
         identifier: "User".into(),
