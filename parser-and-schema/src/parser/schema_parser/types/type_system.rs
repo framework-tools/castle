@@ -44,7 +44,6 @@ impl Type {
 pub fn parse_type<R>(tokenizer: &mut Tokenizer<R>) -> Result<Type, CastleError> 
 where R: Read{
     let token = advance_and_parse_token(tokenizer)?;
-    println!("token: {:#?}", token);
     match token {
         Some(token) => match token.kind {
             TokenKind::PrimitiveType(primitive_type) => return get_primitive_type(primitive_type, tokenizer),

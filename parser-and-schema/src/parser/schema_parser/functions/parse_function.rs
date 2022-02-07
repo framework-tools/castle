@@ -54,8 +54,7 @@ fn get_fn_return_type_and_body<R>(function_definition: &mut FnDefinition, tokeni
 
 fn parse_function_return_type<R>(tokenizer: &mut Tokenizer<R>) -> Result<Type, CastleError>
 where R: Read {
-    let token = tokenizer.next(false)?; //skip chevron right from return arrow
-    println!("token before: {:?}", token);
+    tokenizer.next(false)?; //skip chevron right from return arrow
     let return_type = parse_type(tokenizer)?;
     tokenizer.next(false)?; //skip open block
     return Ok(return_type)
@@ -63,6 +62,6 @@ where R: Read {
 
 fn parse_block<R>(tokenizer: &mut Tokenizer<R>) -> Result<Vec<FnStatement>, CastleError>
 where R: Read {
-    tokenizer.next(false)?; //skip close block
+    tokenizer.next(true)?; //skip close block
     return Ok(Vec::new())
 }
