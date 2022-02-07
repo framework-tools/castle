@@ -14,6 +14,7 @@ pub enum Type {
     PrimitiveType(PrimitiveType),
     SchemaTypeOrEnum(Box<str>),
     VecType(VecType),
+    OptionType(Box<Type>)
 }
 
 impl Type {
@@ -44,7 +45,6 @@ impl Type {
 pub fn parse_type<R>(cursor: &mut Cursor<R>) -> Result<Type, CastleError> 
 where R: Read{
     let token = advance_and_parse_token(cursor)?;
-    println!("token: {:#?}", token);
     match token {
         Some(token) => match token.kind {
             TokenKind::PrimitiveType(primitive_type) => return get_primitive_type(primitive_type, cursor),
