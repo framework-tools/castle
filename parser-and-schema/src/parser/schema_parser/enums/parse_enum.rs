@@ -1,8 +1,8 @@
-use std::{collections::HashMap, f64::consts::E, io::Read};
+use std::{collections::HashMap, io::Read};
 
 use shared::CastleError;
 
-use crate::{tokenizer::tokenizer::{self, Tokenizer}, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumDataType, EnumVariant}, keyword::Keyword, want::Argument}, parser::schema_parser::{parse_schema_type::{get_identifier_skip_open_block,}, parse_schema_field::get_identifier, types::schema_field::Type}, token::{token::{TokenKind, Punctuator, Identifier}, self}};
+use crate::{tokenizer::tokenizer::{self, Tokenizer}, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumDataType, EnumVariant}, want::Argument}, parser::schema_parser::{parse_schema_type::{get_identifier_skip_open_block,}}, token::{token::{TokenKind, Punctuator, Identifier}}};
 
 pub fn parse_enum_definition<R>(tokenizer: &mut tokenizer::Tokenizer<R>) -> Result<EnumDefinition, CastleError>
     where R: Read {

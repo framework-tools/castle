@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::token::token::{TokenKind, Numeric};
 
+use super::keyword::Keyword;
+
 #[derive(Debug, PartialEq)]
 pub enum Expression {
     PrimitiveValue(PrimitiveValue),
@@ -31,6 +33,11 @@ impl PrimitiveValue {
                 }
             },
             TokenKind::BooleanLiteral(b) => Some(PrimitiveValue::Boolean(b)),
+            TokenKind::Keyword(keyword) => match keyword {
+                Keyword::True => Some(PrimitiveValue::Boolean(true)),
+                Keyword::False => Some(PrimitiveValue::Boolean(false)),
+                _ => None,
+            },
             _ => None
         }
     }

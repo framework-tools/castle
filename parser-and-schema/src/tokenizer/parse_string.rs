@@ -12,11 +12,18 @@ where R: Read {
     cursor.next_char()?; // skip the first quote
     let mut string = String::new();
     loop {
-        let ch = get_character_with_peek(cursor, start)?;
-        // handle escape character \ (backslash)
-        if ch == '\\' { string = handle_escape_characters(cursor, string)?; } 
-        else if ch == '"' { break; }
-        else { string.push(ch);}
+        let ch = cursor.next_char()?;
+        match ch {
+            Some(ch) => {
+                let char = char::try_from(ch).ok().ok_or(CastleError::lex("invalid character",cursor.pos()))?;
+                // handle escape character \ (backslash)
+                if char == '\\' { string = handle_escape_characters(cursor, string)?; } 
+                else if char == '"' { break; }
+                else { string.push(char);}
+            },
+            None => return Err(CastleError::AbruptEOF)
+        }
+        
     };
     return Ok(Token::new(TokenKind::StringLiteral(string.into_boxed_str()), Span::new(start, cursor.pos())))
 }
