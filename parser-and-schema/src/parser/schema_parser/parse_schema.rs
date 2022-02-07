@@ -1,10 +1,10 @@
-use std::{collections::HashMap};
+
 
 use shared::CastleError;
 
 use crate::{tokenizer::tokenizer::Tokenizer, ast::syntax_definitions::schema_definition::SchemaDefinition};
 
-use super::{types::schema_type::SchemaType, parse_schema_type::check_token_and_parse_schema_type_or_break, handle_schema_errors::check_for_undefined_schema_types};
+use super::{parse_schema_type::check_token_and_parse_schema_type_or_break, handle_schema_errors::check_for_undefined_schema_types};
 
 /// takes in schema as string and returns parsed schema as hashmap
 ///     - creates tokenizer
@@ -24,6 +24,6 @@ pub fn parse_schema(schema: &str) -> Result<SchemaDefinition, CastleError> {
         let at_end_of_schema = check_token_and_parse_schema_type_or_break(token, &mut tokenizer, &mut parsed_schema)?;
         if at_end_of_schema { break; }
     }
-    check_for_undefined_schema_types(&parsed_schema)?;
+    check_for_undefined_schema_types(&parsed_schema.schema_types)?;
     return Ok(parsed_schema)
 }

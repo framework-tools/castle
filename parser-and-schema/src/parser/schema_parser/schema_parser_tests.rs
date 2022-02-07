@@ -13,7 +13,7 @@ fn can_parse_empty_query() {
     let query = "";
     let expected = HashMap::new();
     let actual = parse_schema(query).unwrap();
-    assert_eq!(expected, actual);
+    assert_eq!(expected, actual.schema_types);
 }
 
 #[test]
@@ -136,7 +136,7 @@ fn can_parse_simple_type_more_fields_and_no_commas() {
     }); 
     
     let actual = parse_schema(query).unwrap();
-    assert_eq!(expected, actual);
+    assert_eq!(expected, actual.schema_types);
 }
 
 #[test]
@@ -247,7 +247,7 @@ fn can_parse_two_types() {
     });
     
     let actual = parse_schema(query).unwrap();
-    assert_eq!(expected, actual);
+    assert_eq!(expected, actual.schema_types);
 }
 
 #[test]
@@ -367,7 +367,7 @@ fn can_parse_two_types_with_defined_value() {
     });
     
     let actual = parse_schema(query).unwrap();
-    assert_eq!(expected, actual);
+    assert_eq!(expected, actual.schema_types);
 }
 
 
@@ -607,5 +607,5 @@ fn can_parse_two_types_with_vec_type() {
         },
     );
     let actual = parse_schema(query).unwrap();
-    assert_eq!(expected, actual);
+    assert_eq!(expected, actual.schema_types);
 }
