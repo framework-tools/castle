@@ -5,3 +5,4 @@ pub mod handle_schema_errors;
 pub mod parse_schema_type;
 pub mod parse_schema_field;
 pub mod enums;
+pub mod schema_tests_utils;
