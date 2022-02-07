@@ -67,6 +67,6 @@ where R: Read{
 }
 
 fn get_vec_type<R>(vec_type: VecType, tokenizer: &mut Tokenizer<R>) -> Result<Type, CastleError>
-    where R: Read{jmkjkjklo
+    where R: Read{
     return Ok(Type::VecType(vec_type))
 }
