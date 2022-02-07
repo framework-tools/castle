@@ -530,8 +530,8 @@ fn can_parse_function_with_args_and_return_type(){
     let mut fn_do_nothing = FnDefinition::new();
     fn_do_nothing.name = "do_nothing".into();
     fn_do_nothing.args = Some(vec![
-        Argument::Type(Type::PrimitiveType(PrimitiveType::Uuid)),
-        Argument::Type(Type::PrimitiveType(PrimitiveType::String)),
+        Argument::IdentifierAndType("id".into(), Type::PrimitiveType(PrimitiveType::Uuid)),
+        Argument::IdentifierAndType("name".into(), Type::PrimitiveType(PrimitiveType::String))
     ]);
 
     fn_do_nothing.return_type = Some(Type::SchemaTypeOrEnum("User".into()));
