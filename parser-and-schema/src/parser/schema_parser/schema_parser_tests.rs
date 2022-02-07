@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{parser::{schema_parser::{types::{schema_field::{SchemaField, PrimitiveType, Type}, schema_type::SchemaType}, schema_tests_utils::create_type_fields_for_tests}, self}, token::token::VecType, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumData}, schema_definition::SchemaDefinition}};
+use crate::{parser::{schema_parser::{types::{schema_field::{SchemaField, PrimitiveType, Type}, schema_type::SchemaType}, schema_tests_utils::create_type_fields_for_tests}, self}, token::token::VecType, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, schema_definition::SchemaDefinition}};
 
 use super::parse_schema::parse_schema;
 
@@ -609,9 +609,9 @@ fn can_parse_enum_schema() {
     ";
 
     let mut enum_variants = HashMap::new();
-    enum_variants.insert("Red".into(), EnumData { name: "Red".into(), variant: EnumVariant::EnumUnit, directives: HashMap::new() });
-    enum_variants.insert("Green".into(), EnumData { name: "Green".into(), variant: EnumVariant::EnumUnit, directives: HashMap::new() });
-    enum_variants.insert("Blue".into(), EnumData { name: "Blue".into(), variant: EnumVariant::EnumUnit, directives: HashMap::new() });
+    enum_variants.insert("Red".into(), EnumVariant { name: "Red".into(), enum_data_type: EnumDataType::EnumUnit, directives: HashMap::new() });
+    enum_variants.insert("Green".into(), EnumVariant { name: "Green".into(), enum_data_type: EnumDataType::EnumUnit, directives: HashMap::new() });
+    enum_variants.insert("Blue".into(), EnumVariant { name: "Blue".into(), enum_data_type: EnumDataType::EnumUnit, directives: HashMap::new() });
     let enum_ = EnumDefinition {
         name: "Color".into(),
         variants: enum_variants,
@@ -653,9 +653,9 @@ fn can_parse_two_enums_and_type_schema() {
     ";
 
     let mut enum_variants = HashMap::new();
-    enum_variants.insert("Red".into(), EnumData { name: "Red".into(), variant: EnumVariant::EnumUnit, directives: HashMap::new() });
-    enum_variants.insert("Green".into(), EnumData { name: "Green".into(), variant: EnumVariant::EnumUnit, directives: HashMap::new() });
-    enum_variants.insert("Blue".into(), EnumData { name: "Blue".into(), variant: EnumVariant::EnumUnit, directives: HashMap::new() });
+    enum_variants.insert("Red".into(), EnumVariant { name: "Red".into(), enum_data_type: EnumDataType::EnumUnit, directives: HashMap::new() });
+    enum_variants.insert("Green".into(), EnumVariant { name: "Green".into(), enum_data_type: EnumDataType::EnumUnit, directives: HashMap::new() });
+    enum_variants.insert("Blue".into(), EnumVariant { name: "Blue".into(), enum_data_type: EnumDataType::EnumUnit, directives: HashMap::new() });
     let color_enum = EnumDefinition {
         name: "Color".into(),
         variants: enum_variants,
@@ -663,11 +663,11 @@ fn can_parse_two_enums_and_type_schema() {
     };
 
     let mut enum_variants = HashMap::new();
-    enum_variants.insert("Happy".into(), EnumData { name: "Happy".into(), variant: EnumVariant::EnumUnit, directives: HashMap::new() });
-    enum_variants.insert("Sad".into(), EnumData { name: "Sad".into(), variant: EnumVariant::EnumUnit, directives: HashMap::new() });
-    enum_variants.insert("Angry".into(), EnumData { name: "Angry".into(), variant: EnumVariant::EnumUnit, directives: HashMap::new() });
-    enum_variants.insert("Fearful".into(), EnumData { name: "Fearful".into(), variant: EnumVariant::EnumUnit, directives: HashMap::new() });
-    enum_variants.insert("Depressed".into(), EnumData { name: "Depressed".into(), variant: EnumVariant::EnumUnit, directives: HashMap::new() });
+    enum_variants.insert("Happy".into(), EnumVariant { name: "Happy".into(), enum_data_type: EnumDataType::EnumUnit, directives: HashMap::new() });
+    enum_variants.insert("Sad".into(), EnumVariant { name: "Sad".into(), enum_data_type: EnumDataType::EnumUnit, directives: HashMap::new() });
+    enum_variants.insert("Angry".into(), EnumVariant { name: "Angry".into(), enum_data_type: EnumDataType::EnumUnit, directives: HashMap::new() });
+    enum_variants.insert("Fearful".into(), EnumVariant { name: "Fearful".into(), enum_data_type: EnumDataType::EnumUnit, directives: HashMap::new() });
+    enum_variants.insert("Depressed".into(), EnumVariant { name: "Depressed".into(), enum_data_type: EnumDataType::EnumUnit, directives: HashMap::new() });
     let emotion_enum = EnumDefinition {
         name: "Emotion".into(),
         variants: enum_variants,
@@ -727,7 +727,7 @@ fn can_parse_two_enums_and_type_schema() {
             directives: None,
         },
     );
-    let expected_types = HashMap::new();
+    let mut expected_types = HashMap::new();
     expected_types.insert("User".into(), SchemaType {
         identifier: "User".into(),
         fields: user_fields,
@@ -869,12 +869,12 @@ fn can_parse_enum_schema_with_values() {
         fields: organization_fields,
     });
 
-    let enum_variants = HashMap::new();
-    enum_variants.insert("ProfilePic".into(), EnumData { name: "ProfilePic".into(), variant: EnumVariant::EnumTuple(parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String)), directives: HashMap::new() });
-    enum_variants.insert("User".into(), EnumData { name: "User".into(), variant: EnumVariant::EnumTuple(parser::schema_parser::types::schema_field::Type::SchemaType("User".into())), directives: HashMap::new() });
-    enum_variants.insert("Organization".into(), EnumData { name: "Organization".into(), variant: EnumVariant::EnumTuple(parser::schema_parser::types::schema_field::Type::SchemaType("Organization".into())), directives: HashMap::new() });
+    let mut enum_variants = HashMap::new();
+    enum_variants.insert("ProfilePic".into(), EnumVariant { name: "ProfilePic".into(), enum_data_type: EnumDataType::EnumTuple(parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String)), directives: HashMap::new() });
+    enum_variants.insert("User".into(), EnumVariant { name: "User".into(), enum_data_type: EnumDataType::EnumTuple(parser::schema_parser::types::schema_field::Type::SchemaType("User".into())), directives: HashMap::new() });
+    enum_variants.insert("Organization".into(), EnumVariant { name: "Organization".into(), enum_data_type: EnumDataType::EnumTuple(parser::schema_parser::types::schema_field::Type::SchemaType("Organization".into())), directives: HashMap::new() });
 
-    let enums = HashMap::new();
+    let mut enums = HashMap::new();
     enums.insert(
         "FrameworkTypes".into(),
         EnumDefinition {
