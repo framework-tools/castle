@@ -1,6 +1,6 @@
 use std::{io::Read, collections::HashMap};
 
-use crate::{ast::syntax_definitions::{want::{Want, ObjectProjection, SingleField}, keyword::{Keyword}, expressions::PrimitiveValue}, token::{token::{TokenKind, Punctuator, Identifier}, Token}, tokenizer::{tokenizer::Tokenizer}};
+use crate::{ast::syntax_definitions::{want::{Want, ObjectProjection, SingleField, Argument}, keyword::{Keyword}, expressions::PrimitiveValue}, token::{token::{TokenKind, Punctuator, Identifier}, Token}, tokenizer::{tokenizer::Tokenizer}};
 use shared::CastleError;
 
 use super::{parse_inner_object::parse_inner_object, parse_match_statements::parse_match_statements};
@@ -57,7 +57,7 @@ fn match_current_token_to_field(tokenizer: &mut Tokenizer<impl Read>, token: Tok
     }
 }
 
-fn parse_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str>, Want>, name: Box<str>, arguments: Option<Vec<PrimitiveValue>>) 
+fn parse_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str>, Want>, name: Box<str>, arguments: Option<Vec<Argument>>) 
 -> Result<bool, CastleError> where R: Read {
     let peeked_token = tokenizer.peek(true)?;
     match peeked_token {

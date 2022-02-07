@@ -748,7 +748,6 @@ fn can_parse_enum_schema_with_values() {
 
 
 // To Implement:
-// - Parse Enums (Unit types)
 // - Parse Enums with primitive values
 // - Parse Enums with type values - incl checking for undefined types
 // - Parse functions

@@ -3,7 +3,7 @@ use std::{fmt::{Formatter, self, Display}};
 use input_cursor::{Span, Position};
 use shared::CastleError;
 
-use crate::{ast::syntax_definitions::{keyword::Keyword, expressions::PrimitiveValue}, parser::schema_parser::types::schema_field::{PrimitiveType, Type}, tokenizer::parse_identifier_or_keyword::parse_identifier_or_keyword_or_type};
+use crate::{ast::syntax_definitions::{keyword::Keyword, expressions::PrimitiveValue, want::Argument}, parser::schema_parser::types::schema_field::{PrimitiveType, Type}, tokenizer::parse_identifier_or_keyword::parse_identifier_or_keyword_or_type};
 
 #[derive(Debug, PartialEq)]
 pub struct Token {
@@ -29,7 +29,7 @@ pub enum TokenKind {
 #[derive(Debug, PartialEq)]
 pub struct Identifier {
     pub name: Box<str>,
-    pub arguments: Option<Vec<PrimitiveValue>>
+    pub arguments: Option<Vec<Argument>>
 }
 
 #[derive(Debug, PartialEq)]

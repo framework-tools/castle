@@ -2,7 +2,7 @@ use std::collections::{HashMap};
 
 use crate::parser::schema_parser::types::schema_field::Type;
 
-use super::{directive_definition::DirectiveDefinition};
+use super::{directive_definition::DirectiveDefinition, want::Argument};
 
 
 #[derive(Debug, PartialEq)]
@@ -22,7 +22,7 @@ pub struct EnumVariant {
 #[derive(Debug, PartialEq)]
 pub enum EnumDataType {
     EnumUnit,
-    EnumTuple(Type),
+    EnumTuple(Vec<Argument>),
     // EnumObject
     // EnumValue
     // EnumTuple
