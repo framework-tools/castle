@@ -35,6 +35,7 @@ fn can_parse_simple_type() {
         SchemaField {
             name: "id".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -42,6 +43,7 @@ fn can_parse_simple_type() {
         SchemaField {
             name: "name".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -84,6 +86,7 @@ fn can_parse_simple_type_more_fields_and_no_commas() {
         SchemaField {
             name: "id".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -91,6 +94,7 @@ fn can_parse_simple_type_more_fields_and_no_commas() {
         SchemaField {
             name: "name".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -98,6 +102,7 @@ fn can_parse_simple_type_more_fields_and_no_commas() {
         SchemaField {
             name: "age".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -105,6 +110,7 @@ fn can_parse_simple_type_more_fields_and_no_commas() {
         SchemaField {
             name: "is_admin".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Bool),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -112,6 +118,7 @@ fn can_parse_simple_type_more_fields_and_no_commas() {
         SchemaField {
             name: "location".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -119,6 +126,7 @@ fn can_parse_simple_type_more_fields_and_no_commas() {
         SchemaField {
             name: "log_in_count".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int),
+            directives: None,
         },
     );
     let mut expected = HashMap::new();
@@ -159,6 +167,7 @@ fn can_parse_two_types() {
         SchemaField {
             name: "id".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -166,6 +175,7 @@ fn can_parse_two_types() {
         SchemaField {
             name: "name".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -173,6 +183,7 @@ fn can_parse_two_types() {
         SchemaField {
             name: "age".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -180,6 +191,7 @@ fn can_parse_two_types() {
         SchemaField {
             name: "is_admin".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Bool),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -187,6 +199,7 @@ fn can_parse_two_types() {
         SchemaField {
             name: "location".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -194,6 +207,7 @@ fn can_parse_two_types() {
         SchemaField {
             name: "log_in_count".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int),
+            directives: None,
         },
     );
     let mut expected: HashMap<Box<str>, SchemaType> = HashMap::new();
@@ -208,6 +222,7 @@ fn can_parse_two_types() {
         SchemaField {
             name: "id".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid),
+            directives: None,
         },
     );
     organization_fields.insert(
@@ -215,6 +230,7 @@ fn can_parse_two_types() {
         SchemaField {
             name: "name".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
+            directives: None,
         },
     );
     organization_fields.insert(
@@ -222,6 +238,7 @@ fn can_parse_two_types() {
         SchemaField {
             name: "industry".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
+            directives: None,
         },
     );
     expected.insert("Organization".into(), SchemaType {
@@ -262,6 +279,7 @@ fn can_parse_two_types_with_defined_value() {
         SchemaField {
             name: "id".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -269,6 +287,7 @@ fn can_parse_two_types_with_defined_value() {
         SchemaField {
             name: "name".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -276,6 +295,7 @@ fn can_parse_two_types_with_defined_value() {
         SchemaField {
             name: "age".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -283,6 +303,7 @@ fn can_parse_two_types_with_defined_value() {
         SchemaField {
             name: "is_admin".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Bool),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -290,6 +311,7 @@ fn can_parse_two_types_with_defined_value() {
         SchemaField {
             name: "location".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -297,6 +319,7 @@ fn can_parse_two_types_with_defined_value() {
         SchemaField {
             name: "log_in_count".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -304,6 +327,7 @@ fn can_parse_two_types_with_defined_value() {
         SchemaField {
             name: "organization".into(),
             type_: parser::schema_parser::types::schema_field::Type::SchemaType("Organization".into()),
+            directives: None,
         },
     );
     let mut expected: HashMap<Box<str>, SchemaType> = HashMap::new();
@@ -318,6 +342,7 @@ fn can_parse_two_types_with_defined_value() {
         SchemaField {
             name: "id".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid),
+            directives: None,
         },
     );
     organization_fields.insert(
@@ -325,6 +350,7 @@ fn can_parse_two_types_with_defined_value() {
         SchemaField {
             name: "name".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
+            directives: None,
         },
     );
     organization_fields.insert(
@@ -332,6 +358,7 @@ fn can_parse_two_types_with_defined_value() {
         SchemaField {
             name: "industry".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
+            directives: None,
         },
     );
     expected.insert("Organization".into(), SchemaType {
@@ -375,6 +402,7 @@ fn parser_breaks_if_unknown_schema_type() {
         SchemaField {
             name: "id".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -382,6 +410,7 @@ fn parser_breaks_if_unknown_schema_type() {
         SchemaField {
             name: "name".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -389,6 +418,7 @@ fn parser_breaks_if_unknown_schema_type() {
         SchemaField {
             name: "age".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -396,6 +426,7 @@ fn parser_breaks_if_unknown_schema_type() {
         SchemaField {
             name: "is_admin".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Bool),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -403,6 +434,7 @@ fn parser_breaks_if_unknown_schema_type() {
         SchemaField {
             name: "location".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -410,6 +442,7 @@ fn parser_breaks_if_unknown_schema_type() {
         SchemaField {
             name: "log_in_count".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -417,6 +450,7 @@ fn parser_breaks_if_unknown_schema_type() {
         SchemaField {
             name: "organization".into(),
             type_: parser::schema_parser::types::schema_field::Type::SchemaType("Organization".into()),
+            directives: None,
         },
     );
     let mut expected: HashMap<Box<str>, SchemaType> = HashMap::new();
@@ -431,6 +465,7 @@ fn parser_breaks_if_unknown_schema_type() {
         SchemaField {
             name: "id".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid),
+            directives: None,
         },
     );
     organization_fields.insert(
@@ -438,6 +473,7 @@ fn parser_breaks_if_unknown_schema_type() {
         SchemaField {
             name: "name".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
+            directives: None,
         },
     );
     organization_fields.insert(
@@ -445,6 +481,7 @@ fn parser_breaks_if_unknown_schema_type() {
         SchemaField {
             name: "industry".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
+            directives: None,
         },
     );
     expected.insert("Organization".into(), SchemaType {
@@ -486,6 +523,7 @@ fn can_parse_two_types_with_vec_type() {
         SchemaField {
             name: "id".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -493,6 +531,7 @@ fn can_parse_two_types_with_vec_type() {
         SchemaField {
             name: "name".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -500,6 +539,7 @@ fn can_parse_two_types_with_vec_type() {
         SchemaField {
             name: "age".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -507,6 +547,7 @@ fn can_parse_two_types_with_vec_type() {
         SchemaField {
             name: "is_admin".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Bool),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -514,6 +555,7 @@ fn can_parse_two_types_with_vec_type() {
         SchemaField {
             name: "location".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
+            directives: None,
         },
     );
     user_fields.insert(
@@ -521,6 +563,7 @@ fn can_parse_two_types_with_vec_type() {
         SchemaField {
             name: "log_in_count".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Int),
+            directives: None,
         },
     );
     let mut expected = HashMap::new();
@@ -535,6 +578,7 @@ fn can_parse_two_types_with_vec_type() {
         SchemaField {
             name: "id".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::Uuid),
+            directives: None,
         },
     );
     organization_fields.insert(
@@ -542,6 +586,7 @@ fn can_parse_two_types_with_vec_type() {
         SchemaField {
             name: "name".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
+            directives: None,
         },
     );
     organization_fields.insert(
@@ -549,6 +594,7 @@ fn can_parse_two_types_with_vec_type() {
         SchemaField {
             name: "users".into(),
             type_: parser::schema_parser::types::schema_field::Type::VecType("User".into()),
+            directives: None,
         },
     );
 
@@ -557,6 +603,7 @@ fn can_parse_two_types_with_vec_type() {
         SchemaField {
             name: "industry".into(),
             type_: parser::schema_parser::types::schema_field::Type::PrimitiveType(PrimitiveType::String),
+            directives: None,
         },
     );
     let actual = parse_schema(query).unwrap();
