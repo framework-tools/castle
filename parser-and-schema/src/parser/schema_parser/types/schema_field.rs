@@ -1,10 +1,14 @@
+use crate::ast::syntax_definitions::directive_definition::DirectiveDefinition;
+
 
 
 #[derive(Debug, PartialEq)]
 pub struct SchemaField {
     pub name: Box<str>,
     pub type_: Type,
+    pub directives: Option<DirectiveDefinition>
 }
+
 #[derive(Debug, PartialEq)]
 pub enum Type {
     PrimitiveType(PrimitiveType),
