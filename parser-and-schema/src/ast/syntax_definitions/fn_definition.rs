@@ -1,13 +1,13 @@
-use linked_hash_map::LinkedHashMap;
+use crate::parser::schema_parser::types::schema_field::Type;
 
-use super::Type;
+
 
 
 
 #[derive(Debug, PartialEq)]
 pub struct FnDefinition {
     pub name: String,
-    pub args: LinkedHashMap<String, Type>,
+    pub args: Vec<Type>,
     pub return_type: Type,
     pub body: Vec<FnStatement>
 }

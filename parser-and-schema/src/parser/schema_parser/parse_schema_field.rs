@@ -20,7 +20,7 @@ where R: Read{
     let identifier = get_identifier(token, tokenizer)?;
     tokenizer.next(true)?; // skip colon
     let type_ = parse_type(tokenizer)?; // get fields type
-    return Ok(SchemaField { name: identifier, type_ });
+    return Ok(SchemaField { name: identifier, type_, directives: None });
 }
 /// takes in tokenizer and returns parsed type
 ///  - get next token

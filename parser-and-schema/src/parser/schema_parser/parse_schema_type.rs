@@ -2,7 +2,7 @@ use std::{collections::HashMap, io::Read};
 
 use shared::CastleError;
 
-use crate::{token::{Token, token::{TokenKind, Identifier, Punctuator}}, tokenizer::tokenizer::Tokenizer, ast::syntax_definitions::keyword::Keyword};
+use crate::{token::{Token, token::{TokenKind, Identifier, Punctuator}}, tokenizer::tokenizer::Tokenizer, ast::syntax_definitions::{keyword::Keyword, schema_definition::SchemaDefinition}};
 
 use super::{types::{schema_type::SchemaType, schema_field::SchemaField}, parse_schema_field::parse_schema_field};
 
@@ -10,13 +10,13 @@ use super::{types::{schema_type::SchemaType, schema_field::SchemaField}, parse_s
 pub fn check_token_and_parse_schema_type_or_break<R>(
     token: Option<Token>, 
     tokenizer: &mut Tokenizer<R>,
-    parsed_schema: &mut HashMap<Box<str>, SchemaType>
+    parsed_schema: &mut SchemaDefinition
 ) -> Result<bool, CastleError> where R: Read {
     match token {
         Some(token) => match token.kind {
             TokenKind::Keyword(Keyword::Type) => {
                 let schema_type = parse_schema_type(tokenizer)?;
-                parsed_schema.insert(schema_type.identifier.clone(), schema_type);
+                parsed_schema.schema_types.insert(schema_type.identifier.clone(), schema_type);
                 return Ok(false)
             },
             _ => return Err(CastleError::Schema(format!("1. Unexpected token: {:?}", token.kind).into(), token.span))

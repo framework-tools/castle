@@ -2,7 +2,7 @@ use std::{collections::HashMap};
 
 use shared::CastleError;
 
-use crate::tokenizer::tokenizer::Tokenizer;
+use crate::{tokenizer::tokenizer::Tokenizer, ast::syntax_definitions::schema_definition::SchemaDefinition};
 
 use super::{types::schema_type::SchemaType, parse_schema_type::check_token_and_parse_schema_type_or_break, handle_schema_errors::check_for_undefined_schema_types};
 
@@ -13,10 +13,10 @@ use super::{types::schema_type::SchemaType, parse_schema_type::check_token_and_p
 ///     - insert parsed type into hashmap
 ///     - if token is none, break loop
 ///     - return parsed schema
-pub fn parse_schema(schema: &str) -> Result<HashMap<Box<str>, SchemaType>, CastleError> {
+pub fn parse_schema(schema: &str) -> Result<SchemaDefinition, CastleError> {
     let bytes = schema.as_bytes();
     let mut tokenizer = Tokenizer::new(bytes);
-    let mut parsed_schema: HashMap<Box<str>, SchemaType> = HashMap::new();
+    let mut parsed_schema: SchemaDefinition = SchemaDefinition::new();
 
     loop {
         let token = tokenizer.next(true)?;
