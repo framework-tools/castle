@@ -1,6 +1,6 @@
 use std::{collections::HashMap, vec};
 
-use crate::{parser::{schema_parser::{types::{schema_field::{SchemaField}, schema_type::SchemaType, type_system::Type, primitive_type::PrimitiveType, vec_type::VecType}, schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}}, self, query_parser::query_tests_utils::insert_each_field_into_fields}, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, schema_definition::SchemaDefinition, argument::Argument, fn_definition::FnDefinition}};
+use crate::{parser::{schema_parser::{types::{schema_field::{SchemaField}, schema_type::SchemaType, type_system::Type, primitive_type::PrimitiveType, vec_type::VecType, option_type::OptionType}, schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}}, self, query_parser::query_tests_utils::insert_each_field_into_fields}, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, schema_definition::SchemaDefinition, argument::Argument, fn_definition::FnDefinition}};
 
 use super::parse_schema::parse_schema;
 
@@ -550,12 +550,13 @@ fn can_parse_function_with_args_and_return_type(){
     assert_eq!(expected, actual);
 }
 
+#[test]
 fn can_parse_option_type(){
     let schema = "
         type User {
             id: uuid,
-            name: Option(String),
-            profile_pic: Option(ProfilePic),
+            name: Option<String>,
+            profile_pic: Option<ProfilePic>,
         }
 
         type ProfilePic {
@@ -573,8 +574,12 @@ fn can_parse_option_type(){
 
     let user_fields = create_type_fields_for_tests(vec![
         ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid)),
-        ("name".into(), Type::OptionType(Box::new(Type::PrimitiveType(PrimitiveType::String)))),
-        ("profile_pic".into(), Type::OptionType(Box::new(Type::SchemaTypeOrEnum("ProfilePic".into())))),
+        ("name".into(), Type::OptionType(OptionType {
+            inner_type: Type::PrimitiveType(PrimitiveType::String).into(),
+        })),
+        ("profile_pic".into(), Type::OptionType(OptionType {
+            inner_type: Type::SchemaTypeOrEnum("ProfilePic".into()).into(),
+        })),
     ]);
 
     let expected_types = create_schema_types_for_test(vec![

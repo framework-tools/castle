@@ -23,7 +23,9 @@ impl Argument {
         let argument = match token.kind {
             TokenKind::PrimitiveType(primitive_type) => Argument::Type(Type::PrimitiveType(primitive_type)),
             TokenKind::VecType(vec_type) => Argument::Type(Type::VecType(vec_type)),
+            TokenKind::OptionType(option_type) => Argument::Type(Type::OptionType(option_type)),
             TokenKind::Identifier(Identifier { name, ..}) => parse_identifier_argument(name, tokenizer)?, //can be ident, type, enum or a combo
+            //parse option argument
             _ => parse_primitive_value_argument(token.kind)?
         };
         return Ok(argument)
@@ -47,7 +49,7 @@ where R: Read {
                         },
                         _ => return Ok(Argument::Identifier(name)) //Identifier Argument
                     },
-                    None => return Err(CastleError::AbruptEOF)
+                    None => return Err(CastleError::AbruptEOF("Error found in 'parse_identifier_argument'".into()))
                 }
             }
         },

@@ -5,7 +5,7 @@ use shared::CastleError;
 
 use crate::{tokenizer::{tokenizer::{Tokenizer, advance_and_parse_token}, self}, token::token::TokenKind, parser::schema_parser::parse_schema_field::skip_comma};
 
-use super::{primitive_type::PrimitiveType, vec_type::VecType};
+use super::{primitive_type::PrimitiveType, vec_type::VecType, option_type::OptionType,};
 
 
 
@@ -14,7 +14,7 @@ pub enum Type {
     PrimitiveType(PrimitiveType),
     SchemaTypeOrEnum(Box<str>),
     VecType(VecType),
-    OptionType(Box<Type>)
+    OptionType(OptionType)
 }
 
 impl Type {
@@ -45,22 +45,19 @@ impl Type {
 pub fn parse_type<R>(tokenizer: &mut Tokenizer<R>) -> Result<Type, CastleError> 
 where R: Read{
     let token = advance_and_parse_token(tokenizer)?;
-    println!("token: {:#?}", token);
     match token {
         Some(token) => match token.kind {
-            TokenKind::PrimitiveType(primitive_type) => return get_primitive_type(primitive_type, tokenizer),
+            TokenKind::PrimitiveType(primitive_type) => return Ok(Type::PrimitiveType(primitive_type)), //do this!!
             TokenKind::Identifier(identifier) => return get_schema_type(identifier.name, tokenizer),
             TokenKind::VecType(vec_type) => return get_vec_type(vec_type, tokenizer),
+            TokenKind::OptionType(option_type) => return get_option_type(option_type, tokenizer),
+            // need to add option type
             _ => Err(CastleError::Schema(format!("Expected type, found: {:?}", token.kind).into(), token.span))
         },
-        None => Err(CastleError::AbruptEOF)
+        None => Err(CastleError::AbruptEOF("Error found in 'parse_type'".into())),
     }
 }
 
-fn get_primitive_type<R>(primitive_type: PrimitiveType, tokenizer: &mut Tokenizer<R>) -> Result<Type, CastleError> 
-where R: Read{
-    return Ok(Type::PrimitiveType(primitive_type))
-}
 
 fn get_schema_type<R>(identifier: Box<str>, tokenizer: &mut Tokenizer<R>) -> Result<Type, CastleError> 
 where R: Read{
@@ -70,4 +67,9 @@ where R: Read{
 fn get_vec_type<R>(vec_type: VecType, tokenizer: &mut Tokenizer<R>) -> Result<Type, CastleError>
     where R: Read{
     return Ok(Type::VecType(vec_type))
+}
+
+fn get_option_type<R>(option_type: OptionType, tokenizer: &mut Tokenizer<R>) -> Result<Type, CastleError>
+    where R: Read{
+    return Ok(Type::OptionType(option_type))
 }

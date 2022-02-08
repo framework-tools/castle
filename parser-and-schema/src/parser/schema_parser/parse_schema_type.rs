@@ -57,12 +57,13 @@ where R: Read{
 
 pub fn get_identifier_skip_open_block<R>(token: Option<Token>, tokenizer: &mut Tokenizer<R>) -> Result<Box<str>, CastleError> 
 where R: Read{
+    println!("3. token: {:#?}", token);
     let identifier = match token {
         Some(token) => match token.kind {
             TokenKind::Identifier(identifier) => identifier,
             _ => return Err(CastleError::Schema(format!("1. Expected identifier, found: {:?}.", token.kind).into(), token.span))
         },
-        None => return Err(CastleError::AbruptEOF)
+        None => return Err(CastleError::AbruptEOF("Error found in 'get_identifier_skip_open_block'".into()))
     };
     tokenizer.next(true)?; // skip openblock
     return Ok(identifier.name)
@@ -71,6 +72,7 @@ where R: Read{
 pub fn check_token_and_parse_schema_field_or_break<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str>, SchemaField>) -> Result<bool, CastleError> 
 where R: Read {
     let token = tokenizer.peek(true)?; // get field identifier or closeblock
+    println!("4. token: {:#?}", token);
     match token {
         Some(token) => match &token.kind {
             TokenKind::Identifier(Identifier { name , .. }) => {
@@ -81,9 +83,13 @@ where R: Read {
                 tokenizer.next(true)?; // skip closeblock
                 return Ok(true) //should break loop
             },
+            TokenKind::Punctuator(Punctuator::Comma) => {
+                tokenizer.next(true)?; // skip comma
+                return Ok(false) //should not break loop
+            },
             _ => return Err(CastleError::Schema(format!("3. Unexpected token: {:?}", token.kind).into(), token.span))
         },
-        None => return Err(CastleError::AbruptEOF)
+        None => return Err(CastleError::AbruptEOF("Error found in 'check_token_and_parse_schema_field_or_break'".into()))
     }
 }
 

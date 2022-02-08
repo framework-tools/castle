@@ -25,21 +25,23 @@ where R: Read{
 
 pub fn get_identifier<R>(token: Option<Token>, tokenizer: &mut Tokenizer<R>) -> Result<Box<str>, CastleError> 
 where R: Read{
+    println!("1. token: {:#?}", token);
     match token {
         Some(token) => match token.kind {
             TokenKind::Identifier(identifier) => return Ok(identifier.name),
             _ => return Err(CastleError::Schema(format!("2. Expected identifier, found: {:?}", token.kind).into(), token.span))
         },
-        None => return Err(CastleError::AbruptEOF)
+        None => return Err(CastleError::AbruptEOF("Error found in 'get_identifier'".into()))
     }
 }
 
 pub fn skip_comma<R>(tokenizer: &mut Tokenizer<R>) -> Result<(), CastleError> 
 where R: Read{
     let option_peeked_token = tokenizer.peek(true)?;
+    println!("2. token: {:#?}", option_peeked_token);
     let peeked_token = match option_peeked_token {
         Some(token) => token,
-        None => return Err(CastleError::AbruptEOF)
+        None => return Err(CastleError::AbruptEOF("Error found in 'skip_comma'".into()))
     };
     if peeked_token.kind == TokenKind::Punctuator(Punctuator::Comma) {
         tokenizer.next(true)?; // skip comma

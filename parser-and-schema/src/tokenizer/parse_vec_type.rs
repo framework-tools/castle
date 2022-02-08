@@ -17,6 +17,6 @@ where R: Read {
     let vec_type = VecType::new(&word);
     match vec_type {
         Some(type_) => return Ok(Token::new(TokenKind::VecType(VecType::get_vec_type_struct(type_)), Span::new(start, cursor.pos()))),
-        None => return Err(CastleError::AbruptEOF)
+        None => return Err(CastleError::AbruptEOF("Error found in 'get_vec_type_from_word'".into()))
     }
 }

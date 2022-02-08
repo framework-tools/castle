@@ -27,7 +27,7 @@ pub fn check_token_and_parse_enum_variant_or_break<R>(
             }, 
             _ => return Err(CastleError::Schema(format!("2. Unexpected token: {:?}", token.kind).into(), token.span))
         },
-        None => return Err(CastleError::AbruptEOF)
+        None => return Err(CastleError::AbruptEOF("Error found in 'check_token_and_parse_enum_variant_or_break'".into()))
     }
 }
 
@@ -37,9 +37,9 @@ where R: Read{
     let identifier = match token {
         Some(token) => match token.kind {
             TokenKind::Identifier(identifier) => identifier,
-            _ => return Err(CastleError::Schema(format!("3. Unexpected token: {:?}", token.kind).into(), token.span))
+            _ => return Err(CastleError::Schema(format!("4. Unexpected token: {:?}", token.kind).into(), token.span))
         },
-        None => return Err(CastleError::AbruptEOF)
+        None => return Err(CastleError::AbruptEOF("Error found in 'parse_enum_variant'".into()))
     };
     let enum_data_type = parse_enum_data_type(identifier.arguments, tokenizer)?;
     return Ok(EnumVariant { name: identifier.name, enum_data_type, directives: HashMap::new() });
@@ -71,7 +71,7 @@ where R: Read {
             },
             _ => return Ok(EnumDataType::EnumUnit)
         },
-        None => Err(CastleError::AbruptEOF)
+        None => Err(CastleError::AbruptEOF("get_object_or_unit_type'".into()))
     }
 }
 

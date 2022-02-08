@@ -105,7 +105,7 @@ where
         punctuator: &Punctuator,
         skip_line_terminators: bool,
     ) -> Result<(), CastleError> {
-        let punctuator_token = self.next(skip_line_terminators)?.ok_or(CastleError::AbruptEOF)?;
+        let punctuator_token = self.next(skip_line_terminators)?.ok_or(CastleError::AbruptEOF("Error found in 'expect_punctuator'".into()))?;
         if punctuator_token.kind != TokenKind::Punctuator(*punctuator) {
             return Err(CastleError::parse(
                 format!(
@@ -149,7 +149,7 @@ where
     pub fn expect_identifier(&mut self, skip_line_terminators: bool) -> Result<Box<str>, CastleError> {
         let identifier = self
         .next(skip_line_terminators)?
-        .ok_or(CastleError::AbruptEOF)?;
+        .ok_or(CastleError::AbruptEOF("Error found in 'expect_identifier'".into()))?;
 
         match identifier.kind {
             TokenKind::Identifier(str) => Ok(str.name),
@@ -161,7 +161,7 @@ where
     }
 
     pub fn expect_primitive(&mut self) -> Result<PrimitiveValue, CastleError> {
-        let primitive_value = self.next(true)?.ok_or(CastleError::AbruptEOF)?;
+        let primitive_value = self.next(true)?.ok_or(CastleError::AbruptEOF("Error found in 'expect_primitive'".into()))?;
         let primitive_value = match primitive_value.kind {
             TokenKind::BooleanLiteral(bool) => PrimitiveValue::Boolean(bool),
             TokenKind::StringLiteral(str) => PrimitiveValue::String(str),
@@ -184,7 +184,7 @@ where
 
 pub fn get_character_with_peek<R>(cursor: &mut Cursor<R>, start: Position) -> Result<char, CastleError> 
 where R: Read {
-    let c = cursor.peek_char()?.ok_or(CastleError::AbruptEOF)?;
+    let c = cursor.peek_char()?.ok_or(CastleError::AbruptEOF("Error found in 'get_character_with_peek'".into()))?;
     let ch = char::try_from(c).ok().ok_or(CastleError::lex("invalid character",cursor.pos()))?;
     return Ok(ch)
 }

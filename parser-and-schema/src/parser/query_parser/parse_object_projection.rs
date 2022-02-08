@@ -27,7 +27,7 @@ where R: Read {
         let token = tokenizer.next(true)?;
         match token {
             Some(token) => should_break = match_current_token_to_field(tokenizer, token, &mut fields)?,
-            None => { err = Some(CastleError::AbruptEOF); break; }
+            None => { err = Some(CastleError::AbruptEOF("Error found in 'loop_through_tokens_and_parse_fields'".into())); break; }
         };
         if should_break { break; }
     
