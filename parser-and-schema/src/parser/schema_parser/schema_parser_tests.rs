@@ -550,6 +550,7 @@ fn can_parse_function_with_args_and_return_type(){
     assert_eq!(expected, actual);
 }
 
+#[test]
 fn can_parse_option_type(){
     let schema = "
         type User {
@@ -592,6 +593,7 @@ fn can_parse_option_type(){
     assert_eq!(expected, parse_schema(schema).unwrap());
 }
 
+#[test]
 fn can_parse_directives(){
     let schema = "
         type User {
@@ -611,6 +613,18 @@ fn can_parse_directives(){
         )),
         ("age".into(), Type::PrimitiveType(PrimitiveType::Int), None),
     ]);
+    let user_type = SchemaType::new("User".into(), user_fields);
+    
+    let mut expected = SchemaDefinition {
+        schema_types: HashMap::new(),
+        traits: HashMap::new(),
+        enums: HashMap::new(),
+        impls: HashMap::new(),
+        functions: HashMap::new(),
+    };
+    expected.schema_types.insert("User".into(), user_type);
+    let actual = parse_schema(schema).unwrap();
+    assert_eq!(expected, actual);
 
 }
 
