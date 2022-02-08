@@ -3,7 +3,7 @@ use std::{fmt::{Formatter, self, Display}};
 use input_cursor::{Span, Position};
 use shared::CastleError;
 
-use crate::{ast::syntax_definitions::{keyword::Keyword, argument::Argument}, parser::schema_parser::types::{primitive_type::PrimitiveType, vec_type::VecType}};
+use crate::{ast::syntax_definitions::{keyword::Keyword, argument::Argument}, parser::schema_parser::types::{primitive_type::PrimitiveType, vec_type::VecType, type_system::Type, option_type::OptionType}};
 
 #[derive(Debug, PartialEq)]
 pub struct Token {
@@ -24,6 +24,7 @@ pub enum TokenKind {
     Arguments(Vec<Box<Token>>),
     PrimitiveType(PrimitiveType),
     VecType(VecType),
+    OptionType(OptionType)
 }
 
 #[derive(Debug, PartialEq)]

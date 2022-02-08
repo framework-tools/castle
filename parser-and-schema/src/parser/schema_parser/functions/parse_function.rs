@@ -17,7 +17,7 @@ where R: Read {
             },
             _ => return Err(CastleError::Schema(format!("6. Expected identifier, found: {:?}", token.kind).into(), token.span))
         },
-        None => return Err(CastleError::AbruptEOF)
+        None => return Err(CastleError::AbruptEOF("Error found in 'parse_function'".into()))
     }
 
     return Ok(function_definition);
@@ -47,7 +47,7 @@ fn get_fn_return_type_and_body<R>(function_definition: &mut FnDefinition, tokeni
             }
             _ => return Err(CastleError::Schema(format!("Expected open block, found: {:?}", token.kind).into(), token.span))
         }
-        None => return Err(CastleError::AbruptEOF),
+        None => return Err(CastleError::AbruptEOF("Error found in 'get_fn_return_type_and_body'".into())),
     }
     return Ok(())
 }

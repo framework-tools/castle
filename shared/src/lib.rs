@@ -8,7 +8,7 @@ extern crate rmp_serde as rmps;
 #[derive(Debug, Deserialize, Serialize)]
 pub enum CastleError {
     IO(Box<str>),
-    AbruptEOF,
+    AbruptEOF(Box<str>),
     Lexer(Box<str>, Position),
     Parser(Box<str>, Span),
     EmptyObject(Box<str>),
@@ -46,7 +46,7 @@ impl fmt::Display for CastleError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::IO(msg) => write!(f, "IO error: {}", msg),
-            Self::AbruptEOF => write!(f, "Unexpected EOF"),
+            Self::AbruptEOF(msg) => write!(f, "Unexpected EOF: {}", msg),
             Self::Lexer(msg, pos) => write!(f, "Lexer error: {} at {}", msg, pos),
             Self::Parser(msg, span) => write!(f, "Parser error: {} at {}", msg, span),
             Self::EmptyObject(msg) => write!(f, "Empty object: {}", msg),
@@ -65,7 +65,7 @@ impl ExtendedErrorDisplay for CastleError {
     fn extended_error(&self, src: &str) -> String {
         match self {
             Self::IO(msg) => format!("IO error: {}", msg),
-            Self::AbruptEOF => format!("Unexpected EOF"),
+            Self::AbruptEOF(msg) => format!("Unexpected EOF {}", msg),
             Self::Lexer(msg, pos) => pretty_print_lexer_error(msg, pos, src),
             Self::Parser(msg, span) => pretty_print_parser_error(msg, span, src),
             Self::EmptyObject(msg) => format!("Empty object: {}", msg),

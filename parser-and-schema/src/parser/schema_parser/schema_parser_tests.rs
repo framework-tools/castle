@@ -1,6 +1,10 @@
 use std::{collections::HashMap, vec};
 
+<<<<<<< HEAD
+use crate::{parser::{schema_parser::{types::{schema_field::{SchemaField}, schema_type::SchemaType, type_system::Type, primitive_type::PrimitiveType, vec_type::VecType, option_type::OptionType}, schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}}, self, query_parser::query_tests_utils::insert_each_field_into_fields}, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, schema_definition::SchemaDefinition, argument::Argument, fn_definition::FnDefinition}};
+=======
 use crate::{parser::{schema_parser::{types::{schema_field::{SchemaField}, schema_type::SchemaType, type_system::Type, primitive_type::PrimitiveType, vec_type::VecType}, schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}}, self, query_parser::query_tests_utils::insert_each_field_into_fields}, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, schema_definition::SchemaDefinition, argument::Argument, fn_definition::FnDefinition, directive_definition::DirectiveDefinition}};
+>>>>>>> 9fdad1c5f99e06079dac19ec1f626717740128aa
 
 use super::parse_schema::parse_schema;
 
@@ -555,8 +559,8 @@ fn can_parse_option_type(){
     let schema = "
         type User {
             id: uuid,
-            name: Option(String),
-            profile_pic: Option(ProfilePic),
+            name: Option<String>,
+            profile_pic: Option<ProfilePic>,
         }
 
         type ProfilePic {

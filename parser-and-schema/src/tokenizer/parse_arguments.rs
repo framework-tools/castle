@@ -42,6 +42,6 @@ where R: Read {
                 return Ok(false);
             }
         }
-        None =>return Err(CastleError::AbruptEOF)
+        None =>return Err(CastleError::AbruptEOF("Error found in 'unwrap_char_parse_argument_or_end'".into())),
     }
 }

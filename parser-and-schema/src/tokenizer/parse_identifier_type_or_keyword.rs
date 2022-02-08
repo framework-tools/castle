@@ -5,13 +5,14 @@ use shared::CastleError;
 
 use crate::{token::{Token}};
 
-use super::{parse_keyword::get_keyword_or_continue, parse_arguments::get_arguments, parse_vec_type::get_vec_type_from_word, tokenizer::Tokenizer};
+use super::{parse_keyword::get_keyword_or_continue, parse_arguments::get_arguments, parse_vec_type::get_vec_type_from_word, tokenizer::Tokenizer, parse_option_type::get_option_type_from_word};
 
 pub fn parse_identifier_or_keyword_or_type<R>(tokenizer: &mut Tokenizer<R>, start: Position) -> Result<Token, CastleError> 
 where R: Read {
     let (word, field_has_arguments) = get_word_from_chars(&mut tokenizer.cursor)?;
 
     if word == "Vec" { return get_vec_type_from_word(&mut tokenizer.cursor, word, start) }
+    if word == "Option" { return get_option_type_from_word(&mut tokenizer.cursor, word, start) }
     let arguments;
     if field_has_arguments { arguments = Some(get_arguments(tokenizer)?); } // this also is used for tuples on enums
     else { arguments = None }

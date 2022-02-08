@@ -21,7 +21,7 @@ where R: Read {
                 else if char == '"' { break; }
                 else { string.push(char);}
             },
-            None => return Err(CastleError::AbruptEOF)
+            None => return Err(CastleError::AbruptEOF("Error found in 'parse_string'".into()))
         }
         
     };
@@ -52,7 +52,7 @@ where R: Read {
         'u' => {
             let mut hex_string = String::new();
             for _ in 0..4 {
-                let c = cursor.next_char()?.ok_or(CastleError::AbruptEOF)?;
+                let c = cursor.next_char()?.ok_or(CastleError::AbruptEOF("Error found in 'handle_escape_characters'".into()))?;
                 let ch = char::try_from(c).ok().ok_or(CastleError::lex(
                     "invalid character",
                     cursor.pos(),
