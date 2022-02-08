@@ -9,7 +9,8 @@ pub enum Keyword {
     Match,
     Type,
     Enum,
-    Fn
+    Fn,
+    Into
 }
 
 impl Keyword {
@@ -24,6 +25,7 @@ impl Keyword {
             "type" => Some(Keyword::Type),
             "enum" => Some(Keyword::Enum),
             "fn" => Some(Keyword::Fn),
+            "into" => Some(Keyword::Into),
             _ => None
         }
     }

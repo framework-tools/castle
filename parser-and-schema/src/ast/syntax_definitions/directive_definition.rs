@@ -1,17 +1,17 @@
-use serde::{Deserialize, Serialize};
 
-use super::expressions::PrimitiveValue;
-
+use crate::parser::schema_parser::types::type_system::Type;
 
 
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct DirectiveDefinition {
     pub name: Box<str>,
-    pub arguments: Vec<DirectiveArgument>
+    pub type_: Type
 }
-
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
-pub struct DirectiveArgument {
-    pub name: Box<str>,
-    pub value: PrimitiveValue
+impl DirectiveDefinition {
+    pub fn new(name: Box<str>, type_: Type) -> Self {
+        DirectiveDefinition {
+            name,
+            type_
+        }
+    }
 }

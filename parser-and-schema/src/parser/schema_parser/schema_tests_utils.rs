@@ -1,16 +1,16 @@
 use std::collections::HashMap;
 
-use crate::ast::syntax_definitions::enum_definition::{EnumVariant, EnumDefinition};
+use crate::ast::syntax_definitions::{enum_definition::{EnumVariant, EnumDefinition}, directive_definition::DirectiveDefinition};
 
 use super::types::{schema_field::{SchemaField}, type_system::Type, schema_type::SchemaType};
 
-pub fn create_type_fields_for_tests(fields: Vec<(Box<str>, Type)>) -> HashMap<Box<str>, SchemaField>{
+pub fn create_type_fields_for_tests(fields: Vec<(Box<str>, Type, Option<DirectiveDefinition>)>) -> HashMap<Box<str>, SchemaField>{
     let mut type_fields = HashMap::new();
-    for (identifier, type_) in fields {
-        type_fields.insert(identifier.clone(), SchemaField { 
-            name: identifier, 
+    for (name, type_, directive) in fields {
+        type_fields.insert(name.clone(), SchemaField { 
+            name, 
             type_,
-            directives: None
+            directives: directive
         });
     }
     return type_fields
