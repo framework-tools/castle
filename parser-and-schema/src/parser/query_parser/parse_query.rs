@@ -2,9 +2,9 @@ use std::{io::Read, collections::{HashMap}};
 
 use shared::CastleError;
 
-use crate::{ast::syntax_definitions::want::Want, tokenizer::{tokenizer::Tokenizer}, token::{token::{TokenKind, Punctuator, Identifier}, Token}};
+use crate::{ast::syntax_definitions::{want::Want, match_statement}, tokenizer::{tokenizer::Tokenizer}, token::{token::{TokenKind, Punctuator, Identifier}, Token}};
 
-use super::parse_object_projection::parse_object_projection;
+use super::{parse_object_projection::parse_object_projection, parse_match_statements::parse_match_statements};
 
 
 /// Parses a query into a set of wants.
@@ -35,7 +35,7 @@ where R: Read {
         match token {
             Some(token) => { 
                 let want = match_token_to_want(token, tokenizer)?;
-                let identifier = want.get_identifier();
+                let identifier = want.get_identifier()?;
                 wants.insert(identifier, want);
             },
             None => break
@@ -52,7 +52,7 @@ where R: Read{
     }
 }
 
-fn match_peeked_token_to_want<R> (identifier: Identifier, tokenizer: &mut Tokenizer<R>) -> Result<Want, CastleError>
+pub fn match_peeked_token_to_want<R> (identifier: Identifier, tokenizer: &mut Tokenizer<R>) -> Result<Want, CastleError>
 where R: Read {
     let next_token = tokenizer.peek(true)?;
     let arguments = identifier.arguments;
@@ -63,10 +63,17 @@ where R: Read {
                     tokenizer.next(true)?;
                     parse_object_projection(identifier.name, tokenizer, false)
                 },
-                _ => Ok(Want::new_single_field(identifier.name, arguments))
+
+                _ => {
+                    let match_statement = None; // need to implement this
+                    Ok(Want::new_single_field(identifier.name, arguments, match_statement))
+                }
             }
         },
-        None => Ok(Want::new_single_field(identifier.name, arguments))
+        None => {
+            let match_statement = parse_match_statements(tokenizer, identifier.name.clone())?;
+            Ok(Want::new_single_field(identifier.name, arguments, match_statement))
+        }
     }
 }
 

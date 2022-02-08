@@ -3,7 +3,7 @@ use std::{fmt::{Formatter, self, Display}};
 use input_cursor::{Span, Position};
 use shared::CastleError;
 
-use crate::{ast::syntax_definitions::{keyword::Keyword, argument::Argument}, parser::schema_parser::types::{primitive_type::PrimitiveType, vec_type::VecType, type_system::Type, option_type::OptionType}};
+use crate::{ast::syntax_definitions::{keyword::Keyword, argument::Argument, enum_definition::EnumValue}, parser::schema_parser::types::{primitive_type::PrimitiveType, vec_type::VecType, type_system::Type, option_type::OptionType}};
 
 #[derive(Debug, PartialEq)]
 pub struct Token {
@@ -24,7 +24,8 @@ pub enum TokenKind {
     Arguments(Vec<Box<Token>>),
     PrimitiveType(PrimitiveType),
     VecType(VecType),
-    OptionType(OptionType)
+    OptionType(OptionType),
+    EnumValue(EnumValue)
 }
 
 #[derive(Debug, PartialEq)]
@@ -60,6 +61,7 @@ impl Token {
             ')' => Ok(Token::new(TokenKind::Punctuator(Punctuator::CloseParen), Span::new(start, end))),
             '-' => Ok(Token::new(TokenKind::Punctuator(Punctuator::Sub), Span::new(start, end))),
             '>' => Ok(Token::new(TokenKind::Punctuator(Punctuator::GreaterThan), Span::new(start, end))),
+            '@' => Ok(Token::new(TokenKind::Punctuator(Punctuator::At), Span::new(start, end))),
             _ => Err(CastleError::Unimplemented("Unimplemented Operator".into()))
         }
     }

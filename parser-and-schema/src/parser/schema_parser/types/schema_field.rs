@@ -6,15 +6,15 @@ use super::type_system::Type;
 pub struct SchemaField {
     pub name: Box<str>,
     pub type_: Type,
-    pub directive: Option<DirectiveDefinition>
+    pub directives: Vec<DirectiveDefinition>
 }
 
 impl SchemaField {
-    pub fn new(name: Box<str>, type_: Type, directive: Option<DirectiveDefinition>) -> Self {
+    pub fn new(name: Box<str>, type_: Type, directives: Vec<DirectiveDefinition>) -> Self {
         SchemaField {
             name,
             type_,
-            directive
+            directives
         }
     }
 }

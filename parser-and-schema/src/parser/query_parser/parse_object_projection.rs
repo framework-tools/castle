@@ -70,7 +70,7 @@ fn parse_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str>, W
                 else { return Ok(false) }
             }
             _ => {
-                let field = Want::SingleField(SingleField{ identifier: name.clone(), arguments });
+                let field = Want::SingleField(SingleField{ identifier: name.clone(), arguments, match_statement: None });
                 fields.insert(name, field);
                 return Ok(false)
             }
@@ -94,7 +94,7 @@ where R: Read {
     return match peeked_token {
         Some(peeked_token) => match &peeked_token.kind {
             TokenKind::Keyword(Keyword::Match) => {
-                parse_match_statements(tokenizer, fields, name.clone())?;
+                parse_match_statements(tokenizer, name.clone())?;
                 return Ok(false)
             },
             TokenKind::Punctuator(Punctuator::OpenBlock) => {
@@ -111,7 +111,7 @@ fn create_obj(identifier: Box<str>, fields: HashMap<Box<str>, Want>) -> Result<W
         let object_projection = ObjectProjection {
             identifier,
             fields: Some(fields),
-            match_statements: None
+            match_statement: None
         };
         return Ok(Want::Projection(object_projection))
 }

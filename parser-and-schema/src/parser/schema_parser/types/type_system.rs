@@ -1,11 +1,10 @@
 use std::io::Read;
 
-use input_cursor::Cursor;
 use shared::CastleError;
 
-use crate::{tokenizer::{tokenizer::{Tokenizer, advance_and_parse_token}, self}, token::token::TokenKind, parser::schema_parser::parse_schema_field::skip_comma, ast::syntax_definitions::keyword::Keyword};
+use crate::{tokenizer::{tokenizer::{Tokenizer, }}, token::token::TokenKind};
 
-use super::{primitive_type::PrimitiveType, vec_type::VecType, option_type::OptionType, parse_directive::parse_directive,};
+use super::{primitive_type::PrimitiveType, vec_type::VecType, option_type::OptionType, };
 
 
 

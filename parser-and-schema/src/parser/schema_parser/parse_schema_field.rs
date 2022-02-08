@@ -4,7 +4,7 @@ use shared::CastleError;
 
 use crate::{tokenizer::tokenizer::Tokenizer, token::{token::{TokenKind, Punctuator}, Token}};
 
-use super::types::{schema_field::{SchemaField}, type_system::{parse_type}, parse_directive::parse_directive};
+use super::types::{schema_field::{SchemaField}, type_system::{parse_type}, parse_directive::parse_directives};
 
 
 /// takes in tokenizer and returns parsed field
@@ -20,12 +20,12 @@ where R: Read{
     let identifier = get_identifier(token, tokenizer)?;
     tokenizer.next(true)?; // skip colon
     let type_ = parse_type(tokenizer)?; // get fields type
-    let directive = parse_directive(tokenizer)?;
-    return Ok(SchemaField { name: identifier, type_, directive });
+    let directives = parse_directives(tokenizer)?;
+    return Ok(SchemaField { name: identifier, type_, directives });
 }
 
 pub fn get_identifier<R>(token: Option<Token>, tokenizer: &mut Tokenizer<R>) -> Result<Box<str>, CastleError> 
-where R: Read{
+where R: Read {
     match token {
         Some(token) => match token.kind {
             TokenKind::Identifier(identifier) => return Ok(identifier.name),

@@ -5,11 +5,12 @@ use shared::CastleError;
 
 use crate::token::token::{TokenKind, Numeric};
 
-use super::keyword::Keyword;
+use super::{keyword::Keyword, enum_definition::EnumValue};
 
 #[derive(Debug, PartialEq)]
 pub enum Expression {
     PrimitiveValue(PrimitiveValue),
+    EnumValue(EnumValue),
 }
 
 

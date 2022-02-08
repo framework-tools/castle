@@ -14,7 +14,8 @@ pub enum CastleError {
     EmptyObject(Box<str>),
     Unimplemented(Box<str>),
     Schema(Box<str>, Span),
-    UndefinedSchemaType(Box<str>)
+    UndefinedSchemaType(Box<str>),
+    MatchError(Box<str>),
 }
 
 impl From<std::io::Error> for CastleError {
@@ -53,6 +54,7 @@ impl fmt::Display for CastleError {
             Self::Unimplemented(msg) => write!(f, "Unimplemented: {}", msg),
             Self::Schema(msg, span) => write!(f, "Schema error: {} at {}", msg, span),
             Self::UndefinedSchemaType(msg) => write!(f, "Undefined schema type: {}", msg),
+            Self::MatchError(msg) => write!(f, "Match error: {}", msg),
         }
     }
 }
@@ -72,6 +74,7 @@ impl ExtendedErrorDisplay for CastleError {
             Self::Unimplemented(msg) => format!("Unimplemented: {}", msg),
             Self::Schema(msg, span) => format!("Schema error: {} at {}", msg, span),
             Self::UndefinedSchemaType(msg) => format!("Undefined schema type: {}", msg),
+            Self::MatchError(msg) => format!("Match error: {}", msg),
         }
     }
 }

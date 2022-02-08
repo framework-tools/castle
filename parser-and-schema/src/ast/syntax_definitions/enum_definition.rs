@@ -57,3 +57,18 @@ impl EnumDataType {
         return EnumDataType::EnumObject(fields)
     }
 }
+
+#[derive(Debug, PartialEq)]
+pub struct EnumValue {
+    pub name: Box<str>,
+    pub data_type: EnumDataType
+}
+
+impl EnumValue {
+    pub fn new(name: Box<str>, data_type: EnumDataType) -> Self {
+        EnumValue {
+            name,
+            data_type
+        }
+    }
+}

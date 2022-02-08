@@ -33,9 +33,9 @@ fn can_parse_simple_type() {
         }";
 
     let user_fields = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), None),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), None),
-        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), None),
+        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
+        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
+        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
     ]);
 
     let user_type = SchemaType::new("User".into(), user_fields);
@@ -65,12 +65,12 @@ fn can_parse_simple_type_more_fields_and_no_commas() {
         }";
 
     let user_fields = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), None),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), None),
-        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), None),
-        ("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), None),
-        ("location".into(), Type::PrimitiveType(PrimitiveType::String), None),
-        ("log_in_count".into(), Type::PrimitiveType(PrimitiveType::Int), None),
+        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
+        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
+        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
+        ("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), Vec::new()),
+        ("location".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
+        ("log_in_count".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
     ]);
 
     let mut expected = create_schema_types_for_test(vec![
@@ -104,18 +104,18 @@ fn can_parse_two_types() {
         }";
 
     let user_fields = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), None),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), None),
-        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), None),
-        ("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), None),
-        ("location".into(), Type::PrimitiveType(PrimitiveType::String), None),
-        ("log_in_count".into(), Type::PrimitiveType(PrimitiveType::Int), None),
+        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
+        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
+        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
+        ("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), Vec::new()),
+        ("location".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
+        ("log_in_count".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
     ]);
 
     let organization_fields: HashMap<Box<str>, SchemaField> = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), None),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), None),
-        ("industry".into(), Type::PrimitiveType(PrimitiveType::String), None),
+        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
+        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
+        ("industry".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
     ]);
 
     let mut expected: HashMap<Box<str>, SchemaType> = create_schema_types_for_test(vec![
@@ -151,19 +151,19 @@ fn can_parse_two_types_with_defined_value() {
         }";
 
     let user_fields = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), None),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), None),
-        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), None),
-        ("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), None),
-        ("location".into(), Type::PrimitiveType(PrimitiveType::String), None),
-        ("log_in_count".into(), Type::PrimitiveType(PrimitiveType::Int), None),
-        ("organization".into(), Type::SchemaTypeOrEnum("Organization".into()), None),
+        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
+        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
+        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
+        ("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), Vec::new()),
+        ("location".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
+        ("log_in_count".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
+        ("organization".into(), Type::SchemaTypeOrEnum("Organization".into()), Vec::new()),
     ]);
     
     let organization_fields: HashMap<Box<str>, SchemaField> = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), None),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), None),
-        ("industry".into(), Type::PrimitiveType(PrimitiveType::String), None),
+        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
+        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
+        ("industry".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
     ]);
 
     let expected = create_schema_types_for_test(vec![
@@ -202,19 +202,19 @@ fn parser_breaks_if_unknown_schema_type() {
         }";
 
     let user_fields = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), None),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), None),
-        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), None),
-        ("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), None),
-        ("location".into(), Type::PrimitiveType(PrimitiveType::String), None),
-        ("log_in_count".into(), Type::PrimitiveType(PrimitiveType::Int), None),
-        ("organization".into(), Type::SchemaTypeOrEnum("Company".into()), None),
+        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
+        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
+        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
+        ("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), Vec::new()),
+        ("location".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
+        ("log_in_count".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
+        ("organization".into(), Type::SchemaTypeOrEnum("Company".into()), Vec::new()),
     ]);
     
     let organization_fields = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), None),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), None),
-        ("industry".into(), Type::PrimitiveType(PrimitiveType::String), None),
+        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
+        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
+        ("industry".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
     ]);
 
     let mut expected = create_schema_types_for_test(vec![
@@ -251,19 +251,19 @@ fn can_parse_two_types_with_vec_type() {
         }";
 
     let mut user_fields = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), None),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), None),
-        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), None),
-        ("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), None),
-        ("location".into(), Type::PrimitiveType(PrimitiveType::String), None),
-        ("log_in_count".into(), Type::PrimitiveType(PrimitiveType::Int), None),
+        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
+        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
+        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
+        ("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), Vec::new()),
+        ("location".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
+        ("log_in_count".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
     ]);
     
     let mut organization_fields: HashMap<Box<str>, SchemaField> = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), None),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), None),
-        ("industries".into(), Type::VecType(VecType {inner_type: Type::PrimitiveType(PrimitiveType::String).into()}), None),
-        ("users".into(), Type::VecType(VecType {inner_type: Type::SchemaTypeOrEnum("User".into()).into()}), None)
+        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
+        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
+        ("industries".into(), Type::VecType(VecType {inner_type: Type::PrimitiveType(PrimitiveType::String).into()}), Vec::new()),
+        ("users".into(), Type::VecType(VecType {inner_type: Type::SchemaTypeOrEnum("User".into()).into()}), Vec::new())
     ]);
     let mut expected = create_schema_types_for_test(vec![
         ("User".into(), SchemaType::new("User".into(), user_fields)),
@@ -345,12 +345,12 @@ fn can_parse_two_enums_and_type_schema() {
     ]);
 
     let user_fields = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), None),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), None),
-        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), None),
-        ("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), None),
-        ("location".into(), Type::PrimitiveType(PrimitiveType::String), None),
-        ("log_in_count".into(), Type::PrimitiveType(PrimitiveType::Int), None),
+        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
+        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
+        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
+        ("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), Vec::new()),
+        ("location".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
+        ("log_in_count".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
     ]);
     let expected_types = create_schema_types_for_test(vec![
         ("User".into(), SchemaType::new("User".into(), user_fields)),
@@ -359,8 +359,7 @@ fn can_parse_two_enums_and_type_schema() {
     let expected = SchemaDefinition {
         schema_types: expected_types,
         enums: expected_enums,
-        traits: HashMap::new(),
-        impls: HashMap::new(),
+
         functions: HashMap::new(),
     };
 
@@ -399,19 +398,19 @@ fn can_parse_enum_schema_with_values() {
         ";
 
     let user_fields = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), None),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), None),
-        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), None),
-        ("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), None),
-        ("location".into(), Type::PrimitiveType(PrimitiveType::String), None),
-        ("log_in_count".into(), Type::PrimitiveType(PrimitiveType::Int), None),
+        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
+        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
+        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
+        ("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), Vec::new()),
+        ("location".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
+        ("log_in_count".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
     ]);
     
     let organization_fields: HashMap<Box<str>, SchemaField> = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), None),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), None),
-        ("industries".into(), Type::VecType(VecType {inner_type: Type::PrimitiveType(PrimitiveType::String).into()}), None),
-        ("users".into(), Type::VecType(VecType {inner_type: Type::SchemaTypeOrEnum("User".into()).into()}), None)
+        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
+        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
+        ("industries".into(), Type::VecType(VecType {inner_type: Type::PrimitiveType(PrimitiveType::String).into()}), Vec::new()),
+        ("users".into(), Type::VecType(VecType {inner_type: Type::SchemaTypeOrEnum("User".into()).into()}), Vec::new())
     ]);
     let mut expected_types = create_schema_types_for_test(vec![
         ("User".into(), SchemaType::new("User".into(), user_fields)),
@@ -437,8 +436,7 @@ fn can_parse_enum_schema_with_values() {
     let expected = SchemaDefinition {
         schema_types: expected_types,
         enums,
-        traits: HashMap::new(),
-        impls: HashMap::new(),
+
         functions: HashMap::new(),
         
     };
@@ -470,8 +468,7 @@ fn can_parse_enum_multiple_arguments(){
     let expected = SchemaDefinition {
         schema_types: HashMap::new(),
         enums,
-        traits: HashMap::new(),
-        impls: HashMap::new(),
+
         functions: HashMap::new(),
     };
 
@@ -494,9 +491,9 @@ fn can_parse_enum_with_fields(){
 
     let framework_types_enum = create_enum_from_vec("FrameworkTypes".into(), vec![
         ("User".into(), EnumVariant::new("User".into(), EnumDataType::new_enum_object(vec![
-            ("id".into(), SchemaField::new("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), None)),
-            ("name".into(), SchemaField::new("name".into(), Type::PrimitiveType(PrimitiveType::String), None)),
-            ("age".into(), SchemaField::new("age".into(), Type::PrimitiveType(PrimitiveType::Int), None)),
+            ("id".into(), SchemaField::new("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new())),
+            ("name".into(), SchemaField::new("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new())),
+            ("age".into(), SchemaField::new("age".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new())),
         ]), HashMap::new())),
         ("SomeOtherType".into(), EnumVariant::new("SomeOtherType".into(), EnumDataType::EnumTuple(vec![
             Argument::Type(Type::PrimitiveType(PrimitiveType::String)),
@@ -510,8 +507,7 @@ fn can_parse_enum_with_fields(){
     let expected = SchemaDefinition {
         schema_types: HashMap::new(),
         enums,
-        traits: HashMap::new(),
-        impls: HashMap::new(),
+
         functions: HashMap::new(),
     };
 
@@ -522,9 +518,7 @@ fn can_parse_enum_with_fields(){
 #[test]
 fn can_parse_function_with_args_and_return_type(){
     let schema = "
-        fn do_nothing(id: uuid, name: String) -> User {
-
-        }
+        fn do_nothing(id: uuid, name: String) -> User
     ";
 
     let mut fn_do_nothing = FnDefinition::new();
@@ -542,8 +536,6 @@ fn can_parse_function_with_args_and_return_type(){
     let expected = SchemaDefinition {
         schema_types: HashMap::new(),
         enums: HashMap::new(),
-        traits: HashMap::new(),
-        impls: HashMap::new(),
         functions: expected_functions,
     };
     let actual = parse_schema(schema).unwrap();
@@ -567,15 +559,15 @@ fn can_parse_option_type(){
     ";
 
     let profile_pic_fields = create_type_fields_for_tests(vec![
-        ("url".into(), Type::PrimitiveType(PrimitiveType::String), None),
-        ("width".into(), Type::PrimitiveType(PrimitiveType::Int), None),
-        ("height".into(), Type::PrimitiveType(PrimitiveType::Int), None),
+        ("url".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
+        ("width".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
+        ("height".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
     ]);
 
     let user_fields = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), None),
-        ("name".into(), Type::OptionType(OptionType { inner_type: Type::PrimitiveType(PrimitiveType::String).into()}), None),
-        ("profile_pic".into(), Type::OptionType(OptionType { inner_type: Type::SchemaTypeOrEnum("ProfilePic".into()).into()}), None),
+        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
+        ("name".into(), Type::OptionType(OptionType { inner_type: Type::PrimitiveType(PrimitiveType::String).into()}), Vec::new()),
+        ("profile_pic".into(), Type::OptionType(OptionType { inner_type: Type::SchemaTypeOrEnum("ProfilePic".into()).into()}), Vec::new()),
     ]);
 
     let expected_types = create_schema_types_for_test(vec![
@@ -586,8 +578,6 @@ fn can_parse_option_type(){
     let expected = SchemaDefinition {
         schema_types: expected_types,
         enums: HashMap::new(),
-        traits: HashMap::new(),
-        impls: HashMap::new(),
         functions: HashMap::new(),
     };
     assert_eq!(expected, parse_schema(schema).unwrap());
@@ -597,49 +587,50 @@ fn can_parse_option_type(){
 fn can_parse_directives(){
     let schema = "
         type User {
-            name: Option<String> into String,
-            first_name: String into Option<String>,
-            last_name: String into Option<String>,
-            age: Int
+            name: Option<String> @random_directive(arg1: Int, arg2: String),
+            first_name: String,
+            last_name: String,
+            age: Int,
+            password: String @is_authenticated @is_encrypted,
+            is_admin: bool @is_admin(role: String),
         }
     ";
 
+    let arg1 = Argument::IdentifierAndType("arg1".into(), Type::PrimitiveType(PrimitiveType::Int));
+    let arg2 = Argument::IdentifierAndType("arg2".into(), Type::PrimitiveType(PrimitiveType::String));
+    let name_directive_arguments = vec![arg1, arg2];
+    let name_directives = vec![
+        DirectiveDefinition::new("random_directive".into(), Some(name_directive_arguments)),
+    ];
+
+    let password_directives = vec![
+        DirectiveDefinition::new("is_authenticated".into(), None),
+        DirectiveDefinition::new("is_encrypted".into(), None),
+    ];
+    let is_admin_directive = DirectiveDefinition::new("is_admin".into(), Some(vec![
+        Argument::IdentifierAndType("role".into(), Type::PrimitiveType(PrimitiveType::String))
+    ]));
+
     let user_fields = create_type_fields_for_tests(vec![
-        ("name".into(), Type::OptionType(OptionType { inner_type: Type::PrimitiveType(PrimitiveType::String).into()}), Some(DirectiveDefinition::new(Type::PrimitiveType(PrimitiveType::String))
-        )),
-        ("first_name".into(), Type::PrimitiveType(PrimitiveType::String).into(), Some(DirectiveDefinition::new(Type::OptionType(OptionType { inner_type: Type::PrimitiveType(PrimitiveType::String).into()})))),
-        ("last_name".into(), Type::PrimitiveType(PrimitiveType::String).into(), Some(DirectiveDefinition::new(Type::OptionType(OptionType { inner_type: Type::PrimitiveType(PrimitiveType::String).into()})))),
-        ("age".into(), Type::PrimitiveType(PrimitiveType::Int).into(), None)
+        ("name".into(), Type::OptionType(OptionType { inner_type: Type::PrimitiveType(PrimitiveType::String).into()}), name_directives),
+        ("first_name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
+        ("last_name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
+        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
+        ("password".into(), Type::PrimitiveType(PrimitiveType::String), password_directives),
+        ("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), vec![is_admin_directive]),
     ]);
+    
     let user_type = SchemaType::new("User".into(), user_fields);
     
     let mut expected = SchemaDefinition {
         schema_types: HashMap::new(),
-        traits: HashMap::new(),
         enums: HashMap::new(),
-        impls: HashMap::new(),
         functions: HashMap::new(),
     };
     expected.schema_types.insert("User".into(), user_type);
     let actual = parse_schema(schema).unwrap();
     assert_eq!(expected, actual);
-
 }
-
-#[test]
-fn should_fail_directives_that_are_not_compatible(){
-    let schema = "
-        type User {
-            last_name: String into Option<Float>,
-        }
-    ";
-
-    let actual = parse_schema(schema);
-    assert!(actual.is_err());
-}
-
-// To Implement:
-// - Parse implements
 
 // Need to write 1 more test for each piece of functionality
 // to ensure working correctly
