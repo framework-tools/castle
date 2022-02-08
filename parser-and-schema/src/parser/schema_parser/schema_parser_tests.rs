@@ -1,10 +1,6 @@
-use std::{collections::HashMap, vec};
+use std::{collections::HashMap, vec, string};
 
-<<<<<<< HEAD
-use crate::{parser::{schema_parser::{types::{schema_field::{SchemaField}, schema_type::SchemaType, type_system::Type, primitive_type::PrimitiveType, vec_type::VecType, option_type::OptionType}, schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}}, self, query_parser::query_tests_utils::insert_each_field_into_fields}, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, schema_definition::SchemaDefinition, argument::Argument, fn_definition::FnDefinition}};
-=======
-use crate::{parser::{schema_parser::{types::{schema_field::{SchemaField}, schema_type::SchemaType, type_system::Type, primitive_type::PrimitiveType, vec_type::VecType}, schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}}, self, query_parser::query_tests_utils::insert_each_field_into_fields}, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, schema_definition::SchemaDefinition, argument::Argument, fn_definition::FnDefinition, directive_definition::DirectiveDefinition}};
->>>>>>> 9fdad1c5f99e06079dac19ec1f626717740128aa
+use crate::{parser::{schema_parser::{types::{schema_field::{SchemaField}, schema_type::SchemaType, type_system::Type, primitive_type::PrimitiveType, vec_type::VecType, option_type::OptionType}, schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}}, self, query_parser::query_tests_utils::insert_each_field_into_fields}, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, schema_definition::SchemaDefinition, argument::Argument, fn_definition::FnDefinition, directive_definition::DirectiveDefinition}};
 
 use super::parse_schema::parse_schema;
 
@@ -578,8 +574,8 @@ fn can_parse_option_type(){
 
     let user_fields = create_type_fields_for_tests(vec![
         ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), None),
-        ("name".into(), Type::OptionType(Box::new(Type::PrimitiveType(PrimitiveType::String))), None),
-        ("profile_pic".into(), Type::OptionType(Box::new(Type::SchemaTypeOrEnum("ProfilePic".into()))), None),
+        ("name".into(), Type::OptionType(OptionType { inner_type: Type::PrimitiveType(PrimitiveType::String).into()}), None),
+        ("profile_pic".into(), Type::OptionType(OptionType { inner_type: Type::SchemaTypeOrEnum("ProfilePic".into()).into()}), None),
     ]);
 
     let expected_types = create_schema_types_for_test(vec![
@@ -609,13 +605,11 @@ fn can_parse_directives(){
     ";
 
     let user_fields = create_type_fields_for_tests(vec![
-        ("name".into(), Type::OptionType(Box::new(Type::PrimitiveType(PrimitiveType::String))), Some(DirectiveDefinition::new("into".into(), Type::PrimitiveType(PrimitiveType::String))
+        ("name".into(), Type::OptionType(OptionType { inner_type: Type::PrimitiveType(PrimitiveType::String).into()}), Some(DirectiveDefinition::new(Type::PrimitiveType(PrimitiveType::String))
         )),
-        ("first_name".into(), Type::PrimitiveType(PrimitiveType::String), Some(DirectiveDefinition::new("into".into(), Type::OptionType(Box::new(Type::PrimitiveType(PrimitiveType::String))))
-        )),
-        ("last_name".into(), Type::PrimitiveType(PrimitiveType::String), Some(DirectiveDefinition::new("into".into(), Type::OptionType(Box::new(Type::PrimitiveType(PrimitiveType::String))))
-        )),
-        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), None),
+        ("first_name".into(), Type::PrimitiveType(PrimitiveType::String).into(), Some(DirectiveDefinition::new(Type::OptionType(OptionType { inner_type: Type::PrimitiveType(PrimitiveType::String).into()})))),
+        ("last_name".into(), Type::PrimitiveType(PrimitiveType::String).into(), Some(DirectiveDefinition::new(Type::OptionType(OptionType { inner_type: Type::PrimitiveType(PrimitiveType::String).into()})))),
+        ("age".into(), Type::PrimitiveType(PrimitiveType::Int).into(), None)
     ]);
     let user_type = SchemaType::new("User".into(), user_fields);
     
@@ -632,6 +626,7 @@ fn can_parse_directives(){
 
 }
 
+#[test]
 fn should_fail_directives_that_are_not_compatible(){
     let schema = "
         type User {
@@ -639,10 +634,11 @@ fn should_fail_directives_that_are_not_compatible(){
         }
     ";
 
+    let actual = parse_schema(schema);
+    assert!(actual.is_err());
 }
 
 // To Implement:
-// - Parse directives
 // - Parse implements
 
 // Need to write 1 more test for each piece of functionality

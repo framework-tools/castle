@@ -10,7 +10,7 @@ pub fn create_type_fields_for_tests(fields: Vec<(Box<str>, Type, Option<Directiv
         type_fields.insert(name.clone(), SchemaField { 
             name, 
             type_,
-            directives: directive
+            directive
         });
     }
     return type_fields

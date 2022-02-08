@@ -4,3 +4,4 @@ pub mod type_system;
 pub mod primitive_type;
 pub mod vec_type;
 pub mod option_type;
+pub mod parse_directive;

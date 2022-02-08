@@ -154,6 +154,7 @@ impl From<Keyword> for TokenKind {
             Keyword::Type => TokenKind::Keyword(Keyword::Type),
             Keyword::Enum => TokenKind::Keyword(Keyword::Enum),
             Keyword::Fn => TokenKind::Keyword(Keyword::Fn),
+            Keyword::Into => TokenKind::Keyword(Keyword::Into),
         }
     }
 }

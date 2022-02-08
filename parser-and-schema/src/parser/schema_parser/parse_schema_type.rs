@@ -57,7 +57,6 @@ where R: Read{
 
 pub fn get_identifier_skip_open_block<R>(token: Option<Token>, tokenizer: &mut Tokenizer<R>) -> Result<Box<str>, CastleError> 
 where R: Read{
-    println!("3. token: {:#?}", token);
     let identifier = match token {
         Some(token) => match token.kind {
             TokenKind::Identifier(identifier) => identifier,
@@ -72,7 +71,6 @@ where R: Read{
 pub fn check_token_and_parse_schema_field_or_break<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str>, SchemaField>) -> Result<bool, CastleError> 
 where R: Read {
     let token = tokenizer.peek(true)?; // get field identifier or closeblock
-    println!("4. token: {:#?}", token);
     match token {
         Some(token) => match &token.kind {
             TokenKind::Identifier(Identifier { name , .. }) => {
