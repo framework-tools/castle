@@ -193,46 +193,14 @@ where R: Read {
 
 pub fn advance_and_parse_token<R>(tokenizer: &mut Tokenizer<R>) -> Result<Option<Token>, CastleError>
 where R: Read {
-    let mut cursor = &mut tokenizer.cursor;
+    let cursor = &mut tokenizer.cursor;
 
-    // skip whitespaces
-    let (start, next_ch) = loop {
-        let start = cursor.pos();
-        if let Some(next_ch) = cursor.peek_char()? {
-            // Ignore space
-            if !is_whitespace(next_ch) {
-                break (start, next_ch)
-            }
-            cursor.next_char()?; // consume whitespace
-        } else {
-            return Ok(None);
-        }
-    };
+    let option_next_ch = skip_whitespace(cursor)?;
+    if option_next_ch.is_none() { return Ok(None) }
+    let (start, next_ch) = option_next_ch.unwrap();
+
     if let Ok(c) = char::try_from(next_ch) {
-        let token = match c {
-            '\r' | '\n' => parse_newline( cursor, start)?,
-            '"' => parse_string(cursor, start)?,
-            // spread Operator & dot
-            // '.' => parse_spread_or_dot(&mut self.cursor, start)?,
-
-            // Operator & Punctuator
-            '=' | '!' | '<' | '>' | '+' | '-' | '*' | '/' | '%' | '&' | '|' | '^' |
-            ':' | '{' | '}' | '[' | ']' | ',' | ';' | '@' | '#' | '(' | ')'  => parse_operator(cursor, start)?,
-
-            _ if c.is_digit(10) => parse_number(cursor, start)?,
-            _ if c.is_ascii_alphabetic() => parse_identifier_or_keyword_or_type(tokenizer, start)?,
-            _ => {
-                return Err(CastleError::Lexer(
-                    format!(
-                        "Unexpected '{}' at line {}, column {}",
-                        c,
-                        start.line_number(),
-                        start.column_number()
-                    ).into(),
-                    start,
-                ))
-            }
-        };
+        let token = parse_token_from_chars(tokenizer, c, start)?;
         return Ok(Some(token))
     } else {
         return Ok(None) // EOF
@@ -246,4 +214,46 @@ fn is_whitespace(ch: u32) -> bool {
         // Unicode Space_Seperator category (minus \u{0020} and \u{00A0} which are allready stated above)
         0x1680 | 0x2000..=0x200A | 0x202F | 0x205F | 0x3000
     )
+}
+
+fn skip_whitespace<R>(cursor: &mut Cursor<R>) -> Result<Option<(Position, u32)>, CastleError>
+where R: Read {
+    loop {
+        let start = cursor.pos();
+        if let Some(next_ch) = cursor.peek_char()? {
+            // Ignore space
+            if !is_whitespace(next_ch) {
+                return Ok(Some((start, next_ch)))
+            }
+            cursor.next_char()?; // consume whitespace
+        } else {
+            return Ok(None);
+        }
+    }
+}
+
+fn parse_token_from_chars<R>(tokenizer: &mut Tokenizer<R>, c: char, start: Position) -> Result<Token, CastleError> 
+where R: Read {
+    return match c {
+        '\r' | '\n' => parse_newline(&mut tokenizer.cursor, start),
+        '"' => parse_string(&mut tokenizer.cursor, start),
+
+        // Operator & Punctuator
+        '=' | '!' | '<' | '>' | '+' | '-' | '*' | '/' | '%' | '&' | '|' | '^' |
+        ':' | '{' | '}' | '[' | ']' | ',' | ';' | '@' | '#' | '(' | ')'  => parse_operator(&mut tokenizer.cursor, start),
+
+        _ if c.is_digit(10) => parse_number(&mut tokenizer.cursor, start),
+        _ if c.is_ascii_alphabetic() => parse_identifier_or_keyword_or_type(tokenizer, start),
+        _ => {
+            return Err(CastleError::Lexer(
+                format!(
+                    "Unexpected '{}' at line {}, column {}",
+                    c,
+                    start.line_number(),
+                    start.column_number()
+                ).into(),
+                start,
+            ))
+        }
+    }
 }

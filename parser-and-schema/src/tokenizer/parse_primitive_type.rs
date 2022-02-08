@@ -1,9 +1,9 @@
 use std::io::Read;
 
-use input_cursor::{Cursor, Position, Span};
+use input_cursor::{Position, Span};
 use shared::CastleError;
 
-use crate::{ast::syntax_definitions::argument::Argument, token::{Token, token::TokenKind}, parser::schema_parser::types::primitive_type::PrimitiveType};
+use crate::{token::{Token, token::TokenKind}, parser::schema_parser::types::primitive_type::PrimitiveType};
 
 use super::{parse_identifier::parse_identifier_token, tokenizer::Tokenizer};
 

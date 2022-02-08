@@ -2,7 +2,7 @@ use std::io::Read;
 
 use shared::CastleError;
 
-use crate::{tokenizer::tokenizer::Tokenizer, token::{token::{TokenKind, Punctuator}, Token}};
+use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::peek_next_token_and_unwrap}, token::{token::{TokenKind, Punctuator}, Token}};
 
 use super::types::{schema_field::{SchemaField}, type_system::parse_type, parse_directive::parse_directives};
 
@@ -14,34 +14,25 @@ use super::types::{schema_field::{SchemaField}, type_system::parse_type, parse_d
 ///   - get next token and parse into type
 ///   - return parsed field
 
-pub fn parse_schema_field<R>(tokenizer: &mut Tokenizer<R>) -> Result<SchemaField, CastleError> 
+pub fn parse_schema_field<R>(tokenizer: &mut Tokenizer<R>, token: Token) -> Result<SchemaField, CastleError> 
 where R: Read{
-    let token = tokenizer.next(true)?; // should be identifier
-    let identifier = get_identifier(token, tokenizer)?;
+    let identifier = get_identifier(token)?;
     tokenizer.next(true)?; // skip colon
     let type_ = parse_type(tokenizer)?; // get fields type
     let directives = parse_directives(tokenizer)?;
     return Ok(SchemaField { name: identifier, type_, directives });
 }
 
-pub fn get_identifier<R>(token: Option<Token>, tokenizer: &mut Tokenizer<R>) -> Result<Box<str>, CastleError> 
-where R: Read {
-    match token {
-        Some(token) => match token.kind {
-            TokenKind::Identifier(identifier) => return Ok(identifier.name),
-            _ => return Err(CastleError::Schema(format!("2. Expected identifier, found: {:?}", token.kind).into(), token.span))
-        },
-        None => return Err(CastleError::AbruptEOF("Error found in 'get_identifier'".into()))
+pub fn get_identifier(token: Token) -> Result<Box<str>, CastleError> {
+    match token.kind {
+        TokenKind::Identifier(identifier) => return Ok(identifier.name),
+        _ => return Err(CastleError::Schema(format!("2. Expected identifier, found: {:?}", token.kind).into(), token.span))
     }
 }
 
 pub fn skip_comma<R>(tokenizer: &mut Tokenizer<R>) -> Result<(), CastleError> 
 where R: Read{
-    let option_peeked_token = tokenizer.peek(true)?;
-    let peeked_token = match option_peeked_token {
-        Some(token) => token,
-        None => return Err(CastleError::AbruptEOF("Error found in 'skip_comma'".into()))
-    };
+    let peeked_token = peek_next_token_and_unwrap(tokenizer)?;
     if peeked_token.kind == TokenKind::Punctuator(Punctuator::Comma) {
         tokenizer.next(true)?; // skip comma
     }

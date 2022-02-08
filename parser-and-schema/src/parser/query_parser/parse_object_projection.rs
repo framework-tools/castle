@@ -1,6 +1,6 @@
 use std::{io::Read, collections::HashMap};
 
-use crate::{ast::syntax_definitions::{want::{Want, ObjectProjection, SingleField}, keyword::{Keyword}}, token::{token::{TokenKind, Punctuator, Identifier}, Token}, tokenizer::{tokenizer::Tokenizer}};
+use crate::{ast::syntax_definitions::{want::{Want, ObjectProjection, SingleField}, keyword::{Keyword}}, token::{token::{TokenKind, Punctuator, Identifier}, Token}, tokenizer::{tokenizer::Tokenizer, tokenizer_utils::get_next_token_and_unwrap}};
 use shared::CastleError;
 
 use crate::ast::syntax_definitions::argument::Argument;
@@ -21,14 +21,11 @@ where R: Read{
 fn loop_through_tokens_and_parse_fields<R>(tokenizer: &mut Tokenizer<R>) -> Result<HashMap<Box<str>, Want>, CastleError> 
 where R: Read {
     let mut fields: HashMap<Box<str>, Want> = HashMap::new();
-    let mut err = None;
+    let err = None;
     loop {
         let end_of_fields;
-        let token = tokenizer.next(true)?;
-        match token {
-            Some(token) => end_of_fields = match_current_token_to_field(tokenizer, token, &mut fields)?,
-            None => { err = Some(CastleError::AbruptEOF("Error found in 'loop_through_tokens_and_parse_fields'".into())); break; }
-        };
+        let token = get_next_token_and_unwrap(tokenizer)?;
+        end_of_fields = match_current_token_to_field(tokenizer, token, &mut fields)?;
         if end_of_fields { break; }
     }
     handle_errors_for_fields(err, &mut fields)?;

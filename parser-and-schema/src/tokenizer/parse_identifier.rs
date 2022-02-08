@@ -1,6 +1,6 @@
 use std::io::Read;
 
-use input_cursor::{Cursor, Position, Span};
+use input_cursor::{Position, Span};
 use shared::CastleError;
 
 use crate::{ast::syntax_definitions::argument::Argument, token::{Token, token::{TokenKind, Identifier}}};

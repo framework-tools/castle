@@ -2,7 +2,7 @@ use std::{collections::HashMap, io::Read};
 
 use shared::CastleError;
 
-use crate::{tokenizer::tokenizer::Tokenizer, ast::syntax_definitions::{enum_definition::{EnumVariant, EnumDataType}, argument::Argument}, token::token::{TokenKind, Identifier, Punctuator}, parser::schema_parser::{types::schema_field::SchemaField, parse_schema_type::check_token_and_parse_schema_field_or_break}};
+use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}}, ast::syntax_definitions::{enum_definition::{EnumVariant, EnumDataType}, argument::Argument}, token::token::{TokenKind, Identifier, Punctuator}, parser::schema_parser::{types::schema_field::SchemaField, parse_schema_type::check_token_and_parse_schema_field_or_break}};
 
 use super::parse_enum::insert_variant_in_enum;
 
@@ -10,36 +10,30 @@ pub fn check_token_and_parse_enum_variant_or_break<R>(
     tokenizer: &mut Tokenizer<R>, 
     variants: &mut HashMap<Box<str>, EnumVariant>
 ) -> Result<bool, CastleError>  where R: Read {
-    let token = tokenizer.peek(true)?; // get field identifier or closeblock
-    match token {
-        Some(token) => match &token.kind {
-            TokenKind::Identifier(Identifier { name , .. }) => {
-                insert_variant_in_enum(name.clone(), tokenizer, variants)?;
-                return Ok(false) //should not break loop
-            },
-            TokenKind::Punctuator(Punctuator::CloseBlock) => {
-                tokenizer.next(true)?; // skip closeblock
-                return Ok(true) //should break loop
-            },
-            TokenKind::Punctuator(Punctuator::Comma) => {
-                tokenizer.next(true)?; // skip closeblock
-                return Ok(false) //should not break loop
-            }, 
-            _ => return Err(CastleError::Schema(format!("2. Unexpected token: {:?}", token.kind).into(), token.span))
+    let peeked_token = peek_next_token_and_unwrap(tokenizer)?; // get field identifier or closeblock
+    match &peeked_token.kind {
+        TokenKind::Identifier(Identifier { name , .. }) => {
+            insert_variant_in_enum(name.clone(), tokenizer, variants)?;
+            return Ok(false) //should not break loop
         },
-        None => return Err(CastleError::AbruptEOF("Error found in 'check_token_and_parse_enum_variant_or_break'".into()))
+        TokenKind::Punctuator(Punctuator::CloseBlock) => {
+            tokenizer.next(true)?; // skip closeblock
+            return Ok(true) //should break loop
+        },
+        TokenKind::Punctuator(Punctuator::Comma) => {
+            tokenizer.next(true)?; // skip closeblock
+            return Ok(false) //should not break loop
+        }, 
+        _ => return Err(CastleError::Schema(format!("2. Unexpected token: {:?}", peeked_token.kind).into(), peeked_token.span))
     }
 }
 
 pub fn parse_enum_variant<R>(tokenizer: &mut Tokenizer<R>) -> Result<EnumVariant, CastleError> 
 where R: Read{
-    let token = tokenizer.next(true)?; // should be identifier
-    let identifier = match token {
-        Some(token) => match token.kind {
-            TokenKind::Identifier(identifier) => identifier,
-            _ => return Err(CastleError::Schema(format!("4. Unexpected token: {:?}", token.kind).into(), token.span))
-        },
-        None => return Err(CastleError::AbruptEOF("Error found in 'parse_enum_variant'".into()))
+    let token = get_next_token_and_unwrap(tokenizer)?; // should be identifier
+    let identifier = match token.kind {
+        TokenKind::Identifier(identifier) => identifier,
+        _ => return Err(CastleError::Schema(format!("4. Unexpected token: {:?}", token.kind).into(), token.span))
     };
     let enum_data_type = parse_enum_data_type(identifier.arguments, tokenizer)?;
     return Ok(EnumVariant { name: identifier.name, enum_data_type, directives: HashMap::new() });
@@ -62,16 +56,13 @@ fn parse_enum_data_type<R>(arguments: Option<Vec<Argument>>, tokenizer: &mut Tok
 
 fn get_object_or_unit_type<R>(tokenizer: &mut Tokenizer<R>) -> Result<EnumDataType, CastleError>
 where R: Read {
-    let peeked_token = tokenizer.peek(true)?;
-    match peeked_token {
-        Some(token) => match token.kind {
-            TokenKind::Punctuator(Punctuator::OpenBlock) => {
-                let object_fields = get_object_fields_for_enum(tokenizer)?;
-                return Ok(EnumDataType::EnumObject(object_fields))
-            },
-            _ => return Ok(EnumDataType::EnumUnit)
+    let peeked_token = peek_next_token_and_unwrap(tokenizer)?;
+    match peeked_token.kind {
+        TokenKind::Punctuator(Punctuator::OpenBlock) => {
+            let object_fields = get_object_fields_for_enum(tokenizer)?;
+            return Ok(EnumDataType::EnumObject(object_fields))
         },
-        None => Err(CastleError::AbruptEOF("get_object_or_unit_type'".into()))
+        _ => return Ok(EnumDataType::EnumUnit)
     }
 }
 

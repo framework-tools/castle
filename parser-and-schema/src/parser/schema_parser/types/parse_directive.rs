@@ -2,10 +2,7 @@ use std::io::Read;
 
 use shared::CastleError;
 
-use crate::{tokenizer::{tokenizer::Tokenizer, }, ast::syntax_definitions::{directive_definition::{DirectiveDefinition, }, }, token::{token::{TokenKind, Punctuator, Identifier}, Token}, parser::schema_parser::parse_schema_field::skip_comma,};
-
-
-
+use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}, }, ast::syntax_definitions::{directive_definition::{DirectiveDefinition, }, }, token::{token::{TokenKind, Punctuator, Identifier}, Token}, parser::schema_parser::parse_schema_field::skip_comma,};
 
 /// takes in tokenizer and returns parsed directive
 ///     - get next token
@@ -14,7 +11,7 @@ use crate::{tokenizer::{tokenizer::Tokenizer, }, ast::syntax_definitions::{direc
 ///     - else return none 
 pub fn parse_directives<R>(tokenizer: &mut Tokenizer<R>) -> Result<Vec<DirectiveDefinition>, CastleError> 
 where R: Read{
-    let token = unwrap_peeked_token(tokenizer)?;
+    let token = peek_next_token_and_unwrap(tokenizer)?;
     match token.kind {
         TokenKind::Punctuator(Punctuator::At) => {
             let directives = get_all_directives(tokenizer)?;
@@ -42,24 +39,12 @@ where R: Read {
 
 fn get_directive<R>(tokenizer: &mut Tokenizer<R>) -> Result<DirectiveDefinition, CastleError> 
 where R: Read{
-    let token = tokenizer.next(true)?; // should be identifier
-    return match token {
-        Some(token) => match token.kind { 
-            TokenKind::Identifier(Identifier {name, arguments}) => {
-                Ok(DirectiveDefinition::new(name, arguments))
-            },
-            _ => Err(CastleError::UndefinedSchemaType("Expected identifier for directive".into()))
+    let token = get_next_token_and_unwrap(tokenizer)?; // should be identifier
+    return match token.kind { 
+        TokenKind::Identifier(Identifier {name, arguments}) => {
+            Ok(DirectiveDefinition::new(name, arguments))
         },
-        None => Err(CastleError::AbruptEOF("Expected directive name".into()))
-    }
-}
-
-pub fn unwrap_peeked_token<R>(tokenizer: &mut Tokenizer<R>) -> Result<&Token, CastleError>
-where R: Read{
-    let option_token = tokenizer.peek(true)?;
-    return match option_token {
-        Some(token) => Ok(token),
-        None => Err(CastleError::AbruptEOF("Error found in 'unwrap_next_token'".into()))
+        _ => Err(CastleError::UndefinedSchemaType("Expected identifier for directive".into()))
     }
 }
 

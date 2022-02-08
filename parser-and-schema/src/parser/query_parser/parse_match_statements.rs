@@ -2,7 +2,7 @@ use std::{io::Read, collections::HashMap};
 
 use shared::CastleError;
 
-use crate::{tokenizer::tokenizer::{Tokenizer}, ast::syntax_definitions::{match_statement::{MatchStatement, MatchArm}, expressions::{Expression, PrimitiveValue}, enum_definition::EnumValue, keyword::Keyword, want::Want}, token::{token::{TokenKind, Punctuator, Identifier, Numeric}, self}, parser::schema_parser::types::parse_directive::unwrap_peeked_token};
+use crate::{tokenizer::{tokenizer::{Tokenizer}, tokenizer_utils::peek_next_token_and_unwrap}, ast::syntax_definitions::{match_statement::{MatchStatement, MatchArm}, expressions::{Expression, PrimitiveValue}, enum_definition::EnumValue, keyword::Keyword, want::Want}, token::{token::{TokenKind, Punctuator, Identifier, Numeric}, self}};
 
 use super::{parse_query::match_peeked_token_to_want};
 
@@ -65,7 +65,7 @@ where R: Read {
     skip_arrow_syntax(tokenizer)?;
     let mut fields = HashMap::new();
     loop {
-        let peeked_token = unwrap_peeked_token(tokenizer)?;
+        let peeked_token = peek_next_token_and_unwrap(tokenizer)?;
         match &peeked_token.kind{
             TokenKind::Identifier(_) => {
                 let token = tokenizer.next(true)?;
@@ -89,7 +89,7 @@ where R: Read {
 
 pub fn skip_arrow_syntax<R>(tokenizer: &mut Tokenizer<R>) -> Result<(), CastleError>
 where R: Read {
-    let peeked_token = unwrap_peeked_token(tokenizer)?;
+    let peeked_token = peek_next_token_and_unwrap(tokenizer)?;
     return match peeked_token.kind {
         TokenKind::Punctuator(Punctuator::Assign) => {
             tokenizer.next(true)?; // consume the equal

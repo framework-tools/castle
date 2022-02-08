@@ -10,7 +10,6 @@ pub struct OptionType {
 
 impl OptionType {
     pub fn new(type_: &str) -> Result<Option<Type>, CastleError> {
-        println!("type_ {}", type_);
         let mut type_inside_option_as_str = String::new();
         let mut parsing_inside_type = false;
         let mut i = 0;

@@ -2,7 +2,7 @@ use std::io::Read;
 
 use shared::CastleError;
 
-use crate::{tokenizer::{tokenizer::{Tokenizer, }, parse_vec_type::get_vec_type_from_word}, token::token::TokenKind};
+use crate::{tokenizer::{tokenizer::{Tokenizer, }, parse_vec_type::get_vec_type_from_word, tokenizer_utils::get_next_token_and_unwrap}, token::token::TokenKind};
 
 use super::{primitive_type::PrimitiveType, vec_type::VecType, option_type::OptionType, };
 
@@ -34,17 +34,13 @@ impl Type {
 ///  
 pub fn parse_type<R>(tokenizer: &mut Tokenizer<R>) -> Result<Type, CastleError> 
 where R: Read{
-    let token = tokenizer.next(true)?;
-    println!("token3 {:#?}", token);
-    match token {
-        Some(token) => match token.kind {
-            TokenKind::PrimitiveType(primitive_type) => return Ok(Type::PrimitiveType(primitive_type)),
-            TokenKind::Identifier(identifier) => return Ok(Type::SchemaTypeOrEnum(identifier.name)),
-            TokenKind::VecType(vec_type) => return Ok(Type::VecType(vec_type)),
-            TokenKind::OptionType(option_type) => return Ok(Type::OptionType(option_type)),
-            _ => Err(CastleError::Schema(format!("Expected type, found: {:?}", token.kind).into(), token.span))
-        },
-        None => Err(CastleError::AbruptEOF("Error found in 'parse_type'".into())),
+    let token = get_next_token_and_unwrap(tokenizer)?;
+    match token.kind {
+        TokenKind::PrimitiveType(primitive_type) => return Ok(Type::PrimitiveType(primitive_type)),
+        TokenKind::Identifier(identifier) => return Ok(Type::SchemaTypeOrEnum(identifier.name)),
+        TokenKind::VecType(vec_type) => return Ok(Type::VecType(vec_type)),
+        TokenKind::OptionType(option_type) => return Ok(Type::OptionType(option_type)),
+        _ => Err(CastleError::Schema(format!("Expected type, found: {:?}", token.kind).into(), token.span))
     }
 }
 

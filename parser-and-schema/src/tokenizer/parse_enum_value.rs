@@ -43,7 +43,7 @@ where R: Read {
 
 fn get_enum_data_type<R>(tokenizer: &mut Tokenizer<R>) -> Result<EnumDataType, CastleError>
 where R: Read {
-    let peeked_char = peek_next_char_unwrap_and_convert_to_char(&mut tokenizer.cursor)?;
+    let peeked_char = peek_next_char_and_unwrap(&mut tokenizer.cursor)?;
 
     if peeked_char == '(' { return parse_enum_tuple_value(tokenizer) } 
     else if peeked_char == '{' { return parse_enum_object_value(tokenizer) }
@@ -69,7 +69,7 @@ where R: Read {
 }
 
 
-pub fn peek_next_char_unwrap_and_convert_to_char<R>(cursor: &mut Cursor<R>) -> Result<char, CastleError> 
+pub fn peek_next_char_and_unwrap<R>(cursor: &mut Cursor<R>) -> Result<char, CastleError> 
 where R: Read {
     let c = cursor.peek_char();
     match c {

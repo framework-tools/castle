@@ -3,9 +3,9 @@ use std::io::Read;
 use input_cursor::Cursor;
 use shared::CastleError;
 
-use crate::{ast::syntax_definitions::argument::Argument, token::token::{Punctuator, TokenKind}};
+use crate::{ast::syntax_definitions::argument::Argument, token::{token::{Punctuator, TokenKind}, Token}};
 
-use super::tokenizer::{advance_and_parse_token, Tokenizer};
+use super::{tokenizer::{advance_and_parse_token, Tokenizer}, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}};
 
 /// Takes in Cursor returns arguments token
 ///  - The '(' is already consumed
@@ -24,24 +24,21 @@ where R: Read {
 
 fn unwrap_char_parse_argument_or_end<R>(arguments: &mut Vec<Argument>, tokenizer: &mut Tokenizer<R>) -> Result<bool, CastleError>
 where R: Read {
-    let peeked_token = tokenizer.peek(true)?;
-    match peeked_token {
-        Some(peeked_token) => match peeked_token.kind {
-            TokenKind::Punctuator(Punctuator::CloseParen) => {
-                tokenizer.next(true)?; // skip close parenthesis
-                return Ok(true); //break loop
-            },
-            TokenKind::Punctuator(Punctuator::Comma) => {
-                tokenizer.next(true)?; // skip comma
-                return Ok(false);
-            },
-            _ => {
-                let token = tokenizer.next(true)?.unwrap(); //we know it's not None
-                let argument = Argument::new(token, tokenizer)?;
-                arguments.push(argument);
-                return Ok(false);
-            }
+    let token = get_next_token_and_unwrap(tokenizer)?;
+    return match token.kind {
+        TokenKind::Punctuator(Punctuator::CloseParen) => Ok(true), //break loop
+        TokenKind::Punctuator(Punctuator::Comma) => Ok(false),
+        _ => {
+            add_argument_to_arguments_list(tokenizer, arguments, token)?;
+            return Ok(false);
         }
-        None =>return Err(CastleError::AbruptEOF("Error found in 'unwrap_char_parse_argument_or_end'".into())),
     }
+}
+
+fn add_argument_to_arguments_list<R>(tokenizer: &mut Tokenizer<R>, arguments: &mut Vec<Argument>, token: Token)
+-> Result<(), CastleError> 
+where R: Read {
+    let argument = Argument::new(token, tokenizer)?;
+    arguments.push(argument);
+    return Ok(())
 }

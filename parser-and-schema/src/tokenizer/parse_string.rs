@@ -12,24 +12,35 @@ where R: Read {
     cursor.next_char()?; // skip the first quote
     let mut string = String::new();
     loop {
-        let ch = cursor.next_char()?;
-        match ch {
-            Some(ch) => {
-                let char = char::try_from(ch).ok().ok_or(CastleError::lex("invalid character",cursor.pos()))?;
-                // handle escape character \ (backslash)
-                if char == '\\' { string = handle_escape_characters(cursor, string)?; } 
-                else if char == '"' { break; }
-                else { string.push(char);}
-            },
-            None => return Err(CastleError::AbruptEOF("Error found in 'parse_string'".into()))
-        }
-        
-    };
+        let end_of_string = push_character_to_string(cursor, &mut string)?;
+        if end_of_string { break; }
+    }
     return Ok(Token::new(TokenKind::StringLiteral(string.into_boxed_str()), Span::new(start, cursor.pos())))
 }
 
+fn push_character_to_string<R>( cursor: &mut Cursor<R>, string: &mut String ) -> Result<bool, CastleError> 
+where R: Read {
+    let ch = cursor.next_char()?;
+    match ch {
+        Some(ch) => {
+            let char = char::try_from(ch).ok().ok_or(CastleError::lex("invalid character",cursor.pos()))?;
+            // handle escape character \ (backslash)
+            if char == '\\' { 
+                handle_escape_characters(cursor, string)?; 
+                return Ok(false)
+            } 
+            else if char == '"' { return Ok(true) }
+            else { 
+                string.push(char);
+                return Ok(false)
+            }
+        },
+        None => return Err(CastleError::AbruptEOF("Error found in 'parse_string'".into()))
+    }
+}
 
-fn handle_escape_characters<R>(cursor: &mut Cursor<R>, string: String) -> Result<String, CastleError> 
+
+fn handle_escape_characters<R>(cursor: &mut Cursor<R>, string: &mut String) -> Result<(), CastleError> 
 where R: Read {
 // list of escape characters: (based on JSON)
     // \b	Backspace (ascii 8)
@@ -80,5 +91,5 @@ where R: Read {
             ));
         }
     };
-    return Ok(string)
+    return Ok(())
 }

@@ -2,7 +2,7 @@ use std::{collections::HashMap, io::Read};
 
 use shared::CastleError;
 
-use crate::{token::{Token, token::{TokenKind, Identifier, Punctuator}}, tokenizer::tokenizer::Tokenizer, ast::syntax_definitions::{keyword::Keyword, schema_definition::SchemaDefinition}};
+use crate::{token::{Token, token::{TokenKind, Identifier, Punctuator}}, tokenizer::{tokenizer::Tokenizer, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}}, ast::syntax_definitions::{keyword::Keyword, schema_definition::SchemaDefinition}};
 
 use super::{types::{schema_type::SchemaType, schema_field::SchemaField}, parse_schema_field::parse_schema_field, enums::parse_enum::parse_enum_definition, functions::parse_function::parse_function};
 
@@ -11,9 +11,11 @@ pub fn check_token_and_parse_schema_or_break<R>(
     tokenizer: &mut Tokenizer<R>,
     parsed_schema: &mut SchemaDefinition
 ) -> Result<bool, CastleError> where R: Read {
-    let token = tokenizer.next(true)?;
-    match token {
-        Some(token) => match token.kind {
+    let token = get_next_token_and_unwrap(tokenizer);
+    if token.is_err() { return Ok(true) }
+    else {
+        let token = token.unwrap();
+        match token.kind {
             TokenKind::Keyword(Keyword::Type) => {
                 let schema_type = parse_schema_type(tokenizer)?;
                 parsed_schema.schema_types.insert(schema_type.identifier.clone(), schema_type);
@@ -30,8 +32,7 @@ pub fn check_token_and_parse_schema_or_break<R>(
                 return Ok(false)
             },
             _ => return Err(CastleError::Schema(format!("1. Unexpected token: {:?}", token.kind).into(), token.span))
-        },
-        None => return Ok(true)
+        }
     }
 }
 
@@ -69,31 +70,27 @@ where R: Read{
 
 pub fn check_token_and_parse_schema_field_or_break<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str>, SchemaField>) -> Result<bool, CastleError> 
 where R: Read {
-    let token = tokenizer.peek(true)?; // get field identifier or closeblock
-    println!("token {:#?}", token);
-    match token {
-        Some(token) => match &token.kind {
-            TokenKind::Identifier(Identifier { name , .. }) => {
-                insert_field_in_schema_type(name.clone(), tokenizer, fields)?;
-                return Ok(false) //should not break loop
-            },
-            TokenKind::Punctuator(Punctuator::CloseBlock) => {
-                tokenizer.next(true)?; // skip closeblock
-                return Ok(true) //should break loop
-            },
-            TokenKind::Punctuator(Punctuator::Comma) => {
-                tokenizer.next(true)?; // skip comma
-                return Ok(false) //should not break loop
-            },
-            _ => return Err(CastleError::Schema(format!("3. Unexpected token: {:?}", token.kind).into(), token.span))
+    let token = get_next_token_and_unwrap(tokenizer)?; // get field identifier or closeblock
+    return match &token.kind {
+        TokenKind::Identifier(Identifier { name , .. }) => {
+            insert_field_in_schema_type(name.clone(), tokenizer, fields, token)?;
+            Ok(false) //should not break loop
         },
-        None => return Err(CastleError::AbruptEOF("Error found in 'check_token_and_parse_schema_field_or_break'".into()))
+        TokenKind::Punctuator(Punctuator::CloseBlock) => Ok(true), //should break loop
+        TokenKind::Punctuator(Punctuator::Comma) => Ok(false), //should not break loop
+        _ => Err(CastleError::Schema(format!("3. Unexpected token: {:?}", token.kind).into(), token.span))
     }
 }
 
-fn insert_field_in_schema_type<R>(name: Box<str>, tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str>, SchemaField>) -> Result<(), CastleError> 
+fn insert_field_in_schema_type<R>(
+    name: Box<str>, 
+    tokenizer: &mut Tokenizer<R>, 
+    fields: &mut HashMap<Box<str>, SchemaField>,
+    token: Token
+) -> Result<(), CastleError> 
 where R: Read {
-    let field = parse_schema_field(tokenizer)?;
+
+    let field = parse_schema_field(tokenizer, token)?;
     fields.insert(name, field);
     return Ok(())
 }
