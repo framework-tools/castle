@@ -1,6 +1,6 @@
 use std::{collections::HashMap, vec, string};
 
-use crate::{parser::{schema_parser::{types::{schema_field::{SchemaField}, schema_type::SchemaType, type_system::Type, primitive_type::PrimitiveType, vec_type::VecType, option_type::OptionType}, schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}}, self, query_parser::query_tests_utils::insert_each_field_into_fields}, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, schema_definition::SchemaDefinition, argument::Argument, fn_definition::FnDefinition, directive_definition::DirectiveDefinition}};
+use crate::{parser::{schema_parser::{types::{schema_field::{SchemaField}, schema_type::SchemaType, type_system::Type, primitive_type::PrimitiveType, vec_type::VecType, option_type::OptionType}, schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}}, self, query_parser::query_tests_utils::insert_each_field_into_fields}, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, schema_definition::SchemaDefinition, argument::Argument, fn_definition::FnDefinition, directive_definition::DirectiveDefinition, impl_definition::ImplDefinition}};
 
 use super::parse_schema::parse_schema;
 
@@ -638,8 +638,47 @@ fn should_fail_directives_that_are_not_compatible(){
     assert!(actual.is_err());
 }
 
-// To Implement:
-// - Parse implements
+#[test]
+fn can_parse_impl(){
+    let schema = "
+    type User {
+        name: String,
+        age: Int
+    }
+    impl User {
+        fn get_name() -> String {
+
+        }
+    }
+    ";
+
+    let user_fields = create_type_fields_for_tests(vec![
+        ("name".into(), Type::PrimitiveType(PrimitiveType::String).into(), None),
+        ("age".into(), Type::PrimitiveType(PrimitiveType::Int).into(), None),
+    ]);
+
+    let user_type = SchemaType::new("User".into(), user_fields);
+
+    let mut get_name_function = FnDefinition::new();
+    get_name_function.name = "get_name".into();
+    get_name_function.return_type = Some(Type::PrimitiveType(PrimitiveType::String));
+    let mut expected_functions = HashMap::new();
+    expected_functions.insert("get_name".into(), get_name_function);
+
+    let user_impl = ImplDefinition::new("User".into(), expected_functions);
+    let mut expected = SchemaDefinition {
+        schema_types: HashMap::new(),
+        traits: HashMap::new(),
+        enums: HashMap::new(),
+        impls: HashMap::new(),
+        functions: HashMap::new(),
+    };
+    expected.schema_types.insert("User".into(), user_type);
+    expected.impls.insert("User".into(), user_impl);
+
+    let actual = parse_schema(schema).unwrap();
+    assert_eq!(expected, actual);
+}
 
 // Need to write 1 more test for each piece of functionality
 // to ensure working correctly

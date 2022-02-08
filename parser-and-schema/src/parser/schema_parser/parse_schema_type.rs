@@ -28,7 +28,10 @@ pub fn check_token_and_parse_schema_or_break<R>(
                 let function_definition = parse_function(tokenizer)?;
                 parsed_schema.functions.insert(function_definition.name.clone(), function_definition);
                 return Ok(false)
-            }
+            },
+            TokenKind::Keyword(Keyword::Impl) => {
+                let impl_definition = parse_impl_definition(tokenizer)?;
+            },
             _ => return Err(CastleError::Schema(format!("1. Unexpected token: {:?}", token.kind).into(), token.span))
         },
         None => return Ok(true)
