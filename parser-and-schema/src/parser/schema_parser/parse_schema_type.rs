@@ -29,9 +29,6 @@ pub fn check_token_and_parse_schema_or_break<R>(
                 parsed_schema.functions.insert(function_definition.name.clone(), function_definition);
                 return Ok(false)
             },
-            TokenKind::Keyword(Keyword::Impl) => {
-                let impl_definition = parse_impl_definition(tokenizer)?;
-            },
             _ => return Err(CastleError::Schema(format!("1. Unexpected token: {:?}", token.kind).into(), token.span))
         },
         None => return Ok(true)
@@ -50,7 +47,6 @@ where R: Read{
     let mut fields = HashMap::new();
     let token = tokenizer.next(true)?;
     let identifier = get_identifier_skip_open_block(token, tokenizer)?;
-
     loop {
         let end_of_schema_type = check_token_and_parse_schema_field_or_break(tokenizer, &mut fields)?;
         if end_of_schema_type { break; }
@@ -74,6 +70,7 @@ where R: Read{
 pub fn check_token_and_parse_schema_field_or_break<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str>, SchemaField>) -> Result<bool, CastleError> 
 where R: Read {
     let token = tokenizer.peek(true)?; // get field identifier or closeblock
+    println!("token {:#?}", token);
     match token {
         Some(token) => match &token.kind {
             TokenKind::Identifier(Identifier { name , .. }) => {

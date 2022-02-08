@@ -1,9 +1,8 @@
 use std::io::Read;
 
-use input_cursor::Cursor;
 use shared::CastleError;
 
-use crate::{token::{Token, token::{TokenKind, Identifier, Punctuator}}, parser::schema_parser::types::type_system::{Type, parse_type}, tokenizer::tokenizer::{Tokenizer, advance_and_parse_token}};
+use crate::{token::{Token, token::{TokenKind, Identifier, Punctuator}}, parser::schema_parser::types::type_system::{Type, parse_type}, tokenizer::tokenizer::{Tokenizer}};
 
 use super::expressions::PrimitiveValue;
 

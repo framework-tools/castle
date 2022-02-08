@@ -33,7 +33,7 @@ impl VecType {
         };
 
         if not_a_vec { return None } else {
-            let type_inside_vec = Type::new(type_inside_vec_as_str);
+            let type_inside_vec = Type::new_primitve_or_schema_or_enum_type(type_inside_vec_as_str);
             return Some(Type::VecType( VecType {
                 inner_type: type_inside_vec.into()
             }))

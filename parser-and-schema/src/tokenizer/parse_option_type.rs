@@ -15,6 +15,7 @@ where R: Read {
         else { word.push(char); }
     }
     let option_type = OptionType::new(&word)?;
+    println!("option_type: {:#?}", option_type);
     match option_type {
         Some(type_) => return Ok(Token::new(TokenKind::OptionType(OptionType::get_option_type_struct(type_)), Span::new(start, cursor.pos()))),
         None => return Err(CastleError::AbruptEOF("Error found in 'get_option_type_from_word'".into()))

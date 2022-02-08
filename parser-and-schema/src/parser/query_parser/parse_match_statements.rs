@@ -19,19 +19,18 @@ where R: Read {
 fn check_colon_and_match<R>(tokenizer: &mut Tokenizer<R>) -> Result<bool, CastleError>
 where R: Read {
     let option_peeked_token = tokenizer.peek(true)?;
-    let peeked_token = match option_peeked_token {
-        Some(peeked_token) => peeked_token,
-        None => Ok(false)
-    };
-    return match peeked_token.kind {
-        TokenKind::Punctuator(Punctuator::Colon) => {
-            tokenizer.next(true)?; // skip colon
-            tokenizer.next(true)?; // skip match
-            tokenizer.next(true)?; // skip open block
-            Ok(true)
+    match option_peeked_token {
+        Some(peeked_token) => return match peeked_token.kind {
+            TokenKind::Punctuator(Punctuator::Colon) => {
+                tokenizer.next(true)?; // skip colon
+                tokenizer.next(true)?; // skip match
+                tokenizer.next(true)?; // skip open block
+                Ok(true)
+            },
+            _ => Ok(false)
         },
-        _ => Ok(false)
-    }
+        None => return Ok(false)
+    };
 }
 
 /// Parses a match statement
@@ -110,7 +109,7 @@ where R: Read {
         None => return Err(CastleError::AbruptEOF("unexpected end of file in get_condition".into()))
     };
     let condition = match token.kind {
-        TokenKind::EnumValue(EnumValue { name, data_type }) => Some(Expression::EnumValue(EnumValue::new(name, data_type ))),
+        TokenKind::EnumValue(EnumValue { enum_parent, variant, data_type }) => Some(Expression::EnumValue(EnumValue::new(enum_parent, variant, data_type))),
         TokenKind::StringLiteral(string_literal) => Some(Expression::PrimitiveValue(PrimitiveValue::String(string_literal))),
         TokenKind::NumericLiteral(numeric_literal) => Some(convert_numeric_token_to_expression(numeric_literal)),
         TokenKind::Keyword(Keyword::True) => Some(Expression::PrimitiveValue(PrimitiveValue::Boolean(true))),

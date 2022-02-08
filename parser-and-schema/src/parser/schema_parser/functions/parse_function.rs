@@ -2,7 +2,7 @@ use std::{io::Read};
 
 use shared::CastleError;
 
-use crate::{tokenizer::{tokenizer::Tokenizer}, ast::syntax_definitions::{fn_definition::{FnDefinition, FnStatement}, argument::Argument}, parser::schema_parser::{types::type_system::{Type, parse_type}}, token::token::{Identifier, TokenKind, Punctuator}};
+use crate::{tokenizer::{tokenizer::Tokenizer}, ast::syntax_definitions::{fn_definition::{FnDefinition, FnStatement}}, parser::schema_parser::{types::type_system::{Type, parse_type}}, token::token::{Identifier, TokenKind, Punctuator}};
 
 pub fn parse_function<R>(tokenizer: &mut Tokenizer<R>) -> Result<FnDefinition, CastleError>
 where R: Read {

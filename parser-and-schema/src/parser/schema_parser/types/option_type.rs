@@ -10,10 +10,11 @@ pub struct OptionType {
 
 impl OptionType {
     pub fn new(type_: &str) -> Result<Option<Type>, CastleError> {
+        println!("type_ {}", type_);
         let mut type_inside_option_as_str = String::new();
         let mut parsing_inside_type = false;
         let mut i = 0;
-        let mut not_an_option = false;
+        let mut not_an_option;
         loop {
             let c = type_.chars().nth(i);
             let c = c.unwrap();
@@ -24,17 +25,15 @@ impl OptionType {
             
             //parse type inside option
             if c == '<' { parsing_inside_type = true;} 
-            else if c == '>' { }
+            else if c == '>' { break; }
             else if parsing_inside_type { type_inside_option_as_str.push(c); }
 
             i += 1;
-            if i == type_.len() {
-                break;
-            }
+        
+            if i == type_.len() { return Err(CastleError::AbruptEOF("No '>' found when parsing option type".into())) }
         }
-
         if not_an_option { return Err(CastleError::AbruptEOF("Error found in 'if_not_option'".into())) } else {
-            let type_inside_option = Type::new(type_inside_option_as_str);
+            let type_inside_option = Type::new_primitve_or_schema_or_enum_type(type_inside_option_as_str);
             return Ok(Some(Type::OptionType( OptionType {
                 inner_type: type_inside_option.into()
             })))

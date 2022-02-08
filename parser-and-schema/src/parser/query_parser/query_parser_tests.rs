@@ -362,7 +362,7 @@ fn can_parse_object_projection_with_match() {
     ]);
 
     let svg_match_arm = MatchArm::new(
-        Expression::EnumValue( EnumValue { name: "Icon::Svg".into(), data_type: EnumDataType::EnumUnit }),
+        Expression::EnumValue( EnumValue { enum_parent: "Icon".into(), variant: "Svg".into(), data_type: EnumDataType::EnumUnit }),
         Want::new_object_projection("Icon::Svg".into(), Some(svg_fields), None),
     );
 
@@ -372,7 +372,7 @@ fn can_parse_object_projection_with_match() {
     ]);
 
     let emoji_match_arms = MatchArm::new(
-            Expression::EnumValue( EnumValue { name: "Icon::Emoji".into(), data_type: EnumDataType::EnumUnit }),
+            Expression::EnumValue( EnumValue { enum_parent: "Icon".into(), variant: "Emoji".into(), data_type: EnumDataType::EnumUnit }),
             Want::new_object_projection("Icon::Emoji".into(), Some(emoji_fields), None),
     );
 
@@ -426,6 +426,7 @@ fn can_parse_object_projection_with_complex_match() {
             }
         }
     ";
+
     let rectangle_fields = insert_each_field_into_fields(vec![
         ("width".into(), Want::new_single_field("width".into(), None, None)),
         ("height".into(), Want::new_single_field("height".into(), None, None)),
@@ -437,11 +438,11 @@ fn can_parse_object_projection_with_complex_match() {
     
     let size_match = MatchStatement::new(vec![
         MatchArm::new(
-            Expression::EnumValue( EnumValue { name: "Size::Rectangle".into(), data_type: EnumDataType::EnumUnit }),
+            Expression::EnumValue( EnumValue { enum_parent: "Size".into(), variant: "Rectangle".into(), data_type: EnumDataType::EnumUnit }),
             Want::new_object_projection("Size::Rectangle".into(), Some(rectangle_fields), None),
         ),
         MatchArm::new(
-            Expression::EnumValue( EnumValue { name: "Size::Square".into(), data_type: EnumDataType::EnumUnit }),
+            Expression::EnumValue( EnumValue { enum_parent: "Size".into(), variant: "Square".into(), data_type: EnumDataType::EnumUnit }),
             Want::new_object_projection("Size::Square".into(), Some(square_fields), None),
         ),
     ]);
@@ -460,11 +461,11 @@ fn can_parse_object_projection_with_complex_match() {
 
     let icon_match = MatchStatement::new(vec![
         MatchArm::new(
-            Expression::EnumValue( EnumValue { name: "Icon::Svg".into(), data_type: EnumDataType::EnumUnit }),
+            Expression::EnumValue( EnumValue { enum_parent: "Icon".into(), variant: "Svg".into(), data_type: EnumDataType::EnumUnit }),
             Want::new_object_projection("Icon::Svg".into(), Some(svg_fields), None),
         ),
         MatchArm::new(
-            Expression::EnumValue( EnumValue { name: "Icon::Emoji".into(), data_type: EnumDataType::EnumUnit }),
+            Expression::EnumValue( EnumValue { enum_parent: "Icon".into(), variant: "Emoji".into(), data_type: EnumDataType::EnumUnit }),
             Want::new_object_projection("Icon::Emoji".into(), Some(emoji_fields), None),
         ),
     ]);
@@ -575,11 +576,11 @@ fn trying_to_break_test_v4() {
 
     let icon_match = MatchStatement::new(vec![
         MatchArm::new(
-            Expression::EnumValue( EnumValue { name: "Icon::Svg".into(), data_type: EnumDataType::EnumUnit }),
+            Expression::EnumValue( EnumValue { enum_parent: "Icon".into(), variant: "Svg".into(), data_type: EnumDataType::EnumUnit }),
             Want::new_object_projection("Icon::Svg".into(), Some(svg_fields), None),
         ),
         MatchArm::new(
-            Expression::EnumValue( EnumValue { name: "Icon::Emoji".into(), data_type: EnumDataType::EnumUnit }),
+            Expression::EnumValue( EnumValue { enum_parent: "Icon".into(), variant: "Emoji".into(), data_type: EnumDataType::EnumUnit }),
             Want::new_object_projection("Icon::Emoji".into(), Some(emoji_fields), None),
         ),
     ]);

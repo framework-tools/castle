@@ -60,14 +60,16 @@ impl EnumDataType {
 
 #[derive(Debug, PartialEq)]
 pub struct EnumValue {
-    pub name: Box<str>,
+    pub enum_parent: Box<str>, //the name of the enum that this value is a part of
+    pub variant: Box<str>, // the variant in that enum that this value is
     pub data_type: EnumDataType
 }
 
 impl EnumValue {
-    pub fn new(name: Box<str>, data_type: EnumDataType) -> Self {
+    pub fn new(enum_parent: Box<str>, variant: Box<str>, data_type: EnumDataType) -> Self {
         EnumValue {
-            name,
+            enum_parent,
+            variant,
             data_type
         }
     }

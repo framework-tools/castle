@@ -2,7 +2,7 @@ use std::io::Read;
 
 use shared::CastleError;
 
-use crate::{tokenizer::{tokenizer::{Tokenizer, }}, token::token::TokenKind};
+use crate::{tokenizer::{tokenizer::{Tokenizer, }, parse_vec_type::get_vec_type_from_word}, token::token::TokenKind};
 
 use super::{primitive_type::PrimitiveType, vec_type::VecType, option_type::OptionType, };
 
@@ -17,20 +17,11 @@ pub enum Type {
 }
 
 impl Type {
-    pub fn new(s: String) -> Self {
+    pub fn new_primitve_or_schema_or_enum_type(s: String) -> Self {
         let option_primitive = PrimitiveType::from_str_to_option_primitive_type(&s);
         match option_primitive {
             Some(primitive) => Type::PrimitiveType(primitive),
-            None => {
-                let option_vec = VecType::new(&s);
-                match option_vec {
-                    Some(type_) => {
-                        let vec_type = VecType::get_vec_type_struct(type_);
-                        return Type::VecType(vec_type)
-                    },
-                    None => Type::SchemaTypeOrEnum(s.into())
-                }
-            }
+            None => return Type::SchemaTypeOrEnum(s.into())
         }
     }
 }
@@ -44,6 +35,7 @@ impl Type {
 pub fn parse_type<R>(tokenizer: &mut Tokenizer<R>) -> Result<Type, CastleError> 
 where R: Read{
     let token = tokenizer.next(true)?;
+    println!("token3 {:#?}", token);
     match token {
         Some(token) => match token.kind {
             TokenKind::PrimitiveType(primitive_type) => return Ok(Type::PrimitiveType(primitive_type)),

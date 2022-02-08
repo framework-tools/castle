@@ -21,16 +21,15 @@ where R: Read{
 fn loop_through_tokens_and_parse_fields<R>(tokenizer: &mut Tokenizer<R>) -> Result<HashMap<Box<str>, Want>, CastleError> 
 where R: Read {
     let mut fields: HashMap<Box<str>, Want> = HashMap::new();
-    let mut should_break;
     let mut err = None;
     loop {
+        let end_of_fields;
         let token = tokenizer.next(true)?;
         match token {
-            Some(token) => should_break = match_current_token_to_field(tokenizer, token, &mut fields)?,
+            Some(token) => end_of_fields = match_current_token_to_field(tokenizer, token, &mut fields)?,
             None => { err = Some(CastleError::AbruptEOF("Error found in 'loop_through_tokens_and_parse_fields'".into())); break; }
         };
-        if should_break { break; }
-    
+        if end_of_fields { break; }
     }
     handle_errors_for_fields(err, &mut fields)?;
     return Ok(fields)
@@ -113,7 +112,7 @@ fn create_obj(identifier: Box<str>, fields: HashMap<Box<str>, Want>) -> Result<W
             fields: Some(fields),
             match_statement: None
         };
-        return Ok(Want::Projection(object_projection))
+        return Ok(Want::ObjectProjection(object_projection))
 }
 
 fn create_err_for_parser(token: &Token) -> Result<Option<Result<Want, CastleError>>, CastleError> {

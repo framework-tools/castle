@@ -10,8 +10,8 @@ use super::match_statement::{MatchStatement};
 #[derive(Debug, PartialEq)]
 pub enum Want {
     SingleField(SingleField),
-    Projection(ObjectProjection),
-    InnerObject(InnerObject)
+    ObjectProjection(ObjectProjection),
+    InnerObject(InnerObject),
 }
 
 #[derive(Debug, PartialEq)]
@@ -44,7 +44,7 @@ impl Want {
     }
 
     pub fn new_object_projection(identifier: Box<str>, fields: Option<HashMap<Box<str>, Want>>, match_statement: Option<MatchStatement>) -> Self {
-        Want::Projection(ObjectProjection {
+        Want::ObjectProjection(ObjectProjection {
             identifier,
             fields,
             match_statement
@@ -61,8 +61,8 @@ impl Want {
     pub fn get_identifier(&self) -> Result<Box<str>, CastleError> {
         return match self {
             Want::SingleField(single_field) => Ok(single_field.identifier.clone()),
-            Want::Projection(projection) => Ok(projection.identifier.clone()),
-            Want::InnerObject(inner_object) => Err(CastleError::MatchError("InnerObject does not have an identifier".into()))
+            Want::ObjectProjection(projection) => Ok(projection.identifier.clone()),
+            Want::InnerObject(_) => Err(CastleError::MatchError("InnerObject does not have an identifier".into()))
         }
     }
 }
@@ -79,7 +79,7 @@ impl SingleField {
 
 impl ObjectProjection {
     pub fn new(identifier: Box<str>, fields: Option<HashMap<Box<str>, Want>>,match_statement: Option<MatchStatement>) -> Want {
-        Want::Projection(ObjectProjection {
+        Want::ObjectProjection(ObjectProjection {
             identifier,
             fields,
             match_statement

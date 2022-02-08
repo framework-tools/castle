@@ -66,7 +66,7 @@ where R: Read {
     match peeked_token {
         Some(token) => match token.kind {
             TokenKind::Punctuator(Punctuator::OpenBlock) => {
-                let object_fields = get_object_fields(tokenizer)?;
+                let object_fields = get_object_fields_for_enum(tokenizer)?;
                 return Ok(EnumDataType::EnumObject(object_fields))
             },
             _ => return Ok(EnumDataType::EnumUnit)
@@ -75,7 +75,7 @@ where R: Read {
     }
 }
 
-fn get_object_fields<R>(tokenizer: &mut Tokenizer<R>) -> Result<HashMap<Box<str>, SchemaField>, CastleError>
+fn get_object_fields_for_enum<R>(tokenizer: &mut Tokenizer<R>) -> Result<HashMap<Box<str>, SchemaField>, CastleError>
 where R: Read {
     tokenizer.next(true)?; // skip openblock
     let mut fields: HashMap<Box<str>, SchemaField> = HashMap::new();

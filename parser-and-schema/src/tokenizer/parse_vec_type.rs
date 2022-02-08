@@ -11,8 +11,9 @@ where R: Read {
     loop {
         let char = cursor.next_char()?.unwrap();
         let char = char::try_from(char).ok().ok_or(CastleError::lex("invalid character",cursor.pos()))?;
-        if char == '>' { word.push(char); break; } 
-        else { word.push(char); }
+        println!("char: {:?}", char);
+        word.push(char);
+        if char == '>' { break; } 
     }
     let vec_type = VecType::new(&word);
     match vec_type {

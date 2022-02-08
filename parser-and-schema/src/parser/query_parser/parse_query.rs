@@ -2,7 +2,7 @@ use std::{io::Read, collections::{HashMap}};
 
 use shared::CastleError;
 
-use crate::{ast::syntax_definitions::{want::Want, match_statement}, tokenizer::{tokenizer::Tokenizer}, token::{token::{TokenKind, Punctuator, Identifier}, Token}};
+use crate::{ast::syntax_definitions::{want::Want}, tokenizer::{tokenizer::Tokenizer}, token::{token::{TokenKind, Punctuator, Identifier}, Token}};
 
 use super::{parse_object_projection::parse_object_projection, parse_match_statements::parse_match_statements};
 
@@ -16,7 +16,7 @@ pub fn parse_query(query: &str) -> Result<HashMap<Box<str>, Want>, CastleError> 
     let bytes = query.as_bytes();
     let mut tokenizer = Tokenizer::new(bytes);
 
-    let statements = parse_tokens(&mut tokenizer)?;
+    let statements = parse_query_tokens (&mut tokenizer)?;
     check_end_of_file(&mut tokenizer)?;
     Ok(statements)
 }
@@ -27,7 +27,7 @@ pub fn parse_query(query: &str) -> Result<HashMap<Box<str>, Want>, CastleError> 
 ///     - if token is identifier & next token excluding /n is not open block -> add single field want to hashset
 ///     - if empty break
 /// - return hashset of wants
-fn parse_tokens<R>(tokenizer: &mut Tokenizer<R>) -> Result<HashMap<Box<str>, Want>, CastleError> 
+fn parse_query_tokens<R>(tokenizer: &mut Tokenizer<R>) -> Result<HashMap<Box<str>, Want>, CastleError> 
 where R: Read {
     let mut wants = HashMap::new();
     loop {
@@ -39,7 +39,7 @@ where R: Read {
                 wants.insert(identifier, want);
             },
             None => break
-        }
+        };
     };
     return Ok(wants)
 }

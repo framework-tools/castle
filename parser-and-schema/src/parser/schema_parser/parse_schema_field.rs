@@ -4,7 +4,7 @@ use shared::CastleError;
 
 use crate::{tokenizer::tokenizer::Tokenizer, token::{token::{TokenKind, Punctuator}, Token}};
 
-use super::types::{schema_field::{SchemaField}, type_system::{parse_type}, parse_directive::parse_directives};
+use super::types::{schema_field::{SchemaField}, type_system::parse_type, parse_directive::parse_directives};
 
 
 /// takes in tokenizer and returns parsed field
