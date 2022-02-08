@@ -15,10 +15,7 @@ impl VecType {
         loop {
             let c = type_.chars().nth(i);
             let c = c.unwrap();
-            //check that first 3 characters of type_ is "Vec"
-            if i == 0 { if c != 'V' { not_a_vec = true; break; } }
-            if i == 1 { if c != 'e' { not_a_vec = true; break; } }
-            if i == 2 { if c != 'c' { not_a_vec = true; break; } }
+            not_a_vec = check_word_starts_with_vec(i, c);
 
             //parse type inside vec
             if c == '<' {
@@ -49,4 +46,11 @@ impl VecType {
             _ => panic!("Type is not a VecType")
         }
     }
+}
+fn check_word_starts_with_vec(i: usize, c: char) -> bool {
+//check that first 3 characters of type_ is "Vec"
+if i == 0 { if c != 'V' { return true } }
+if i == 1 { if c != 'e' { return true } }
+if i == 2 { if c != 'c' { return true } }
+return false
 }
