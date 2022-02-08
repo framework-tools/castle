@@ -226,7 +226,6 @@ fn can_parse_object_projection_with_argument() {
         ("me".into(), Want::new_object_projection("me".into(), Some(fields), None)),
     ]);
     let actual = parse_query(query).unwrap();
-    println!("actual = {:#?}", actual);
     assert_eq!(expected, actual);
 }
 

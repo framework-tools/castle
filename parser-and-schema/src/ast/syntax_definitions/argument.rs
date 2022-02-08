@@ -13,13 +13,12 @@ pub enum Argument {
     Type(Type),
     Identifier(Box<str>),
     PrimitiveValue(PrimitiveValue),
-    IdentifierAndType(Identifier, Type)
+    IdentifierAndType(Box<str>, Type)
 }
 
 impl Argument {
     pub fn new<R>(token: Token, tokenizer: &mut Tokenizer<R>) -> Result<Self, CastleError> 
     where R: Read {
-        println!("toKen {:#?}", token);
         let argument = match token.kind {
             TokenKind::PrimitiveType(primitive_type) => Argument::Type(Type::PrimitiveType(primitive_type)),
             TokenKind::VecType(vec_type) => Argument::Type(Type::VecType(vec_type)),
@@ -34,7 +33,6 @@ impl Argument {
 
 fn parse_identifier_argument<R>(name: Box<str>, tokenizer: &mut Tokenizer<R>) -> Result<Argument, CastleError>
 where R: Read {
-    println!("inside parse identifier");
     let first_char = name.chars().nth(0);
     match first_char {
         Some(first_char) => {
@@ -45,7 +43,7 @@ where R: Read {
                     Some(token) => match token.kind {
                         TokenKind::Punctuator(Punctuator::Colon) => { //Identifier and Type Argument
                             let type_ = parse_type(tokenizer)?;
-                            return Ok(Argument::IdentifierAndType(Identifier { name, arguments: None }, type_));
+                            return Ok(Argument::IdentifierAndType(name, type_));
                         },
                         _ => return Ok(Argument::Identifier(name)) //Identifier Argument
                     },
