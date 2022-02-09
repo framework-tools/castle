@@ -74,8 +74,9 @@ where R: Read {
             _ => break
             
         };
-    } 
-    return Ok(MatchArm::new(condition, Want::new_inner_object(Some(fields), None)))
+    }
+    let identifier = condition.get_identifier();
+    return Ok(MatchArm::new(condition, Want::new_object_projection(Some(identifier), Some(fields), None)))
 }
 
 fn insert_field_into_match_arm<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str>, Want>) -> Result<bool, CastleError> 

@@ -20,9 +20,10 @@ use super::{tokenizer::Tokenizer, parse_arguments::get_arguments};
 
 pub fn parse_enum_value<R>(tokenizer: &mut Tokenizer<R>, word: String, start: Position) -> Result<Token, CastleError>
 where R: Read {
+    let identifier: Box<str> = word.clone().into();
     let (enum_parent, variant) = get_enum_parent_and_variant(tokenizer, word)?;
     let data_type = get_enum_data_type(tokenizer)?;
-    let enum_value = EnumValue { enum_parent, variant, data_type };
+    let enum_value = EnumValue { identifier, enum_parent, variant, data_type };
     return Ok(Token::new(TokenKind::EnumValue(enum_value), Span::new(start, tokenizer.cursor.pos())));
 }
 

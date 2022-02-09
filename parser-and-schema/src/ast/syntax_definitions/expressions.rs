@@ -13,6 +13,21 @@ pub enum Expression {
     EnumValue(EnumValue),
 }
 
+impl Expression {
+    pub fn get_identifier(&self) -> Box<str> {
+        match self {
+            Expression::PrimitiveValue(primitive_value) => match primitive_value {
+                PrimitiveValue::String(string) => string.clone().into(),
+                PrimitiveValue::Boolean(value) => value.clone().to_string().into(),
+                PrimitiveValue::Float(value) => value.clone().to_string().into(),
+                PrimitiveValue::Int(value) => value.clone().to_string().into(),
+                PrimitiveValue::UInt(value) => value.clone().to_string().into(),
+            },
+            Expression::EnumValue(enum_value) => enum_value.identifier.clone(),
+        }
+    }
+}
+
 
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
 pub enum PrimitiveValue {

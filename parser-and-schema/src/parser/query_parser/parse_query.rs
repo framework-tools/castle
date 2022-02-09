@@ -36,7 +36,12 @@ where R: Read {
             Some(token) => { 
                 let want = match_token_to_want(token, tokenizer)?;
                 let identifier = want.get_identifier()?;
-                wants.insert(identifier, want);
+                match identifier {
+                    Some(identifier) => {
+                        wants.insert(identifier, want);
+                    },
+                    None => { println!("Caused a break, maybe error"); break; }
+                };
             },
             None => break
         };

@@ -105,7 +105,7 @@ where R: Read {
 
 fn create_obj(identifier: Box<str>, fields: HashMap<Box<str>, Want>) -> Result<Want, CastleError> {
         let object_projection = ObjectProjection {
-            identifier,
+            identifier: Some(identifier),
             fields: Some(fields),
             match_statement: None
         };

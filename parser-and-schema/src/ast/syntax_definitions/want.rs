@@ -11,25 +11,18 @@ use super::match_statement::{MatchStatement};
 pub enum Want {
     SingleField(SingleField),
     ObjectProjection(ObjectProjection),
-    InnerObject(InnerObject),
 }
 
 #[derive(Debug, PartialEq)]
 pub struct SingleField {
-    pub identifier: Box<str>,
+    pub identifier:Box<str>,
     pub arguments: Option<Vec<Argument>>,
     pub match_statement: Option<MatchStatement>
 }
 
 #[derive(Debug, PartialEq)]
 pub struct ObjectProjection {
-    pub identifier: Box<str>,
-    pub fields: Option<HashMap<Box<str>, Want>>,
-    pub match_statement: Option<MatchStatement>
-}
-
-#[derive(Debug, PartialEq)]
-pub struct InnerObject {
+    pub identifier:  Option<Box<str>>,
     pub fields: Option<HashMap<Box<str>, Want>>,
     pub match_statement: Option<MatchStatement>
 }
@@ -43,7 +36,7 @@ impl Want {
         })
     }
 
-    pub fn new_object_projection(identifier: Box<str>, fields: Option<HashMap<Box<str>, Want>>, match_statement: Option<MatchStatement>) -> Self {
+    pub fn new_object_projection(identifier: Option<Box<str>>, fields: Option<HashMap<Box<str>, Want>>, match_statement: Option<MatchStatement>) -> Self {
         Want::ObjectProjection(ObjectProjection {
             identifier,
             fields,
@@ -51,18 +44,10 @@ impl Want {
         })
     }
 
-    pub fn new_inner_object(fields: Option<HashMap<Box<str>, Want>>, match_statement: Option<MatchStatement>) -> Self {
-        Want::InnerObject(InnerObject {
-            fields,
-            match_statement
-        })
-    }
-
-    pub fn get_identifier(&self) -> Result<Box<str>, CastleError> {
+    pub fn get_identifier(&self) -> Result<Option<Box<str>>, CastleError> {
         return match self {
-            Want::SingleField(single_field) => Ok(single_field.identifier.clone()),
+            Want::SingleField(single_field) => Ok(Some(single_field.identifier.clone())),
             Want::ObjectProjection(projection) => Ok(projection.identifier.clone()),
-            Want::InnerObject(_) => Err(CastleError::MatchError("InnerObject does not have an identifier".into()))
         }
     }
 }
@@ -78,7 +63,7 @@ impl SingleField {
 }
 
 impl ObjectProjection {
-    pub fn new(identifier: Box<str>, fields: Option<HashMap<Box<str>, Want>>,match_statement: Option<MatchStatement>) -> Want {
+    pub fn new(identifier: Option<Box<str>>, fields: Option<HashMap<Box<str>, Want>>,match_statement: Option<MatchStatement>) -> Want {
         Want::ObjectProjection(ObjectProjection {
             identifier,
             fields,
