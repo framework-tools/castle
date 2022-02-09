@@ -4,7 +4,7 @@ use shared::CastleError;
 
 use crate::{ast::syntax_definitions::{want::Want}, tokenizer::{tokenizer::Tokenizer}, token::{token::{TokenKind, Punctuator, Identifier}, Token}};
 
-use super::{parse_object_projection::parse_object_projection, parse_match_statements::parse_match_statements};
+use super::{parse_object_projection::parse_object_projection};
 
 
 /// Parses a query into a set of wants.

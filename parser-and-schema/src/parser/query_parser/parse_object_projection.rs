@@ -92,6 +92,7 @@ where R: Read {
                 tokenizer.next(true)?; // consume the match keyword
                 let match_statements = parse_match_statements(tokenizer)?;
                 fields.insert(name.clone(), Want::new_object_projection(Some(name), None, Some(match_statements)));
+                println!("fields {:#?}", fields);
                 return Ok(false)
             },
             TokenKind::Punctuator(Punctuator::OpenBlock) => {

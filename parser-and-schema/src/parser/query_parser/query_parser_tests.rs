@@ -395,6 +395,7 @@ fn can_parse_object_projection_with_match() {
         ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None)),
     ]);
     let actual = parse_query(query).unwrap();
+    
     assert_eq!(expected, actual);
 }
 
