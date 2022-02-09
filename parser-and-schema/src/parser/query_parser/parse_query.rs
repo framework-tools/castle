@@ -30,6 +30,7 @@ pub fn parse_query(query: &str) -> Result<HashMap<Box<str>, Want>, CastleError> 
 fn parse_query_tokens<R>(tokenizer: &mut Tokenizer<R>) -> Result<HashMap<Box<str>, Want>, CastleError> 
 where R: Read {
     let mut wants = HashMap::new();
+    let mut err = None;
     loop {
         let token = tokenizer.next(true)?;
         match token {
@@ -40,17 +41,19 @@ where R: Read {
                     Some(identifier) => {
                         wants.insert(identifier, want);
                     },
-                    None => { println!("Caused a break, maybe error"); break; }
+                    None => err = Some(CastleError::AbruptEOF("in parse_query_tokens".into()))
                 };
             },
             None => {break;}
         };
     };
-    return Ok(wants)
+    if err.is_some() { return Err(err.unwrap()) }
+    else { return Ok(wants) }
 }
 
 fn match_token_to_want<R>(token: Token, tokenizer: &mut Tokenizer<R>) -> Result<Want, CastleError>
 where R: Read{
+    let cheeky_peeky = tokenizer.peek_n(2, true)?;
     return match token.kind {
         TokenKind::Identifier(identifier) => Ok(match_peeked_token_to_want(identifier, tokenizer)?),
         TokenKind::EnumValue(enum_value) => {

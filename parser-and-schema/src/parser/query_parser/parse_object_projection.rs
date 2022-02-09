@@ -74,13 +74,6 @@ pub fn parse_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str
     }
 }
 
-fn skip_ident_colon_and_openblock<R>(tokenizer: &mut Tokenizer<R>) -> Result<(), CastleError>
-where R: Read {
-    tokenizer.next(true)?; // consume the identifer
-    tokenizer.next(true)?; // consume the colon
-    tokenizer.next(true)?; // consume the open block
-    return Ok(())
-}
 
 fn check_match_or_object_then_parse<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str>, Want>, name: Box<str>) -> Result<bool, CastleError> 
 where R: Read {
@@ -92,7 +85,6 @@ where R: Read {
                 tokenizer.next(true)?; // consume the match keyword
                 let match_statements = parse_match_statements(tokenizer)?;
                 fields.insert(name.clone(), Want::new_object_projection(Some(name), None, Some(match_statements)));
-                println!("fields {:#?}", fields);
                 return Ok(false)
             },
             TokenKind::Punctuator(Punctuator::OpenBlock) => {
