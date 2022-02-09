@@ -7,7 +7,7 @@ use crate::{tokenizer::{tokenizer::{Tokenizer}, tokenizer_utils::{peek_next_toke
 
 use super::{parse_query::match_peeked_token_to_want, parse_object_projection::parse_object_projection};
 
-pub fn parse_match_statements<R>(tokenizer: &mut Tokenizer<R>, name: Box<str>) -> Result<MatchStatement, CastleError> 
+pub fn parse_match_statements<R>(tokenizer: &mut Tokenizer<R>) -> Result<MatchStatement, CastleError> 
 where R: Read {
     tokenizer.next(true)?; //consume the '{' 
     let match_statement = get_all_match_arms(tokenizer)?;
@@ -48,7 +48,6 @@ where R: Read{
 
 fn get_match_arm<R>(tokenizer: &mut Tokenizer<R>, token: Token) -> Result<MatchArm, CastleError>
 where R: Read {
-    
     let condition = get_condition(tokenizer, token)?;
     skip_arrow_syntax(tokenizer)?;
     let mut match_arms = HashMap::new();
@@ -77,23 +76,9 @@ fn insert_arm_into_match_arm<R>(tokenizer: &mut Tokenizer<R>, match_arms: &mut H
 where R: Read {
     let peeked_token = peek_next_token_and_unwrap(tokenizer)?;
     return match &peeked_token.kind{
-        TokenKind::Identifier(identifer) => {
-            let name = identifer.name.clone();
-            let token_after = tokenizer.peek_n(1, true)?;
-            let token_after = token_after.unwrap();
-            if token_after.kind == TokenKind::Punctuator(Punctuator::Colon) {
-                let match_arm = parse_object_projection(name.clone(), tokenizer, false)?;
-                match_arms.insert(name, match_arm);
-                Ok(false)
-            } else {
-                let end_of_arm = insert_field_into_match_arm(tokenizer, match_arms)?;
-                if end_of_arm {
-                    Ok(true)
-                }
-                else {
-                    Ok(false)
-                }
-            }
+        TokenKind::Identifier(identifier) => {
+            let name = identifier.name.clone();
+            return insert_arm(tokenizer, match_arms, name);
         },
         TokenKind::Punctuator(Punctuator::Comma) => {
             tokenizer.next(true)?; // consume the comma
@@ -104,6 +89,32 @@ where R: Read {
     };
 }
 
+fn insert_arm<R>(tokenizer: &mut Tokenizer<R>, match_arms: &mut HashMap<Box<str>, Want>, name: Box<str>) -> Result<bool, CastleError>
+where R: Read {
+    let token_after = tokenizer.peek_n(1, true)?.unwrap();
+    if token_after.kind == TokenKind::Punctuator(Punctuator::Colon) {
+        return insert_object_into_match_arm(tokenizer, match_arms, name);
+    } 
+    else { return insert_single_field_into_match_arm(tokenizer, match_arms) }
+}
+
+fn insert_object_into_match_arm<R>(tokenizer: &mut Tokenizer<R>, match_arms: &mut HashMap<Box<str>, Want>, name: Box<str>) -> Result<bool, CastleError> 
+where R: Read {
+    let match_arm = parse_object_projection(name.clone(), tokenizer, false)?;
+    match_arms.insert(name, match_arm);
+    return Ok(false)
+}
+
+fn insert_single_field_into_match_arm<R>(tokenizer: &mut Tokenizer<R>, match_arms: &mut HashMap<Box<str>, Want>) -> Result<bool, CastleError> 
+where R: Read {
+    let end_of_arm = insert_field_into_match_arm(tokenizer, match_arms)?;
+    if end_of_arm {
+        Ok(true)
+    }
+    else {
+        Ok(false)
+    }
+}
 
 fn get_condition<R>(tokenizer: &mut Tokenizer<R>, token: Token) -> Result<Expression, CastleError>
 where R: Read {
