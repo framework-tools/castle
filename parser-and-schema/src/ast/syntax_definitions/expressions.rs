@@ -3,7 +3,7 @@
 use serde::{Deserialize, Serialize};
 use shared::CastleError;
 
-use crate::token::token::{TokenKind, Numeric};
+use crate::token::token::{TokenKind, Numeric, Identifier};
 
 use super::{keyword::Keyword, enum_definition::EnumValue};
 
@@ -11,6 +11,7 @@ use super::{keyword::Keyword, enum_definition::EnumValue};
 pub enum Expression {
     PrimitiveValue(PrimitiveValue),
     EnumValue(EnumValue),
+    Identifier(Identifier),
 }
 
 impl Expression {
@@ -24,6 +25,7 @@ impl Expression {
                 PrimitiveValue::UInt(value) => value.clone().to_string().into(),
             },
             Expression::EnumValue(enum_value) => enum_value.identifier.clone(),
+            Expression::Identifier(identifier) => identifier.name.clone(),
         }
     }
 }

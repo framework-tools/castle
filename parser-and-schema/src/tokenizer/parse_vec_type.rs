@@ -11,7 +11,6 @@ where R: Read {
     loop {
         let char = cursor.next_char()?.unwrap();
         let char = char::try_from(char).ok().ok_or(CastleError::lex("invalid character",cursor.pos()))?;
-        println!("char: {:?}", char);
         word.push(char);
         if char == '>' { break; } 
     }

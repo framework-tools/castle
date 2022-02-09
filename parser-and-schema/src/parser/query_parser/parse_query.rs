@@ -17,7 +17,7 @@ pub fn parse_query(query: &str) -> Result<HashMap<Box<str>, Want>, CastleError> 
     let mut tokenizer = Tokenizer::new(bytes);
 
     let statements = parse_query_tokens (&mut tokenizer)?;
-    check_end_of_file(&mut tokenizer)?;
+    // check_end_of_file(&mut tokenizer)?;
     Ok(statements)
 }
 
@@ -34,9 +34,8 @@ where R: Read {
         let token = tokenizer.next(true)?;
         match token {
             Some(token) => { 
-                println!("token {:#?}", token);
+                println!("token: {:#?}", token.kind);
                 let want = match_token_to_want(token, tokenizer)?;
-                println!("want: {:#?}", want);
                 let identifier = want.get_identifier()?;
                 match identifier {
                     Some(identifier) => {
@@ -45,7 +44,7 @@ where R: Read {
                     None => { println!("Caused a break, maybe error"); break; }
                 };
             },
-            None => break
+            None => {break;}
         };
     };
     return Ok(wants)
@@ -75,14 +74,12 @@ where R: Read {
                     parse_object_projection(identifier.name, tokenizer, false)
                 },
                 _ => {
-                    let match_statement = None; 
-                    Ok(Want::new_single_field(identifier.name, arguments, match_statement))
+                    Ok(Want::new_single_field(identifier.name, arguments, None))
                 }
             }
         },
         None => {
-            let match_statement = parse_match_statements(tokenizer, identifier.name.clone())?;
-            Ok(Want::new_single_field(identifier.name, arguments, match_statement))
+            Ok(Want::new_single_field(identifier.name, arguments, None))
         }
     }
 }

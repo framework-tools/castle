@@ -34,6 +34,15 @@ pub struct Identifier {
     pub arguments: Option<Vec<Argument>>
 }
 
+impl Identifier {
+    pub fn new(name: Box<str>, arguments: Option<Vec<Argument>>) -> Self {
+        Identifier {
+            name,
+            arguments
+        }
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub enum Numeric {
     Float(f64),
