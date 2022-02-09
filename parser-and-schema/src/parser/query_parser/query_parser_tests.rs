@@ -403,10 +403,6 @@ fn can_parse_object_projection_with_match() {
 fn can_parse_object_projection_with_match_inside_match() {
     let query = "
         me {
-            first_name
-            last_name
-            email
-            profile_picture(48)
             icon: match {
                 Icon::Svg => {
                     url(48)
@@ -422,7 +418,7 @@ fn can_parse_object_projection_with_match_inside_match() {
                 },
                 Icon::Emoji => {
                     emoji
-                    size
+                    lol
                 }
             }
         }
@@ -457,7 +453,7 @@ fn can_parse_object_projection_with_match_inside_match() {
 
     let emoji_fields = insert_each_field_into_fields(vec![
         ("emoji".into(), Want::new_single_field("emoji".into(), None, None)),
-        ("size".into(), Want::new_single_field("size".into(), None, None)),
+        ("lol".into(), Want::new_single_field("lol".into(), None, None)),
     ]);
 
     let icon_match = MatchStatement::new(vec![
@@ -472,12 +468,6 @@ fn can_parse_object_projection_with_match_inside_match() {
     ]);
 
     let fields = insert_each_field_into_fields(vec![
-        ("first_name".into(), Want::new_single_field("first_name".into(), None, None)),
-        ("last_name".into(), Want::new_single_field("last_name".into(), None, None)),
-        ("email".into(), Want::new_single_field("email".into(), None, None)),
-        ("profile_picture".into(), Want::new_single_field("profile_picture".into(), Some(vec![
-            Argument::PrimitiveValue(PrimitiveValue::UInt(48)),
-        ]), None)),
         ("icon".into(), Want::new_object_projection(Some("icon".into()), None, Some(icon_match))),
     ]);
 
@@ -485,7 +475,7 @@ fn can_parse_object_projection_with_match_inside_match() {
         ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None)),
     ]);
     let actual = parse_query(query).unwrap();
-    println!("{:#?}", actual);
+    println!("actual {:#?}", actual);
     assert_eq!(expected, actual);
 }
 
