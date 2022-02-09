@@ -62,6 +62,7 @@ impl Token {
             '-' => Ok(Token::new(TokenKind::Punctuator(Punctuator::Sub), Span::new(start, end))),
             '>' => Ok(Token::new(TokenKind::Punctuator(Punctuator::GreaterThan), Span::new(start, end))),
             '@' => Ok(Token::new(TokenKind::Punctuator(Punctuator::At), Span::new(start, end))),
+            '=' => Ok(Token::new(TokenKind::Punctuator(Punctuator::Assign), Span::new(start, end))),
             _ => Err(CastleError::Unimplemented("Unimplemented Operator".into()))
         }
     }
