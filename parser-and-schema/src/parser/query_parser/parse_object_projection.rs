@@ -9,7 +9,7 @@ use super::{parse_inner_object::parse_inner_object, parse_match_statements::pars
 
 pub fn parse_object_projection<R>(identifier: Box<str>, tokenizer: &mut Tokenizer<R>, should_skip_start: bool) -> Result<Want, CastleError> 
 where R: Read{
-    if should_skip_start { skip_ident_colon_and_openblock(tokenizer)?; }
+    // if should_skip_start { skip_ident_colon_and_openblock(tokenizer)?; }
 
     let fields = loop_through_tokens_and_parse_fields(tokenizer)?;
     let parsed_object = create_obj(identifier, fields);

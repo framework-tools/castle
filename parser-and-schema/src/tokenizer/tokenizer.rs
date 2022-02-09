@@ -9,7 +9,7 @@ use crate::{token::{Token, token::{TokenKind, Punctuator, Numeric}}, ast::syntax
 use super::{parse_operator::parse_operator, parse_numbers::parse_number, parse_identifier_type_or_keyword::{parse_identifier_or_keyword_or_type}};
 pub struct Tokenizer<R> {
     pub cursor: Cursor<R>,
-    pub peeked: VecDeque<Token>
+    pub peeked: VecDeque<Token>,
 }
 
 impl<R> Tokenizer<R>
