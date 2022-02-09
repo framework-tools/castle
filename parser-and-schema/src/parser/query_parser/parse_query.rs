@@ -34,7 +34,9 @@ where R: Read {
         let token = tokenizer.next(true)?;
         match token {
             Some(token) => { 
+                println!("token {:#?}", token);
                 let want = match_token_to_want(token, tokenizer)?;
+                println!("want: {:#?}", want);
                 let identifier = want.get_identifier()?;
                 match identifier {
                     Some(identifier) => {

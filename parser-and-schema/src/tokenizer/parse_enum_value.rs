@@ -3,7 +3,7 @@ use std::{io::Read, char, collections::HashMap};
 use input_cursor::{Position, Cursor, Span};
 use shared::CastleError;
 
-use crate::{token::{Token, token::TokenKind}, ast::syntax_definitions::{enum_definition::{EnumValue, EnumDataType}, argument::Argument}, parser::schema_parser::parse_schema_type::check_token_and_parse_schema_field_or_break};
+use crate::{token::{Token, token::TokenKind}, ast::syntax_definitions::{enum_definition::{EnumValue, EnumDataType}, argument::Argument}, parser::schema_parser::parse_schema_type::check_token_and_parse_schema_field_or_break, tokenizer::tokenizer_utils::get_next_token_and_unwrap};
 
 use super::{tokenizer::Tokenizer, parse_arguments::get_arguments};
 //
@@ -35,11 +35,26 @@ where R: Read {
     let mut colon_count = 0;
 
     for ch in word.chars() {
-        if ch == ':' { colon_count += 1; }
-        if colon_count == 0 { enum_parent.push(ch); }
-        else if colon_count == 2 { variant.push(ch); }
+        if colon_count == 2 { variant.push(ch); }
+        else if ch == ':' { colon_count += 1; }
+        else if colon_count == 0 { enum_parent.push(ch); }
     }
     return Ok((enum_parent.into(), variant.into()))
+}
+
+#[test]
+fn test_parse_emum_value(){
+    let mut tokenizer = Tokenizer::new("Color::Red ".as_bytes());
+    let token = get_next_token_and_unwrap(&mut tokenizer);
+    let token = token.unwrap(); 
+    let expected_enum = EnumValue {
+        identifier: "Color::Red".into(),
+        enum_parent: "Color".into(),
+        variant: "Red".into(),
+        data_type: EnumDataType::EnumUnit
+    };
+    let expected_token_kind = TokenKind::EnumValue(expected_enum);
+    assert_eq!(token.kind, expected_token_kind);
 }
 
 fn get_enum_data_type<R>(tokenizer: &mut Tokenizer<R>) -> Result<EnumDataType, CastleError>

@@ -56,6 +56,8 @@ where R: Read {
     if ch == ':' { //keep pushing for enum_value
         word.push(':');
         word.push(':');
+        let (variant, _) = get_word_from_chars(cursor)?;
+        word.push_str(variant.as_str());
         return Ok(word)
     } else {
         return Err(CastleError::Lexer("wrong syntax while parsing word from chars".into(), cursor.pos()))
