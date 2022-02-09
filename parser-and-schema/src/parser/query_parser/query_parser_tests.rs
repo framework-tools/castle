@@ -438,11 +438,11 @@ fn can_parse_object_projection_with_complex_match() {
     
     let size_match = MatchStatement::new(vec![
         MatchArm::new(
-            Expression::EnumValue( EnumValue { enum_parent: "Size".into(), variant: "Rectangle".into(), data_type: EnumDataType::EnumUnit }),
+            Expression::EnumValue( EnumValue { identifier: "Size::Rectangle ".into(), enum_parent: "Size".into(), variant: "Rectangle".into(), data_type: EnumDataType::EnumUnit }),
             Want::new_object_projection("Size::Rectangle".into(), Some(rectangle_fields), None),
         ),
         MatchArm::new(
-            Expression::EnumValue( EnumValue { enum_parent: "Size".into(), variant: "Square".into(), data_type: EnumDataType::EnumUnit }),
+            Expression::EnumValue( EnumValue { identifier: "Size::Square".into(), enum_parent: "Size".into(), variant: "Square".into(), data_type: EnumDataType::EnumUnit }),
             Want::new_object_projection("Size::Square".into(), Some(square_fields), None),
         ),
     ]);
@@ -461,11 +461,11 @@ fn can_parse_object_projection_with_complex_match() {
 
     let icon_match = MatchStatement::new(vec![
         MatchArm::new(
-            Expression::EnumValue( EnumValue { enum_parent: "Icon".into(), variant: "Svg".into(), data_type: EnumDataType::EnumUnit }),
+            Expression::EnumValue( EnumValue { identifier: "Icon::Svg".into(), enum_parent: "Icon".into(), variant: "Svg".into(), data_type: EnumDataType::EnumUnit }),
             Want::new_object_projection("Icon::Svg".into(), Some(svg_fields), None),
         ),
         MatchArm::new(
-            Expression::EnumValue( EnumValue { enum_parent: "Icon".into(), variant: "Emoji".into(), data_type: EnumDataType::EnumUnit }),
+            Expression::EnumValue( EnumValue { identifier: "Icon::Emoji".into(), enum_parent: "Icon".into(), variant: "Emoji".into(), data_type: EnumDataType::EnumUnit }),
             Want::new_object_projection("Icon::Emoji".into(), Some(emoji_fields), None),
         ),
     ]);
@@ -576,11 +576,11 @@ fn trying_to_break_test_v4() {
 
     let icon_match = MatchStatement::new(vec![
         MatchArm::new(
-            Expression::EnumValue( EnumValue { enum_parent: "Icon".into(), variant: "Svg".into(), data_type: EnumDataType::EnumUnit }),
+            Expression::EnumValue( EnumValue { identifier: "Icon::Svg".into(), enum_parent: "Icon".into(), variant: "Svg".into(), data_type: EnumDataType::EnumUnit }),
             Want::new_object_projection("Icon::Svg".into(), Some(svg_fields), None),
         ),
         MatchArm::new(
-            Expression::EnumValue( EnumValue { enum_parent: "Icon".into(), variant: "Emoji".into(), data_type: EnumDataType::EnumUnit }),
+            Expression::EnumValue( EnumValue { identifier: "Icon::Emoji".into(), enum_parent: "Icon".into(), variant: "Emoji".into(), data_type: EnumDataType::EnumUnit }),
             Want::new_object_projection("Icon::Emoji".into(), Some(emoji_fields), None),
         ),
     ]);
