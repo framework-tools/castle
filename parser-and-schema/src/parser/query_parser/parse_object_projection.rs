@@ -24,7 +24,8 @@ where R: Read {
     let err = None;
     loop {
         let token = get_next_token_and_unwrap(tokenizer)?;
-        let end_of_fields = match_current_token_to_field_and_parse_Field(tokenizer, token, &mut fields)?;
+        println!("token in 'me' fields: {:#?}", token);
+        let end_of_fields = match_current_token_to_field_and_parse_field(tokenizer, token, &mut fields)?;
         if end_of_fields { break; }
     }
     handle_errors_for_fields(err, &mut fields)?;
@@ -37,7 +38,7 @@ fn handle_errors_for_fields(err: Option<CastleError>, fields: &mut HashMap<Box<s
     else { return Ok(fields) }
 }
 
-fn match_current_token_to_field_and_parse_Field(tokenizer: &mut Tokenizer<impl Read>, token: Token, fields: &mut HashMap<Box<str>, Want>) 
+fn match_current_token_to_field_and_parse_field(tokenizer: &mut Tokenizer<impl Read>, token: Token, fields: &mut HashMap<Box<str>, Want>) 
 -> Result<bool, CastleError> {
     match token.kind {
         TokenKind::Identifier(Identifier {name, arguments}) => {
@@ -89,8 +90,10 @@ where R: Read {
     return match peeked_token {
         Some(peeked_token) => match &peeked_token.kind {
             TokenKind::Keyword(Keyword::Match) => {
+                println!("parsing match");
                 tokenizer.next(true)?; // consume the match keyword
-                parse_match_statements(tokenizer, name.clone())?;
+                let match_statements = parse_match_statements(tokenizer, name.clone())?;
+                fields.insert(name.clone(), Want::new_object_projection(Some(name), None, match_statements));
                 return Ok(false)
             },
             TokenKind::Punctuator(Punctuator::OpenBlock) => {
