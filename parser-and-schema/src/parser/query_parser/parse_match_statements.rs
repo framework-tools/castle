@@ -5,30 +5,13 @@ use token::Token;
 
 use crate::{tokenizer::{tokenizer::{Tokenizer}, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}}, ast::syntax_definitions::{match_statement::{MatchStatement, MatchArm}, expressions::{Expression, PrimitiveValue}, enum_definition::EnumValue, keyword::Keyword, want::Want}, token::{token::{TokenKind, Punctuator, Identifier, Numeric, self},}};
 
-use super::{parse_query::match_peeked_token_to_want};
+use super::{parse_query::match_peeked_token_to_want, parse_object_projection::parse_object_projection};
 
 pub fn parse_match_statements<R>(tokenizer: &mut Tokenizer<R>, name: Box<str>) -> Result<MatchStatement, CastleError> 
 where R: Read {
     tokenizer.next(true)?; //consume the '{' 
     let match_statement = get_all_match_arms(tokenizer)?;
     return Ok(match_statement)
-}
-
-fn check_colon_and_match<R>(tokenizer: &mut Tokenizer<R>) -> Result<bool, CastleError>
-where R: Read {
-    let option_peeked_token = tokenizer.peek(true)?;
-    match option_peeked_token {
-        Some(peeked_token) => return match peeked_token.kind {
-            TokenKind::Punctuator(Punctuator::Colon) => {
-                tokenizer.next(true)?; // skip colon
-                tokenizer.next(true)?; // skip match
-                tokenizer.next(true)?; // skip open block
-                Ok(true)
-            },
-            _ => Ok(false)
-        },
-        None => return Ok(false)
-    };
 }
 
 /// Parses a match statement
@@ -39,7 +22,6 @@ where R: Read{
     let mut match_statement = MatchStatement::new(Vec::new());
     loop {
         let token = tokenizer.peek(true)?;
-        println!("token: {:#?}", token.unwrap().kind);
         match token {
             Some(token) => match &token.kind {
                 TokenKind::Punctuator(Punctuator::CloseBlock) => {
@@ -53,7 +35,6 @@ where R: Read{
                 => {
                     let token = get_next_token_and_unwrap(tokenizer)?; // consume the identifier
                     let match_arm = get_match_arm(tokenizer, token)?;
-
                     match_statement.statements.push(match_arm);
                 },
                 _ => break
@@ -65,36 +46,64 @@ where R: Read{
 }
 
 
-// Icon::Svg => {
-//     url
-//     size
-// },
-
 fn get_match_arm<R>(tokenizer: &mut Tokenizer<R>, token: Token) -> Result<MatchArm, CastleError>
 where R: Read {
     
     let condition = get_condition(tokenizer, token)?;
     skip_arrow_syntax(tokenizer)?;
-    let mut fields = HashMap::new();
+    let mut match_arms = HashMap::new();
     loop {
-        let peeked_token = peek_next_token_and_unwrap(tokenizer)?;
-
-        match &peeked_token.kind{
-            TokenKind::Identifier(_) => {
-                let peeked_token =  peek_next_token_and_unwrap(tokenizer)?;
-                let end_of_arm = insert_field_into_match_arm(tokenizer, &mut fields)?;
-                if end_of_arm { break; }
-            },
-            TokenKind::Punctuator(Punctuator::Comma) => {
-                tokenizer.next(true)?; // consume the comma
-            },
-            _ => break
-            
-        };
+        let end_of_match_arms = insert_arm_into_match_arm(tokenizer, &mut match_arms)?;
+        if end_of_match_arms{
+            break;
+        }
     }
     let identifier = condition.get_identifier();
-    return Ok(MatchArm::new(condition, Want::new_object_projection(Some(identifier), Some(fields), None)))
+    return Ok(MatchArm::new(condition, Want::new_object_projection(Some(identifier), Some(match_arms), None)))
 }
+
+
+
+/// Peek next token
+/// If token is an ident - continue
+/// Peek next token
+///If next token is a colon
+///  - call parse_object_projection
+///  - Insert obj into hashmap
+/// Else: 
+///  - let end_of_arm = insert_field_into_match_arm(tokenizer, &mut fields)?;
+///  - if end_of_arm { break; }
+fn insert_arm_into_match_arm<R>(tokenizer: &mut Tokenizer<R>, match_arms: &mut HashMap<Box<str>, Want>) -> Result<bool, CastleError> 
+where R: Read {
+    let peeked_token = peek_next_token_and_unwrap(tokenizer)?;
+    return match &peeked_token.kind{
+        TokenKind::Identifier(identifer) => {
+            let name = identifer.name.clone();
+            let token_after = tokenizer.peek_n(1, true)?;
+            let token_after = token_after.unwrap();
+            if token_after.kind == TokenKind::Punctuator(Punctuator::Colon) {
+                let match_arm = parse_object_projection(name.clone(), tokenizer, false)?;
+                match_arms.insert(name, match_arm);
+                Ok(false)
+            } else {
+                let end_of_arm = insert_field_into_match_arm(tokenizer, match_arms)?;
+                if end_of_arm {
+                    Ok(true)
+                }
+                else {
+                    Ok(false)
+                }
+            }
+        },
+        TokenKind::Punctuator(Punctuator::Comma) => {
+            tokenizer.next(true)?; // consume the comma
+            Ok(false)
+        },
+        _ => Ok(true)
+        
+    };
+}
+
 
 fn get_condition<R>(tokenizer: &mut Tokenizer<R>, token: Token) -> Result<Expression, CastleError>
 where R: Read {
@@ -117,8 +126,7 @@ where R: Read {
 
 fn insert_field_into_match_arm<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str>, Want>) -> Result<bool, CastleError> 
 where R: Read {
-    let token = tokenizer.next(true)?;
-    let token = token.unwrap();
+    let token = get_next_token_and_unwrap(tokenizer)?;
     match token.kind {
         TokenKind::Identifier(identifier) => {
             let name = identifier.name.clone();

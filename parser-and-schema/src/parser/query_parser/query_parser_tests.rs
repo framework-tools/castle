@@ -399,7 +399,7 @@ fn can_parse_object_projection_with_match() {
 }
 
 #[test]
-fn can_parse_object_projection_with_complex_match() {
+fn can_parse_object_projection_with_match_inside_match() {
     let query = "
         me {
             first_name
@@ -484,6 +484,7 @@ fn can_parse_object_projection_with_complex_match() {
         ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None)),
     ]);
     let actual = parse_query(query).unwrap();
+    println!("{:#?}", actual);
     assert_eq!(expected, actual);
 }
 

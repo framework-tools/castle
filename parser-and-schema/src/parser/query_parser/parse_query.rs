@@ -34,7 +34,6 @@ where R: Read {
         let token = tokenizer.next(true)?;
         match token {
             Some(token) => { 
-                println!("token: {:#?}", token.kind);
                 let want = match_token_to_want(token, tokenizer)?;
                 let identifier = want.get_identifier()?;
                 match identifier {
@@ -61,7 +60,6 @@ where R: Read{
         _ => Err(CastleError::Parser( format!("2. unexpected token, expected identifier, got: {:?}", token.kind).into(), token.span))
     }
 }
-
 pub fn match_peeked_token_to_want<R> (identifier: Identifier, tokenizer: &mut Tokenizer<R>) -> Result<Want, CastleError>
 where R: Read {
     let next_token = tokenizer.peek(true)?;
