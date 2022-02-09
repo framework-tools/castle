@@ -90,7 +90,7 @@ where R: Read {
         Some(peeked_token) => match &peeked_token.kind {
             TokenKind::Keyword(Keyword::Match) => {
                 tokenizer.next(true)?; // consume the match keyword
-                let match_statements = parse_match_statements(tokenizer, name.clone())?;
+                let match_statements = parse_match_statements(tokenizer)?;
                 fields.insert(name.clone(), Want::new_object_projection(Some(name), None, Some(match_statements)));
                 return Ok(false)
             },
