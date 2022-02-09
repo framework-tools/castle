@@ -362,7 +362,7 @@ fn can_parse_object_projection_with_match() {
     ]);
 
     let svg_match_arm = MatchArm::new(
-        Expression::EnumValue( EnumValue { enum_parent: "Icon".into(), variant: "Svg".into(), data_type: EnumDataType::EnumUnit }),
+        Expression::EnumValue( EnumValue { identifier: "Icon::Svg".into(), enum_parent: "Icon".into(), variant: "Svg".into(), data_type: EnumDataType::EnumUnit }),
         Want::new_object_projection("Icon::Svg".into(), Some(svg_fields), None),
     );
 
@@ -372,7 +372,7 @@ fn can_parse_object_projection_with_match() {
     ]);
 
     let emoji_match_arms = MatchArm::new(
-            Expression::EnumValue( EnumValue { enum_parent: "Icon".into(), variant: "Emoji".into(), data_type: EnumDataType::EnumUnit }),
+            Expression::EnumValue( EnumValue { identifier: "Icon::Emoji".into(), enum_parent: "Icon".into(), variant: "Emoji".into(), data_type: EnumDataType::EnumUnit }),
             Want::new_object_projection("Icon::Emoji".into(), Some(emoji_fields), None),
     );
 

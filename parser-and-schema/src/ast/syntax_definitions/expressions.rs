@@ -48,13 +48,7 @@ impl PrimitiveValue {
     pub fn new_from_token_kind(token_kind: TokenKind) -> Option<Self> {
         match token_kind {
             TokenKind::StringLiteral(s) => Some(PrimitiveValue::String(s)),
-            TokenKind::NumericLiteral(numeric) => {
-                match numeric {
-                    Numeric::Float(f) => Some(PrimitiveValue::Float(f)),
-                    Numeric::Integer(i) => Some(PrimitiveValue::Int(i)),
-                    Numeric::UnsignedInteger(u) => Some(PrimitiveValue::UInt(u)),
-                }
-            },
+            TokenKind::NumericLiteral(numeric) => match_numeric_token_to_primitive(numeric),
             TokenKind::BooleanLiteral(b) => Some(PrimitiveValue::Boolean(b)),
             TokenKind::Keyword(keyword) => match keyword {
                 Keyword::True => Some(PrimitiveValue::Boolean(true)),
@@ -63,5 +57,12 @@ impl PrimitiveValue {
             },
             _ => None
         }
+    }
+}
+fn match_numeric_token_to_primitive(numeric:Numeric) -> Option<PrimitiveValue> {
+    match numeric {
+        Numeric::Float(f) => Some(PrimitiveValue::Float(f)),
+        Numeric::Integer(i) => Some(PrimitiveValue::Int(i)),
+        Numeric::UnsignedInteger(u) => Some(PrimitiveValue::UInt(u)),
     }
 }

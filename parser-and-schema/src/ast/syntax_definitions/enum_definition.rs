@@ -60,6 +60,7 @@ impl EnumDataType {
 
 #[derive(Debug, PartialEq)]
 pub struct EnumValue {
+    pub identifier: Box<str>,
     pub enum_parent: Box<str>, //the name of the enum that this value is a part of
     pub variant: Box<str>, // the variant in that enum that this value is
     pub data_type: EnumDataType
@@ -67,10 +68,15 @@ pub struct EnumValue {
 
 impl EnumValue {
     pub fn new(enum_parent: Box<str>, variant: Box<str>, data_type: EnumDataType) -> Self {
+        let mut identifier = enum_parent.to_string();
+        identifier.push_str("::");
+        identifier.push_str(&variant);
+        let identifier = identifier.into();
         EnumValue {
             enum_parent,
             variant,
-            data_type
+            data_type,
+            identifier
         }
     }
 }

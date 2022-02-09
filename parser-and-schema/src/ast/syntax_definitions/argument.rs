@@ -33,26 +33,33 @@ impl Argument {
 fn parse_identifier_argument<R>(name: Box<str>, tokenizer: &mut Tokenizer<R>) -> Result<Argument, CastleError>
 where R: Read {
     let first_char = name.chars().nth(0);
-    match first_char {
-        Some(first_char) => {
-            if first_char.is_uppercase() { return Ok(Argument::Type(Type::SchemaTypeOrEnum(name))) } //Enum or Type Argument
-            else { 
-                let token = tokenizer.next(true)?;
-                match token {
-                    Some(token) => match token.kind {
-                        TokenKind::Punctuator(Punctuator::Colon) => { //Identifier and Type Argument
-                            let type_ = parse_type(tokenizer)?;
-                            return Ok(Argument::IdentifierAndType(name, type_));
-                        },
-                        _ => return Ok(Argument::Identifier(name)) //Identifier Argument
-                    },
-                    None => return Err(CastleError::AbruptEOF("Error found in 'parse_identifier_argument'".into()))
-                }
+
+    if first_char.is_some(){
+        let first_char = first_char.unwrap();    
+        if first_char.is_uppercase() { return Ok(Argument::Type(Type::SchemaTypeOrEnum(name))) } //Enum or Type Argument
+        else { 
+            let token = tokenizer.next(true)?;
+            match token {
+                Some(token) => match_token_to_parse_argument(token, tokenizer, name),
+                None => return Err(CastleError::AbruptEOF("Error found in 'parse_identifier_argument'".into()))
             }
-        },
-        None => Err(CastleError::Unimplemented("argument cannot be empty 1".into()))
+        }
+    } else {
+        return Err(CastleError::AbruptEOF("Error found in 'parse_identifier_argument'".into()))
     }
 }
+
+fn match_token_to_parse_argument<R>(token: Token, tokenizer:&mut Tokenizer<R>, name: Box<str>) -> Result<Argument, CastleError> 
+where R: Read {
+    match token.kind {
+        TokenKind::Punctuator(Punctuator::Colon) => { //Identifier and Type Argument
+            let type_ = parse_type(tokenizer)?;
+            return Ok(Argument::IdentifierAndType(name, type_));
+        },
+        _ => return Ok(Argument::Identifier(name)) //Identifier Argument
+    }
+}
+
 
 fn parse_primitive_value_argument(token_kind: TokenKind) -> Result<Argument, CastleError> {
     let primitive_value = PrimitiveValue::new_from_token_kind(token_kind);

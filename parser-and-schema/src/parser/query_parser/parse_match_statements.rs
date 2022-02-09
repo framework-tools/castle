@@ -68,23 +68,29 @@ where R: Read {
         let peeked_token = peek_next_token_and_unwrap(tokenizer)?;
         match &peeked_token.kind{
             TokenKind::Identifier(_) => {
-                let token = tokenizer.next(true)?;
-                let token = token.unwrap();
-                match token.kind {
-                    TokenKind::Identifier(identifier) => {
-                        let name = identifier.name.clone();
-                        let want = match_peeked_token_to_want(identifier, tokenizer)?;
-                        fields.insert(name,want);
-                    },
-                    _ => break
-                };
-                
+                let end_of_arm = insert_field_into_match_arm(tokenizer, &mut fields)?;
+                if end_of_arm { break; }
             },
             _ => break
             
         };
     } 
     return Ok(MatchArm::new(condition, Want::new_inner_object(Some(fields), None)))
+}
+
+fn insert_field_into_match_arm<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str>, Want>) -> Result<bool, CastleError> 
+where R: Read {
+    let token = tokenizer.next(true)?;
+    let token = token.unwrap();
+    match token.kind {
+        TokenKind::Identifier(identifier) => {
+            let name = identifier.name.clone();
+            let want = match_peeked_token_to_want(identifier, tokenizer)?;
+            fields.insert(name,want);
+            return Ok(false)
+        },
+        _ => return Ok(true)
+    }
 }
 
 pub fn skip_arrow_syntax<R>(tokenizer: &mut Tokenizer<R>) -> Result<(), CastleError>
@@ -109,7 +115,7 @@ where R: Read {
         None => return Err(CastleError::AbruptEOF("unexpected end of file in get_condition".into()))
     };
     let condition = match token.kind {
-        TokenKind::EnumValue(EnumValue { enum_parent, variant, data_type }) => Some(Expression::EnumValue(EnumValue::new(enum_parent, variant, data_type))),
+        TokenKind::EnumValue(EnumValue { enum_parent, variant, data_type, identifier }) => Some(Expression::EnumValue(EnumValue::new(enum_parent, variant, data_type))),
         TokenKind::StringLiteral(string_literal) => Some(Expression::PrimitiveValue(PrimitiveValue::String(string_literal))),
         TokenKind::NumericLiteral(numeric_literal) => Some(convert_numeric_token_to_expression(numeric_literal)),
         TokenKind::Keyword(Keyword::True) => Some(Expression::PrimitiveValue(PrimitiveValue::Boolean(true))),

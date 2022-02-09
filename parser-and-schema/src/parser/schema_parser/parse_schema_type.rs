@@ -2,7 +2,7 @@ use std::{collections::HashMap, io::Read};
 
 use shared::CastleError;
 
-use crate::{token::{Token, token::{TokenKind, Identifier, Punctuator}}, tokenizer::{tokenizer::Tokenizer, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}}, ast::syntax_definitions::{keyword::Keyword, schema_definition::SchemaDefinition}};
+use crate::{token::{Token, token::{TokenKind, Identifier, Punctuator}}, tokenizer::{tokenizer::Tokenizer, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}, self}, ast::syntax_definitions::{keyword::Keyword, schema_definition::SchemaDefinition}};
 
 use super::{types::{schema_type::SchemaType, schema_field::SchemaField}, parse_schema_field::parse_schema_field, enums::parse_enum::parse_enum_definition, functions::parse_function::parse_function};
 
@@ -15,24 +15,30 @@ pub fn check_token_and_parse_schema_or_break<R>(
     if token.is_err() { return Ok(true) }
     else {
         let token = token.unwrap();
-        match token.kind {
-            TokenKind::Keyword(Keyword::Type) => {
-                let schema_type = parse_schema_type(tokenizer)?;
-                parsed_schema.schema_types.insert(schema_type.identifier.clone(), schema_type);
-                return Ok(false)
-            },
-            TokenKind::Keyword(Keyword::Enum) => {
-                let enum_definition = parse_enum_definition(tokenizer)?;
-                parsed_schema.enums.insert(enum_definition.name.clone(), enum_definition);
-                return Ok(false)
-            },  
-            TokenKind::Keyword(Keyword::Fn) => {
-                let function_definition = parse_function(tokenizer)?;
-                parsed_schema.functions.insert(function_definition.name.clone(), function_definition);
-                return Ok(false)
-            },
-            _ => return Err(CastleError::Schema(format!("1. Unexpected token: {:?}", token.kind).into(), token.span))
-        }
+        let result = match_token_to_kind_enum_or_fn(tokenizer, token, parsed_schema)?;
+        return Ok(result)
+    }
+}
+
+fn match_token_to_kind_enum_or_fn<R>(tokenizer: &mut Tokenizer<R>, token: Token, parsed_schema: &mut SchemaDefinition) -> Result<bool, CastleError> 
+where R: Read {
+    match token.kind {
+        TokenKind::Keyword(Keyword::Type) => {
+            let schema_type = parse_schema_type(tokenizer)?;
+            parsed_schema.schema_types.insert(schema_type.identifier.clone(), schema_type);
+            return Ok(false)
+        },
+        TokenKind::Keyword(Keyword::Enum) => {
+            let enum_definition = parse_enum_definition(tokenizer)?;
+            parsed_schema.enums.insert(enum_definition.name.clone(), enum_definition);
+            return Ok(false)
+        },  
+        TokenKind::Keyword(Keyword::Fn) => {
+            let function_definition = parse_function(tokenizer)?;
+            parsed_schema.functions.insert(function_definition.name.clone(), function_definition);
+            return Ok(false)
+        },
+        _ => return Err(CastleError::Schema(format!("1. Unexpected token: {:?}", token.kind).into(), token.span))
     }
 }
 

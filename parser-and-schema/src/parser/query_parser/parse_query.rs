@@ -48,7 +48,11 @@ fn match_token_to_want<R>(token: Token, tokenizer: &mut Tokenizer<R>) -> Result<
 where R: Read{
     return match token.kind {
         TokenKind::Identifier(identifier) => Ok(match_peeked_token_to_want(identifier, tokenizer)?),
-        _ => Err(CastleError::Parser( format!("unexpected token, expected identifier, close block or comma, got {:?}", token.kind).into(), token.span))
+        TokenKind::EnumValue(enum_value) => {
+            let name = enum_value.identifier;
+            Ok(match_peeked_token_to_want(Identifier { name, arguments: None }, tokenizer)?)
+        }
+        _ => Err(CastleError::Parser( format!("2. unexpected token, expected identifier, got: {:?}", token.kind).into(), token.span))
     }
 }
 
@@ -63,9 +67,8 @@ where R: Read {
                     tokenizer.next(true)?;
                     parse_object_projection(identifier.name, tokenizer, false)
                 },
-
                 _ => {
-                    let match_statement = None; // need to implement this
+                    let match_statement = None; 
                     Ok(Want::new_single_field(identifier.name, arguments, match_statement))
                 }
             }
