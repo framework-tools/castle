@@ -93,7 +93,38 @@ fn insert_arm<R>(tokenizer: &mut Tokenizer<R>, match_arms: &mut HashMap<Box<str>
 where R: Read {
     let token_after = tokenizer.peek_n(1, true)?.unwrap();
     if token_after.kind == TokenKind::Punctuator(Punctuator::Colon) {
-        return insert_object_into_match_arm(tokenizer, match_arms, name);
+        //if token after colon is match keyword
+        // - need to parse match statements
+        // - tokenizer.next(true)?; // consume the identifier
+        // - tokenizer.next(true)?; // consume the colon
+        // - tokenizer.next(true)?; // consume the match keyword
+        // - parse match statements
+        //else run insert_object_into_match_arm to insert object into hashmap
+
+        let token_after_colon = tokenizer.peek_n(2, true)?.unwrap();
+        if token_after_colon.kind == TokenKind::Keyword(Keyword::Match) {
+            let identifier_token = get_next_token_and_unwrap(tokenizer)?; // consume the identifier
+            tokenizer.next(true)?; // consume the colon
+            tokenizer.next(true)?; // consume the match keyword
+            let name = match identifier_token.kind {
+                TokenKind::Identifier(identifier) => identifier.name.clone(),
+                _ => return Err(CastleError::Parser("Expected identifier after colon in match arm".into(), identifier_token.span))
+            };
+            let match_statements = parse_match_statements(tokenizer)?;
+            match_arms.insert(name.clone(), Want::new_object_projection(Some(name), None, Some(match_statements)));
+            let peeked_token = peek_next_token_and_unwrap(tokenizer)?;
+            match &peeked_token.kind{
+                TokenKind::Punctuator(Punctuator::CloseBlock) => {
+                    
+                    return Ok(true)
+                },
+                _ => return Ok(false)
+            }
+        }
+        else {
+            return insert_object_into_match_arm(tokenizer, match_arms, name)
+        }
+        
     } 
     else { return insert_single_field_into_match_arm(tokenizer, match_arms) }
 }
