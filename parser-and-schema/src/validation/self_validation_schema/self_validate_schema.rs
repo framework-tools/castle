@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, env::Args};
 
 use shared::CastleError;
 
@@ -78,16 +78,7 @@ fn check_types_used_in_enum_values_are_defined(schema: &SchemaDefinition) -> Res
         for (_variant_name, variant) in &enum_definition.variants {
             match &variant.enum_data_type {
                 EnumDataType::EnumTuple(tuple_types) => {
-                    //check_arguments_or_tuples_are_defined()
-                    for tuple_type in tuple_types {
-                        match tuple_type {
-                            Argument::Type(Type::SchemaTypeOrEnum(type_to_check)) => {
-                                check_type_or_enum_exists(&type_to_check, schema)?;
-                            },
-                            _ => {}
-                        }
-                    }
-                    //end
+                    check_arguments_or_tuples_are_defined(schema, tuple_types)?;
                 },
                 EnumDataType::EnumObject(fields) => {
                     ////check_enum_object_field_types_are_defined()
@@ -106,4 +97,14 @@ fn check_types_used_in_enum_values_are_defined(schema: &SchemaDefinition) -> Res
     }
     return Ok(())
 }
-
+fn check_arguments_or_tuples_are_defined(schema: &SchemaDefinition, tuple_types: &Vec<Argument>) -> Result<(), CastleError> {
+    for tuple_type in tuple_types {
+        match tuple_type {
+            Argument::Type(Type::SchemaTypeOrEnum(type_to_check)) => {
+                check_type_or_enum_exists(&type_to_check, schema)?;
+            },
+            _ => {}
+        }
+    }
+    Ok(())
+}
