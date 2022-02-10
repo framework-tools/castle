@@ -1,4 +1,4 @@
-use crate::{parser::schema_parser::{schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec}, types::{type_system::Type, primitive_type::PrimitiveType, schema_type::SchemaType, schema_field::SchemaField}}, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, schema_definition::SchemaDefinition}};
+use crate::{parser::schema_parser::{schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec}, types::{type_system::Type, primitive_type::PrimitiveType, schema_type::SchemaType, schema_field::SchemaField}, parse_schema::parse_schema}, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, schema_definition::SchemaDefinition}};
 
 /// It needs to check every type, enum etc that’s used is defined in the schema.
 
@@ -175,12 +175,29 @@ fn parser_breaks_if_unknown_type_in_argument() {
 // Function arguments
 // Directive arguments
 
-//enum FrameworkTypes {
-//     User {
-//         id: uuid,
-//         name: DoesntExist,
-//         age: Int,
-//     },
-//     SomeOtherType(DoesntExist),
-// }
-// "
+#[test]
+fn can_parse_enum_with_tuple(){
+    let schema = "
+        enum FrameworkTypes {
+            SomeOtherType(DoesntExist),
+        }
+    ";
+    let actual = parse_schema(schema);
+    assert!(actual.is_err());
+}
+
+#[test]
+fn can_parse_enum_with_tuple_and_object(){
+    let schema = "
+        enum FrameworkTypes {
+            SomeOtherType(DoesntExist),
+            User {
+                id: uuid,
+                name: DoesntExist,
+                age: Int,
+            },
+        }
+    ";
+    let actual = parse_schema(schema);
+    assert!(actual.is_err());
+}
