@@ -204,6 +204,23 @@ fn breaks_if_function_has_argument_undefined(){
 }
 
 #[test]
+fn breaks_if_function_has_tuple_argument(){
+    let schema = "
+        fn do_nothing(name: String, id: DoesntExist) -> (String, User)
+    ";
+
+    let actual = parse_schema(schema);
+    if actual.is_err() {
+        match actual {
+            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => {}, //passes
+            _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
+        }
+    } else {
+        panic!("No error thrown");
+    }
+}
+
+#[test]
 fn breaks_if_function_has_return_type_undefined(){
     let schema = "
         fn do_nothing(id: String, name: String) -> DoesntExist
@@ -282,6 +299,44 @@ fn test_option_type_breaks_if_type_is_not_defined(){
     let schema = "
         type User {
             pets: Option<DoesntExist>
+        }
+    ";
+
+    let actual = parse_schema(schema);
+    if actual.is_err() {
+        match actual {
+            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => {}, //passes
+            _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
+        }
+    } else {
+        panic!("No error thrown");
+    }
+}
+
+#[test]
+fn test_vec_inside_option_type_breaks_if_type_is_not_defined(){
+    let schema = "
+        type User {
+            pets: Option<Vec<DoesntExist>>
+        }
+    ";
+
+    let actual = parse_schema(schema);
+    if actual.is_err() {
+        match actual {
+            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => {}, //passes
+            _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
+        }
+    } else {
+        panic!("No error thrown");
+    }
+}
+
+#[test]
+fn test_option_type_inside_vec_breaks_if_type_is_not_defined(){
+    let schema = "
+        type User {
+            pets: Vec<Option<DoesntExist>>
         }
     ";
 
