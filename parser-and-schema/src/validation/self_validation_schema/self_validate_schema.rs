@@ -118,5 +118,6 @@ fn check_enum_object_field_types_are_defined(schema: &SchemaDefinition, fields: 
 /// - For each function in schema.functions
 ///    - Checks all arguments are valid: Call check_arguments_or_tuples_are_defined() - parse in function.arguments
 ///    - Checks return type is valid: Call check_type_or_enum_exists(&schema_type_or_enum_name, schema)?; - parse in function.return_type
-/// 
-//for_each_fn_check_arguments_and_return_types_are_valid(schema)?;
+for_each_fn_check_arguments_and_return_types_are_valid(schema){
+    
+}
