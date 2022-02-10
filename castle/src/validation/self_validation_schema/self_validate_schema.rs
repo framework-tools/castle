@@ -88,6 +88,7 @@ fn for_each_enum_check_all_types_in_their_values_are_valid(schema: &SchemaDefini
     }
     return Ok(())
 }
+
 fn check_arguments_or_tuples_are_defined(schema: &SchemaDefinition, arguments_or_tuples: &Vec<Argument>) -> Result<(), CastleError> {
     for arg_or_tuple in arguments_or_tuples {
         match arg_or_tuple {
