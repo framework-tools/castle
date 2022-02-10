@@ -2,7 +2,7 @@ use std::{collections::HashMap, env::Args};
 
 use shared::CastleError;
 
-use crate::{parser::schema_parser::types::{type_system::Type, schema_type::SchemaType}, ast::syntax_definitions::{schema_definition::SchemaDefinition, enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, argument::Argument}};
+use crate::{parser::schema_parser::types::{type_system::Type, schema_type::SchemaType, schema_field::SchemaField}, ast::syntax_definitions::{schema_definition::SchemaDefinition, enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, argument::Argument}};
 
 
 /// It needs to check every type, enum etc that’s used is defined in the schema.
@@ -82,14 +82,7 @@ fn check_types_used_in_enum_values_are_defined(schema: &SchemaDefinition) -> Res
                 },
                 EnumDataType::EnumObject(fields) => {
                     ////check_enum_object_field_types_are_defined()
-                    for (_, field) in fields {
-                        match &field.type_ {
-                            Type::SchemaTypeOrEnum(type_to_check) => {
-                                check_type_or_enum_exists(&type_to_check, schema)?;
-                            },
-                            _ => {}
-                        }
-                    }
+                    check_enum_object_field_types_are_defined(schema, &fields)?;
                 }
                 EnumDataType::EnumUnit => {}
             };
@@ -107,4 +100,14 @@ fn check_arguments_or_tuples_are_defined(schema: &SchemaDefinition, tuple_types:
         }
     }
     Ok(())
+
+fn check_enum_object_field_types_are_defined(schema: &SchemaDefinition, fields: &HashMap<Box<str>, SchemaField>) -> Result<(), CastleError> {
+    Ok(for (_, field) in fields {
+        match &field.type_ {
+            Type::SchemaTypeOrEnum(type_to_check) => {
+                check_type_or_enum_exists(&type_to_check, schema)?;
+            },
+            _ => { }
+        }
+    })
 }
