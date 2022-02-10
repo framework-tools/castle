@@ -419,7 +419,7 @@ fn can_parse_enum_with_fields(){
 #[test]
 fn can_parse_function_with_args_and_return_type(){
     let schema = "
-        fn do_nothing(id: uuid, name: String) -> User
+        fn do_nothing(id: uuid, name: String) -> String
     ";
 
     let mut fn_do_nothing = FnDefinition::new();
@@ -429,7 +429,7 @@ fn can_parse_function_with_args_and_return_type(){
         Argument::IdentifierAndType("name".into(), Type::PrimitiveType(PrimitiveType::String))
     ]);
 
-    fn_do_nothing.return_type = Some(Type::SchemaTypeOrEnum("User".into()));
+    fn_do_nothing.return_type = Some(Type::PrimitiveType(PrimitiveType::String));
 
     let mut expected_functions: HashMap<Box<str>, FnDefinition> = HashMap::new();   
     expected_functions.insert("do_nothing".into(), fn_do_nothing);

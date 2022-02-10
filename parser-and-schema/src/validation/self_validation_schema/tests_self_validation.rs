@@ -223,8 +223,8 @@ fn breaks_if_function_has_return_type_undefined(){
 #[test]
 fn breaks_if_directive_has_argument_undefined(){
     let schema = "
-        type meow {
-            is_admin: bool @is_admin(role: DoesntExist),
+        type Meow {
+            is_admin: bool @authenticated(token: String) @is_admin(role: DoesntExist),
         }
     ";
 
@@ -244,6 +244,25 @@ fn test_vector_type_breaks_if_type_is_not_defined(){
     let schema = "
         type User {
             pets: Vec<DoesntExist>
+        }
+    ";
+
+    let actual = parse_schema(schema);
+    if actual.is_err() {
+        match actual {
+            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => {}, //passes
+            _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
+        }
+    } else {
+        panic!("No error thrown");
+    }
+}
+
+#[test]
+fn test_vector_type_with_inner_vec_breaks_if_type_is_not_defined(){
+    let schema = "
+        type User {
+            pets: Vec<Vec<DoesntExist>>
         }
     ";
 

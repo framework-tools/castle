@@ -38,7 +38,7 @@ fn for_each_schema_type_check_field_type_is_valid(schema: &SchemaDefinition) -> 
     for (_schema_type_name, schema_type) in &schema.schema_types {
         for (_field_name, field) in &schema_type.fields {
             check_type_used_in_field_has_been_defined(schema, &field.type_)?;
-            check_directives_use_valid_types(schema, &field.directives);
+            check_directives_use_valid_types(schema, &field.directives)?;
         }
     }
     return Ok(())
