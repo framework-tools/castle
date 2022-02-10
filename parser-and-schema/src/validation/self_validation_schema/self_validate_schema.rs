@@ -2,7 +2,7 @@ use std::{collections::HashMap};
 
 use shared::CastleError;
 
-use crate::{parser::schema_parser::types::{type_system::Type, schema_field::SchemaField}, ast::syntax_definitions::{schema_definition::SchemaDefinition, enum_definition::{EnumDataType}, argument::{Argument, self}, fn_definition::FnDefinition}};
+use crate::{parser::schema_parser::types::{type_system::Type, schema_field::SchemaField, vec_type::VecType, option_type::OptionType}, ast::syntax_definitions::{schema_definition::SchemaDefinition, enum_definition::{EnumDataType}, argument::{Argument, self}, fn_definition::FnDefinition}};
 
 
 /// It needs to check every type, enum etc that’s used is defined in the schema.
