@@ -168,15 +168,13 @@ fn parser_breaks_if_unknown_type_in_argument() {
     assert!(actual.is_err());
 }
 
-// Arguments
-// Enum values (tuple and object)
 // Vec Types
 // Option Types
 // Function arguments
 // Directive arguments
 
 #[test]
-fn can_parse_enum_with_tuple(){
+fn can_not_parse_enum_with_unkown_tuple(){
     let schema = "
         enum FrameworkTypes {
             SomeOtherType(DoesntExist),
@@ -187,10 +185,9 @@ fn can_parse_enum_with_tuple(){
 }
 
 #[test]
-fn can_parse_enum_with_tuple_and_object(){
+fn can_not_parse_enum_with_unkown_tuple_and_object(){
     let schema = "
         enum FrameworkTypes {
-            SomeOtherType(DoesntExist),
             User {
                 id: uuid,
                 name: DoesntExist,
@@ -198,6 +195,29 @@ fn can_parse_enum_with_tuple_and_object(){
             },
         }
     ";
+    let actual = parse_schema(schema);
+    assert!(actual.is_err());
+}
+
+#[test]
+fn can_not_parse_vec_with_unkown_value(){
+    let schema = "
+    type Organization {
+        id: uuid,
+        industries: Vec<DoesntExist>,
+    }";
+
+    let actual = parse_schema(schema);
+    assert!(actual.is_err());
+}
+
+#[test]
+fn can_not_parse_option_with_unkown_value(){
+    let schema = "
+    type User {
+        profile_pic: Option<DoesntExist>,
+    }";
+
     let actual = parse_schema(schema);
     assert!(actual.is_err());
 }
