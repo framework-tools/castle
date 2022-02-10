@@ -13,7 +13,7 @@ use shared::CastleError;
 /// 
 /// For example:
 /// Query = "               Schema = "
-///     me(542) {             fn me(id: uuid) -> User
+///     me(542) {             fn me(id: Int) -> User
 ///         first_name
 ///         last_name         type User {
 ///         age                 id: uuid,     
