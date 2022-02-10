@@ -45,7 +45,7 @@ pub fn validate_schema_with_resolvers_and_directives(
 ///     - Else, unwrap the resolver and continue
 ///     - For the resolver, check the fn definition in schema & fn definition in resolvers is identical
 ///     - Else throw error
-pub fn valiate_schema_with_resolvers(resolvers: HashMap<Box<str>, Resolver>, parsed_schema: &SchemaDefinition ) -> Result<(), CastleError> {
+pub fn validate_schema_with_resolvers(resolvers: HashMap<Box<str>, Resolver>, parsed_schema: &SchemaDefinition ) -> Result<(), CastleError> {
     for resolver_in_schema in parsed_schema.functions.values() {
         let resolver = resolvers.get(&resolver_in_schema.name);
         if resolver.is_none() {
@@ -57,7 +57,6 @@ pub fn valiate_schema_with_resolvers(resolvers: HashMap<Box<str>, Resolver>, par
             }
         }
     }
-    
     return Ok(())
 }
 
@@ -70,5 +69,16 @@ pub fn valiate_schema_with_resolvers(resolvers: HashMap<Box<str>, Resolver>, par
 ///     - Else throw error
 ///   - If no errors, return Ok(())
 pub fn validate_schema_with_directives() -> Result<(), CastleError> {
+    for field in parsed_schema.fields.values() {
+        let directive = directives.get(&field.name);
+        if directive.is_none() {
+            return Err(CastleError::AbruptEOF("Directive not found for field".into()))
+        } else {
+            let directive = directive.unwrap();
+            if &directive.directive_definition != field {
+                return Err(CastleError::AbruptEOF("Directive definition does not match field definition".into()))
+            }
+        }
+    }
     return Ok(())
 }
