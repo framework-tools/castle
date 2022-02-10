@@ -24,6 +24,5 @@ pub fn parse_schema(schema: &str) -> Result<SchemaDefinition, CastleError> {
         if at_end_of_schema { break; }
     }
     println!("actual: {:#?}", parsed_schema.schema_types);
-    self_validate_schema(&parsed_schema)?;
     return Ok(parsed_schema)
 }

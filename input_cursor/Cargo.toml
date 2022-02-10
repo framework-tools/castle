@@ -1,5 +1,5 @@
 [package]
-name = "input-cursor"
+name = "input_cursor"
 version = "0.1.0"
 edition = "2021"
 

@@ -2,8 +2,6 @@ use std::{collections::HashMap};
 
 use shared::CastleError;
 
-use crate::{parser::schema_parser::types::{type_system::Type, schema_field::SchemaField, vec_type::VecType, option_type::OptionType}, ast::syntax_definitions::{schema_definition::SchemaDefinition, enum_definition::{EnumDataType}, argument::{Argument, self}, fn_definition::FnDefinition, directive_definition::DirectiveDefinition}};
-
 
 /// It needs to check every type, enum etc that’s used is defined in the schema.
 /// 
@@ -125,10 +123,11 @@ fn check_directives_use_valid_types(schema: &SchemaDefinition, directives: &Vec<
                 check_arguments_or_tuples_are_defined(schema, &arguments)?;
             },
             None => {}
-        }
+        };
     }
     return  Ok(())
 }
+
 /// Checks all functions arguments and return types have been defined
 /// Takes in parsed schema
 /// - For each function in schema.functions

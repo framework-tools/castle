@@ -1,7 +1,5 @@
 use shared::CastleError;
 
-use crate::{parser::schema_parser::{schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec}, types::{type_system::Type, primitive_type::PrimitiveType, schema_type::SchemaType, schema_field::SchemaField}, parse_schema::parse_schema}, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, schema_definition::SchemaDefinition}};
-
 /// It needs to check every type, enum etc that’s used is defined in the schema.
 /// 
 /// Currently Testing:

@@ -1,11 +1,11 @@
 [package]
-name = "query-parser"
+name = "parser_and_schema"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-input-cursor = { path = "../input-cursor" }
+input_cursor = { path = "../input_cursor" }
 serde = { version = "1.0.117", features = ["derive"] }
 shared = { path = "../shared" }
