@@ -18,16 +18,18 @@ use crate::{parser::schema_parser::types::{type_system::Type, schema_type::Schem
 /// - Directive arguments has unknown type
 
 pub fn self_validate_schema(schema: &SchemaDefinition) -> Result<(), CastleError>{
-    //check_types_used_in_enum_values_are_defined()
+    check_types_used_in_enum_fields_are_defined(schema)?;
+    check_types_used_in_enum_values_are_defined(schema)?;
+
+    //check_arguments_or_tuples_are_defined() - end
+    return Ok(())
+}
+fn check_types_used_in_enum_fields_are_defined(schema: &SchemaDefinition) -> Result<(), CastleError> {
     for (_schema_type_name, schema_type) in &schema.schema_types {
         for (_field_name, field) in &schema_type.fields {
             check_type_used_in_field_has_been_defined(schema, &field.type_)?;
         }
     }
-    //end
-    check_types_used_in_enum_values_are_defined(schema)?;
-
-    //check_arguments_or_tuples_are_defined() - end
     return Ok(())
 }
 
