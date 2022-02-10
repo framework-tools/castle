@@ -1,4 +1,4 @@
-use crate::{parser::schema_parser::{schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec}, types::{type_system::Type, primitive_type::PrimitiveType, schema_type::SchemaType, schema_field::SchemaField}}, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, schema_definition::SchemaDefinition}};
+use crate::{parser::schema_parser::{schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec}, types::{type_system::Type, primitive_type::PrimitiveType, schema_type::SchemaType, schema_field::SchemaField}, parse_schema::parse_schema}, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, schema_definition::SchemaDefinition}};
 
 /// It needs to check every type, enum etc that’s used is defined in the schema.
 
@@ -152,11 +152,6 @@ fn can_parse_defined_schema_enum_as_type_for_field() {
 
 #[test]
 fn parser_breaks_if_unknown_type_in_argument() {
-
-    use crate::parser::schema_parser::parse_schema::parse_schema;
-    // In the User field organization,
-    // Company is an undefined schema type or enum
-    // Therefore, this should throw an error to notify the engineer
     let query = "
         type User {
             dp(id: User): String,
@@ -167,6 +162,28 @@ fn parser_breaks_if_unknown_type_in_argument() {
     let actual = parse_schema(query);
     assert!(actual.is_err());
 }
+
+#[test]
+fn parser_breaks_if_unknown_argument_in_type() {
+    let query = "
+        type User {
+            ProfilePic(String, String, DoesntExist)
+        }
+        ";
+    
+    let actual = parse_schema(query);
+    println!("actual = {:#?}", actual);
+    assert!(actual.is_err());
+}
+
+    #[test]
+    fn parser_break_if_single_field() {
+        let query = "
+            word()    
+            ";
+        let actual = parse_schema(query);
+        assert!(actual.is_err());
+    }
 
 // Arguments
 // Enum values (tuple and object)
