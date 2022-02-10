@@ -2,7 +2,7 @@ use std::{collections::HashMap};
 
 use shared::CastleError;
 
-use crate::{parser::schema_parser::types::{type_system::Type, schema_field::SchemaField, vec_type::VecType, option_type::OptionType}, ast::syntax_definitions::{schema_definition::SchemaDefinition, enum_definition::{EnumDataType}, argument::Argument}};
+use crate::{parser::schema_parser::types::{type_system::Type, schema_field::SchemaField, vec_type::VecType, option_type::OptionType}, ast::syntax_definitions::{schema_definition::SchemaDefinition, enum_definition::{EnumDataType}, argument::Argument, directive_definition::DirectiveDefinition}};
 
 
 /// It needs to check every type, enum etc that’s used is defined in the schema.
@@ -38,6 +38,7 @@ fn for_each_schema_type_check_field_type_is_valid(schema: &SchemaDefinition) -> 
     for (_schema_type_name, schema_type) in &schema.schema_types {
         for (_field_name, field) in &schema_type.fields {
             check_type_used_in_field_has_been_defined(schema, &field.type_)?;
+            check_directives_use_valid_types(schema, &field.directives);
         }
     }
     return Ok(())
@@ -105,4 +106,23 @@ fn check_enum_object_field_types_are_defined(schema: &SchemaDefinition, fields: 
         check_type_used_in_field_has_been_defined(schema, &field.type_)?;
     }
     return Ok(())
+}
+
+/// Checks args on directives are valid
+/// - For directive in directives
+/// - Match Some and None case
+///     - IF None, continue
+///     - If Some:
+///     - call check_arguments_or_tuples_are_defined
+///    - Return Ok(()) at bottom outside loop
+fn check_directives_use_valid_types(schema: &SchemaDefinition, directives: &Vec<DirectiveDefinition>) -> Result<(), CastleError> {
+    for directive in directives {
+        match &directive.arguments {
+            Some(arguments) => {
+                check_arguments_or_tuples_are_defined(schema, &arguments)?;
+            },
+            None => {}
+        }
+    }
+    return  Ok(())
 }
