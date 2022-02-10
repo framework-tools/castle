@@ -43,7 +43,6 @@ use crate::{resolvers::resolvers::{Resolver, generate_resolvers}, directives::di
 ///   - If no errors, return Ok(())
 /// 
 
-
 pub fn validate_schema_with_resolvers_and_directives(
     parsed_schema: &SchemaDefinition,
     resolvers: HashMap<Box<str>, Resolver>,
