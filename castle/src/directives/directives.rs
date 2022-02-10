@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use parser_and_schema::ast::syntax_definitions::fn_definition::FnDefinition;
+use parser_and_schema::ast::syntax_definitions::{fn_definition::FnDefinition, directive_definition::DirectiveDefinition};
 use shared::CastleError;
 
 pub struct Directive {

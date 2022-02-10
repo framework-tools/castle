@@ -1,11 +1,13 @@
 use std::{collections::HashMap, vec, string};
 
+use parser_and_schema::{parsers::schema_parser::{schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}, types::{type_system::Type, primitive_type::PrimitiveType, schema_type::SchemaType, schema_field::SchemaField, vec_type::VecType, option_type::OptionType}, parse_schema::parse_schema}, ast::syntax_definitions::{enum_definition::{EnumVariant, EnumDataType, EnumDefinition}, schema_definition::SchemaDefinition, argument::Argument, fn_definition::FnDefinition, directive_definition::DirectiveDefinition}};
+
 #[cfg(test)]
 #[test]
 fn can_parse_empty_query() {
     use std::collections::HashMap;
 
-    use crate::parser::schema_parser::parse_schema::parse_schema;
+    use parser_and_schema::parsers::schema_parser::parse_schema::parse_schema;
 
     let query = "";
     let expected = HashMap::new();
@@ -15,8 +17,6 @@ fn can_parse_empty_query() {
 
 #[test]
 fn can_parse_simple_type() {
-
-    use crate::parser::schema_parser::parse_schema::parse_schema;
 
     let query = "
         type User {
@@ -43,9 +43,6 @@ fn can_parse_simple_type() {
 
 #[test]
 fn can_parse_simple_type_more_fields_and_no_commas() {
-    use std::collections::HashMap;
-
-    use crate::parser::schema_parser::parse_schema::parse_schema;
 
     let query = "
         type User {
@@ -77,8 +74,6 @@ fn can_parse_simple_type_more_fields_and_no_commas() {
 #[test]
 fn can_parse_two_types() {
     use std::collections::HashMap;
-
-    use crate::parser::schema_parser::parse_schema::parse_schema;
 
     let query = "
         type User {
@@ -124,8 +119,6 @@ fn can_parse_two_types() {
 #[test]
 fn can_parse_two_types_with_vec_type() {
     use std::collections::HashMap;
-
-    use crate::parser::schema_parser::parse_schema::parse_schema;
 
     let query = "
         type User {
@@ -264,8 +257,6 @@ fn can_parse_two_enums_and_type_schema() {
 #[test]
 fn can_parse_enum_schema_with_values() {
     use std::collections::HashMap;
-
-    use crate::parser::schema_parser::parse_schema::parse_schema;
 
     let query = "
         type User {

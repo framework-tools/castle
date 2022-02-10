@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use parser_and_schema::ast::syntax_definitions::{schema_definition::SchemaDefinition, directive_definition::DirectiveDefinition};
 use shared::CastleError;
 
-use crate::resolvers::resolvers::Resolver;
+use crate::{resolvers::resolvers::{Resolver, generate_resolvers}, directives::directives::Directive};
 
 /// Cross-Validation
 ///  For Functions:
@@ -50,9 +50,16 @@ pub fn validate_schema_with_resolvers_and_directives(
     directives: HashMap<Box<str>, Directive>
 ) -> Result<(), CastleError> {
 
-    let resolvers: HashMap<Resolver> = generate_resolvers();
+    let resolvers: HashMap<Box<str>, Resolver> = generate_resolvers()?;
     valiate_schema_with_resolvers()?;
-    validate_schema_with_directives(?;
+    validate_schema_with_directives()?;
     return Ok(())
 }
 
+fn valiate_schema_with_resolvers() -> Result<(), CastleError> {
+    return Ok(())
+}
+
+fn validate_schema_with_directives() -> Result<(), CastleError> {
+    return Ok(())
+}

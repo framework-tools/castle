@@ -6,6 +6,7 @@ use crate::{ast::syntax_definitions::{want::Want}, tokenizer::{tokenizer::Tokeni
 
 use super::{parse_object_projection::parse_object_projection};
 
+#[derive(Debug)]
 pub struct ParsedQuery {
     pub wants: HashMap<Box<str>, Want>
 }

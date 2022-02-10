@@ -1,3 +1,4 @@
+use parser_and_schema::{parsers::schema_parser::{parse_schema::parse_schema, schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec}, types::{type_system::Type, primitive_type::PrimitiveType, schema_field::SchemaField, schema_type::SchemaType}}, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, schema_definition::SchemaDefinition}};
 use shared::CastleError;
 
 /// It needs to check every type, enum etc that’s used is defined in the schema.
@@ -14,8 +15,6 @@ use shared::CastleError;
 
 #[test]
 fn parser_breaks_if_unknown_schema_type_or_enum() {
-
-    use crate::parser::schema_parser::parse_schema::parse_schema;
     // In the User field organization,
     // Company is an undefined schema type or enum
     // Therefore, this should throw an error to notify the engineer
@@ -50,8 +49,6 @@ fn parser_breaks_if_unknown_schema_type_or_enum() {
 #[test]
 fn can_parse_defined_schema_type_as_type() {
     use std::collections::HashMap;
-
-    use crate::parser::schema_parser::parse_schema::parse_schema;
 
     let query = "
         type User {
@@ -100,8 +97,6 @@ fn can_parse_defined_schema_type_as_type() {
 #[test]
 fn can_parse_defined_schema_enum_as_type_for_field() {
     use std::collections::HashMap;
-
-    use crate::parser::schema_parser::parse_schema::parse_schema;
 
     let query = "
         type User {

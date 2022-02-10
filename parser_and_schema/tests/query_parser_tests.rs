@@ -1,29 +1,32 @@
 use std::hash::Hash;
 use std::collections::HashMap;
 
+use parser_and_schema::ast::syntax_definitions::argument::Argument;
+use parser_and_schema::ast::syntax_definitions::enum_definition::{EnumValue, EnumDataType};
+use parser_and_schema::ast::syntax_definitions::expressions::{PrimitiveValue, Expression};
+use parser_and_schema::ast::syntax_definitions::match_statement::{MatchArm, MatchStatement};
+use parser_and_schema::ast::syntax_definitions::want::Want;
+use parser_and_schema::parsers::query_parser::parse_query::parse_query;
 use shared::CastleError;
 
+pub fn insert_each_field_into_fields(vec_of_fields: Vec<(Box<str>, Want)>) -> HashMap<Box<str>, Want> {
+    let mut fields = HashMap::new();
+    for (field_name, field) in vec_of_fields {
+        fields.insert(field_name.clone(), field);
+    }
+    return fields
+}
 
-use crate::ast::syntax_definitions::enum_definition::EnumDataType;
-use crate::ast::syntax_definitions::enum_definition::EnumValue;
-use crate::ast::syntax_definitions::expressions::Expression;
-use crate::ast::syntax_definitions::expressions::PrimitiveValue;
-use crate::ast::syntax_definitions::argument::Argument;
-use crate::ast::syntax_definitions::match_statement::MatchArm;
-use crate::ast::syntax_definitions::match_statement::MatchStatement;
-use crate::ast::syntax_definitions::want::SingleField;
-use crate::parsers::query_parser::parse_query::parse_query;
-use crate::ast::syntax_definitions::want::Want;
-use crate::ast::syntax_definitions::want::ObjectProjection;
-use crate::parsers::query_parser::query_tests_utils::insert_each_field_into_fields;
 
 #[cfg(test)]
 #[test]
 fn can_parse_empty_query() {
+    use parser_and_schema::parsers::query_parser::parse_query::parse_query;
+
     let query = "";
     let expected = HashMap::new();
     let actual = parse_query(query).unwrap();
-    assert_eq!(expected, actual);
+assert_eq!(expected, actual.wants);
 }
 
 #[test]
@@ -34,7 +37,7 @@ fn can_parse_single_field() -> Result<(), CastleError> {
     expected.insert("first_name".into(), Want::new_single_field("first_name".into(), None, None));
 
     let actual = parse_query(query)?;
-    assert_eq!(expected, actual);
+assert_eq!(expected, actual.wants);
     return Ok(())
 }
 
@@ -48,7 +51,7 @@ fn can_parse_two_fields() -> Result<(), CastleError> {
     ]);
 
     let actual = parse_query(query)?;
-    assert_eq!(expected, actual);
+assert_eq!(expected, actual.wants);
     return Ok(())
 }
 
@@ -65,7 +68,7 @@ fn can_parse_two_fields_different_lines() -> Result<(), CastleError> {
     ]);
 
     let actual = parse_query(query)?;
-    assert_eq!(expected, actual);
+    assert_eq!(expected, actual.wants);
     return Ok(())
 }
 
@@ -86,7 +89,7 @@ fn can_parse_four_fields_different_lines() -> Result<(), CastleError> {
     ]);
 
     let actual = parse_query(query)?;
-    assert_eq!(expected, actual);
+    assert_eq!(expected, actual.wants);
     Ok(())
 }
 
@@ -106,7 +109,7 @@ fn can_parse_object_projection_with_single_field() -> Result<(), CastleError> {
     
     let actual = parse_query(query)?;
 
-    assert_eq!(expected, actual);
+    assert_eq!(expected, actual.wants);
     return Ok(())
 }
 
@@ -127,7 +130,7 @@ fn can_parse_complex_object_projection_with_two_fields() {
         ]);
 
         let actual = parse_query(query).unwrap();
-        assert_eq!(expected, actual);
+        assert_eq!(expected, actual.wants);
 }
 
 #[test]
@@ -149,7 +152,7 @@ fn can_parse_complex_object_projection_with_three_fields() {
         ]);
 
         let actual = parse_query(query).unwrap();
-        assert_eq!(expected, actual);
+        assert_eq!(expected, actual.wants);
 }
 
 #[test]
@@ -171,7 +174,7 @@ fn can_parse_object_and_single_field() {
         ]);
 
         let actual = parse_query(query).unwrap();
-        assert_eq!(expected, actual);
+        assert_eq!(expected, actual.wants);
 }
 
 #[test]
@@ -204,7 +207,7 @@ fn can_parse_two_objects_and_two_fields() {
         ]);
 
         let actual = parse_query(query).unwrap();
-        assert_eq!(expected, actual);
+        assert_eq!(expected, actual.wants);
 }
 
 #[test]
@@ -232,7 +235,7 @@ fn can_parse_object_projection_with_argument() {
         ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None)),
     ]);
     let actual = parse_query(query).unwrap();
-    assert_eq!(expected, actual);
+    assert_eq!(expected, actual.wants);
 }
 
 #[test]
@@ -267,7 +270,7 @@ fn can_parse_object_projection_with_multiple_arguments() {
     ]);
 
     let actual = parse_query(query).unwrap();
-    assert_eq!(expected, actual);
+    assert_eq!(expected, actual.wants);
 }
 
 #[test]
@@ -299,7 +302,7 @@ fn can_parse_object_projection_with_inner_object() {
         ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None)),
     ]);
     let actual = parse_query(query).unwrap();
-    assert_eq!(expected, actual);
+    assert_eq!(expected, actual.wants);
 }
 #[test]
 fn can_parse_object_projection_with_nested_object() {
@@ -332,7 +335,7 @@ fn can_parse_object_projection_with_nested_object() {
         ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None)),
     ]);
     let actual = parse_query(query).unwrap();
-    assert_eq!(expected, actual);
+    assert_eq!(expected, actual.wants);
 }
 
 #[test]
@@ -396,7 +399,7 @@ fn can_parse_object_projection_with_match() {
     ]);
     let actual = parse_query(query).unwrap();
     
-    assert_eq!(expected, actual);
+    assert_eq!(expected, actual.wants);
 }
 
 #[test]
@@ -476,7 +479,7 @@ fn can_parse_object_projection_with_match_inside_match() {
     ]);
     let actual = parse_query(query).unwrap();
     println!("actual {:#?}", actual);
-    assert_eq!(expected, actual);
+    assert_eq!(expected, actual.wants);
 }
 
 #[test]
@@ -591,7 +594,7 @@ fn trying_to_break_test_v4() {
         ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None)),
     ]);
     let actual = parse_query(query).unwrap();
-    assert_eq!(expected, actual);
+    assert_eq!(expected, actual.wants);
 }
 
 #[test]
