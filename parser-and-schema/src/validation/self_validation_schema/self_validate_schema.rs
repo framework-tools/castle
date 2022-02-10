@@ -2,7 +2,7 @@ use std::{collections::HashMap};
 
 use shared::CastleError;
 
-use crate::{parser::schema_parser::types::{type_system::Type, schema_field::SchemaField, vec_type::VecType, option_type::OptionType}, ast::syntax_definitions::{schema_definition::SchemaDefinition, enum_definition::{EnumDataType}, argument::Argument, directive_definition::DirectiveDefinition}};
+use crate::{parser::schema_parser::types::{type_system::Type, schema_field::SchemaField, vec_type::VecType, option_type::OptionType}, ast::syntax_definitions::{schema_definition::SchemaDefinition, enum_definition::{EnumDataType}, argument::{Argument, self}, fn_definition::FnDefinition, directive_definition::DirectiveDefinition}};
 
 
 /// It needs to check every type, enum etc that’s used is defined in the schema.
@@ -20,7 +20,7 @@ use crate::{parser::schema_parser::types::{type_system::Type, schema_field::Sche
 pub fn self_validate_schema(schema: &SchemaDefinition) -> Result<(), CastleError>{
     for_each_schema_type_check_field_type_is_valid(schema)?;
     for_each_enum_check_all_types_in_their_values_are_valid(schema)?;
-    //for_each_fn_check_arguments_and_return_types_are_valid(schema)?;
+    for_each_fn_check_arguments_and_return_types_are_valid(schema)?;
     return Ok(())
 }
 
@@ -93,6 +93,9 @@ fn for_each_enum_check_all_types_in_their_values_are_valid(schema: &SchemaDefini
 fn check_arguments_or_tuples_are_defined(schema: &SchemaDefinition, arguments_or_tuples: &Vec<Argument>) -> Result<(), CastleError> {
     for arg_or_tuple in arguments_or_tuples {
         match arg_or_tuple {
+            Argument::Type(Type::SchemaTypeOrEnum(type_to_check)) => {
+                check_type_or_enum_exists(&type_to_check, schema)?;
+            },
             Argument::Type(type_) => check_type_used_in_field_has_been_defined(schema, &type_)?,
             Argument::IdentifierAndType(_, type_) => check_type_used_in_field_has_been_defined(schema, &type_)?,
             _ => {}
@@ -125,4 +128,29 @@ fn check_directives_use_valid_types(schema: &SchemaDefinition, directives: &Vec<
         }
     }
     return  Ok(())
+}
+/// Checks all functions arguments and return types have been defined
+/// Takes in parsed schema
+/// - For each function in schema.functions
+///    - Match function.arguments
+///    - IF none, continue
+///    - Else, follow below instructions
+///    - Checks all arguments are valid: Call check_arguments_or_tuples_are_defined() - parse in function.args
+///    - Checks return type is valid: Call check_type_or_enum_exists(&schema_type_or_enum_name, schema)?; - parse in function.return_type
+fn for_each_fn_check_arguments_and_return_types_are_valid(schema: &SchemaDefinition) -> Result<(), CastleError> {
+    for (_fn_name, fn_definition) in &schema.functions {
+        match &fn_definition.args {
+            Some(arguments) => {
+                check_arguments_or_tuples_are_defined(schema, arguments)?;
+            },
+            None => {}
+        };
+        match &fn_definition.return_type {
+            Some(Type::SchemaTypeOrEnum(type_to_check)) => {
+                check_type_or_enum_exists(&type_to_check, schema)?;
+            },
+            _ => {}
+        };
+    }
+    return Ok(())
 }
