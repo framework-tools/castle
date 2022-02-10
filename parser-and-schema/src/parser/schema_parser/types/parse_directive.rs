@@ -44,7 +44,7 @@ where R: Read{
         TokenKind::Identifier(Identifier {name, arguments}) => {
             Ok(DirectiveDefinition::new(name, arguments))
         },
-        _ => Err(CastleError::UndefinedSchemaType("Expected identifier for directive".into()))
+        _ => Err(CastleError::UndefinedTypeOrEnumInSchema("Expected identifier for directive".into()))
     }
 }
 

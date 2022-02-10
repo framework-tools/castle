@@ -1,7 +1,5 @@
 use std::collections::HashMap;
 
-use crate::parser::schema_parser::types::type_system::Type;
-
 use super::fn_definition::FnDefinition;
 
 
