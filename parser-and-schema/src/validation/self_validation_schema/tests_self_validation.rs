@@ -83,9 +83,6 @@ fn can_parse_defined_schema_type_as_type() {
 fn parser_breaks_if_unknown_enum_type() {
 
     use crate::parser::schema_parser::parse_schema::parse_schema;
-    // In the User field organization,
-    // Company is an undefined schema type or enum
-    // Therefore, this should throw an error to notify the engineer
     let query = "
         type User {
             organization: Company,
@@ -200,23 +197,20 @@ fn can_not_parse_enum_with_unkown_tuple_and_object(){
 }
 
 #[test]
-fn can_not_parse_vec_with_unkown_value(){
+fn breaks_if_function_has_argument_undefined(){
     let schema = "
-    type Organization {
-        id: uuid,
-        industries: Vec<DoesntExist>,
-    }";
+        fn do_nothing(id: DoesntExist, name: String) -> User
+    ";
 
     let actual = parse_schema(schema);
     assert!(actual.is_err());
 }
 
 #[test]
-fn can_not_parse_option_with_unkown_value(){
+fn breaks_if_function_has_result_undefined(){
     let schema = "
-    type User {
-        profile_pic: Option<DoesntExist>,
-    }";
+        fn do_nothing(id: String, name: String) -> DoesntExist
+    ";
 
     let actual = parse_schema(schema);
     assert!(actual.is_err());
