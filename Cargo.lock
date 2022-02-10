@@ -23,6 +23,11 @@ checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 [[package]]
 name = "castle"
 version = "0.1.0"
+dependencies = [
+ "parser_and_schema",
+ "serde",
+ "shared",
+]
 
 [[package]]
 name = "cfg-if"
@@ -42,7 +47,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "input-cursor"
+name = "input_cursor"
 version = "0.1.0"
 dependencies = [
  "serde",
@@ -64,21 +69,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "parser_and_schema"
+version = "0.1.0"
+dependencies = [
+ "input_cursor",
+ "serde",
+ "shared",
+]
+
+[[package]]
 name = "proc-macro2"
 version = "1.0.36"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c7342d5883fbccae1cc37a2353b09c87c9b0f3afd73f5fb9bba687a1f733b029"
 dependencies = [
  "unicode-xid",
-]
-
-[[package]]
-name = "query-parser"
-version = "0.1.0"
-dependencies = [
- "input-cursor",
- "serde",
- "shared",
 ]
 
 [[package]]
@@ -136,7 +141,7 @@ name = "shared"
 version = "0.1.0"
 dependencies = [
  "byte",
- "input-cursor",
+ "input_cursor",
  "rmp-serde",
  "serde",
  "uuid",
