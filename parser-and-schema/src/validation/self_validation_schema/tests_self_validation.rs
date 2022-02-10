@@ -165,11 +165,6 @@ fn parser_breaks_if_unknown_type_in_argument() {
     assert!(actual.is_err());
 }
 
-// Vec Types
-// Option Types
-// Function arguments
-// Directive arguments
-
 #[test]
 fn can_parse_enum_with_tuple(){
     let schema = "
@@ -211,6 +206,17 @@ fn breaks_if_function_has_argument_undefined(){
 fn breaks_if_function_has_result_undefined(){
     let schema = "
         fn do_nothing(id: String, name: String) -> DoesntExist
+    ";
+
+    let actual = parse_schema(schema);
+    assert!(actual.is_err());
+}
+
+fn breaks_if_directive_has_argument_undefined(){
+    let schema = "
+        type meow {
+            is_admin: bool @is_admin(role: String),
+        }
     ";
 
     let actual = parse_schema(schema);
