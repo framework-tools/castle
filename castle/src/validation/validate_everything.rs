@@ -11,7 +11,7 @@ use super::self_validation_schema::self_validate_schema::self_validate_schema;
 /// - Cross validate query and schema
 ///    - query resolvers match the resolvers defined in the schema
 
-pub fn validate_everything(schema: &str, query: &str) -> Result<(), CastleError> {
+pub fn validate_everything(schema: &str, query: &str, resolv) -> Result<(), CastleError> {
     let parsed_schema = parse_schema(schema)?;
     let parsed_query = parse_query(query)?;
     self_validate_schema(parsed_schema)?;

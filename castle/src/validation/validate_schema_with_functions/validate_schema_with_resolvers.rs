@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use parser_and_schema::ast::syntax_definitions::{schema_definition::SchemaDefinition, directive_definition::DirectiveDefinition};
 use shared::CastleError;
 
 use crate::resolvers::resolvers::Resolver;
@@ -43,9 +44,15 @@ use crate::resolvers::resolvers::Resolver;
 /// 
 
 
-pub fn validate_schema_with_resolvers_and_directives() -> Result<(), CastleError> {
+pub fn validate_schema_with_resolvers_and_directives(
+    parsed_schema: &SchemaDefinition,
+    resolvers: HashMap<Box<str>, Resolver>,
+    directives: HashMap<Box<str>, Directive>
+) -> Result<(), CastleError> {
+
     let resolvers: HashMap<Resolver> = generate_resolvers();
     valiate_schema_with_resolvers()?;
     validate_schema_with_directives(?;
     return Ok(())
 }
+
