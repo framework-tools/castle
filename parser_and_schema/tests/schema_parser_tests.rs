@@ -1,6 +1,5 @@
 use std::{collections::HashMap, vec, string};
 
-
 #[cfg(test)]
 #[test]
 fn can_parse_empty_query() {

@@ -6,19 +6,23 @@ use crate::{ast::syntax_definitions::{want::Want}, tokenizer::{tokenizer::Tokeni
 
 use super::{parse_object_projection::parse_object_projection};
 
+pub struct ParsedQuery {
+    pub wants: HashMap<Box<str>, Want>
+}
 
 /// Parses a query into a set of wants.
 /// - get bytes from query string
 /// - convert bytes into tokens
 /// - convert tokens into a hashset of wants
 /// - return hashset of wants(parsed query)
-pub fn parse_query(query: &str) -> Result<HashMap<Box<str>, Want>, CastleError> {
+pub fn parse_query(query: &str) -> Result<ParsedQuery, CastleError> {
     let bytes = query.as_bytes();
     let mut tokenizer = Tokenizer::new(bytes);
 
-    let statements = parse_query_tokens (&mut tokenizer)?;
-    // check_end_of_file(&mut tokenizer)?;
-    Ok(statements)
+    let wants = parse_query_tokens (&mut tokenizer)?;
+    // check_end_of_file(&mut tokenizer)?; - need to re-implement this correcly
+    let parsed_query = ParsedQuery { wants };
+    return Ok(parsed_query)
 }
 
 /// takes in tokens and returns a hashset of wants (parsed query)

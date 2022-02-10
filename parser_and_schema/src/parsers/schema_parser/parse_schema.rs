@@ -2,7 +2,7 @@
 
 use shared::CastleError;
 
-use crate::{tokenizer::tokenizer::Tokenizer, ast::syntax_definitions::schema_definition::SchemaDefinition, validation::self_validation_schema::self_validate_schema::self_validate_schema};
+use crate::{tokenizer::tokenizer::Tokenizer, ast::syntax_definitions::schema_definition::SchemaDefinition};
 
 use super::{parse_schema_type::check_token_and_parse_schema_or_break};
 
