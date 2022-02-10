@@ -118,6 +118,7 @@ fn can_parse_defined_schema_enum_as_type_for_field() {
         }";
 
     let user_fields = create_type_fields_for_tests(vec![
+        ("role".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
         ("organization_type".into(), Type::SchemaTypeOrEnum("OrganizationType".into()), Vec::new()),
     ]);
     
@@ -188,7 +189,7 @@ fn err_if_parses_enum_with_unknown_object_type(){
 #[test]
 fn breaks_if_function_has_argument_undefined(){
     let schema = "
-        fn do_nothing(id: DoesntExist, name: String) -> User
+        fn do_nothing(name: String, id: DoesntExist) -> User
     ";
 
     let actual = parse_schema(schema);
