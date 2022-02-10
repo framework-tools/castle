@@ -100,6 +100,7 @@ fn check_arguments_or_tuples_are_defined(schema: &SchemaDefinition, tuple_types:
         }
     }
     Ok(())
+}
 
 fn check_enum_object_field_types_are_defined(schema: &SchemaDefinition, fields: &HashMap<Box<str>, SchemaField>) -> Result<(), CastleError> {
     Ok(for (_, field) in fields {
