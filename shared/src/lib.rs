@@ -15,6 +15,7 @@ pub enum CastleError {
     Unimplemented(Box<str>),
     Schema(Box<str>, Span),
     UndefinedSchemaType(Box<str>),
+    UndefinedEnumType(Box<str>),
     MatchError(Box<str>),
 }
 
@@ -55,6 +56,7 @@ impl fmt::Display for CastleError {
             Self::Schema(msg, span) => write!(f, "Schema error: {} at {}", msg, span),
             Self::UndefinedSchemaType(msg) => write!(f, "Undefined schema type: {}", msg),
             Self::MatchError(msg) => write!(f, "Match error: {}", msg),
+            Self::UndefinedEnumType(msg) => write!(f, "Undefined enum type: {}", msg),
         }
     }
 }
@@ -75,6 +77,7 @@ impl ExtendedErrorDisplay for CastleError {
             Self::Schema(msg, span) => format!("Schema error: {} at {}", msg, span),
             Self::UndefinedSchemaType(msg) => format!("Undefined schema type: {}", msg),
             Self::MatchError(msg) => format!("Match error: {}", msg),
+            Self::UndefinedEnumType(msg) => format!("Undefined enum type: {}", msg),
         }
     }
 }

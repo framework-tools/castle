@@ -2,9 +2,9 @@
 
 use shared::CastleError;
 
-use crate::{tokenizer::tokenizer::Tokenizer, ast::syntax_definitions::schema_definition::SchemaDefinition};
+use crate::{tokenizer::tokenizer::Tokenizer, ast::syntax_definitions::schema_definition::SchemaDefinition, validation::self_validation_schema::self_validate_schema::self_validate_schema};
 
-use super::{parse_schema_type::check_token_and_parse_schema_or_break, handle_schema_errors::check_for_undefined_schema_types};
+use super::{parse_schema_type::check_token_and_parse_schema_or_break};
 
 /// takes in schema as string and returns parsed schema as hashmap
 ///     - creates tokenizer
@@ -23,6 +23,7 @@ pub fn parse_schema(schema: &str) -> Result<SchemaDefinition, CastleError> {
         let at_end_of_schema = check_token_and_parse_schema_or_break(&mut tokenizer, &mut parsed_schema)?;
         if at_end_of_schema { break; }
     }
-    check_for_undefined_schema_types(&parsed_schema.schema_types)?;
+    println!("actual: {:#?}", parsed_schema.schema_types);
+    self_validate_schema(&parsed_schema)?;
     return Ok(parsed_schema)
 }

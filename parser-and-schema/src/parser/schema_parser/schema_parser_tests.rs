@@ -127,105 +127,6 @@ fn can_parse_two_types() {
     assert_eq!(expected, actual.schema_types);
 }
 
-#[test]
-fn can_parse_two_types_with_defined_value() {
-    use std::collections::HashMap;
-
-    use crate::parser::schema_parser::parse_schema::parse_schema;
-
-    let query = "
-        type User {
-            id: uuid,
-            name: String,
-            age: Int,
-            is_admin: bool,
-            location: String,
-            log_in_count: Int
-            organization: Organization
-        }
-        
-        type Organization {
-            id: uuid,
-            name: String,
-            industry: String,
-        }";
-
-    let user_fields = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
-        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
-        ("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), Vec::new()),
-        ("location".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
-        ("log_in_count".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
-        ("organization".into(), Type::SchemaTypeOrEnum("Organization".into()), Vec::new()),
-    ]);
-    
-    let organization_fields: HashMap<Box<str>, SchemaField> = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
-        ("industry".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
-    ]);
-
-    let expected = create_schema_types_for_test(vec![
-        ("User".into(), SchemaType::new("User".into(), user_fields)),
-        ("Organization".into(), SchemaType::new("Organization".into(), organization_fields)),
-    ]);
-    
-    let actual = parse_schema(query).unwrap();
-    assert_eq!(expected, actual.schema_types);
-}
-
-
-#[test]
-fn parser_breaks_if_unknown_schema_type() {
-    use std::collections::HashMap;
-
-    use crate::parser::schema_parser::parse_schema::parse_schema;
-    // In the User field organization,
-    // Company is an undefined schema type
-    // Therefore, this should throw an error to notify the engineer
-    let query = "
-        type User {
-            organization: Company,
-            id: uuid,
-            name: String,
-            age: Int,
-            is_admin: bool,
-            location: String,
-            log_in_count: Int,
-        }
-        
-        type Organization {
-            id: uuid,
-            name: String,
-            industry: String,
-        }";
-
-    let user_fields = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
-        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
-        ("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), Vec::new()),
-        ("location".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
-        ("log_in_count".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
-        ("organization".into(), Type::SchemaTypeOrEnum("Company".into()), Vec::new()),
-    ]);
-    
-    let organization_fields = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
-        ("industry".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
-    ]);
-
-    let mut expected = create_schema_types_for_test(vec![
-        ("User".into(), SchemaType::new("User".into(), user_fields)),
-        ("Organization".into(), SchemaType::new("Organization".into(), organization_fields)),
-    ]);
-    
-    let actual = parse_schema(query);
-    assert!(actual.is_err());
-}
-
 
 #[test]
 fn can_parse_two_types_with_vec_type() {
@@ -250,7 +151,7 @@ fn can_parse_two_types_with_vec_type() {
             users: Vec<User>
         }";
 
-    let mut user_fields = create_type_fields_for_tests(vec![
+    let user_fields = create_type_fields_for_tests(vec![
         ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
         ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
         ("age".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
@@ -259,13 +160,13 @@ fn can_parse_two_types_with_vec_type() {
         ("log_in_count".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
     ]);
     
-    let mut organization_fields: HashMap<Box<str>, SchemaField> = create_type_fields_for_tests(vec![
+    let organization_fields: HashMap<Box<str>, SchemaField> = create_type_fields_for_tests(vec![
         ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
         ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
         ("industries".into(), Type::VecType(VecType {inner_type: Type::PrimitiveType(PrimitiveType::String).into()}), Vec::new()),
         ("users".into(), Type::VecType(VecType {inner_type: Type::SchemaTypeOrEnum("User".into()).into()}), Vec::new())
     ]);
-    let mut expected = create_schema_types_for_test(vec![
+    let expected = create_schema_types_for_test(vec![
         ("User".into(), SchemaType::new("User".into(), user_fields)),
         ("Organization".into(), SchemaType::new("Organization".into(), organization_fields)),
     ]);
@@ -412,7 +313,7 @@ fn can_parse_enum_schema_with_values() {
         ("industries".into(), Type::VecType(VecType {inner_type: Type::PrimitiveType(PrimitiveType::String).into()}), Vec::new()),
         ("users".into(), Type::VecType(VecType {inner_type: Type::SchemaTypeOrEnum("User".into()).into()}), Vec::new())
     ]);
-    let mut expected_types = create_schema_types_for_test(vec![
+    let expected_types = create_schema_types_for_test(vec![
         ("User".into(), SchemaType::new("User".into(), user_fields)),
         ("Organization".into(), SchemaType::new("Organization".into(), organization_fields)),
     ]);
