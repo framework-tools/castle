@@ -149,11 +149,6 @@ fn can_parse_defined_schema_enum_as_type_for_field() {
 
 #[test]
 fn parser_breaks_if_unknown_type_in_argument() {
-
-    use crate::parser::schema_parser::parse_schema::parse_schema;
-    // In the User field organization,
-    // Company is an undefined schema type or enum
-    // Therefore, this should throw an error to notify the engineer
     let query = "
         type User {
             dp(id: User): String,
@@ -166,7 +161,36 @@ fn parser_breaks_if_unknown_type_in_argument() {
 }
 
 #[test]
-fn can_parse_enum_with_tuple(){
+fn parser_breaks_if_unknown_argument_in_type() {
+    let query = "
+        type User {
+            ProfilePic(String, String, DoesntExist)
+        }
+        ";
+    
+    let actual = parse_schema(query);
+    println!("actual = {:#?}", actual);
+    assert!(actual.is_err());
+}
+
+    #[test]
+    fn parser_break_if_single_field() {
+        let query = "
+            word()    
+            ";
+        let actual = parse_schema(query);
+        assert!(actual.is_err());
+    }
+
+// Arguments
+// Enum values (tuple and object)
+// Vec Types
+// Option Types
+// Function arguments
+// Directive arguments
+
+#[test]
+fn can_not_parse_enum_with_unkown_tuple(){
     let schema = "
         enum FrameworkTypes {
             SomeOtherType(DoesntExist),
@@ -177,10 +201,9 @@ fn can_parse_enum_with_tuple(){
 }
 
 #[test]
-fn can_parse_enum_with_tuple_and_object(){
+fn can_not_parse_enum_with_unkown_tuple_and_object(){
     let schema = "
         enum FrameworkTypes {
-            SomeOtherType(DoesntExist),
             User {
                 id: uuid,
                 name: DoesntExist,
@@ -211,6 +234,7 @@ fn breaks_if_function_has_result_undefined(){
     let actual = parse_schema(schema);
     assert!(actual.is_err());
 }
+<<<<<<< HEAD
 
 fn breaks_if_directive_has_argument_undefined(){
     let schema = "
@@ -222,3 +246,5 @@ fn breaks_if_directive_has_argument_undefined(){
     let actual = parse_schema(schema);
     assert!(actual.is_err());
 }
+=======
+>>>>>>> d7328352351f69efc59ddbaff3b54ca1cdf36927
