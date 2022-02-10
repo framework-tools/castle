@@ -23,24 +23,7 @@ use crate::{resolvers::resolvers::{Resolver, generate_resolvers}, directives::di
 /// - Every function in schema has a resolver
 /// - Every fields' directives have a resolver
 /// 
-/// Steps For valiate_schema_with_resolvers():
-/// - Generate resolvers
-/// - For each fn in schema.functions
-///     - Check if fn has a resolver by using the identifier of the fn
-///     - If hashmap returns None for the identifier, throw error
-///     - Else, unwrap the resolver and continue
-///     - Check that the resolver's args match the fn's args
-///     - If not, throw error
-///     - Check that the resolver's return type is equal to the fn's return type
 /// 
-/// Steps For validate_schema_with_directives():    
-/// - For each field in schema.fields
-///    - Check if field has a directive by using the identifier of the field
-///   - If hashmap returns None for the identifier, throw error
-///   - Else, unwrap the directive and continue
-///   - Check that both directives arguments match
-///   - Probably need to check return type but need to clarify this with Bert
-///   - If no errors, return Ok(())
 /// 
 
 pub fn validate_schema_with_resolvers_and_directives(
@@ -48,17 +31,43 @@ pub fn validate_schema_with_resolvers_and_directives(
     resolvers: HashMap<Box<str>, Resolver>,
     directives: HashMap<Box<str>, Directive>
 ) -> Result<(), CastleError> {
-
-    let resolvers: HashMap<Box<str>, Resolver> = generate_resolvers()?;
-    valiate_schema_with_resolvers()?;
+    valiate_schema_with_resolvers(resolvers, parsed_schema)?;
     validate_schema_with_directives()?;
     return Ok(())
 }
 
-fn valiate_schema_with_resolvers() -> Result<(), CastleError> {
+/// Steps For valiate_schema_with_resolvers():
+/// - Generate resolvers
+/// - For each fn in schema.functions
+///     - Check if fn has a resolver by using the identifier of the fn
+///     - If hashmap returns None for the identifier, throw error
+///     - Else, unwrap the resolver and continue
+///     - For the resolver, check the fn definition in schema & fn definition in resolvers is identical
+///     - Else throw error
+pub fn valiate_schema_with_resolvers(resolvers: HashMap<Box<str>, Resolver>, parsed_schema: &SchemaDefinition ) -> Result<(), CastleError> {
+    for resolver_in_schema in parsed_schema.functions.values() {
+        let resolver = resolvers.get(&resolver_in_schema.name);
+        if resolver.is_none() {
+            return Err(CastleError::AbruptEOF("Resolver not found for function".into()))
+        } else {
+            let resolver = resolver.unwrap();
+            if &resolver.resolver_definition != resolver_in_schema {
+                return Err(CastleError::AbruptEOF("Resolver definition does not match function definition".into()))
+            }
+        }
+    }
+    
     return Ok(())
 }
 
-fn validate_schema_with_directives() -> Result<(), CastleError> {
+/// Steps For validate_schema_with_directives():    
+/// - For each field in schema.fields
+///    - Check if field has a directive by using the identifier of the field
+///   - If hashmap returns None for the identifier, throw error
+///   - Else, unwrap the directive and continue
+///     - For the directives, check the fn definition in schema & directive definition in resolvers is identical
+///     - Else throw error
+///   - If no errors, return Ok(())
+pub fn validate_schema_with_directives() -> Result<(), CastleError> {
     return Ok(())
 }

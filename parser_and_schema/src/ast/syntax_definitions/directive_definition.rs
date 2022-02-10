@@ -1,13 +1,12 @@
 
 use crate::parsers::schema_parser::types::type_system::Type;
 
-use super::argument::{Argument};
+use super::{argument::{Argument}, fn_definition::FnDefinition};
 
 
 #[derive(Debug, PartialEq)]
 pub struct DirectiveDefinition {
-    pub name: Box<str>,
-    pub arguments: Option<Vec<Argument>>
+    pub function: FnDefinition,
 }
 
 impl DirectiveDefinition {

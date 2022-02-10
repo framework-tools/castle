@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use parser_and_schema::ast::syntax_definitions::fn_definition::FnDefinition;
 use shared::CastleError;
 
+#[derive(Debug, PartialEq)]
 pub struct Resolver {
     pub resolver_definition: FnDefinition,
     // unsure about this field currently
