@@ -53,9 +53,9 @@ fn for_each_schema_type_check_field_type_is_valid(schema: &SchemaDefinition) -> 
 ///     - Else if no errors found, return None
 fn check_type_used_in_field_has_been_defined(schema: &SchemaDefinition, field_type: &Type) -> Result<(), CastleError> {
     match field_type {
-        Type::SchemaTypeOrEnum(schema_type_or_enum_name) => {
-            check_type_or_enum_exists(&schema_type_or_enum_name, schema)?;
-        },
+        Type::SchemaTypeOrEnum(schema_type_or_enum_name) => check_type_or_enum_exists(&schema_type_or_enum_name, schema)?,
+        Type::VecType(VecType { inner_type }) => check_type_used_in_field_has_been_defined(schema, inner_type)?,
+        Type::OptionType(OptionType { inner_type }) => check_type_used_in_field_has_been_defined(schema, inner_type)?,
         _ => {}
     }
     return Ok(())
@@ -95,6 +95,8 @@ fn check_arguments_or_tuples_are_defined(schema: &SchemaDefinition, arguments_or
             Argument::Type(Type::SchemaTypeOrEnum(type_to_check)) => {
                 check_type_or_enum_exists(&type_to_check, schema)?;
             },
+            Argument::Type(type_) => check_type_used_in_field_has_been_defined(schema, &type_)?,
+            Argument::IdentifierAndType(_, type_) => check_type_used_in_field_has_been_defined(schema, &type_)?,
             _ => {}
         }
     }
@@ -103,12 +105,7 @@ fn check_arguments_or_tuples_are_defined(schema: &SchemaDefinition, arguments_or
 
 fn check_enum_object_field_types_are_defined(schema: &SchemaDefinition, fields: &HashMap<Box<str>, SchemaField>) -> Result<(), CastleError> {
     for (_field_name, field) in fields {
-        match &field.type_ {
-            Type::SchemaTypeOrEnum(type_to_check) => {
-                check_type_or_enum_exists(&type_to_check, schema)?;
-            },
-            _ => { }
-        }
+        check_type_used_in_field_has_been_defined(schema, &field.type_)?;
     }
     return Ok(())
 }
