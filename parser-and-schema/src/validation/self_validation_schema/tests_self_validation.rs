@@ -83,9 +83,6 @@ fn can_parse_defined_schema_type_as_type() {
 fn parser_breaks_if_unknown_enum_type() {
 
     use crate::parser::schema_parser::parse_schema::parse_schema;
-    // In the User field organization,
-    // Company is an undefined schema type or enum
-    // Therefore, this should throw an error to notify the engineer
     let query = "
         type User {
             organization: Company,
@@ -192,12 +189,48 @@ fn parser_breaks_if_unknown_argument_in_type() {
 // Function arguments
 // Directive arguments
 
-//enum FrameworkTypes {
-//     User {
-//         id: uuid,
-//         name: DoesntExist,
-//         age: Int,
-//     },
-//     SomeOtherType(DoesntExist),
-// }
-// "
+#[test]
+fn can_not_parse_enum_with_unkown_tuple(){
+    let schema = "
+        enum FrameworkTypes {
+            SomeOtherType(DoesntExist),
+        }
+    ";
+    let actual = parse_schema(schema);
+    assert!(actual.is_err());
+}
+
+#[test]
+fn can_not_parse_enum_with_unkown_tuple_and_object(){
+    let schema = "
+        enum FrameworkTypes {
+            User {
+                id: uuid,
+                name: DoesntExist,
+                age: Int,
+            },
+        }
+    ";
+    let actual = parse_schema(schema);
+    assert!(actual.is_err());
+}
+
+#[test]
+fn breaks_if_function_has_argument_undefined(){
+    let schema = "
+        fn do_nothing(id: DoesntExist, name: String) -> User
+    ";
+
+    let actual = parse_schema(schema);
+    assert!(actual.is_err());
+}
+
+#[test]
+fn breaks_if_function_has_result_undefined(){
+    let schema = "
+        fn do_nothing(id: String, name: String) -> DoesntExist
+    ";
+
+    let actual = parse_schema(schema);
+    assert!(actual.is_err());
+}
