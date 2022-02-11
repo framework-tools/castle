@@ -6,7 +6,7 @@ use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::get_next_token_an
 
 pub fn parse_function<R>(tokenizer: &mut Tokenizer<R>) -> Result<FnDefinition, CastleError>
 where R: Read {
-    let mut function_definition = FnDefinition::new();
+    let mut function_definition = FnDefinition::initalise();
 
     let token = get_next_token_and_unwrap(tokenizer)?;
     match token.kind {
@@ -36,7 +36,6 @@ fn get_fn_return_type<R>(function_definition: &mut FnDefinition, tokenizer: &mut
     match token.kind {
         TokenKind::Punctuator(Punctuator::Sub) => { // dash from arrow syntax
             function_definition.return_type = Some(parse_function_return_type(tokenizer)?);
-            function_definition.body = parse_block(tokenizer)?;
         }
         _ => return Err(CastleError::Schema(format!("Expected sub operator, found: {:?}", token.kind).into(), token.span))
     }

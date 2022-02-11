@@ -9,6 +9,14 @@ pub struct Resolver {
     // unsure about this field currently
     // pub function: fn(args: &HashMap<String, String>) -> Result<String, CastleError>,
 }
+impl Resolver {
+    pub fn new(resolver_definition: FnDefinition) -> Self {
+        Self {
+            resolver_definition,
+            // function: None,
+        }
+    }
+}
 
 pub fn generate_resolvers() -> Result<HashMap<Box<str>, Resolver>, CastleError>{
     let mut resolvers = HashMap::new();

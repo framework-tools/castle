@@ -406,7 +406,7 @@ fn can_parse_function_with_args_and_return_type(){
         fn do_nothing (id: uuid, name: String) -> String
     ";
 
-    let mut fn_do_nothing = FnDefinition::new();
+    let mut fn_do_nothing = FnDefinition::initalise();
     fn_do_nothing.name = "do_nothing".into();
     fn_do_nothing.args = Some(vec![
         Argument::IdentifierAndType("id".into(), Type::PrimitiveType(PrimitiveType::Uuid)),
