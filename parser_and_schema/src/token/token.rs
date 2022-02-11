@@ -3,7 +3,7 @@ use std::{fmt::{Formatter, self, Display}};
 use input_cursor::{Span, Position};
 use shared::CastleError;
 
-use crate::{ast::syntax_definitions::{keyword::Keyword, argument::Argument, enum_definition::EnumValue}, parsers::schema_parser::types::{primitive_type::PrimitiveType, vec_type::VecType, type_system::Type, option_type::OptionType}};
+use crate::{ast::syntax_definitions::{keyword::Keyword, argument::Argument, enum_definition::EnumValue, directive_definition::{DirectiveOnValue}}, parsers::schema_parser::types::{primitive_type::PrimitiveType, vec_type::VecType, type_system::Type, option_type::OptionType}};
 
 #[derive(Debug, PartialEq)]
 pub struct Token {
@@ -25,7 +25,8 @@ pub enum TokenKind {
     PrimitiveType(PrimitiveType),
     VecType(VecType),
     OptionType(OptionType),
-    EnumValue(EnumValue)
+    EnumValue(EnumValue),
+    DirectiveOnValue(DirectiveOnValue)
 }
 
 #[derive(Debug, PartialEq)]
@@ -168,6 +169,8 @@ impl From<Keyword> for TokenKind {
             Keyword::Fn => TokenKind::Keyword(Keyword::Fn),
             Keyword::Into => TokenKind::Keyword(Keyword::Into),
             Keyword::Impl => TokenKind::Keyword(Keyword::Impl),
+            Keyword::Directive => TokenKind::Keyword(Keyword::Directive),
+            Keyword::On => TokenKind::Keyword(Keyword::On),
         }
     }
 }

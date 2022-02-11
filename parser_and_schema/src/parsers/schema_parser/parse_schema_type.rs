@@ -2,9 +2,9 @@ use std::{collections::HashMap, io::Read};
 
 use shared::CastleError;
 
-use crate::{token::{Token, token::{TokenKind, Identifier, Punctuator}}, tokenizer::{tokenizer::Tokenizer, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}, self}, ast::syntax_definitions::{keyword::Keyword, schema_definition::SchemaDefinition}};
+use crate::{token::{Token, token::{TokenKind, Identifier, Punctuator}}, tokenizer::{tokenizer::Tokenizer, tokenizer_utils::{get_next_token_and_unwrap}}, ast::syntax_definitions::{keyword::Keyword, schema_definition::SchemaDefinition}};
 
-use super::{types::{schema_type::SchemaType, schema_field::SchemaField}, parse_schema_field::parse_schema_field, enums::parse_enum::parse_enum_definition, functions::parse_function::parse_function};
+use super::{types::{schema_type::SchemaType, schema_field::SchemaField}, parse_schema_field::parse_schema_field, enums::parse_enum::parse_enum_definition, functions::{parse_function::parse_function, parse_directive_definition::{self, parse_directive_definition}}};
 
 
 pub fn check_token_and_parse_schema_or_break<R>(
@@ -20,6 +20,7 @@ pub fn check_token_and_parse_schema_or_break<R>(
     }
 }
 
+/// Before this function the keyword has already been consumed
 fn match_token_to_kind_enum_or_fn<R>(tokenizer: &mut Tokenizer<R>, token: Token, parsed_schema: &mut SchemaDefinition) -> Result<bool, CastleError> 
 where R: Read {
     match token.kind {
@@ -36,6 +37,11 @@ where R: Read {
         TokenKind::Keyword(Keyword::Fn) => {
             let function_definition = parse_function(tokenizer)?;
             parsed_schema.functions.insert(function_definition.name.clone(), function_definition);
+            return Ok(false)
+        },
+        TokenKind::Keyword(Keyword::Directive) => {
+            let directive_definition = parse_directive_definition(tokenizer)?;
+            parsed_schema.directives.insert(directive_definition.function.name.clone(), directive_definition);
             return Ok(false)
         },
         _ => return Err(CastleError::Schema(format!("1. Unexpected token: {:?}", token.kind).into(), token.span))

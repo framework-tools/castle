@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use castle_backend::{validation::validate_schema_with_functions::validate_schema_with_resolvers::{validate_schema_with_resolvers, validate_schema_with_directives}, resolvers::resolvers::Resolver};
-use parser_and_schema::{parsers::schema_parser::{parse_schema::parse_schema, types::{type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{fn_definition::FnDefinition, argument::Argument, directive_definition::{self, Directive}}};
+use parser_and_schema::{parsers::schema_parser::{parse_schema::parse_schema, types::{type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{fn_definition::FnDefinition, argument::Argument, directive_definition::{DirectiveDefinition, DirectiveOnValue, }}};
 use shared::CastleError;
 
 #[cfg(test)]
@@ -108,22 +108,23 @@ fn test_directive_defined_in_schema_that_does_not_exist_throw_error(){
 #[test]
 fn test_directive_defined_in_schema_that_has_different_arguments(){
     let schema = "
-    fn me (name: String, anything: String) -> String 
+    directive @test(arg: String) on FIELD  
     ";
 
     let parsed_schema = parse_schema(schema).unwrap();
 
     
     // missing anything argument
-    let directive_definition = FnDefinition::new("me".into(), Some(vec![
-        Argument::IdentifierAndType("name".into(), Type::PrimitiveType(PrimitiveType::String)),
+    let directive_definition = FnDefinition::new("test".into(), Some(vec![
+        Argument::IdentifierAndType("arg".into(), Type::PrimitiveType(PrimitiveType::Int)), // argument is different
     ]), 
     Some(Type::PrimitiveType(PrimitiveType::String)));
+    
 
-    let directive = Directive::new(directive_definition);
-    let mut directive = HashMap::new();
+    let directive = DirectiveDefinition::new(directive_definition, DirectiveOnValue::Field);
+    let mut directives = HashMap::new();
     directives.insert("me".into(), directive);
-    let result = validate_schema_with_directive(directive, &parsed_schema);
+    let result = validate_schema_with_directives(directives, &parsed_schema);
     
     if result.is_err() {
         match result {
@@ -148,10 +149,10 @@ fn test_directivies_defined_in_schema_that_has_different_return_type(){
     ]), 
     Some(Type::PrimitiveType(PrimitiveType::Int))); //return type is different
 
-    let directive = Directive::new(function_definition);
+    let directive = DirectiveDefinition::new(function_definition, DirectiveOnValue::Field);
     let mut directives = HashMap::new();
     directives.insert("me".into(), directive);
-    let result = validate_schema_with_directive(directive, &parsed_schema);
+    let result = validate_schema_with_directives(directives, &parsed_schema);
     
     if result.is_err() {
         match result {

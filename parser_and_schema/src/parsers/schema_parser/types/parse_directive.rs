@@ -1,8 +1,9 @@
 use std::io::Read;
 
+use input_cursor::{Position, Cursor};
 use shared::CastleError;
 
-use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}, }, ast::syntax_definitions::{directive_definition::{Directive, }, }, token::{token::{TokenKind, Punctuator, Identifier}, Token}, parsers::schema_parser::parse_schema_field::skip_comma,};
+use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}, }, ast::syntax_definitions::{directive_definition::{Directive, DirectiveDefinition, DirectiveOnValue, }, }, token::{token::{TokenKind, Punctuator, Identifier}, Token}, parsers::schema_parser::parse_schema_field::skip_comma,};
 
 /// takes in tokenizer and returns parsed directive
 ///     - get next token
@@ -63,4 +64,14 @@ where R: Read{
         None => Err(CastleError::AbruptEOF("Error found in 'check_for_at_symbol'".into()))
     };
     
+}
+
+pub fn parse_directive_on_value<R>(cursor: &mut Cursor<R>, word: &str, start: Position) -> Result<Token, CastleError>
+where R: Read{
+    
+    match word {
+        "FIELD" => Ok(Token::new(TokenKind::DirectiveOnValue(DirectiveOnValue::Field), input_cursor::Span { start, end: cursor.pos() })),
+        "ENUM_VARIANT" => Ok(Token::new(TokenKind::DirectiveOnValue(DirectiveOnValue::EnumVariant), input_cursor::Span { start, end: cursor.pos() })),
+        _ => Err(CastleError::Lexer(format!("Expected directive on value, found: {}", word).into(), cursor.pos() ))
+    }
 }

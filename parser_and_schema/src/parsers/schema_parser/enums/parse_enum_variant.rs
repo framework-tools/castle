@@ -2,7 +2,7 @@ use std::{collections::HashMap, io::Read};
 
 use shared::CastleError;
 
-use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}}, ast::syntax_definitions::{enum_definition::{EnumVariant, EnumDataType}, argument::Argument}, token::token::{TokenKind, Identifier, Punctuator}, parsers::schema_parser::{types::schema_field::SchemaField, parse_schema_type::check_token_and_parse_schema_field_or_break}};
+use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}}, ast::syntax_definitions::{enum_definition::{EnumVariant, EnumDataType}, argument::Argument}, token::token::{TokenKind, Identifier, Punctuator}, parsers::schema_parser::{types::{schema_field::SchemaField, parse_directive::parse_directives}, parse_schema_type::check_token_and_parse_schema_field_or_break}};
 
 use super::parse_enum::insert_variant_in_enum;
 
@@ -36,7 +36,8 @@ where R: Read{
         _ => return Err(CastleError::Schema(format!("4. Unexpected token: {:?}", token.kind).into(), token.span))
     };
     let enum_data_type = parse_enum_data_type(identifier.arguments, tokenizer)?;
-    return Ok(EnumVariant { name: identifier.name, enum_data_type, directives: HashMap::new() });
+    let directives = parse_directives(tokenizer)?;
+    return Ok(EnumVariant { name: identifier.name, enum_data_type, directives});
 }
 
 /// takes in tokenizer and returns enum data type

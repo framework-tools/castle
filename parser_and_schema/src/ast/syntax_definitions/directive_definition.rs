@@ -3,11 +3,28 @@ use crate::parsers::schema_parser::types::type_system::Type;
 
 use super::{argument::{Argument}, fn_definition::FnDefinition};
 
+#[derive(Debug, PartialEq)]
+pub enum DirectiveOnValue {
+    Field,
+    EnumVariant,
+    // Type,
+}
 
 #[derive(Debug, PartialEq)]
 pub struct DirectiveDefinition {
     pub function: FnDefinition,
+    pub on: DirectiveOnValue
 }
+
+impl DirectiveDefinition {
+    pub fn new(function: FnDefinition, on: DirectiveOnValue) -> Self {
+        Self {
+            function,
+            on
+        }
+    }
+}
+
 
 #[derive(Debug, PartialEq)]
 pub struct Directive {
