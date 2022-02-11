@@ -28,11 +28,11 @@ impl EnumDefinition {
 pub struct EnumVariant {
     pub name: Box<str>,
     pub enum_data_type: EnumDataType,
-    pub directives: HashMap<Box<str>, Directive>
+    pub directives: Vec<Directive>
 }
 
 impl EnumVariant {
-    pub fn new(name: Box<str>, enum_data_type: EnumDataType, directives: HashMap<Box<str>, Directive>) -> Self {
+    pub fn new(name: Box<str>, enum_data_type: EnumDataType, directives: Vec<Directive>) -> Self {
         EnumVariant {
             name,
             enum_data_type,

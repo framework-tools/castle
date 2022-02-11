@@ -118,9 +118,9 @@ fn can_parse_defined_schema_enum_as_type_for_field() {
     
     let organization_type_enums: EnumDefinition = create_enum_from_vec("OrganizationType".into(), 
     vec![
-        ("Company".into(), EnumVariant::new("Company".into(), EnumDataType::EnumUnit, HashMap::new())),
-        ("School".into(), EnumVariant::new("School".into(), EnumDataType::EnumUnit, HashMap::new())),
-        ("University".into(), EnumVariant::new("University".into(), EnumDataType::EnumUnit, HashMap::new())),
+        ("Company".into(), EnumVariant::new("Company".into(), EnumDataType::EnumUnit, Vec::new())),
+        ("School".into(), EnumVariant::new("School".into(), EnumDataType::EnumUnit, Vec::new())),
+        ("University".into(), EnumVariant::new("University".into(), EnumDataType::EnumUnit, Vec::new())),
     ]);
 
     let mut enums = HashMap::new();

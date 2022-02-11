@@ -11,7 +11,7 @@ pub fn parse_enum_definition<R>(tokenizer: &mut tokenizer::Tokenizer<R>) -> Resu
         let mut variants: HashMap<Box<str>, EnumVariant> = HashMap::new();
         let token = tokenizer.next(true)?; // enum keyword is already passed
         let identifier = get_identifier_skip_open_block(token, tokenizer)?;
-
+        
         loop {
             let end_of_schema_type = check_token_and_parse_enum_variant_or_break(tokenizer, &mut variants)?;
             if end_of_schema_type { break; }

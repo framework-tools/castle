@@ -12,6 +12,8 @@ pub enum Keyword {
     Fn,
     Into,
     Impl,
+    Directive,
+    On,
 }
 
 impl Keyword {
@@ -28,6 +30,8 @@ impl Keyword {
             "fn" => Some(Keyword::Fn),
             "into" => Some(Keyword::Into),
             "impl" => Some(Keyword::Impl),
+            "directive" => Some(Keyword::Directive),
+            "on" => Some(Keyword::On),
             _ => None
         }
     }

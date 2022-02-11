@@ -1,6 +1,6 @@
-use std::{collections::HashMap, vec, string};
+use std::{collections::{HashMap, hash_map}, vec, string};
 
-use parser_and_schema::{parsers::schema_parser::{schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}, types::{type_system::Type, primitive_type::PrimitiveType, schema_type::SchemaType, schema_field::SchemaField, vec_type::VecType, option_type::OptionType}, parse_schema::parse_schema}, ast::syntax_definitions::{enum_definition::{EnumVariant, EnumDataType, EnumDefinition}, schema_definition::SchemaDefinition, argument::Argument, fn_definition::FnDefinition, directive_definition::Directive}};
+use parser_and_schema::{parsers::schema_parser::{schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}, types::{type_system::Type, primitive_type::PrimitiveType, schema_type::SchemaType, schema_field::SchemaField, vec_type::VecType, option_type::OptionType}, parse_schema::parse_schema}, ast::syntax_definitions::{enum_definition::{EnumVariant, EnumDataType, EnumDefinition}, schema_definition::SchemaDefinition, argument::Argument, fn_definition::FnDefinition, directive_definition::{Directive, self, DirectiveDefinition}}};
 
 #[test]
 fn can_parse_empty_query() {
@@ -171,9 +171,9 @@ fn can_parse_enum_schema() {
     ";
 
     let color_enum = create_enum_from_vec("Color".into(), vec![
-        ("Red".into(), EnumVariant::new("Red".into(), EnumDataType::EnumUnit, HashMap::new())),
-        ("Green".into(), EnumVariant::new("Green".into(), EnumDataType::EnumUnit, HashMap::new())),
-        ("Blue".into(), EnumVariant::new("Blue".into(), EnumDataType::EnumUnit, HashMap::new())),
+        ("Red".into(), EnumVariant::new("Red".into(), EnumDataType::EnumUnit, Vec::new())),
+        ("Green".into(), EnumVariant::new("Green".into(), EnumDataType::EnumUnit, Vec::new())),
+        ("Blue".into(), EnumVariant::new("Blue".into(), EnumDataType::EnumUnit, Vec::new())),
     ]);
 
     let expected: HashMap<Box<str>, EnumDefinition> = insert_enums_into_enum_definitions(vec![
@@ -212,17 +212,17 @@ fn can_parse_two_enums_and_type_schema() {
     ";
 
     let color_enum = create_enum_from_vec("Color".into(), vec![
-        ("Red".into(), EnumVariant::new("Red".into(), EnumDataType::EnumUnit, HashMap::new())),
-        ("Green".into(), EnumVariant::new("Green".into(), EnumDataType::EnumUnit, HashMap::new())),
-        ("Blue".into(), EnumVariant::new("Blue".into(), EnumDataType::EnumUnit, HashMap::new())),
+        ("Red".into(), EnumVariant::new("Red".into(), EnumDataType::EnumUnit, Vec::new())),
+        ("Green".into(), EnumVariant::new("Green".into(), EnumDataType::EnumUnit, Vec::new())),
+        ("Blue".into(), EnumVariant::new("Blue".into(), EnumDataType::EnumUnit, Vec::new())),
     ]);
 
     let emotion_enum = create_enum_from_vec("Emotion".into(), vec![
-        ("Happy".into(), EnumVariant::new("Happy".into(), EnumDataType::EnumUnit, HashMap::new())),
-        ("Sad".into(), EnumVariant::new("Sad".into(), EnumDataType::EnumUnit, HashMap::new())),
-        ("Angry".into(), EnumVariant::new("Angry".into(), EnumDataType::EnumUnit, HashMap::new())),
-        ("Fearful".into(), EnumVariant::new("Fearful".into(), EnumDataType::EnumUnit, HashMap::new())),
-        ("Depressed".into(), EnumVariant::new("Depressed".into(), EnumDataType::EnumUnit, HashMap::new())),
+        ("Happy".into(), EnumVariant::new("Happy".into(), EnumDataType::EnumUnit, Vec::new())),
+        ("Sad".into(), EnumVariant::new("Sad".into(), EnumDataType::EnumUnit, Vec::new())),
+        ("Angry".into(), EnumVariant::new("Angry".into(), EnumDataType::EnumUnit, Vec::new())),
+        ("Fearful".into(), EnumVariant::new("Fearful".into(), EnumDataType::EnumUnit, Vec::new())),
+        ("Depressed".into(), EnumVariant::new("Depressed".into(), EnumDataType::EnumUnit, Vec::new())),
     ]);
 
     let expected_enums: HashMap<Box<str>, EnumDefinition> = insert_enums_into_enum_definitions(vec![
@@ -305,13 +305,13 @@ fn can_parse_enum_schema_with_values() {
     let framework_types_enum = create_enum_from_vec("FrameworkTypes".into(), vec![
         ("ProfilePic".into(), EnumVariant::new("ProfilePic".into(), EnumDataType::EnumTuple(vec![
             Argument::Type(Type::PrimitiveType(PrimitiveType::String)) 
-        ]), HashMap::new())),
+        ]), Vec::new())),
         ("User".into(), EnumVariant::new("User".into(), EnumDataType::EnumTuple(vec![
             Argument::Type(Type::SchemaTypeOrEnum("User".into())) 
-        ]), HashMap::new())),
+        ]), Vec::new())),
         ("Organization".into(), EnumVariant::new("Organization".into(), EnumDataType::EnumTuple(vec![
             Argument::Type(Type::SchemaTypeOrEnum("Organization".into())) 
-        ]), HashMap::new())),
+        ]), Vec::new())),
     ]);
 
     let enums = insert_enums_into_enum_definitions(vec![
@@ -343,7 +343,7 @@ fn can_parse_enum_multiple_arguments(){
             Argument::Type(Type::PrimitiveType(PrimitiveType::String)),
             Argument::Type(Type::PrimitiveType(PrimitiveType::String)),
             Argument::Type(Type::PrimitiveType(PrimitiveType::String)),
-        ]), HashMap::new())),
+        ]), Vec::new())),
     ]);
 
     let enums = insert_enums_into_enum_definitions(vec![
@@ -379,10 +379,10 @@ fn can_parse_enum_with_fields(){
             ("id".into(), SchemaField::new("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new())),
             ("name".into(), SchemaField::new("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new())),
             ("age".into(), SchemaField::new("age".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new())),
-        ]), HashMap::new())),
+        ]), Vec::new())),
         ("SomeOtherType".into(), EnumVariant::new("SomeOtherType".into(), EnumDataType::EnumTuple(vec![
             Argument::Type(Type::PrimitiveType(PrimitiveType::String)),
-        ]), HashMap::new()))
+        ]), Vec::new()))
     ]);
 
     let enums = insert_enums_into_enum_definitions(vec![
@@ -471,55 +471,101 @@ fn can_parse_option_type(){
 }
 
 #[test]
-fn can_parse_directives(){
+fn can_parse_directives_on_fields(){
     let schema = "
-
-        type User {
-            name: Option<String> @random_directive(arg1: Int, arg2: String),
-            first_name: String,
-            last_name: String,
-            age: Int,
-            password: String @is_authenticated @is_encrypted,
-            is_admin: bool @is_admin(role: String),
+        type Meow {
+            is_admin: bool @authenticated(token: String) @is_admin(role: DoesntExist),
         }
     ";
 
-    let arg1 = Argument::IdentifierAndType("arg1".into(), Type::PrimitiveType(PrimitiveType::Int));
-    let arg2 = Argument::IdentifierAndType("arg2".into(), Type::PrimitiveType(PrimitiveType::String));
-    let name_directive_arguments = vec![arg1, arg2];
-    let name_directives = vec![
-        Directive::new("random_directive".into(), Some(name_directive_arguments)),
-    ];
-
-    let password_directives = vec![
-        Directive::new("is_authenticated".into(), None),
-        Directive::new("is_encrypted".into(), None),
-    ];
-    let is_admin_directive = Directive::new("is_admin".into(), Some(vec![
-        Argument::IdentifierAndType("role".into(), Type::PrimitiveType(PrimitiveType::String))
+    let mut expected_fields = HashMap::new();
+    expected_fields.insert("is_admin".into(), SchemaField::new("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), vec![
+        Directive::new("authenticated".into(), Some(vec![
+            Argument::IdentifierAndType("token".into(), Type::PrimitiveType(PrimitiveType::String)),
+        ])),
+        Directive::new("is_admin".into(), Some(vec![
+            Argument::IdentifierAndType("role".into(), Type::SchemaTypeOrEnum("DoesntExist".into())),
+        ])),
     ]));
-
-    let user_fields = create_type_fields_for_tests(vec![
-        ("name".into(), Type::OptionType(OptionType { inner_type: Type::PrimitiveType(PrimitiveType::String).into()}), name_directives),
-        ("first_name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
-        ("last_name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
-        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
-        ("password".into(), Type::PrimitiveType(PrimitiveType::String), password_directives),
-        ("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), vec![is_admin_directive]),
-    ]);
-    
-    let user_type = SchemaType::new("User".into(), user_fields);
-    
-    let mut expected = SchemaDefinition {
-        schema_types: HashMap::new(),
+    let mut expected_types = HashMap::new();
+    expected_types.insert("Meow".into(), SchemaType::new("Meow".into(), expected_fields));
+    let expected = SchemaDefinition {
+        schema_types: expected_types,
         enums: HashMap::new(),
-        functions: HashMap::new(),
         directives: HashMap::new(),
+        functions: HashMap::new(),
     };
-    expected.schema_types.insert("User".into(), user_type);
     let actual = parse_schema(schema).unwrap();
     assert_eq!(expected, actual);
 }
 
-// Need to write 1 more test for each piece of functionality
-// to ensure working correctly
+#[test]
+fn can_parse_directives_on_enums(){
+    let schema = "
+        enum Meow {
+            Red @authenticated(token: String) @is_admin(role: DoesntExist),
+        }
+    ";
+
+    let mut directives = Vec::new();
+    directives.push(Directive::new("authenticated".into(), Some(vec![
+        Argument::IdentifierAndType("token".into(), Type::PrimitiveType(PrimitiveType::String)),
+    ])));
+    directives.push(Directive::new("is_admin".into(), Some(vec![
+        Argument::IdentifierAndType("role".into(), Type::SchemaTypeOrEnum("DoesntExist".into())),
+    ])));
+
+    let enum_variant = EnumVariant::new("Red".into(), EnumDataType::EnumUnit, directives);
+
+    let mut enum_meow = EnumDefinition::new("Meow".into(), HashMap::new(), HashMap::new());
+    enum_meow.variants.insert("Red".into(), enum_variant);
+
+    let mut expected = SchemaDefinition::new();
+    expected.enums.insert("Meow".into(), enum_meow);
+    let actual = parse_schema(schema).unwrap();
+    assert_eq!(expected, actual);
+}
+
+#[test]
+fn can_parse_directives_fields(){
+    let schema = "
+    directive @test(ar: String) on FIELD
+    ";
+    let arguments = vec![
+        Argument::IdentifierAndType("ar".into(), Type::PrimitiveType(PrimitiveType::String)),
+    ];
+    let function = FnDefinition::new("test".into(), Some(arguments), None);
+    let directive_definition = DirectiveDefinition::new(function, directive_definition::DirectiveOnValue::Field);
+
+    let mut expected = SchemaDefinition {
+        schema_types: HashMap::new(),
+        enums: HashMap::new(),
+        directives: HashMap::new(),
+        functions: HashMap::new(),
+    };
+    expected.directives.insert("test".into(), directive_definition);
+    let actual = parse_schema(schema).unwrap();
+    assert_eq!(expected, actual);
+}
+
+#[test]
+fn can_parse_directives_enums(){
+    let schema = "
+    directive @test(ar: String) on ENUM_VARIANT
+    ";
+    let arguments = vec![
+        Argument::IdentifierAndType("ar".into(), Type::PrimitiveType(PrimitiveType::String)),
+    ];
+    let function = FnDefinition::new("test".into(), Some(arguments), None);
+    let directive_definition = DirectiveDefinition::new(function, directive_definition::DirectiveOnValue::EnumVariant);
+
+    let mut expected = SchemaDefinition {
+        schema_types: HashMap::new(),
+        enums: HashMap::new(),
+        directives: HashMap::new(),
+        functions: HashMap::new(),
+    };
+    expected.directives.insert("test".into(), directive_definition);
+    let actual = parse_schema(schema).unwrap();
+    assert_eq!(expected, actual);
+}

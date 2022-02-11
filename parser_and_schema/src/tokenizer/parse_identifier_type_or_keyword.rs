@@ -3,7 +3,7 @@ use std::{io::Read};
 use input_cursor::{Cursor, Position};
 use shared::CastleError;
 
-use crate::{token::{Token}};
+use crate::{token::{Token}, parsers::schema_parser::types::parse_directive::parse_directive_on_value};
 
 use super::{parse_keyword::get_keyword_or_continue, parse_vec_type::get_vec_type_from_word, tokenizer::Tokenizer, parse_option_type::get_option_type_from_word, parse_enum_value::{parse_enum_value, peek_next_char_and_unwrap}, parse_identifier::parse_identifier_token};
 
@@ -14,6 +14,7 @@ where R: Read {
     if word == "Vec" { return get_vec_type_from_word(&mut tokenizer.cursor, word, start) }
     else if word == "Option" { return get_option_type_from_word(&mut tokenizer.cursor, word, start) }
     else if word.contains("::") { return parse_enum_value(tokenizer, word, start)}
+    else if word == "FIELD" || word == "ENUM_VARIANT" {return parse_directive_on_value(&mut tokenizer.cursor, &word, start)}
 
     //if field has arguments it must be an identifier (enums are already handled)
     if field_has_arguments { return parse_identifier_token(tokenizer, word, start, true) }
