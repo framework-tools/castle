@@ -1,4 +1,4 @@
-use crate::{ast::syntax_definitions::directive_definition::DirectiveDefinition};
+use crate::{ast::syntax_definitions::directive_definition::Directive};
 
 use super::type_system::Type;
 
@@ -6,11 +6,11 @@ use super::type_system::Type;
 pub struct SchemaField {
     pub name: Box<str>,
     pub type_: Type,
-    pub directives: Vec<DirectiveDefinition>
+    pub directives: Vec<Directive>
 }
 
 impl SchemaField {
-    pub fn new(name: Box<str>, type_: Type, directives: Vec<DirectiveDefinition>) -> Self {
+    pub fn new(name: Box<str>, type_: Type, directives: Vec<Directive>) -> Self {
         SchemaField {
             name,
             type_,

@@ -2,14 +2,14 @@ use std::io::Read;
 
 use shared::CastleError;
 
-use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}, }, ast::syntax_definitions::{directive_definition::{DirectiveDefinition, }, }, token::{token::{TokenKind, Punctuator, Identifier}, Token}, parsers::schema_parser::parse_schema_field::skip_comma,};
+use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}, }, ast::syntax_definitions::{directive_definition::{Directive, }, }, token::{token::{TokenKind, Punctuator, Identifier}, Token}, parsers::schema_parser::parse_schema_field::skip_comma,};
 
 /// takes in tokenizer and returns parsed directive
 ///     - get next token
 ///     - match token
 ///     - if token is into keyword, get next token and parse directive and return
 ///     - else return none 
-pub fn parse_directives<R>(tokenizer: &mut Tokenizer<R>) -> Result<Vec<DirectiveDefinition>, CastleError> 
+pub fn parse_directives<R>(tokenizer: &mut Tokenizer<R>) -> Result<Vec<Directive>, CastleError> 
 where R: Read{
     let token = peek_next_token_and_unwrap(tokenizer)?;
     match token.kind {
@@ -21,9 +21,9 @@ where R: Read{
     }
 }
 
-fn get_all_directives<R>(tokenizer: &mut Tokenizer<R>) -> Result<Vec<DirectiveDefinition>, CastleError>
+fn get_all_directives<R>(tokenizer: &mut Tokenizer<R>) -> Result<Vec<Directive>, CastleError>
 where R: Read {
-    let mut directives: Vec<DirectiveDefinition> = Vec::new();
+    let mut directives: Vec<Directive> = Vec::new();
     loop {
         let next_token_is_at_symbol = check_for_at_symbol(tokenizer)?;
         if !next_token_is_at_symbol {
@@ -37,12 +37,12 @@ where R: Read {
     return Ok(directives)
 }
 
-fn get_directive<R>(tokenizer: &mut Tokenizer<R>) -> Result<DirectiveDefinition, CastleError> 
+fn get_directive<R>(tokenizer: &mut Tokenizer<R>) -> Result<Directive, CastleError> 
 where R: Read{
     let token = get_next_token_and_unwrap(tokenizer)?; // should be identifier
     return match token.kind { 
         TokenKind::Identifier(Identifier {name, arguments}) => {
-            Ok(DirectiveDefinition::new(name, arguments))
+            Ok(Directive::new(name, arguments))
         },
         _ => Err(CastleError::UndefinedTypeOrEnumInSchema("Expected identifier for directive".into()))
     }

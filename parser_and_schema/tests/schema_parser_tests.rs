@@ -1,8 +1,7 @@
 use std::{collections::HashMap, vec, string};
 
-use parser_and_schema::{parsers::schema_parser::{schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}, types::{type_system::Type, primitive_type::PrimitiveType, schema_type::SchemaType, schema_field::SchemaField, vec_type::VecType, option_type::OptionType}, parse_schema::parse_schema}, ast::syntax_definitions::{enum_definition::{EnumVariant, EnumDataType, EnumDefinition}, schema_definition::SchemaDefinition, argument::Argument, fn_definition::FnDefinition, directive_definition::DirectiveDefinition}};
+use parser_and_schema::{parsers::schema_parser::{schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}, types::{type_system::Type, primitive_type::PrimitiveType, schema_type::SchemaType, schema_field::SchemaField, vec_type::VecType, option_type::OptionType}, parse_schema::parse_schema}, ast::syntax_definitions::{enum_definition::{EnumVariant, EnumDataType, EnumDefinition}, schema_definition::SchemaDefinition, argument::Argument, fn_definition::FnDefinition, directive_definition::Directive}};
 
-#[cfg(test)]
 #[test]
 fn can_parse_empty_query() {
     use std::collections::HashMap;
@@ -246,6 +245,7 @@ fn can_parse_two_enums_and_type_schema() {
     let expected = SchemaDefinition {
         schema_types: expected_types,
         enums: expected_enums,
+        directives: HashMap::new(),
 
         functions: HashMap::new(),
     };
@@ -321,7 +321,7 @@ fn can_parse_enum_schema_with_values() {
     let expected = SchemaDefinition {
         schema_types: expected_types,
         enums,
-
+        directives: HashMap::new(),
         functions: HashMap::new(),
         
     };
@@ -353,7 +353,7 @@ fn can_parse_enum_multiple_arguments(){
     let expected = SchemaDefinition {
         schema_types: HashMap::new(),
         enums,
-
+        directives: HashMap::new(),
         functions: HashMap::new(),
     };
 
@@ -392,7 +392,7 @@ fn can_parse_enum_with_fields(){
     let expected = SchemaDefinition {
         schema_types: HashMap::new(),
         enums,
-
+        directives: HashMap::new(),
         functions: HashMap::new(),
     };
 
@@ -403,7 +403,7 @@ fn can_parse_enum_with_fields(){
 #[test]
 fn can_parse_function_with_args_and_return_type(){
     let schema = "
-        fn do_nothing(id: uuid, name: String) -> String
+        fn do_nothing (id: uuid, name: String) -> String
     ";
 
     let mut fn_do_nothing = FnDefinition::new();
@@ -421,6 +421,7 @@ fn can_parse_function_with_args_and_return_type(){
     let expected = SchemaDefinition {
         schema_types: HashMap::new(),
         enums: HashMap::new(),
+        directives: HashMap::new(),
         functions: expected_functions,
     };
     let actual = parse_schema(schema).unwrap();
@@ -464,6 +465,7 @@ fn can_parse_option_type(){
         schema_types: expected_types,
         enums: HashMap::new(),
         functions: HashMap::new(),
+        directives: HashMap::new(),
     };
     assert_eq!(expected, parse_schema(schema).unwrap());
 }
@@ -486,14 +488,14 @@ fn can_parse_directives(){
     let arg2 = Argument::IdentifierAndType("arg2".into(), Type::PrimitiveType(PrimitiveType::String));
     let name_directive_arguments = vec![arg1, arg2];
     let name_directives = vec![
-        DirectiveDefinition::new("random_directive".into(), Some(name_directive_arguments)),
+        Directive::new("random_directive".into(), Some(name_directive_arguments)),
     ];
 
     let password_directives = vec![
-        DirectiveDefinition::new("is_authenticated".into(), None),
-        DirectiveDefinition::new("is_encrypted".into(), None),
+        Directive::new("is_authenticated".into(), None),
+        Directive::new("is_encrypted".into(), None),
     ];
-    let is_admin_directive = DirectiveDefinition::new("is_admin".into(), Some(vec![
+    let is_admin_directive = Directive::new("is_admin".into(), Some(vec![
         Argument::IdentifierAndType("role".into(), Type::PrimitiveType(PrimitiveType::String))
     ]));
 
@@ -512,6 +514,7 @@ fn can_parse_directives(){
         schema_types: HashMap::new(),
         enums: HashMap::new(),
         functions: HashMap::new(),
+        directives: HashMap::new(),
     };
     expected.schema_types.insert("User".into(), user_type);
     let actual = parse_schema(schema).unwrap();

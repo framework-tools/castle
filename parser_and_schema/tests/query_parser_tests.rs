@@ -18,7 +18,6 @@ pub fn insert_each_field_into_fields(vec_of_fields: Vec<(Box<str>, Want)>) -> Ha
 }
 
 
-#[cfg(test)]
 #[test]
 fn can_parse_empty_query() {
     use parser_and_schema::parsers::query_parser::parse_query::parse_query;
@@ -478,7 +477,6 @@ fn can_parse_object_projection_with_match_inside_match() {
         ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None)),
     ]);
     let actual = parse_query(query).unwrap();
-    println!("actual {:#?}", actual);
     assert_eq!(expected, actual.wants);
 }
 

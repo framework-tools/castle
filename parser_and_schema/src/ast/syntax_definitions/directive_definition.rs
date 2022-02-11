@@ -9,9 +9,15 @@ pub struct DirectiveDefinition {
     pub function: FnDefinition,
 }
 
-impl DirectiveDefinition {
+#[derive(Debug, PartialEq)]
+pub struct Directive {
+    pub name: Box<str>,
+    pub arguments: Option<Vec<Argument>>
+}
+
+impl Directive {
     pub fn new(name: Box<str>, arguments: Option<Vec<Argument>>) -> Self {
-        DirectiveDefinition {
+        Directive {
             name,
             arguments
         }

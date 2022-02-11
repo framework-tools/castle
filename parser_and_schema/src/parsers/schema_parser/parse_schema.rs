@@ -23,6 +23,5 @@ pub fn parse_schema(schema: &str) -> Result<SchemaDefinition, CastleError> {
         let at_end_of_schema = check_token_and_parse_schema_or_break(&mut tokenizer, &mut parsed_schema)?;
         if at_end_of_schema { break; }
     }
-    println!("actual: {:#?}", parsed_schema.schema_types);
     return Ok(parsed_schema)
 }

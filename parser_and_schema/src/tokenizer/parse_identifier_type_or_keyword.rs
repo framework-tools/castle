@@ -26,6 +26,7 @@ where R: Read {
 
 fn get_word_from_chars<R>(cursor: &mut Cursor<R>) -> Result<(String, bool), CastleError> where R: Read {
     let mut word = String::new();
+    let mut gap_has_been_found = false;
     loop {
         let ch = peek_next_char_and_unwrap(cursor);
         if ch.is_err() { break } //if is end of file, break
@@ -34,14 +35,19 @@ fn get_word_from_chars<R>(cursor: &mut Cursor<R>) -> Result<(String, bool), Cast
         if ch == '(' { //start of arguments
             cursor.next_char()?;
             return Ok((word, true))
-        } else if ch.is_ascii_alphanumeric() || ch == '_' {
+        } else if ch == '_' || (ch.is_ascii_alphanumeric() && !gap_has_been_found) {
             word.push(ch);
             cursor.next_char()?;
         }
         // if first letter uppercase & colon we can assume it's an enum value (For now)
         else if ch == ':' && word.chars().nth(0).unwrap().is_uppercase() {
             return Ok((get_enum_identifier_from_chars(cursor, word)?, false))
-        } else {
+        } 
+        else if ch == ' ' || ch == '\n' || ch == '\t' {
+            gap_has_been_found = true;
+            cursor.next_char()?;
+        }
+        else {
             break;
         }
     }

@@ -15,6 +15,10 @@ pub enum CastleError {
     Unimplemented(Box<str>),
     Schema(Box<str>, Span),
     UndefinedTypeOrEnumInSchema(Box<str>),
+    UndefinedResolver(Box<str>),
+    ResolverDoesNotMatchSchemaFunction(Box<str>),
+    UndefinedDirective(Box<str>),
+    DirectiveDoesNotMatchSchemaDirective(Box<str>),
     MatchError(Box<str>),
 }
 
@@ -54,7 +58,12 @@ impl fmt::Display for CastleError {
             Self::Unimplemented(msg) => write!(f, "Unimplemented: {}", msg),
             Self::Schema(msg, span) => write!(f, "Schema error: {} at {}", msg, span),
             Self::UndefinedTypeOrEnumInSchema(msg) => write!(f, "Undefined type or enum in schema: {}", msg),
-            Self::MatchError(msg) => write!(f, "Match error: {}", msg)
+            Self::MatchError(msg) => write!(f, "Match error: {}", msg),
+            Self::UndefinedResolver(msg) => write!(f, "Undefined resolver: {}", msg),
+            Self::UndefinedDirective(msg) => write!(f, "Undefined directive: {}", msg),
+            Self::ResolverDoesNotMatchSchemaFunction(msg) => write!(f, "Resolver does not match schema function: {}", msg),
+            Self::DirectiveDoesNotMatchSchemaDirective(msg) => write!(f, "Directive does not match schema directive: {}", msg),
+
         }
     }
 }
@@ -75,6 +84,11 @@ impl ExtendedErrorDisplay for CastleError {
             Self::Schema(msg, span) => format!("Schema error: {} at {}", msg, span),
             Self::UndefinedTypeOrEnumInSchema (msg) => format!("Undefined type or enum in schema: {}", msg),
             Self::MatchError(msg) => format!("Match error: {}", msg),
+            Self::UndefinedResolver(msg) => format!("Undefined resolver: {}", msg),
+            Self::UndefinedDirective(msg) => format!("Undefined directive: {}", msg),
+            Self::ResolverDoesNotMatchSchemaFunction(msg) => format!("Resolver does not match schema function: {}", msg),
+            Self::DirectiveDoesNotMatchSchemaDirective(msg) => format!("Directive does not match schema directive: {}", msg),
+            
         }
     }
 }

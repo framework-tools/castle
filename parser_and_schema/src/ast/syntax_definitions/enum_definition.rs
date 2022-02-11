@@ -2,7 +2,7 @@ use std::collections::{HashMap};
 
 use crate::parsers::schema_parser::types::schema_field::SchemaField;
 
-use super::{directive_definition::DirectiveDefinition};
+use super::{directive_definition::Directive};
 
 use super::{argument::Argument};
 
@@ -11,11 +11,11 @@ use super::{argument::Argument};
 pub struct EnumDefinition {
     pub name: Box<str>,
     pub variants: HashMap<Box<str>, EnumVariant>,
-    pub directives: HashMap<Box<str>, DirectiveDefinition>
+    pub directives: HashMap<Box<str>, Directive>
 }
 
 impl EnumDefinition {
-    pub fn new(name: Box<str>, variants: HashMap<Box<str>, EnumVariant>, directives: HashMap<Box<str>, DirectiveDefinition>) -> Self {
+    pub fn new(name: Box<str>, variants: HashMap<Box<str>, EnumVariant>, directives: HashMap<Box<str>, Directive>) -> Self {
         EnumDefinition {
             name,
             variants,
@@ -28,11 +28,11 @@ impl EnumDefinition {
 pub struct EnumVariant {
     pub name: Box<str>,
     pub enum_data_type: EnumDataType,
-    pub directives: HashMap<Box<str>, DirectiveDefinition>
+    pub directives: HashMap<Box<str>, Directive>
 }
 
 impl EnumVariant {
-    pub fn new(name: Box<str>, enum_data_type: EnumDataType, directives: HashMap<Box<str>, DirectiveDefinition>) -> Self {
+    pub fn new(name: Box<str>, enum_data_type: EnumDataType, directives: HashMap<Box<str>, Directive>) -> Self {
         EnumVariant {
             name,
             enum_data_type,

@@ -13,6 +13,7 @@ use shared::CastleError;
 /// - Function return value has unknown type
 /// - Directive arguments has unknown type
 
+#[cfg(test)]
 #[test]
 fn parser_breaks_if_unknown_schema_type_or_enum() {
     // In the User field organization,

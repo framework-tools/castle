@@ -1,6 +1,6 @@
 use std::{collections::HashMap};
 
-use parser_and_schema::{ast::syntax_definitions::{schema_definition::SchemaDefinition, enum_definition::EnumDataType, directive_definition::DirectiveDefinition, argument::Argument}, parsers::schema_parser::types::{type_system::Type, vec_type::VecType, option_type::OptionType, schema_field::SchemaField}};
+use parser_and_schema::{ast::syntax_definitions::{schema_definition::SchemaDefinition, enum_definition::EnumDataType, directive_definition::{Directive, DirectiveDefinition}, argument::Argument}, parsers::schema_parser::types::{type_system::Type, vec_type::VecType, option_type::OptionType, schema_field::SchemaField}};
 use shared::CastleError;
 
 
@@ -118,7 +118,7 @@ fn check_enum_object_field_types_are_defined(schema: &SchemaDefinition, fields: 
 ///     - If Some:
 ///     - call check_arguments_or_tuples_are_defined
 ///    - Return Ok(()) at bottom outside loop
-fn check_directives_use_valid_types(schema: &SchemaDefinition, directives: &Vec<DirectiveDefinition>) -> Result<(), CastleError> {
+fn check_directives_use_valid_types(schema: &SchemaDefinition, directives: &Vec<Directive>) -> Result<(), CastleError> {
     for directive in directives {
         match &directive.arguments {
             Some(arguments) => {
