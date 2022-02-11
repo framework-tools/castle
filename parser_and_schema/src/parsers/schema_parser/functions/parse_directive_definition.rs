@@ -1,8 +1,8 @@
-use std::io::Read;
+use std::{io::Read,};
 
 use shared::CastleError;
 
-use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::get_next_token_and_unwrap}, ast::syntax_definitions::{directive_definition::{DirectiveDefinition, self}, keyword::Keyword, fn_definition::FnDefinition}, token::token::{Punctuator, TokenKind, Identifier}};
+use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::get_next_token_and_unwrap}, ast::syntax_definitions::{directive_definition::{DirectiveDefinition, DirectiveOnValue}, keyword::Keyword, fn_definition::FnDefinition, argument::Argument}, token::token::{Punctuator, TokenKind, Identifier}};
 
 
 
@@ -12,7 +12,6 @@ use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::get_next_token_an
 ///  - match token.kind to punctuator::At else throw error
 ///  - let token = get next token and unwrap
 ///  - let identifier_and_arguments be match token.kind to identifier and return the inner value
-///  
 ///  - get next token and unwrap
 ///  - match token.kind to punctuator::On else throw error
 ///  - let token = get next token and unwrap
@@ -20,31 +19,55 @@ use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::get_next_token_an
 ///  - return directive_definition
 pub fn parse_directive_definition<R>(tokenizer: &mut Tokenizer<R>) -> Result<DirectiveDefinition, CastleError>
 where R: Read{
+    parse_token_and_consume_at_token(tokenizer)?;
+    let (identifier, arguments) = parse_and_match_identifier_and_arguments(tokenizer)?;
+    parse_token_and_consume_on_token(tokenizer)?;
+    let on = get_on_value(tokenizer)?;
+    let function = FnDefinition::new(identifier, arguments, None);
+    let directive_definition = DirectiveDefinition::new(function, on);
+    Ok(directive_definition)
+}
+
+///  - get next token and unwrap
+///  - match token.kind to punctuator::At else throw error
+fn parse_token_and_consume_at_token<R>(tokenizer: &mut Tokenizer<R>) -> Result<(), CastleError>
+where R: Read{
     let token = get_next_token_and_unwrap(tokenizer)?;
     match token.kind{
-        TokenKind::Punctuator(Punctuator::At) => { },
+        TokenKind::Punctuator(Punctuator::At) => {},
         _ => return Err(CastleError::Schema(format!("Unexpected token while parsing directive , expected @ got: {:?}", token.kind).into(), token.span))
     };
+    Ok(())
+}
 
+///  - let identifier_and_arguments be match token.kind to identifier and return the inner value
+fn parse_and_match_identifier_and_arguments<R>(tokenizer: &mut Tokenizer<R>) -> Result<(Box<str>, Option<Vec<Argument>>), CastleError>
+where R: Read{
     let token = get_next_token_and_unwrap(tokenizer)?;
-    let (identifier, arguments) = match token.kind{
-        TokenKind::Identifier(Identifier {name, arguments}) => {(name, arguments)},
+    match token.kind {
+        TokenKind::Identifier(Identifier {name, arguments}) => Ok((name, arguments)),
         _ => return Err(CastleError::Schema(format!("Unexpected token, expected Identifier got: {:?}", token.kind).into(), token.span))
-    };
+    }
+}
 
+///  - get next token and unwrap
+///  - match token.kind to punctuator::On else throw error
+fn parse_token_and_consume_on_token<R>(tokenizer: &mut Tokenizer<R>) -> Result<(), CastleError>
+where R: Read{
     let token = get_next_token_and_unwrap(tokenizer)?;
     match token.kind{
         TokenKind::Keyword(Keyword::On) => { },
         _ => return Err(CastleError::Schema(format!("Unexpected token, expected On got: {:?}", token.kind).into(), token.span))
     };
+    Ok(())
+}
 
+///  - match token.kind to On enum and insert into directive.on
+fn get_on_value<R>(tokenizer: &mut Tokenizer<R>) -> Result<DirectiveOnValue, CastleError>
+where R: Read{
     let token = get_next_token_and_unwrap(tokenizer)?;
-    let on = match token.kind{
-        TokenKind::DirectiveOnValue(on) => {on},
+    return match token.kind{
+        TokenKind::DirectiveOnValue(on) => {Ok(on)},
         _ => return Err(CastleError::Schema(format!("Unexpected token, expected Identifier got: {:?}", token.kind).into(), token.span))
     };
-    
-    let function = FnDefinition::new(identifier, arguments, None);
-    let directive_definition = DirectiveDefinition::new(function, on);
-    Ok(directive_definition)
 }
