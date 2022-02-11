@@ -7,9 +7,9 @@ use shared::CastleError;
 /// Needs to validate that the current schema and the query are compatible
 /// To do this it needs to validate:
 /// - Resolvers(object projections) in query are defined in the schema
-/// - They have matching arguments
+/// - They argument in the query is compatible with the argument type in schema definition
 /// - The query (object projection) should be the same or
-///    a subset of the schema. (Can't have a field not defined in the return type)
+///    a subset of the schema. (Essentially, can't have a field not defined in the return type)
 /// 
 /// For example:
 /// Query = "               Schema = "
@@ -19,6 +19,7 @@ use shared::CastleError;
 ///         age                 id: uuid,     
 ///     }                       first_name: String,
 /// ";                          last_name: String,
+///                             alias: Option<String>,
 ///                             age: Option<Int>,
 ///                             email: String,
 ///                             password: String,
