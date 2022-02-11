@@ -20,6 +20,7 @@ pub enum CastleError {
     UndefinedDirective(Box<str>),
     DirectiveDoesNotMatchSchemaDirective(Box<str>),
     MatchError(Box<str>),
+    NoIdentifierOnObjectProjection(Box<str>),
 }
 
 impl From<std::io::Error> for CastleError {
@@ -63,6 +64,7 @@ impl fmt::Display for CastleError {
             Self::UndefinedDirective(msg) => write!(f, "Undefined directive: {}", msg),
             Self::ResolverDoesNotMatchSchemaFunction(msg) => write!(f, "Resolver does not match schema function: {}", msg),
             Self::DirectiveDoesNotMatchSchemaDirective(msg) => write!(f, "Directive does not match schema directive: {}", msg),
+            Self::NoIdentifierOnObjectProjection(msg) => write!(f, "No identifier on object projection: {}", msg),
 
         }
     }
@@ -88,6 +90,7 @@ impl ExtendedErrorDisplay for CastleError {
             Self::UndefinedDirective(msg) => format!("Undefined directive: {}", msg),
             Self::ResolverDoesNotMatchSchemaFunction(msg) => format!("Resolver does not match schema function: {}", msg),
             Self::DirectiveDoesNotMatchSchemaDirective(msg) => format!("Directive does not match schema directive: {}", msg),
+            Self::NoIdentifierOnObjectProjection(msg) => format!("No identifier on object projection: {}", msg),
             
         }
     }
