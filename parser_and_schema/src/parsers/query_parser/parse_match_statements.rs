@@ -58,7 +58,7 @@ where R: Read {
         }
     }
     let identifier = condition.get_identifier();
-    return Ok(MatchArm::new(condition, Want::new_object_projection(Some(identifier), Some(match_arms), None)))
+    return Ok(MatchArm::new(condition, Want::new_object_projection(Some(identifier), Some(match_arms), None, None)))
 }
 
 
@@ -77,8 +77,7 @@ where R: Read {
     let peeked_token = peek_next_token_and_unwrap(tokenizer)?;
     return match &peeked_token.kind{
         TokenKind::Identifier(identifier) => {
-            let name = identifier.name.clone();
-            return insert_arm(tokenizer, match_arms, name);
+            return insert_arm(tokenizer, match_arms);
         },
         TokenKind::Punctuator(Punctuator::Comma) => {
             tokenizer.next(true)?; // consume the comma
@@ -89,7 +88,7 @@ where R: Read {
     };
 }
 
-fn insert_arm<R>(tokenizer: &mut Tokenizer<R>, match_arms: &mut HashMap<Box<str>, Want>, name: Box<str>) -> Result<bool, CastleError>
+fn insert_arm<R>(tokenizer: &mut Tokenizer<R>, match_arms: &mut HashMap<Box<str>, Want>) -> Result<bool, CastleError>
 where R: Read {
     let token_after = tokenizer.peek_n(1, true)?.unwrap();
     if token_after.kind == TokenKind::Punctuator(Punctuator::Colon) {
@@ -106,12 +105,12 @@ where R: Read {
             let identifier_token = get_next_token_and_unwrap(tokenizer)?; // consume the identifier
             tokenizer.next(true)?; // consume the colon
             tokenizer.next(true)?; // consume the match keyword
-            let name = match identifier_token.kind {
-                TokenKind::Identifier(identifier) => identifier.name.clone(),
+            let identifier = match identifier_token.kind {
+                TokenKind::Identifier(identifier) => identifier,
                 _ => return Err(CastleError::Parser("Expected identifier after colon in match arm".into(), identifier_token.span))
             };
             let match_statements = parse_match_statements(tokenizer)?;
-            match_arms.insert(name.clone(), Want::new_object_projection(Some(name), None, Some(match_statements)));
+            match_arms.insert(identifier.name.clone(), Want::new_object_projection(Some(identifier.name), None, Some(match_statements), None));
             let peeked_token = peek_next_token_and_unwrap(tokenizer)?;
             match &peeked_token.kind{
                 TokenKind::Punctuator(Punctuator::CloseBlock) => {
@@ -122,16 +121,22 @@ where R: Read {
             }
         }
         else {
-            return insert_object_into_match_arm(tokenizer, match_arms, name)
+            let identifier_token = get_next_token_and_unwrap(tokenizer)?; // consume the identifier
+            let identifier = match identifier_token.kind {
+                TokenKind::Identifier(identifier) => identifier,
+                _ => return Err(CastleError::Parser("Expected identifier after colon in match arm".into(), identifier_token.span))
+            };
+            return insert_object_into_match_arm(tokenizer, match_arms, identifier)
         }
         
     } 
     else { return insert_single_field_into_match_arm(tokenizer, match_arms) }
 }
 
-fn insert_object_into_match_arm<R>(tokenizer: &mut Tokenizer<R>, match_arms: &mut HashMap<Box<str>, Want>, name: Box<str>) -> Result<bool, CastleError> 
+fn insert_object_into_match_arm<R>(tokenizer: &mut Tokenizer<R>, match_arms: &mut HashMap<Box<str>, Want>, identifier: Identifier) -> Result<bool, CastleError> 
 where R: Read {
-    let match_arm = parse_object_projection(name.clone(), tokenizer, false)?;
+    let name = identifier.name.clone();
+    let match_arm = parse_object_projection(identifier, tokenizer, false)?;
     match_arms.insert(name, match_arm);
     return Ok(false)
 }

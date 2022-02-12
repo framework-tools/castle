@@ -578,3 +578,26 @@ fn can_parse_directives_enums(){
     let actual = parse_schema(schema).unwrap();
     assert_eq!(expected, actual);
 }
+
+#[test]
+fn can_parse_comments(){
+    let schema = "
+    // This is a comment
+    type Meow {
+        // This is a comment
+        is_admin: bool //This is also a comment
+    }
+   //lol ";
+    let mut expected_fields = HashMap::new();
+    expected_fields.insert("is_admin".into(), SchemaField::new("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), Vec::new()));
+    let mut expected_types = HashMap::new();
+    expected_types.insert("Meow".into(), SchemaType::new("Meow".into(), expected_fields));
+    let expected = SchemaDefinition {
+        schema_types: expected_types,
+        enums: HashMap::new(),
+        directives: HashMap::new(),
+        functions: HashMap::new(),
+    };
+    let actual = parse_schema(schema).unwrap();
+    assert_eq!(expected, actual);
+}

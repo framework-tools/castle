@@ -7,9 +7,8 @@ use crate::ast::syntax_definitions::argument::Argument;
 
 use super::{parse_inner_object::parse_inner_object, parse_match_statements::parse_match_statements};
 
-pub fn parse_object_projection<R>(identifier: Box<str>, tokenizer: &mut Tokenizer<R>, should_skip_start: bool) -> Result<Want, CastleError> 
+pub fn parse_object_projection<R>(identifier:Identifier, tokenizer: &mut Tokenizer<R>, should_skip_start: bool) -> Result<Want, CastleError> 
 where R: Read{
-    // if should_skip_start { skip_ident_colon_and_openblock(tokenizer)?; }
 
     let fields = loop_through_tokens_and_parse_fields(tokenizer)?;
     let parsed_object = create_obj(identifier, fields);
@@ -40,8 +39,8 @@ fn handle_errors_for_fields(err: Option<CastleError>, fields: &mut HashMap<Box<s
 fn match_current_token_to_field_and_parse_field(tokenizer: &mut Tokenizer<impl Read>, token: Token, fields: &mut HashMap<Box<str>, Want>) 
 -> Result<bool, CastleError> {
     match token.kind {
-        TokenKind::Identifier(Identifier {name, arguments}) => {
-            let should_break = parse_field(tokenizer, fields, name, arguments)?;
+        TokenKind::Identifier(identifier) => {
+            let should_break = parse_field(tokenizer, fields, identifier)?;
             if should_break { return Ok(true) }
             else { return Ok(false) }
         },
@@ -54,19 +53,19 @@ fn match_current_token_to_field_and_parse_field(tokenizer: &mut Tokenizer<impl R
     }
 }
 
-pub fn parse_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str>, Want>, name: Box<str>, arguments: Option<Vec<Argument>>) 
+pub fn parse_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str>, Want>, identifier: Identifier) 
 -> Result<bool, CastleError> where R: Read {
     let peeked_token = tokenizer.peek(true)?;
     match peeked_token {
         Some(peeked_token) => match peeked_token.kind {
             TokenKind::Punctuator(Punctuator::Colon) => {
-                let should_break = check_match_or_object_then_parse(tokenizer, fields, name)?;
+                let should_break = check_match_or_object_then_parse(tokenizer, fields, identifier)?;
                 if should_break { return Ok(true) }
                 else { return Ok(false) }
             }
             _ => {
-                let field = Want::SingleField(SingleField{ identifier: name.clone(), arguments, match_statement: None });
-                fields.insert(name, field);
+                let field = Want::SingleField(SingleField{ identifier: identifier.name.clone(), arguments: identifier.arguments, match_statement: None });
+                fields.insert(identifier.name, field);
                 return Ok(false)
             }
         },
@@ -74,8 +73,7 @@ pub fn parse_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str
     }
 }
 
-
-fn check_match_or_object_then_parse<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str>, Want>, name: Box<str>) -> Result<bool, CastleError> 
+fn check_match_or_object_then_parse<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str>, Want>, identifier: Identifier) -> Result<bool, CastleError> 
 where R: Read {
     tokenizer.next(true)?; // consume ':'
     let peeked_token = tokenizer.peek(true)?;
@@ -84,11 +82,11 @@ where R: Read {
             TokenKind::Keyword(Keyword::Match) => {
                 tokenizer.next(true)?; // consume the match keyword
                 let match_statements = parse_match_statements(tokenizer)?;
-                fields.insert(name.clone(), Want::new_object_projection(Some(name), None, Some(match_statements)));
+                fields.insert(identifier.name.clone(), Want::new_object_projection(Some(identifier.name), None, Some(match_statements), None));
                 return Ok(false)
             },
             TokenKind::Punctuator(Punctuator::OpenBlock) => {
-                parse_inner_object(tokenizer, fields, name.clone())?;
+                parse_inner_object(tokenizer, fields, identifier)?;
                 return Ok(false)
             },
             _ => Ok(true) // end of object projection
@@ -97,13 +95,22 @@ where R: Read {
     }
 }
 
-fn create_obj(identifier: Box<str>, fields: HashMap<Box<str>, Want>) -> Result<Want, CastleError> {
-        let object_projection = ObjectProjection {
-            identifier: Some(identifier),
-            fields: Some(fields),
-            match_statement: None
-        };
-        return Ok(Want::ObjectProjection(object_projection))
+fn create_obj(identifier: Identifier, fields: HashMap<Box<str>, Want>) -> Result<Want, CastleError> {
+    let arguments;
+    if identifier.arguments.is_some() {
+        let ident_args= identifier.arguments.unwrap();
+        if ident_args.len() == 0 { arguments = None }
+        else { arguments = Some(ident_args) }
+    } else {
+        arguments = None;
+    }
+    let object_projection = ObjectProjection {
+        identifier: Some(identifier.name),
+        arguments,
+        fields: Some(fields),
+        match_statement: None
+    };
+    return Ok(Want::ObjectProjection(object_projection))
 }
 
 fn create_err_for_parser(token: &Token) -> Result<Option<Result<Want, CastleError>>, CastleError> {

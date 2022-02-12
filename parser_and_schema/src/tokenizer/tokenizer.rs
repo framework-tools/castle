@@ -37,6 +37,9 @@ where
 
         match token {
             Some(token) => {
+                if token.kind == TokenKind::Comment {
+                    self.next(skip_line_terminators)?;
+                }
                 if skip_line_terminators && token.kind == TokenKind::LineTerminator {
                     // this will consume all line terminators recursively
                     return self.next(skip_line_terminators);
@@ -66,6 +69,9 @@ where
         // we need to read more tokens
         while skip_n >= self.peeked.len() {
             if let Some(token) = self.advance()? {
+                if token.kind == TokenKind::Comment {
+                    self.next(skip_line_terminators)?;
+                }
                 if skip_line_terminators && token.kind() == &TokenKind::LineTerminator {
                     continue;
                 }

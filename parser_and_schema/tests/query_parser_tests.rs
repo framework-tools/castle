@@ -41,7 +41,7 @@ assert_eq!(expected, actual.wants);
 
 #[test]
 fn can_parse_two_fields() -> Result<(), CastleError> {
-    let query = "first_name last_name";
+    let query = "first_name() last_name()";
 
     let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
         ("first_name".into(), Want::new_single_field("first_name".into(), None, None)),
@@ -56,8 +56,8 @@ assert_eq!(expected, actual.wants);
 #[test]
 fn can_parse_two_fields_different_lines() -> Result<(), CastleError> {
     let query = "
-    first_name 
-    last_name
+    first_name()
+    last_name()
     ";
 
     let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
@@ -73,10 +73,10 @@ fn can_parse_two_fields_different_lines() -> Result<(), CastleError> {
 #[test]
 fn can_parse_four_fields_different_lines() -> Result<(), CastleError> {
     let query = "
-    first_name 
-    last_name
-    time
-    email
+    first_name()
+    last_name()
+    time()
+    email()
     ";
 
     let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
@@ -93,7 +93,7 @@ fn can_parse_four_fields_different_lines() -> Result<(), CastleError> {
 
 #[test]
 fn can_parse_object_projection_with_single_field() -> Result<(), CastleError> {
-    let query = "me {
+    let query = "me() {
         first_name
     }";
     
@@ -102,7 +102,7 @@ fn can_parse_object_projection_with_single_field() -> Result<(), CastleError> {
     ]);
 
     let expected = insert_each_field_into_fields(vec![
-        ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None)),
+        ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None, None)),
     ]);
     
     let actual = parse_query(query)?;
@@ -113,7 +113,7 @@ fn can_parse_object_projection_with_single_field() -> Result<(), CastleError> {
 
 #[test]
 fn can_parse_complex_object_projection_with_two_fields() {
-    let query = "me {
+    let query = "me() {
         first_name,
         last_name
     }";
@@ -124,7 +124,7 @@ fn can_parse_complex_object_projection_with_two_fields() {
         ]);
 
         let expected = insert_each_field_into_fields(vec![
-            ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None)),
+            ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None, None)),
         ]);
 
         let actual = parse_query(query).unwrap();
@@ -133,7 +133,7 @@ fn can_parse_complex_object_projection_with_two_fields() {
 
 #[test]
 fn can_parse_complex_object_projection_with_three_fields() {
-    let query = "me {
+    let query = "me() {
         first_name
         last_name
         role
@@ -146,7 +146,7 @@ fn can_parse_complex_object_projection_with_three_fields() {
         ]);
     
         let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
-            ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None)),
+            ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None, None)),
         ]);
 
         let actual = parse_query(query).unwrap();
@@ -156,10 +156,10 @@ fn can_parse_complex_object_projection_with_three_fields() {
 #[test]
 fn can_parse_object_and_single_field() {
     let query = "
-        me {
+        me() {
             lol
         }
-        lets_gooo
+        lets_gooo()
         ";
     
         let fields = insert_each_field_into_fields(vec![
@@ -167,7 +167,7 @@ fn can_parse_object_and_single_field() {
         ]);
 
         let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
-            ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None)),
+            ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None, None)),
             ("lets_gooo".into(), Want::new_single_field("lets_gooo".into(), None, None)),
         ]);
 
@@ -178,10 +178,10 @@ fn can_parse_object_and_single_field() {
 #[test]
 fn can_parse_two_objects_and_two_fields() {
     let query = "
-        me {
+        me() {
             first_name
         }
-        user {
+        user() {
             username
             log_in_count
         }
@@ -198,8 +198,8 @@ fn can_parse_two_objects_and_two_fields() {
         ]);
         
         let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
-            ("me".into(), Want::new_object_projection(Some("me".into()), Some(me_fields), None)),
-            ("user".into(), Want::new_object_projection(Some("user".into()), Some(user_fields), None)),
+            ("me".into(), Want::new_object_projection(Some("me".into()), Some(me_fields), None, None)),
+            ("user".into(), Want::new_object_projection(Some("user".into()), Some(user_fields), None, None)),
             ("location".into(), Want::new_single_field("location".into(), None, None)),
             ("device".into(), Want::new_single_field("device".into(), None, None)),
         ]);
@@ -211,7 +211,7 @@ fn can_parse_two_objects_and_two_fields() {
 #[test]
 fn can_parse_object_projection_with_argument() {
     let query = "
-    me {
+    me() {
         first_name
         last_name
         email
@@ -230,7 +230,7 @@ fn can_parse_object_projection_with_argument() {
     ]);
 
     let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
-        ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None)),
+        ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None, None)),
     ]);
     let actual = parse_query(query).unwrap();
     assert_eq!(expected, actual.wants);
@@ -239,7 +239,7 @@ fn can_parse_object_projection_with_argument() {
 #[test]
 fn can_parse_object_projection_with_multiple_arguments() {
     let query = "
-    me {
+    me(3) {
         first_name
         last_name
         email
@@ -260,11 +260,13 @@ fn can_parse_object_projection_with_multiple_arguments() {
         ("heading".into(), Want::new_single_field("heading".into(), Some(vec![
             Argument::PrimitiveValue(PrimitiveValue::String("#FF0000".into())),
             Argument::PrimitiveValue(PrimitiveValue::Boolean(true)),
-        ]), None)),
+        ]), None))
     ]);
 
     let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
-        ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None)),
+        ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None, Some(vec![
+            Argument::PrimitiveValue(PrimitiveValue::UInt(3))
+        ]))),
     ]);
 
     let actual = parse_query(query).unwrap();
@@ -274,7 +276,7 @@ fn can_parse_object_projection_with_multiple_arguments() {
 #[test]
 fn can_parse_object_projection_with_inner_object() {
     let query = "
-    me {
+    me() {
         name: {
             first_name
             last_name
@@ -289,7 +291,7 @@ fn can_parse_object_projection_with_inner_object() {
     ]);
 
         let fields = insert_each_field_into_fields(vec![
-            ("name".into(), Want::new_object_projection(Some("name".into()), Some(inner_fields), None)),
+            ("name".into(), Want::new_object_projection(Some("name".into()), Some(inner_fields), None, None)),
             ("last_name".into(), Want::new_single_field("last_name".into(), None, None)),
             ("email".into(), Want::new_single_field("email".into(), Some(vec![
                 Argument::PrimitiveValue(PrimitiveValue::UInt(48)),
@@ -297,7 +299,7 @@ fn can_parse_object_projection_with_inner_object() {
         ]);
 
     let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
-        ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None)),
+        ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None, None)),
     ]);
     let actual = parse_query(query).unwrap();
     assert_eq!(expected, actual.wants);
@@ -322,15 +324,15 @@ fn can_parse_object_projection_with_nested_object() {
 
     let inner_fields = insert_each_field_into_fields(vec![
         ("url".into(), Want::new_single_field("url".into(), None, None)),
-        ("size".into(), Want::new_object_projection(Some("size".into()), Some(size_fields), None)),
+        ("size".into(), Want::new_object_projection(Some("size".into()), Some(size_fields), None, None)),
     ]);
 
     let fields = insert_each_field_into_fields(vec![
-        ("profile_pic".into(), Want::new_object_projection(Some("profile_pic".into()), Some(inner_fields), None)),
+        ("profile_pic".into(), Want::new_object_projection(Some("profile_pic".into()), Some(inner_fields), None, None)),
     ]);
 
     let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
-        ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None)),
+        ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None, None)),
     ]);
     let actual = parse_query(query).unwrap();
     assert_eq!(expected, actual.wants);
@@ -339,7 +341,7 @@ fn can_parse_object_projection_with_nested_object() {
 #[test]
 fn can_parse_object_projection_with_match() {
     let query = "
-        me {
+        me() {
             first_name
             last_name
             email
@@ -364,7 +366,7 @@ fn can_parse_object_projection_with_match() {
 
     let svg_match_arm = MatchArm::new(
         Expression::EnumValue( EnumValue { identifier: "Icon::Svg".into(), enum_parent: "Icon".into(), variant: "Svg".into(), data_type: EnumDataType::EnumUnit }),
-        Want::new_object_projection(Some("Icon::Svg".into()), Some(svg_fields), None),
+        Want::new_object_projection(Some("Icon::Svg".into()), Some(svg_fields), None, None),
     );
 
     let emoji_fields = insert_each_field_into_fields(vec![
@@ -374,7 +376,7 @@ fn can_parse_object_projection_with_match() {
 
     let emoji_match_arms = MatchArm::new(
             Expression::EnumValue( EnumValue { identifier: "Icon::Emoji".into(), enum_parent: "Icon".into(), variant: "Emoji".into(), data_type: EnumDataType::EnumUnit }),
-            Want::new_object_projection(Some("Icon::Emoji".into()), Some(emoji_fields), None),
+            Want::new_object_projection(Some("Icon::Emoji".into()), Some(emoji_fields), None, None),
     );
 
     let match_statement = MatchStatement::new(vec![
@@ -389,11 +391,11 @@ fn can_parse_object_projection_with_match() {
         ("profile_picture".into(), Want::new_single_field("profile_picture".into(), Some(vec![
             Argument::PrimitiveValue(PrimitiveValue::UInt(48)),
         ]), None)),
-        ("icon".into(), Want::new_object_projection(Some("icon".into()), None, Some(match_statement))),
+        ("icon".into(), Want::new_object_projection(Some("icon".into()), None, Some(match_statement), None)),
     ]);
 
     let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
-        ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None)),
+        ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None, None)),
     ]);
     let actual = parse_query(query).unwrap();
     
@@ -403,7 +405,7 @@ fn can_parse_object_projection_with_match() {
 #[test]
 fn can_parse_object_projection_with_match_inside_match() {
     let query = "
-        me {
+        me() {
             icon: match {
                 Icon::Svg => {
                     url(48)
@@ -437,11 +439,11 @@ fn can_parse_object_projection_with_match_inside_match() {
     let size_match = MatchStatement::new(vec![
         MatchArm::new(
             Expression::EnumValue( EnumValue { identifier: "Size::Rectangle ".into(), enum_parent: "Size".into(), variant: "Rectangle".into(), data_type: EnumDataType::EnumUnit }),
-            Want::new_object_projection(Some("Size::Rectangle".into()), Some(rectangle_fields), None),
+            Want::new_object_projection(Some("Size::Rectangle".into()), Some(rectangle_fields), None, None),
         ),
         MatchArm::new(
             Expression::EnumValue( EnumValue { identifier: "Size::Square".into(), enum_parent: "Size".into(), variant: "Square".into(), data_type: EnumDataType::EnumUnit }),
-            Want::new_object_projection(Some("Size::Square".into()), Some(square_fields), None),
+            Want::new_object_projection(Some("Size::Square".into()), Some(square_fields), None, None),
         ),
     ]);
 
@@ -449,7 +451,7 @@ fn can_parse_object_projection_with_match_inside_match() {
         ("url".into(), Want::new_single_field("url".into(), Some(vec![
             Argument::PrimitiveValue(PrimitiveValue::UInt(48)),
         ]), None)),
-        ("size".into(), Want::new_object_projection(Some("size".into()), None, Some(size_match))),
+        ("size".into(), Want::new_object_projection(Some("size".into()), None, Some(size_match), None)),
     ]);
 
     let emoji_fields = insert_each_field_into_fields(vec![
@@ -460,20 +462,20 @@ fn can_parse_object_projection_with_match_inside_match() {
     let icon_match = MatchStatement::new(vec![
         MatchArm::new(
             Expression::EnumValue( EnumValue { identifier: "Icon::Svg".into(), enum_parent: "Icon".into(), variant: "Svg".into(), data_type: EnumDataType::EnumUnit }),
-            Want::new_object_projection(Some("Icon::Svg".into()), Some(svg_fields), None),
+            Want::new_object_projection(Some("Icon::Svg".into()), Some(svg_fields), None, None),
         ),
         MatchArm::new(
             Expression::EnumValue( EnumValue { identifier: "Icon::Emoji".into(), enum_parent: "Icon".into(), variant: "Emoji".into(), data_type: EnumDataType::EnumUnit }),
-            Want::new_object_projection(Some("Icon::Emoji".into()), Some(emoji_fields), None),
+            Want::new_object_projection(Some("Icon::Emoji".into()), Some(emoji_fields), None, None),
         ),
     ]);
 
     let fields = insert_each_field_into_fields(vec![
-        ("icon".into(), Want::new_object_projection(Some("icon".into()), None, Some(icon_match))),
+        ("icon".into(), Want::new_object_projection(Some("icon".into()), None, Some(icon_match), None)),
     ]);
 
     let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
-        ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None)),
+        ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None, None)),
     ]);
     let actual = parse_query(query).unwrap();
     assert_eq!(expected, actual.wants);
@@ -482,7 +484,7 @@ fn can_parse_object_projection_with_match_inside_match() {
 #[test]
 fn trying_to_break_test_v1() {
     let query = "
-    me {
+    me() {
         (
     }
     ";
@@ -494,7 +496,7 @@ fn trying_to_break_test_v1() {
 #[test]
 fn trying_to_break_test_v2() {
     let query = "
-    me {
+    me() {
         ( {
             )
         }
@@ -508,7 +510,7 @@ fn trying_to_break_test_v2() {
 #[test]
 fn trying_to_break_test_v3() {
     let query = "
-    breaking_test {
+    breaking_test() {
         ( {
             )gerg
         }
@@ -525,7 +527,7 @@ fn trying_to_break_test_v3() {
 #[test]
 fn trying_to_break_test_v4() {
     let query = "
-    me {
+    me() {
         first_name    
         last_name 
 
@@ -569,11 +571,11 @@ fn trying_to_break_test_v4() {
     let icon_match = MatchStatement::new(vec![
         MatchArm::new(
             Expression::EnumValue( EnumValue { identifier: "Icon::Svg".into(), enum_parent: "Icon".into(), variant: "Svg".into(), data_type: EnumDataType::EnumUnit }),
-            Want::new_object_projection(Some("Icon::Svg".into()), Some(svg_fields), None),
+            Want::new_object_projection(Some("Icon::Svg".into()), Some(svg_fields), None, None),
         ),
         MatchArm::new(
             Expression::EnumValue( EnumValue { identifier: "Icon::Emoji".into(), enum_parent: "Icon".into(), variant: "Emoji".into(), data_type: EnumDataType::EnumUnit }),
-            Want::new_object_projection(Some("Icon::Emoji".into()), Some(emoji_fields), None),
+            Want::new_object_projection(Some("Icon::Emoji".into()), Some(emoji_fields), None, None),
         ),
     ]);
 
@@ -584,11 +586,11 @@ fn trying_to_break_test_v4() {
         ("profile_picture".into(), Want::new_single_field("profile_picture".into(), Some(vec![
             Argument::PrimitiveValue(PrimitiveValue::UInt(48)),
         ]), None)),
-        ("icon".into(), Want::new_object_projection(Some("icon".into()), None, Some(icon_match))),
+        ("icon".into(), Want::new_object_projection(Some("icon".into()), None, Some(icon_match), None)),
     ]);
 
     let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
-        ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None)),
+        ("me".into(), Want::new_object_projection(Some("me".into()), Some(fields), None, None)),
     ]);
     let actual = parse_query(query).unwrap();
     assert_eq!(expected, actual.wants);
@@ -597,7 +599,7 @@ fn trying_to_break_test_v4() {
 #[test]
 fn should_not_parse_object_with_no_fields_and_no_match() {
     let query = "
-    me {
+    me() {
 
     }";
 

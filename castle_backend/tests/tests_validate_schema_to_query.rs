@@ -8,7 +8,6 @@ use shared::CastleError;
 fn if_object_projection_identifier_is_not_defined_as_function_in_schema_should_throw_error() -> Result<(), CastleError>{
     let schema = "
     fn lolololol(id: Int) -> User
-
     type User {
             amount: id,
             currency: String,

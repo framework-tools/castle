@@ -32,7 +32,7 @@ fn parser_breaks_if_unknown_schema_type_or_enum() -> Result<(), CastleError> {
             location: String,
             log_in_count: Int,
         }
-        
+
         type Organization {
             id: uuid,
             name: String,
@@ -65,7 +65,7 @@ fn can_parse_defined_schema_type_as_type() {
             log_in_count: Int
             organization: Organization
         }
-        
+
         type Organization {
             id: uuid,
             name: String,
@@ -149,6 +149,7 @@ fn err_if_parses_enum_with_unknown_tuple_type() -> Result<(), CastleError> {
             SomeOtherType(String, DoesntExist)
         }
     ";
+    
     let schema_definition = parse_schema(schema)?;
     let actual = self_validate_schema(&schema_definition);
     if actual.is_err() {

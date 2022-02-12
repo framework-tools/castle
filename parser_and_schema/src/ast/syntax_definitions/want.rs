@@ -23,12 +23,24 @@ pub struct SingleField {
 #[derive(Debug, PartialEq)]
 pub struct ObjectProjection {
     pub identifier:  Option<Box<str>>,
+    pub arguments: Option<Vec<Argument>>,
     pub fields: Option<HashMap<Box<str>, Want>>,
     pub match_statement: Option<MatchStatement>
 }
 
 impl Want {
-    pub fn new_single_field(identifier: Box<str>, arguments: Option<Vec<Argument>>, match_statement: Option<MatchStatement>) -> Self {
+    pub fn new_single_field(identifier: Box<str>, args: Option<Vec<Argument>>, match_statement: Option<MatchStatement>) -> Self {
+        let arguments;
+        if args.is_some() {
+            let args = args.unwrap();
+            if args.len() == 0 {
+                arguments = None;
+            } else {
+                arguments = Some(args);
+            }
+        } else {
+            arguments = args;
+        }
         Want::SingleField(SingleField {
             identifier,
             arguments,
@@ -36,10 +48,11 @@ impl Want {
         })
     }
 
-    pub fn new_object_projection(identifier: Option<Box<str>>, fields: Option<HashMap<Box<str>, Want>>, match_statement: Option<MatchStatement>) -> Self {
+    pub fn new_object_projection(identifier: Option<Box<str>>, fields: Option<HashMap<Box<str>, Want>>, match_statement: Option<MatchStatement>, arguments: Option<Vec<Argument>>) -> Self {
         Want::ObjectProjection(ObjectProjection {
             identifier,
             fields,
+            arguments,
             match_statement
         })
     }
@@ -63,10 +76,11 @@ impl SingleField {
 }
 
 impl ObjectProjection {
-    pub fn new(identifier: Option<Box<str>>, fields: Option<HashMap<Box<str>, Want>>,match_statement: Option<MatchStatement>) -> Want {
+    pub fn new(identifier: Option<Box<str>>, fields: Option<HashMap<Box<str>, Want>>,match_statement: Option<MatchStatement>, arguments: Option<Vec<Argument>>) -> Want {
         Want::ObjectProjection(ObjectProjection {
             identifier,
             fields,
+            arguments,
             match_statement
         })
     }
