@@ -22,6 +22,8 @@ pub enum CastleError {
     MatchError(Box<str>),
     NoIdentifierOnObjectProjection(Box<str>),
     QueryResolverNotDefinedInSchema(Box<str>),
+    ArgumentsInQueryDoNotMatchResolver(Box<str>),
+    FieldsInReturnTypeDoNotMatchQuery(Box<str>),
 }
 
 impl From<std::io::Error> for CastleError {
@@ -67,6 +69,8 @@ impl fmt::Display for CastleError {
             Self::DirectiveDoesNotMatchSchemaDirective(msg) => write!(f, "Directive does not match schema directive: {}", msg),
             Self::NoIdentifierOnObjectProjection(msg) => write!(f, "No identifier on object projection: {}", msg),
             Self::QueryResolverNotDefinedInSchema(msg) => write!(f, "Query resolver not defined in schema: {}", msg),
+            Self::ArgumentsInQueryDoNotMatchResolver(msg) => write!(f, "Arguments in query do not match resolver: {}", msg),
+            Self::FieldsInReturnTypeDoNotMatchQuery(msg) => write!(f, "Fields in return type do not match query: {}", msg),
         }
     }
 }
@@ -93,6 +97,8 @@ impl ExtendedErrorDisplay for CastleError {
             Self::DirectiveDoesNotMatchSchemaDirective(msg) => format!("Directive does not match schema directive: {}", msg),
             Self::NoIdentifierOnObjectProjection(msg) => format!("No identifier on object projection: {}", msg),
             Self::QueryResolverNotDefinedInSchema(msg) => format!("Query resolver not defined in schema: {}", msg),
+            Self::ArgumentsInQueryDoNotMatchResolver(msg) => format!("Arguments in query do not match resolver: {}", msg),
+            Self::FieldsInReturnTypeDoNotMatchQuery(msg) => format!("Fields in return type do not match query: {}", msg),
         }
     }
 }

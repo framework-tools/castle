@@ -582,7 +582,7 @@ fn can_parse_directives_enums(){
 #[test]
 fn can_parse_comments(){
     let schema = "
-    // This is a comment
+    // This is a comment $#@!@\"\"@!E$#@!
     type Meow {
         // This is a comment
         is_admin: bool //This is also a comment

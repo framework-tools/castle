@@ -1,6 +1,6 @@
 use std::{collections::HashMap};
 
-use parser_and_schema::{ast::syntax_definitions::{schema_definition::SchemaDefinition, enum_definition::EnumDataType, directive_definition::{Directive}, argument::Argument}, parsers::schema_parser::types::{type_system::Type, vec_type::VecType, option_type::OptionType, schema_field::SchemaField}};
+use parser_and_schema::{ast::syntax_definitions::{schema_definition::SchemaDefinition, enum_definition::EnumDataType, directive_definition::{Directive, DirectiveDefinition}, argument::Argument}, parsers::schema_parser::types::{type_system::Type, vec_type::VecType, option_type::OptionType, schema_field::SchemaField}};
 use shared::CastleError;
 
 
@@ -38,6 +38,7 @@ fn for_each_schema_type_check_field_type_is_valid(schema: &SchemaDefinition) -> 
         for (_field_name, field) in &schema_type.fields {
             check_type_used_in_field_has_been_defined(schema, &field.type_)?;
             check_directives_use_valid_types(schema, &field.directives)?;
+            check_directives_use_valid_directive_definitions(&schema.directives, &field.directives, schema)?;
         }
     }
     return Ok(())
@@ -76,6 +77,7 @@ fn check_type_used_in_field_has_been_defined(schema: &SchemaDefinition, field_ty
 fn for_each_enum_check_all_types_in_their_values_are_valid(schema: &SchemaDefinition) -> Result<(), CastleError> {
     for (_enum_name, enum_definition) in &schema.enums {
         for (_variant_name, variant) in &enum_definition.variants {
+            check_directives_use_valid_directive_definitions(&schema.directives, &variant.directives, schema)?;
             match &variant.enum_data_type {
                 EnumDataType::EnumTuple(tuple_types) => {
                     check_arguments_or_tuples_are_defined(schema, tuple_types)?;
@@ -92,21 +94,26 @@ fn for_each_enum_check_all_types_in_their_values_are_valid(schema: &SchemaDefini
 
 fn check_arguments_or_tuples_are_defined(schema: &SchemaDefinition, arguments_or_tuples: &Vec<Argument>) -> Result<(), CastleError> {
     for arg_or_tuple in arguments_or_tuples {
-        match arg_or_tuple {
-            Argument::Type(Type::SchemaTypeOrEnum(type_to_check)) => {
-                check_type_or_enum_exists(&type_to_check, schema)?;
-            },
-            Argument::Type(type_) => check_type_used_in_field_has_been_defined(schema, &type_)?,
-            Argument::IdentifierAndType(_, type_) => check_type_used_in_field_has_been_defined(schema, &type_)?,
-            _ => {}
-        }
+        check_argument_is_defined(schema, arg_or_tuple)?;
     }
     return Ok(())
+}
+
+fn check_argument_is_defined(schema: &SchemaDefinition, arg_or_tuple: &Argument) -> Result<(), CastleError> {
+    match arg_or_tuple {
+        Argument::Type(Type::SchemaTypeOrEnum(type_to_check)) => {
+            check_type_or_enum_exists(&type_to_check, schema)
+        },
+        Argument::Type(type_) => check_type_used_in_field_has_been_defined(schema, &type_),
+        Argument::IdentifierAndType(_, type_) => check_type_used_in_field_has_been_defined(schema, &type_),
+        _ => {Ok(())}
+    }
 }
 
 fn check_enum_object_field_types_are_defined(schema: &SchemaDefinition, fields: &HashMap<Box<str>, SchemaField>) -> Result<(), CastleError> {
     for (_field_name, field) in fields {
         check_type_used_in_field_has_been_defined(schema, &field.type_)?;
+        check_directives_use_valid_directive_definitions(&schema.directives, &field.directives, schema)?;
     }
     return Ok(())
 }
@@ -152,6 +159,39 @@ fn for_each_fn_check_arguments_and_return_types_are_valid(schema: &SchemaDefinit
             },
             _ => {}
         };
+    }
+    return Ok(())
+}
+
+fn check_directives_use_valid_directive_definitions(directive_definitions: &HashMap<Box<str>, DirectiveDefinition>, directives: &Vec<Directive>, schema: &SchemaDefinition) -> Result<(), CastleError> {
+    for directive in directives {
+        if !directive_definitions.contains_key(&directive.name) {
+            return Err(CastleError::UndefinedDirective(format!("Directive {} is not defined", &directive.name).into()));
+        }
+        else {
+            let directive_definition = &directive_definitions[&directive.name].function;
+            if directive_definition.args.is_some() {
+                let directive_definition = directive_definition.args.as_ref().unwrap();
+                for args in directive_definition {
+                    check_argument_is_defined(schema, args)?;
+                }
+            }
+            if directive.arguments.is_some() {
+                if directive_definition.args.is_some() {
+                    let directive_definition_args = directive_definition.args.as_ref().unwrap();
+                    let directive_args = directive.arguments.as_ref().unwrap();
+                    for arg in directive_definition_args {
+                        if !directive_args.contains(&arg) {
+                            return Err(CastleError::DirectiveDoesNotMatchSchemaDirective(format!("Directive {} does not have argument {:?}", &directive.name, &arg).into()));
+                        }
+                    }
+                } 
+                else {
+                    return Err(CastleError::DirectiveDoesNotMatchSchemaDirective(format!("Directive {} has no arguments", &directive.name).into()));
+                }
+            }
+
+        }
     }
     return Ok(())
 }

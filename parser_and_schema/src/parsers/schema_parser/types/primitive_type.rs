@@ -3,6 +3,7 @@
 pub enum PrimitiveType {
     String,
     Int,
+    UInt,
     Float,
     Bool,
     Uuid
@@ -17,6 +18,7 @@ impl PrimitiveType {
         match s {
             "string" => Some(PrimitiveType::String),
             "int" => Some(PrimitiveType::Int),
+            "uint" => Some(PrimitiveType::UInt),
             "float" => Some(PrimitiveType::Float),
             "bool" => Some(PrimitiveType::Bool),
             "uuid" => Some(PrimitiveType::Uuid),

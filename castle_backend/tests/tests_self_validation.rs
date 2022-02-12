@@ -149,7 +149,7 @@ fn err_if_parses_enum_with_unknown_tuple_type() -> Result<(), CastleError> {
             SomeOtherType(String, DoesntExist)
         }
     ";
-    
+
     let schema_definition = parse_schema(schema)?;
     let actual = self_validate_schema(&schema_definition);
     if actual.is_err() {
@@ -353,6 +353,73 @@ fn test_option_type_inside_vec_breaks_if_type_is_not_defined( ) -> Result<(), Ca
     if actual.is_err() {
         match actual {
             Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => { return Ok(()) }, //passes
+            _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
+        }
+    } else {
+        panic!("No error thrown");
+    }
+}
+
+#[test]
+fn should_break_if_used_directive_is_not_defined( ) -> Result<(), CastleError> {
+    let schema = "
+        type User {
+            pets: String @authenticated(token: String) @doesnt_exist
+        }
+        directive @authenticated(token: String) on FIELD
+    ";
+
+    let schema_definition = parse_schema(schema)?;
+    let actual = self_validate_schema(&schema_definition);
+    if actual.is_err() {
+        match actual {
+            Err(CastleError::UndefinedDirective(_)) => { return Ok(()) }, //passes
+            _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
+        }
+    } else {
+        panic!("No error thrown");
+    }
+}
+
+#[test]
+fn should_break_if_used_directive_is_not_defined_enum( ) -> Result<(), CastleError> {
+    let schema = "
+        enum User {
+            Red,
+            Blue,
+            Green @doesnt_exist
+        }
+        directive @authenticated(token: String) on ENUM_VARIANT
+    ";
+
+    let schema_definition = parse_schema(schema)?;
+    let actual = self_validate_schema(&schema_definition);
+    if actual.is_err() {
+        match actual {
+            Err(CastleError::UndefinedDirective(_)) => { return Ok(()) }, //passes
+            _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
+        }
+    } else {
+        panic!("No error thrown");
+    }
+}
+
+#[test]
+fn should_break_if_used_directive_definition_have_mismatched_arguments( ) -> Result<(), CastleError> {
+    let schema = "
+        enum User {
+            Red,
+            Blue,
+            Green @authenticated (token: Int)
+        }
+        directive @authenticated(token: String) on ENUM_VARIANT
+    ";
+
+    let schema_definition = parse_schema(schema)?;
+    let actual = self_validate_schema(&schema_definition);
+    if actual.is_err() {
+        match actual {
+            Err(CastleError::DirectiveDoesNotMatchSchemaDirective(_)) => { return Ok(()) }, //passes
             _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
         }
     } else {

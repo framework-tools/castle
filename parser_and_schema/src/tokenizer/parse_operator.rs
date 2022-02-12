@@ -18,7 +18,6 @@ where R: Read {
             return parse_comment(cursor, start);
         }
     }
-    
     return Ok(Token::operator_as_str_to_token(&ch, start, cursor.pos())?)
 }
 
