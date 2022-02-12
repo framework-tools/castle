@@ -6,14 +6,26 @@ use shared::CastleError;
 
 #[cfg(test)]
 #[test]
-fn test_resolver_defined_in_schema_that_does_not_exist_throw_error(){
+fn test_resolver_defined_in_schema_that_does_not_exist_throws_error(){
     let schema = "
+    fn foo(id: Int) -> Int
     fn me (name: String) -> String 
     ";
 
     let parsed_schema = parse_schema(schema).unwrap();
 
-    let resolvers = HashMap::new();
+    let fn_definition_foo = FnDefinition {
+        name: "foo".into(),
+        args: Some(vec![
+            Argument::IdentifierAndType("id".into(), Type::PrimitiveType(PrimitiveType::Int))
+        ]),
+        return_type: Some(Type::PrimitiveType(PrimitiveType::Int))
+    };
+    let foo_resolver = Resolver { 
+        resolver_definition: fn_definition_foo
+    };
+    let mut resolvers = HashMap::new();
+    resolvers.insert("foo".into(), foo_resolver);
     let result = validate_schema_with_resolvers(resolvers, &parsed_schema);
     
     if result.is_err() {
@@ -66,7 +78,7 @@ fn test_resolver_defined_in_schema_that_has_different_return_type(){
     
     let function_definition = FnDefinition::new("me".into(), Some(vec![
         Argument::IdentifierAndType("name".into(), Type::PrimitiveType(PrimitiveType::String)),
-    ]), 
+    ]),
     Some(Type::PrimitiveType(PrimitiveType::Int))); //return type is different
 
     let resolver = Resolver::new(function_definition);
@@ -123,40 +135,12 @@ fn test_directive_defined_in_schema_that_has_different_arguments(){
 
     let directive = DirectiveDefinition::new(directive_definition, DirectiveOnValue::Field);
     let mut directives = HashMap::new();
-    directives.insert("me".into(), directive);
+    directives.insert("test".into(), directive);
     let result = validate_schema_with_directives(directives, &parsed_schema);
     
     if result.is_err() {
         match result {
-            Err(CastleError::ResolverDoesNotMatchSchemaFunction(_)) => {}, //passes
-            _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", result),
-        }
-    } else {
-        panic!("No error thrown");
-    }
-}
-
-#[test]
-fn test_directivies_defined_in_schema_that_has_different_return_type(){
-    let schema = "
-    fn me (name: String) -> String
-    ";
-
-    let parsed_schema = parse_schema(schema).unwrap();
-    
-    let function_definition = FnDefinition::new("me".into(), Some(vec![
-        Argument::IdentifierAndType("name".into(), Type::PrimitiveType(PrimitiveType::String)),
-    ]), 
-    Some(Type::PrimitiveType(PrimitiveType::Int))); //return type is different
-
-    let directive = DirectiveDefinition::new(function_definition, DirectiveOnValue::Field);
-    let mut directives = HashMap::new();
-    directives.insert("me".into(), directive);
-    let result = validate_schema_with_directives(directives, &parsed_schema);
-    
-    if result.is_err() {
-        match result {
-            Err(CastleError::ResolverDoesNotMatchSchemaFunction(_)) => {}, //passes
+            Err(CastleError::DirectiveDoesNotMatchSchemaDirective(_)) => {}, //passes
             _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", result),
         }
     } else {

@@ -44,5 +44,16 @@ where R: Read{
     }
 }
 
-
-
+pub fn get_type_from_string(type_as_str: &str) -> Type {
+    if type_as_str.len() > 3 {
+        if &type_as_str[..3] == "Vec<" { 
+            return VecType::new(&type_as_str)
+        }
+    }
+    if type_as_str.len() > 6 {
+        if &type_as_str[..5] == "Option<" { 
+            return OptionType::new(&type_as_str)
+        }
+    }
+    return Type::new_primitve_or_schema_or_enum_type(type_as_str.to_string()) 
+}

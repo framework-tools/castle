@@ -404,6 +404,7 @@ fn can_parse_enum_with_fields(){
 fn can_parse_function_with_args_and_return_type(){
     let schema = "
         fn do_nothing (id: uuid, name: String) -> String
+        fn get_user(id: uuid) -> User 
     ";
 
     let mut fn_do_nothing = FnDefinition::initalise();
@@ -415,8 +416,16 @@ fn can_parse_function_with_args_and_return_type(){
 
     fn_do_nothing.return_type = Some(Type::PrimitiveType(PrimitiveType::String));
 
+    let mut fn_get_user = FnDefinition::initalise();
+    fn_get_user.name = "get_user".into();
+    fn_get_user.args = Some(vec![
+        Argument::IdentifierAndType("id".into(), Type::PrimitiveType(PrimitiveType::Uuid)),
+    ]);
+    fn_get_user.return_type = Some(Type::SchemaTypeOrEnum("User".into()));
+
     let mut expected_functions: HashMap<Box<str>, FnDefinition> = HashMap::new();   
     expected_functions.insert("do_nothing".into(), fn_do_nothing);
+    expected_functions.insert("get_user".into(), fn_get_user);
 
     let expected = SchemaDefinition {
         schema_types: HashMap::new(),

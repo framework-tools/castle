@@ -46,12 +46,5 @@ fn parse_function_return_type<R>(tokenizer: &mut Tokenizer<R>) -> Result<Type, C
 where R: Read {
     tokenizer.next(false)?; //skip chevron right from return arrow
     let return_type = parse_type(tokenizer)?;
-    tokenizer.next(false)?; //skip open block
     return Ok(return_type)
-}
-
-fn parse_block<R>(tokenizer: &mut Tokenizer<R>) -> Result<Vec<FnStatement>, CastleError>
-where R: Read {
-    tokenizer.next(true)?; //skip close block
-    return Ok(Vec::new())
 }

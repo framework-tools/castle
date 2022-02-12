@@ -1,4 +1,4 @@
-use std::hash::Hash;
+
 use std::collections::HashMap;
 
 use parser_and_schema::ast::syntax_definitions::argument::Argument;
@@ -16,7 +16,6 @@ pub fn insert_each_field_into_fields(vec_of_fields: Vec<(Box<str>, Want)>) -> Ha
     }
     return fields
 }
-
 
 #[test]
 fn can_parse_empty_query() {

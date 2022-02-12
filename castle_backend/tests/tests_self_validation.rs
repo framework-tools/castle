@@ -1,3 +1,4 @@
+use castle_backend::validation::self_validation_schema::self_validate_schema::self_validate_schema;
 use parser_and_schema::{parsers::schema_parser::{parse_schema::parse_schema, schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec}, types::{type_system::Type, primitive_type::PrimitiveType, schema_field::SchemaField, schema_type::SchemaType}}, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, schema_definition::SchemaDefinition}};
 use shared::CastleError;
 
@@ -15,11 +16,13 @@ use shared::CastleError;
 
 #[cfg(test)]
 #[test]
-fn parser_breaks_if_unknown_schema_type_or_enum() {
+fn parser_breaks_if_unknown_schema_type_or_enum() -> Result<(), CastleError> {
+    use castle_backend::validation::self_validation_schema::self_validate_schema::self_validate_schema;
+
     // In the User field organization,
     // Company is an undefined schema type or enum
     // Therefore, this should throw an error to notify the engineer
-    let query = "
+    let schema = "
         type User {
             organization: Company,
             id: uuid,
@@ -36,10 +39,11 @@ fn parser_breaks_if_unknown_schema_type_or_enum() {
             industry: String,
         }";
     
-    let actual = parse_schema(query);
+    let schema_definition = parse_schema(schema)?;
+    let actual = self_validate_schema(&schema_definition);
     if actual.is_err() {
         match actual {
-            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => {}, //passes
+            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => { return Ok(()) }, //passes
             _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
         }
     } else {
@@ -51,7 +55,7 @@ fn parser_breaks_if_unknown_schema_type_or_enum() {
 fn can_parse_defined_schema_type_as_type() {
     use std::collections::HashMap;
 
-    let query = "
+    let schema = "
         type User {
             id: uuid,
             name: String,
@@ -90,7 +94,7 @@ fn can_parse_defined_schema_type_as_type() {
     ]);
 
     
-    let actual = parse_schema(query).unwrap();
+    let actual = parse_schema(schema).unwrap();
     assert_eq!(expected, actual.schema_types);
 }
 
@@ -99,7 +103,7 @@ fn can_parse_defined_schema_type_as_type() {
 fn can_parse_defined_schema_enum_as_type_for_field() {
     use std::collections::HashMap;
 
-    let query = "
+    let schema = "
         type User {
             role: String,
             organization_type: OrganizationType
@@ -134,22 +138,22 @@ fn can_parse_defined_schema_enum_as_type_for_field() {
     expected_schema_definition.schema_types = schema_types;
     expected_schema_definition.enums = enums;
     
-    let actual = parse_schema(query).unwrap();
+    let actual = parse_schema(schema).unwrap();
     assert_eq!(expected_schema_definition, actual);
 }
 
 #[test]
-fn err_if_parses_enum_with_unknown_tuple_type(){
+fn err_if_parses_enum_with_unknown_tuple_type() -> Result<(), CastleError> {
     let schema = "
         enum FrameworkTypes {
             SomeOtherType(String, DoesntExist)
         }
     ";
-    let actual = parse_schema(schema);
-
+    let schema_definition = parse_schema(schema)?;
+    let actual = self_validate_schema(&schema_definition);
     if actual.is_err() {
         match actual {
-            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => {}, //passes
+            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => { return Ok(()) }, //passes
             _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
         }
     } else {
@@ -158,7 +162,7 @@ fn err_if_parses_enum_with_unknown_tuple_type(){
 }
 
 #[test]
-fn err_if_parses_enum_with_unknown_object_type(){
+fn err_if_parses_enum_with_unknown_object_type() -> Result<(), CastleError> {
     let schema = "
         enum FrameworkTypes {
             User {
@@ -169,10 +173,11 @@ fn err_if_parses_enum_with_unknown_object_type(){
         }
     ";
 
-    let actual = parse_schema(schema);
+    let schema_definition = parse_schema(schema)?;
+    let actual = self_validate_schema(&schema_definition);
     if actual.is_err() {
         match actual {
-            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => {}, //passes
+            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => { return Ok(()) }, //passes
             _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
         }
     } else {
@@ -181,15 +186,16 @@ fn err_if_parses_enum_with_unknown_object_type(){
 }
 
 #[test]
-fn breaks_if_function_has_argument_undefined(){
+fn breaks_if_function_has_argument_undefined() -> Result<(), CastleError> {
     let schema = "
         fn do_nothing(name: String, id: DoesntExist) -> User
     ";
 
-    let actual = parse_schema(schema);
+    let schema_definition = parse_schema(schema)?;
+    let actual = self_validate_schema(&schema_definition);
     if actual.is_err() {
         match actual {
-            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => {}, //passes
+            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => { return Ok(()) }, //passes
             _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
         }
     } else {
@@ -198,15 +204,16 @@ fn breaks_if_function_has_argument_undefined(){
 }
 
 #[test]
-fn breaks_if_function_has_tuple_argument(){
+fn breaks_if_function_has_tuple_argument() -> Result<(), CastleError> {
     let schema = "
         fn do_nothing(name: String, id: DoesntExist) -> (String, User)
     ";
 
-    let actual = parse_schema(schema);
+    let schema_definition = parse_schema(schema)?;
+    let actual = self_validate_schema(&schema_definition);
     if actual.is_err() {
         match actual {
-            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => {}, //passes
+            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => { return Ok(()) }, //passes
             _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
         }
     } else {
@@ -215,15 +222,16 @@ fn breaks_if_function_has_tuple_argument(){
 }
 
 #[test]
-fn breaks_if_function_has_return_type_undefined(){
+fn breaks_if_function_has_return_type_undefined() -> Result<(), CastleError> {
     let schema = "
         fn do_nothing(id: String, name: String) -> DoesntExist
     ";
 
-    let actual = parse_schema(schema);
+    let schema_definition = parse_schema(schema)?;
+    let actual = self_validate_schema(&schema_definition);
     if actual.is_err() {
         match actual {
-            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => {}, //passes
+            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => { return Ok(()) }, //passes
             _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
         }
     } else {
@@ -232,17 +240,18 @@ fn breaks_if_function_has_return_type_undefined(){
 }
 
 #[test]
-fn breaks_if_directive_has_argument_undefined(){
+fn breaks_if_directive_has_argument_undefined() -> Result<(), CastleError> {
     let schema = "
         type Meow {
             is_admin: bool @authenticated(token: String) @is_admin(role: DoesntExist),
         }
     ";
 
-    let actual = parse_schema(schema);
+    let schema_definition = parse_schema(schema)?;
+    let actual = self_validate_schema(&schema_definition);
     if actual.is_err() {
         match actual {
-            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => {}, //passes
+            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => { return Ok(()) }, //passes
             _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
         }
     } else {
@@ -251,17 +260,18 @@ fn breaks_if_directive_has_argument_undefined(){
 }
 
 #[test]
-fn test_vector_type_breaks_if_type_is_not_defined(){
+fn test_vector_type_breaks_if_type_is_not_defined( ) -> Result<(), CastleError> {
     let schema = "
         type User {
             pets: Vec<DoesntExist>
         }
     ";
 
-    let actual = parse_schema(schema);
+    let schema_definition = parse_schema(schema)?;
+    let actual = self_validate_schema(&schema_definition);
     if actual.is_err() {
         match actual {
-            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => {}, //passes
+            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => { return Ok(()) }, //passes
             _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
         }
     } else {
@@ -270,17 +280,18 @@ fn test_vector_type_breaks_if_type_is_not_defined(){
 }
 
 #[test]
-fn test_vector_type_with_inner_vec_breaks_if_type_is_not_defined(){
+fn test_vector_type_with_inner_vec_breaks_if_type_is_not_defined() -> Result<(), CastleError> {
     let schema = "
         type User {
             pets: Vec<Vec<DoesntExist>>
         }
     ";
 
-    let actual = parse_schema(schema);
+    let schema_definition = parse_schema(schema)?;
+    let actual = self_validate_schema(&schema_definition);
     if actual.is_err() {
         match actual {
-            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => {}, //passes
+            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => { return Ok(()) }, //passes
             _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
         }
     } else {
@@ -289,17 +300,18 @@ fn test_vector_type_with_inner_vec_breaks_if_type_is_not_defined(){
 }
 
 #[test]
-fn test_option_type_breaks_if_type_is_not_defined(){
+fn test_option_type_breaks_if_type_is_not_defined() -> Result<(), CastleError> {
     let schema = "
         type User {
             pets: Option<DoesntExist>
         }
     ";
 
-    let actual = parse_schema(schema);
+    let schema_definition = parse_schema(schema)?;
+    let actual = self_validate_schema(&schema_definition);
     if actual.is_err() {
         match actual {
-            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => {}, //passes
+            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => { return Ok(()) }, //passes
             _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
         }
     } else {
@@ -308,17 +320,18 @@ fn test_option_type_breaks_if_type_is_not_defined(){
 }
 
 #[test]
-fn test_vec_inside_option_type_breaks_if_type_is_not_defined(){
+fn test_vec_inside_option_type_breaks_if_type_is_not_defined() -> Result<(), CastleError> {
     let schema = "
         type User {
             pets: Option<Vec<DoesntExist>>
         }
     ";
 
-    let actual = parse_schema(schema);
+    let schema_definition = parse_schema(schema)?;
+    let actual = self_validate_schema(&schema_definition);
     if actual.is_err() {
         match actual {
-            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => {}, //passes
+            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => { return Ok(()) }, //passes
             _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
         }
     } else {
@@ -327,17 +340,18 @@ fn test_vec_inside_option_type_breaks_if_type_is_not_defined(){
 }
 
 #[test]
-fn test_option_type_inside_vec_breaks_if_type_is_not_defined(){
+fn test_option_type_inside_vec_breaks_if_type_is_not_defined( ) -> Result<(), CastleError> {
     let schema = "
         type User {
-            pets: Vec<Option<DoesntExist>>
+            pets: Vec<Option<Vec<Option<DoesntExist>>>>
         }
     ";
 
-    let actual = parse_schema(schema);
+    let schema_definition = parse_schema(schema)?;
+    let actual = self_validate_schema(&schema_definition);
     if actual.is_err() {
         match actual {
-            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => {}, //passes
+            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => { return Ok(()) }, //passes
             _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
         }
     } else {

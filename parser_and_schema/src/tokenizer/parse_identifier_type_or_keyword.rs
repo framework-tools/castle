@@ -10,7 +10,6 @@ use super::{parse_keyword::get_keyword_or_continue, parse_vec_type::get_vec_type
 pub fn parse_identifier_or_keyword_or_type<R>(tokenizer: &mut Tokenizer<R>, start: Position) -> Result<Token, CastleError> 
 where R: Read {
     let (word, field_has_arguments) = get_word_from_chars(&mut tokenizer.cursor)?;
-
     if word == "Vec" { return get_vec_type_from_word(&mut tokenizer.cursor, word, start) }
     else if word == "Option" { return get_option_type_from_word(&mut tokenizer.cursor, word, start) }
     else if word.contains("::") { return parse_enum_value(tokenizer, word, start)}
