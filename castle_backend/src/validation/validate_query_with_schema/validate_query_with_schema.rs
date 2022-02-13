@@ -51,6 +51,7 @@ pub fn validate_query_with_schema(parsed_query: &ParsedQuery, schema_definition:
             Want::ObjectProjection(object_projection) => {
                 let identifier = unwrap_identifier_throw_error_if_none(&object_projection.identifier)?;
                 let fields = unwrap_fields_throw_error_if_none(&object_projection.fields)?; //Need to think about match
+                
                 let resolver = schema_definition.functions.get(identifier);
                 check_if_resolver_is_none_else_unwrap_resolver_and_check_if_arguments_are_compatible(resolver, object_projection, &schema_definition, fields)?;
             }
