@@ -1,9 +1,7 @@
 use std::{collections::HashMap};
 
-use parser_and_schema::{parsers::{query_parser::parse_query::ParsedQuery, schema_parser::types::{ type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{schema_definition::SchemaDefinition, want::{ Want, SingleField, ObjectProjection}, argument::Argument, expressions::PrimitiveValue}, token::token::Identifier};
+use parser_and_schema::{parsers::{query_parser::parse_query::ParsedQuery, schema_parser::types::{ type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{schema_definition::SchemaDefinition, want::{ Want, ObjectProjection}, argument::Argument, expressions::PrimitiveValue, fn_definition::FnDefinition}};
 use shared::CastleError;
-
-
 
 /// Cross-Validation Between Query Parser & Schema Parser
 /// Needs to validate that the current schema and the query are compatible
@@ -53,52 +51,14 @@ pub fn validate_query_with_schema(parsed_query: &ParsedQuery, schema_definition:
             Want::ObjectProjection(object_projection) => {
                 let identifier = unwrap_identifier_throw_error_if_none(&object_projection.identifier)?;
                 let fields = unwrap_fields_throw_error_if_none(&object_projection.fields)?; //Need to think about match
-                
                 let resolver = schema_definition.functions.get(identifier);
-                if resolver.is_none() {
-                    return Err(CastleError::QueryResolverNotDefinedInSchema("no matching resolver found for in schema".into()));
-                } else {
-                    let resolver = resolver.unwrap();
-                    if resolver.args.is_none() && object_projection.arguments.is_none() { } 
-                    else if resolver.args.is_none() || object_projection.arguments.is_none() {
-                        return Err(CastleError::ArgumentsInQueryDoNotMatchResolver("arguments in query do not match resolver. One has no arguments".into()));
-                    }
-                    else {
-                        let resolver_args = resolver.args.as_ref().unwrap();
-                        let query_args = object_projection.arguments.as_ref().unwrap();
-                        //check args are compatible
-                        if query_args.len() != resolver_args.len() {
-                            return Err(CastleError::ArgumentsInQueryDoNotMatchResolver("arguments in query have different lengths".into()));
-                        }
-                        let mut i = 0;
-                        while i < query_args.len() {
-                            let arg_in_resolver = &resolver_args[i];
-                            let arg_in_query = &query_args[i];
-                            let compatible = check_arg_compatible(&arg_in_resolver, &arg_in_query)?;
-                            if !compatible { return Err(CastleError::ArgumentsInQueryDoNotMatchResolver("arguments in query do not match resolver".into())); }
-
-                            i += 1;
-                        }
-                    }
-
-                    let return_type = unwrap_return_type_throw_error_if_none(&resolver.return_type)?;
-                    // use resolver.return_type to get the schema_type from schema_definition.schema_types
-                    let schema_type = schema_definition.schema_types.get(return_type);
-                    let schema_type = schema_type.unwrap();
-                    let schema_type_fields = &schema_type.fields;
-                    // unwrap the type from the schema_type
-                    // for each field in fields, check if the field is in schema_type_fields
-                    for field in fields.keys(){
-                        if !schema_type_fields.contains_key(field) {
-                            return Err(CastleError::FieldsInReturnTypeDoNotMatchQuery("no type found for want".into()));
-                        }
-                    }
-                }
+                check_if_resolver_is_none_else_unwrap_resolver_and_check_if_arguments_are_compatible(resolver, object_projection, &schema_definition, fields)?;
             }
         }
     }
     return Ok(())
 }
+
 fn unwrap_identifier_throw_error_if_none(identifier: &Option<Box<str>>) -> Result<&Box<str>, CastleError> {
     return match identifier {
         Some(identifier)  => Ok(identifier),
@@ -113,6 +73,40 @@ fn unwrap_fields_throw_error_if_none(fields: &Option<HashMap<Box<str>, Want>>) -
     };
 }
 
+fn check_if_resolver_is_none_else_unwrap_resolver_and_check_if_arguments_are_compatible(
+    resolver: Option<&FnDefinition>, 
+    object_projection: &ObjectProjection, 
+    schema_definition: &SchemaDefinition, 
+    fields: &HashMap<Box<str>, Want>)
+    -> Result<(), CastleError> {
+    if resolver.is_none() {
+        return Err(CastleError::QueryResolverNotDefinedInSchema("no matching resolver found for in schema".into()));
+    } 
+    else {
+        validate_resolver_and_assign_schema_type_for_fields_validation(resolver, object_projection, schema_definition, fields)?;
+    }
+    Ok(())
+}
+
+fn validate_resolver_and_assign_schema_type_for_fields_validation(
+    resolver: Option<&FnDefinition>, 
+    object_projection: &ObjectProjection, 
+    schema_definition: &SchemaDefinition, 
+    fields: &HashMap<Box<str>, Want>) -> Result<(), CastleError> {
+        let resolver = resolver.unwrap();
+        take_unwrapped_resolver_and_throw_error_if_none_and_check_length_if_some(resolver, object_projection)?;
+        let return_type = unwrap_return_type_throw_error_if_none(&resolver.return_type)?;
+        let schema_type = schema_definition.schema_types.get(return_type);                    // use resolver.return_type to get the schema_type from schema_definition.schema_types
+        let schema_type = schema_type.unwrap();
+        let schema_type_fields = &schema_type.fields;                               // unwrap the type from the schema_type
+        for field in fields.keys(){                                                                   // for each field in fields, check if the field is in schema_type_fields
+            if !schema_type_fields.contains_key(field) {
+                return Err(CastleError::FieldsInReturnTypeDoNotMatchQuery("no type found for want".into()));
+            }
+        }
+        Ok(())
+}
+
 fn unwrap_return_type_throw_error_if_none(return_type: &Option<Type>) -> Result<&Box<str>, CastleError> {
     return match return_type {
         Some(return_type)  =>match return_type {
@@ -123,8 +117,45 @@ fn unwrap_return_type_throw_error_if_none(return_type: &Option<Type>) -> Result<
     };
 }
 
+fn take_unwrapped_resolver_and_throw_error_if_none_and_check_length_if_some(resolver: &FnDefinition, object_projection: &ObjectProjection) -> Result<(), CastleError> {
+    if resolver.args.is_none() && object_projection.arguments.is_none() { Ok(()) } 
+    else if resolver.args.is_none() || object_projection.arguments.is_none() {
+        return Err(CastleError::ArgumentsInQueryDoNotMatchResolver("arguments in query do not match resolver. One has no arguments".into()));
+    }
+    else {
+        let resolver_args = resolver.args.as_ref().unwrap();
+        let query_args = object_projection.arguments.as_ref().unwrap();
+        check_if_arguments_in_query_have_different_lengths(resolver_args, query_args)?;
+        iterate_through_argument_length_and_check_compatibility(resolver_args, query_args)?;
+        Ok(())
+    }
+}
+
+fn check_if_arguments_in_query_have_different_lengths(resolver_args: &Vec<Argument>, query_args: &Vec<Argument>) -> Result<(), CastleError> {
+    
+    //check args are compatible
+    if query_args.len() != resolver_args.len() {
+        return Err(CastleError::ArgumentsInQueryDoNotMatchResolver("arguments in query have different lengths".into()));
+    }
+    else {
+        Ok(())
+    }
+}
+
+fn iterate_through_argument_length_and_check_compatibility(resolver_args: &Vec<Argument>, query_args: &Vec<Argument>) -> Result<(), CastleError> {
+    let mut i = 0;
+    while i < query_args.len() {
+        let arg_in_resolver = &resolver_args[i];
+        let arg_in_query = &query_args[i];
+        let compatible = check_arg_compatible(&arg_in_resolver, &arg_in_query)?;
+        if !compatible { return Err(CastleError::ArgumentsInQueryDoNotMatchResolver("arguments in query do not match resolver".into())); }
+        i += 1;
+    }
+    Ok(())
+}
+
 /// use match to unwrap the argument in schema so we can use the type
-/// convert argument from query to its equivilent type (value) -> type
+/// convert argument from query to its equivalent type (value) -> type
 /// if compatible return true, else return false
 /// 
 fn check_arg_compatible(arg_in_resolver: &Argument, arg_in_query: &Argument) -> Result<bool, CastleError>{
