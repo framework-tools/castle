@@ -1,6 +1,6 @@
-use std::{collections::HashMap, slice::SliceIndex};
+use std::{collections::HashMap};
 
-use parser_and_schema::{parsers::{query_parser::parse_query::ParsedQuery, schema_parser::types::{schema_type::SchemaType, type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{schema_definition::SchemaDefinition, want::{self, Want, SingleField, ObjectProjection}, argument::Argument, expressions::PrimitiveValue}, token::token::Identifier};
+use parser_and_schema::{parsers::{query_parser::parse_query::ParsedQuery, schema_parser::types::{ type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{schema_definition::SchemaDefinition, want::{ Want, SingleField, ObjectProjection}, argument::Argument, expressions::PrimitiveValue}, token::token::Identifier};
 use shared::CastleError;
 
 
@@ -48,7 +48,7 @@ use shared::CastleError;
 pub fn validate_query_with_schema(parsed_query: &ParsedQuery, schema_definition: &SchemaDefinition) -> Result<(), CastleError>{
     for want in parsed_query.wants.values() {
         match want {
-            Want::SingleField(single_field) => {
+            Want::SingleField(_single_field) => {
             },
             Want::ObjectProjection(object_projection) => {
                 let identifier = unwrap_identifier_throw_error_if_none(&object_projection.identifier)?;

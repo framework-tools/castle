@@ -1,0 +1,5 @@
+{
+    "files.autoSave": "afterDelay",
+    "editor.renderWhitespace": "boundary",
+    "editor.bracketPairColorization.enabled": true
+}
