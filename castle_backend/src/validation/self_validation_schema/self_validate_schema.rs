@@ -169,28 +169,34 @@ fn check_directives_use_valid_directive_definitions(directive_definitions: &Hash
             return Err(CastleError::UndefinedDirective(format!("Directive {} is not defined", &directive.name).into()));
         }
         else {
-            let directive_definition = &directive_definitions[&directive.name].function;
-            if directive_definition.args.is_some() {
-                let directive_definition = directive_definition.args.as_ref().unwrap();
-                for args in directive_definition {
-                    check_argument_is_defined(schema, args)?;
-                }
-            }
-            if directive.arguments.is_some() {
-                if directive_definition.args.is_some() {
-                    let directive_definition_args = directive_definition.args.as_ref().unwrap();
-                    let directive_args = directive.arguments.as_ref().unwrap();
-                    for arg in directive_definition_args {
-                        if !directive_args.contains(&arg) {
-                            return Err(CastleError::DirectiveDoesNotMatchSchemaDirective(format!("Directive {} does not have argument {:?}", &directive.name, &arg).into()));
-                        }
-                    }
-                } 
-                else {
-                    return Err(CastleError::DirectiveDoesNotMatchSchemaDirective(format!("Directive {} has no arguments", &directive.name).into()));
-                }
-            }
+            validate_directive_definition_arguments_and_directive_arguments_if_some_else_return_error(directive, directive_definitions, schema)?;
+            
 
+        }
+    }
+    return Ok(())
+}
+
+fn validate_directive_definition_arguments_and_directive_arguments_if_some_else_return_error(directive: &Directive, directive_definitions: &HashMap<Box<str>, DirectiveDefinition>, schema: &SchemaDefinition) -> Result<(), CastleError> {
+    let directive_definition = &directive_definitions[&directive.name].function;
+    if directive_definition.args.is_some() {
+        let directive_definition = directive_definition.args.as_ref().unwrap();
+        for args in directive_definition {
+            check_argument_is_defined(schema, args)?;
+        }
+    }
+    if directive.arguments.is_some() {
+        if directive_definition.args.is_some() {
+            let directive_definition_args = directive_definition.args.as_ref().unwrap();
+            let directive_args = directive.arguments.as_ref().unwrap();
+            for arg in directive_definition_args {
+                if !directive_args.contains(&arg) {
+                    return Err(CastleError::DirectiveDoesNotMatchSchemaDirective(format!("Directive {} does not have argument {:?}", &directive.name, &arg).into()));
+                }
+            }
+        } 
+        else {
+            return Err(CastleError::DirectiveDoesNotMatchSchemaDirective(format!("Directive {} has no arguments", &directive.name).into()));
         }
     }
     return Ok(())

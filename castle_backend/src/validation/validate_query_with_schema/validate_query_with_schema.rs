@@ -157,7 +157,6 @@ fn iterate_through_argument_length_and_check_compatibility(resolver_args: &Vec<A
 /// use match to unwrap the argument in schema so we can use the type
 /// convert argument from query to its equivalent type (value) -> type
 /// if compatible return true, else return false
-/// 
 fn check_arg_compatible(arg_in_resolver: &Argument, arg_in_query: &Argument) -> Result<bool, CastleError>{
     let schema_type = match arg_in_resolver {
         Argument::IdentifierAndType(_identifier, type_) => type_,
