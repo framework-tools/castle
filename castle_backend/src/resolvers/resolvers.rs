@@ -7,7 +7,7 @@ use shared::CastleError;
 pub struct Resolver {
     pub resolver_definition: FnDefinition,
     // unsure about this field currently
-    // pub function: fn(args: &HashMap<String, String>) -> Result<String, CastleError>,
+    // pub function: fn<T>() -> T
 }
 impl Resolver {
     pub fn new(resolver_definition: FnDefinition) -> Self {
