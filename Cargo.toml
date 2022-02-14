@@ -1,7 +1,7 @@
 [workspace]
 
 members = [
-    "castle_backend",
+    "castle",
     "input_cursor",
     "parser_and_schema",
     "shared",
