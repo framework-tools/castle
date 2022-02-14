@@ -39,6 +39,18 @@ fn resolve_all_wants<C, T>(wants: Wants, resolver_map: ResolverMap<C, T>,  conte
 fn resolve_projection<C, T>(want: Want, context: &C, resolver_map: &ResolverMap<C, T>) -> Result<ResolvedWant<T>, CastleError> {
     let mut resolved_fields = HashMap::new();
     match want {
+        Want::ObjectProjection(ObjectProjection { identifier, arguments, fields, match_statement }) => {
+            if match_statement.is_none() {
+                if fields.is_none() {
+                    return Err(CastleError::EmptyObject("ObjectProjection must have fields or match_statement".into()));
+                } else {
+                    let fields = fields.unwrap();
+                    let resolver = resolver_map.get(&identifier).unwrap();
+                    resolved_fields = resolver(&fields, &arguments, &context)?;
+                }
+            }
+        },
+        //Single field might need to be refactored - Not as good as it could be
         Want::SingleField( single_field ) => {
             let identifier = single_field.identifier.clone();
             let arguments = &single_field.arguments;
@@ -51,17 +63,6 @@ fn resolve_projection<C, T>(want: Want, context: &C, resolver_map: &ResolverMap<
             });
             single_field_in_hashmap.insert(identifier, want);
             resolved_fields = resolver(&single_field_in_hashmap, &arguments, &context)?;
-        },
-        Want::ObjectProjection(ObjectProjection { identifier, arguments, fields, match_statement }) => {
-            if match_statement.is_none() {
-                if fields.is_none() {
-                    return Err(CastleError::EmptyObject("ObjectProjection must have fields or match_statement".into()));
-                } else {
-                    let fields = fields.unwrap();
-                    let resolver = resolver_map.get(&identifier).unwrap();
-                    resolved_fields = resolver(&fields, &arguments, &context)?;
-                }
-            }
         }
     };
     return Ok(resolved_fields)
