@@ -14,7 +14,7 @@ pub enum Type {
     SchemaTypeOrEnum(Box<str>),
     VecType(VecType),
     OptionType(OptionType),
-    Void
+    Void //Needs to be removed
 }
 
 impl Type {

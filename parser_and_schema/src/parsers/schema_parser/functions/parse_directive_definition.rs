@@ -1,8 +1,8 @@
-use std::{io::Read,};
+use std::{io::Read, collections::HashMap, env::args,};
 
 use shared::CastleError;
 
-use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::get_next_token_and_unwrap}, ast::syntax_definitions::{directive_definition::{DirectiveDefinition, DirectiveOnValue}, keyword::Keyword, fn_definition::FnDefinition, argument::Argument}, token::token::{Punctuator, TokenKind, Identifier}};
+use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::get_next_token_and_unwrap}, ast::syntax_definitions::{directive_definition::{DirectiveDefinition, DirectiveOnValue}, keyword::Keyword, fn_definition::FnDefinition, argument::ArgumentOrTuple}, token::token::{Punctuator, TokenKind, Identifier}, parsers::schema_parser::types::type_system::Type};
 
 
 
@@ -23,7 +23,7 @@ where R: Read{
     let (identifier, arguments) = parse_and_match_identifier_and_arguments(tokenizer)?;
     parse_token_and_consume_on_token(tokenizer)?;
     let on = get_on_value(tokenizer)?;
-    let function = FnDefinition::new(identifier, arguments, None);
+    let function = FnDefinition::new(identifier, arguments, Type::Void);
     let directive_definition = DirectiveDefinition::new(function, on);
     Ok(directive_definition)
 }
@@ -41,7 +41,7 @@ where R: Read{
 }
 
 ///  - let identifier_and_arguments be match token.kind to identifier and return the inner value
-fn parse_and_match_identifier_and_arguments<R>(tokenizer: &mut Tokenizer<R>) -> Result<(Box<str>, Option<Vec<Argument>>), CastleError>
+fn parse_and_match_identifier_and_arguments<R>(tokenizer: &mut Tokenizer<R>) -> Result<(Box<str>, HashMap<Box<str>, Argument>), CastleError>
 where R: Read{
     let token = get_next_token_and_unwrap(tokenizer)?;
     match token.kind {

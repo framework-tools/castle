@@ -3,7 +3,7 @@ use std::{io::Read, collections::HashMap};
 use crate::{ast::syntax_definitions::{want::{Want, ObjectProjection, SingleField}, keyword::{Keyword}}, token::{token::{TokenKind, Punctuator, Identifier}, Token}, tokenizer::{tokenizer::Tokenizer, tokenizer_utils::get_next_token_and_unwrap}};
 use shared::CastleError;
 
-use crate::ast::syntax_definitions::argument::Argument;
+use crate::ast::syntax_definitions::argument::ArgumentOrTuple;
 
 use super::{parse_inner_object::parse_inner_object, parse_match_statements::parse_match_statements};
 

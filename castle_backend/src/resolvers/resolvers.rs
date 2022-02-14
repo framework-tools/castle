@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use parser_and_schema::ast::syntax_definitions::{fn_definition::FnDefinition, want::Want, argument::Argument};
+use parser_and_schema::ast::syntax_definitions::{fn_definition::FnDefinition, want::Want};
 use shared::CastleError;
 
 type ResolverMap<C, O> = HashMap<String, Resolver<C, O>>; 

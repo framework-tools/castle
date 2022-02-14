@@ -6,7 +6,7 @@ use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::get_next_token_an
 
 pub fn parse_function<R>(tokenizer: &mut Tokenizer<R>) -> Result<FnDefinition, CastleError>
 where R: Read {
-    let mut function_definition = FnDefinition::initalise();
+    let mut function_definition = FnDefinition::new(name, args, return_type);
 
     let token = get_next_token_and_unwrap(tokenizer)?;
     match token.kind {
