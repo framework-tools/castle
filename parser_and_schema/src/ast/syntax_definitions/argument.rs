@@ -18,8 +18,6 @@ pub enum ArgumentOrTuple {
     IdentifierAndValue(IdentifierAndValueArgument),
 }
 
-
-
 impl ArgumentOrTuple {
     pub fn new<R>(token: Token, tokenizer: &mut Tokenizer<R>) -> Result<Self, CastleError> 
     where R: Read {
@@ -30,8 +28,7 @@ impl ArgumentOrTuple {
         };
         return Ok(argument)
     }
-
-    pub fn convert_arguments_to_identifier_and_value_arguments(arguments: Option<Vec<Argument>>) -> Result<HashMap<Box<str>, IdentifierAndValueArgument>, CastleError>{
+    pub fn convert_arguments_to_identifier_and_value_arguments(arguments: Option<Vec<ArgumentOrTuple>>) -> Result<HashMap<Box<str>, IdentifierAndValueArgument>, CastleError>{
         let mut arguments_for_query_object = HashMap::new();
         if arguments.is_none() {
             return Ok(arguments_for_query_object)
@@ -39,13 +36,46 @@ impl ArgumentOrTuple {
             let arguments = arguments.unwrap();
             for argument in arguments {
                 match argument {
-                    Argument::IdentifierAndValue(identifier_and_value) => {
+                    ArgumentOrTuple::IdentifierAndValue(identifier_and_value) => {
                         let (identifier, primitive_value) = identifier_and_value;
-                        arguments_for_query_object.insert(identifier, (identifier.clone(), primitive_value));
+                        arguments_for_query_object.insert(identifier.clone(), (identifier, primitive_value));
                     },
                     _ => return Err(CastleError::IncorrectArgumentType(format!("Expected identifier and value got different argument type, found: {:?}", argument).into()))
                 };
             }
+        }
+        return Ok(arguments_for_query_object)
+    }
+    
+    pub fn convert_arguments_to_identifier_and_type_arguments(arguments: Option<Vec<ArgumentOrTuple>>) -> Result<HashMap<Box<str>, IdentifierAndTypeArgument>, CastleError>{
+        let mut arguments_for_query_object = HashMap::new();
+        if arguments.is_none() {
+            return Ok(arguments_for_query_object)
+        } else {
+            let arguments = arguments.unwrap();
+            for argument in arguments {
+                match argument {
+                    ArgumentOrTuple::IdentifierAndType(identifier_and_type) => {
+                        let (identifier, primitive_value) = identifier_and_type;
+                        arguments_for_query_object.insert(identifier.clone(), (identifier, primitive_value));
+                    },
+                    _ => return Err(CastleError::IncorrectArgumentType(format!("Expected identifier and value got different argument type, found: {:?}", argument).into()))
+                };
+            }
+        }
+        return Ok(arguments_for_query_object)
+    }
+
+    pub fn convert_arguments_as_hashmaps_to_identifier_and_type_arguments(arguments: HashMap<Box<str>, ArgumentOrTuple>) -> Result<HashMap<Box<str>, IdentifierAndTypeArgument>, CastleError>{
+        let mut arguments_for_query_object = HashMap::new();
+        for (identifier, argument) in arguments {
+            match argument {
+                ArgumentOrTuple::IdentifierAndType(identifier_and_type) => {
+                    let (identifier, primitive_value) = identifier_and_type;
+                    arguments_for_query_object.insert(identifier.clone(), (identifier, primitive_value));
+                },
+                _ => return Err(CastleError::IncorrectArgumentType(format!("Expected identifier and value got different argument type, found: {:?}", argument).into()))
+            };
         }
         return Ok(arguments_for_query_object)
     }

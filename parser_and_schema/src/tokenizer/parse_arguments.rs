@@ -3,7 +3,7 @@ use std::io::Read;
 use input_cursor::Cursor;
 use shared::CastleError;
 
-use crate::{ast::syntax_definitions::argument::Argument, token::{token::{Punctuator, TokenKind}, Token}};
+use crate::{ast::syntax_definitions::argument::ArgumentOrTuple, token::{token::{Punctuator, TokenKind}, Token}};
 
 use super::{tokenizer::{advance_and_parse_token, Tokenizer}, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}};
 
@@ -12,7 +12,7 @@ use super::{tokenizer::{advance_and_parse_token, Tokenizer}, tokenizer_utils::{p
 ///  - if ')' return token
 ///  - else if, ',' create token from argument, then push token to arguments
 ///  - else push character to current argument
-pub fn get_arguments<R>(tokenizer: &mut Tokenizer<R>) -> Result<Vec<Argument>, CastleError> 
+pub fn get_arguments<R>(tokenizer: &mut Tokenizer<R>) -> Result<Vec<ArgumentOrTuple>, CastleError> 
 where R: Read {
     let mut arguments = Vec::new();
     loop {
@@ -22,7 +22,7 @@ where R: Read {
     return Ok(arguments)
 }
 
-fn unwrap_char_parse_argument_or_end<R>(arguments: &mut Vec<Argument>, tokenizer: &mut Tokenizer<R>) -> Result<bool, CastleError>
+fn unwrap_char_parse_argument_or_end<R>(arguments: &mut Vec<ArgumentOrTuple>, tokenizer: &mut Tokenizer<R>) -> Result<bool, CastleError>
 where R: Read {
     let token = get_next_token_and_unwrap(tokenizer)?;
     return match token.kind {
@@ -35,10 +35,10 @@ where R: Read {
     }
 }
 
-fn add_argument_to_arguments_list<R>(tokenizer: &mut Tokenizer<R>, arguments: &mut Vec<Argument>, token: Token)
+fn add_argument_to_arguments_list<R>(tokenizer: &mut Tokenizer<R>, arguments: &mut Vec<ArgumentOrTuple>, token: Token)
 -> Result<(), CastleError> 
 where R: Read {
-    let argument = Argument::new(token, tokenizer)?;
+    let argument = ArgumentOrTuple::new(token, tokenizer)?;
     arguments.push(argument);
     return Ok(())
 }

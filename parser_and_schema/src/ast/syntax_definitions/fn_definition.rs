@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::parsers::schema_parser::types::type_system::Type;
 
-use super::argument::ArgumentOrTuple;
+use super::argument::{ArgumentOrTuple, IdentifierAndTypeArgument};
 
 
 
@@ -10,12 +10,12 @@ use super::argument::ArgumentOrTuple;
 #[derive(Debug, PartialEq)]
 pub struct FnDefinition {
     pub name: Box<str>,
-    pub args: HashMap<Box<str>, ArgumentOrTuple>,
+    pub args: HashMap<Box<str>, IdentifierAndTypeArgument>,
     pub return_type: Type,
 }
 
 impl FnDefinition {
-    pub fn new(name: Box<str>, args: HashMap<Box<str>, ArgumentOrTuple>, return_type: Type) -> Self {
+    pub fn new(name: Box<str>, args: HashMap<Box<str>, IdentifierAndTypeArgument>, return_type: Type) -> Self {
         Self {
             name,
             args,

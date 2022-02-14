@@ -3,7 +3,7 @@ use std::{io::Read, char, collections::HashMap};
 use input_cursor::{Position, Cursor, Span};
 use shared::CastleError;
 
-use crate::{token::{Token, token::TokenKind}, ast::syntax_definitions::{enum_definition::{EnumValue, EnumDataType}, argument::Argument}, parsers::schema_parser::parse_schema_type::check_token_and_parse_schema_field_or_break, tokenizer::tokenizer_utils::get_next_token_and_unwrap};
+use crate::{token::{Token, token::TokenKind}, ast::syntax_definitions::{enum_definition::{EnumValue, EnumDataType}, argument::ArgumentOrTuple}, parsers::schema_parser::parse_schema_type::check_token_and_parse_schema_field_or_break, tokenizer::tokenizer_utils::get_next_token_and_unwrap};
 
 use super::{tokenizer::Tokenizer, parse_arguments::get_arguments};
 //

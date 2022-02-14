@@ -2,7 +2,7 @@ use std::{io::Read, collections::{HashMap}};
 
 use shared::CastleError;
 
-use crate::{ast::syntax_definitions::{want::Want}, tokenizer::{tokenizer::Tokenizer}, token::{token::{TokenKind, Punctuator, Identifier}, Token}};
+use crate::{ast::syntax_definitions::{want::Want, argument::ArgumentOrTuple}, tokenizer::{tokenizer::Tokenizer}, token::{token::{TokenKind, Punctuator, Identifier}, Token}};
 
 use super::{parse_object_projection::parse_object_projection};
 
@@ -42,12 +42,7 @@ where R: Read {
             Some(token) => { 
                 let want = match_token_to_want(token, tokenizer)?;
                 let identifier = want.get_identifier()?;
-                match identifier {
-                    Some(identifier) => {
-                        wants.insert(identifier, want);
-                    },
-                    None => err = Some(CastleError::AbruptEOF("in parse_query_tokens".into()))
-                };
+                wants.insert(identifier, want);
             },
             None => { break; }
         };
@@ -79,12 +74,14 @@ where R: Read {
                     parse_object_projection(identifier, tokenizer, false)
                 },
                 _ => {
-                    Ok(Want::new_single_field(identifier.name, identifier.arguments, None))
+                    let arguments = ArgumentOrTuple::convert_arguments_to_identifier_and_value_arguments(identifier.arguments)?;
+                    Ok(Want::new_single_field(identifier.name, arguments, None))
                 }
             }
         },
         None => {
-            Ok(Want::new_single_field(identifier.name, identifier.arguments, None))
+            let arguments = ArgumentOrTuple::convert_arguments_to_identifier_and_value_arguments(identifier.arguments)?;
+            Ok(Want::new_single_field(identifier.name, arguments, None))
         }
     }
 }

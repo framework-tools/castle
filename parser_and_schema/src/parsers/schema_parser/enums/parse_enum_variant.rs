@@ -44,7 +44,7 @@ where R: Read{
 /// - if next token is identifier or comma, return enum unit
 /// - else if next token is openparen, return enum tuple
 /// finish
-fn parse_enum_data_type<R>(arguments: Option<Vec<Argument>>, tokenizer: &mut Tokenizer<R>)
+fn parse_enum_data_type<R>(arguments: Option<Vec<ArgumentOrTuple>>, tokenizer: &mut Tokenizer<R>)
 -> Result<EnumDataType, CastleError> where R: Read {
     match arguments {
         Some(arguments) => return Ok(EnumDataType::EnumTuple(arguments)), // tuple enum type

@@ -21,6 +21,7 @@ pub fn parse_directive_definition<R>(tokenizer: &mut Tokenizer<R>) -> Result<Dir
 where R: Read{
     parse_token_and_consume_at_token(tokenizer)?;
     let (identifier, arguments) = parse_and_match_identifier_and_arguments(tokenizer)?;
+    let arguments = ArgumentOrTuple::convert_arguments_to_identifier_and_type_arguments(arguments)?;
     parse_token_and_consume_on_token(tokenizer)?;
     let on = get_on_value(tokenizer)?;
     let function = FnDefinition::new(identifier, arguments, Type::Void);
@@ -41,7 +42,7 @@ where R: Read{
 }
 
 ///  - let identifier_and_arguments be match token.kind to identifier and return the inner value
-fn parse_and_match_identifier_and_arguments<R>(tokenizer: &mut Tokenizer<R>) -> Result<(Box<str>, HashMap<Box<str>, Argument>), CastleError>
+fn parse_and_match_identifier_and_arguments<R>(tokenizer: &mut Tokenizer<R>) -> Result<(Box<str>, Option<Vec<ArgumentOrTuple>>), CastleError>
 where R: Read{
     let token = get_next_token_and_unwrap(tokenizer)?;
     match token.kind {

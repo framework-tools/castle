@@ -3,7 +3,7 @@ use std::{fmt::{Formatter, self, Display}};
 use input_cursor::{Span, Position};
 use shared::CastleError;
 
-use crate::{ast::syntax_definitions::{keyword::Keyword, argument::Argument, enum_definition::EnumValue, directive_definition::{DirectiveOnValue}}, parsers::schema_parser::types::{primitive_type::PrimitiveType, vec_type::VecType, type_system::Type, option_type::OptionType}};
+use crate::{ast::syntax_definitions::{keyword::Keyword, argument::ArgumentOrTuple, enum_definition::EnumValue, directive_definition::{DirectiveOnValue}}, parsers::schema_parser::types::{primitive_type::PrimitiveType, vec_type::VecType, type_system::Type, option_type::OptionType}};
 
 #[derive(Debug, PartialEq)]
 pub struct Token {
@@ -32,11 +32,11 @@ pub enum TokenKind {
 #[derive(Debug, PartialEq)]
 pub struct Identifier {
     pub name: Box<str>,
-    pub arguments: Option<Vec<Argument>>
+    pub arguments: Option<Vec<ArgumentOrTuple>>
 }
 
 impl Identifier {
-    pub fn new(name: Box<str>, arguments: Option<Vec<Argument>>) -> Self {
+    pub fn new(name: Box<str>, arguments: Option<Vec<ArgumentOrTuple>>) -> Self {
         Identifier {
             name,
             arguments

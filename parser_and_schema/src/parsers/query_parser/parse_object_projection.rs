@@ -64,7 +64,7 @@ pub fn parse_query_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<B
                 else { return Ok(false) }
             }
             _ => {
-                let arguments = Argument::convert_arguments_to_identifier_and_value_arguments(identifier.arguments)?;
+                let arguments = ArgumentOrTuple::convert_arguments_to_identifier_and_value_arguments(identifier.arguments)?;
                 let field = Want::SingleField(SingleField{ identifier: identifier.name.clone(), arguments, match_statement: None });
                 fields.insert(identifier.name, field);
                 return Ok(false)
@@ -99,11 +99,10 @@ where R: Read {
 fn create_obj(identifier: Identifier, fields: HashMap<Box<str>, Want>) -> Result<Want, CastleError> {
     let arguments;
     if identifier.arguments.is_some() {
-        let ident_args= identifier.arguments.unwrap();
-        if ident_args.len() == 0 { arguments = None }
-        else { arguments = Some(ident_args) }
+
+        arguments = ArgumentOrTuple::convert_arguments_to_identifier_and_value_arguments(identifier.arguments)?;
     } else {
-        arguments = None;
+        arguments = HashMap::new();
     }
     let object_projection = ObjectProjection {
         identifier: identifier.name,

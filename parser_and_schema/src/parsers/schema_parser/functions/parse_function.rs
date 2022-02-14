@@ -1,45 +1,41 @@
-use std::{io::Read};
+use std::{io::Read, collections::HashMap};
 
 use shared::CastleError;
 
-use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::get_next_token_and_unwrap}, ast::syntax_definitions::{fn_definition::{FnDefinition}}, parsers::schema_parser::{types::type_system::{Type, parse_type}}, token::token::{Identifier, TokenKind, Punctuator}};
+use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::get_next_token_and_unwrap}, ast::syntax_definitions::{fn_definition::{FnDefinition}, argument::{IdentifierAndTypeArgument, ArgumentOrTuple}}, parsers::schema_parser::{types::type_system::{Type, parse_type}}, token::token::{Identifier, TokenKind, Punctuator}};
 
 pub fn parse_function<R>(tokenizer: &mut Tokenizer<R>) -> Result<FnDefinition, CastleError>
 where R: Read {
-    let mut function_definition = FnDefinition::new(name, args, return_type);
 
+    let (name, args, return_type);
     let token = get_next_token_and_unwrap(tokenizer)?;
     match token.kind {
         TokenKind::Identifier(identifier ) => {
-            get_fn_name_and_arguments(&mut function_definition, identifier)?;
-            get_fn_return_type(&mut function_definition, tokenizer)?;
+            (name, args) = get_fn_name_and_arguments(identifier)?;
+            return_type = get_fn_return_type( tokenizer)?;
         },
         _ => return Err(CastleError::Schema(format!("6. Expected identifier, found: {:?}", token.kind).into(), token.span))
     }
-
+    let function_definition = FnDefinition::new(name, args, return_type);
     return Ok(function_definition);
 }
 
-fn get_fn_name_and_arguments(function_definition:  &mut FnDefinition, identifier: Identifier)
--> Result<(), CastleError> {
-    function_definition.name = identifier.name;
-    match identifier.arguments {
-        Some(arguments) => { function_definition.args = Some(arguments); }
-        None => {}
-    };
-    return Ok(());
+fn get_fn_name_and_arguments(identifier: Identifier)
+-> Result<(Box<str>, HashMap<Box<str>, IdentifierAndTypeArgument>), CastleError> {
+    let name = identifier.name;
+    let arguments = ArgumentOrTuple::convert_arguments_to_identifier_and_type_arguments(identifier.arguments)?;
+    return Ok((name, arguments))
 }
 
-fn get_fn_return_type<R>(function_definition: &mut FnDefinition, tokenizer: &mut Tokenizer<R>)
--> Result<(), CastleError> where R: Read {
+fn get_fn_return_type<R>(tokenizer: &mut Tokenizer<R>)
+-> Result<Type, CastleError> where R: Read {
     let token = get_next_token_and_unwrap(tokenizer)?;
-    match token.kind {
+    return match token.kind {
         TokenKind::Punctuator(Punctuator::Sub) => { // dash from arrow syntax
-            function_definition.return_type = Some(parse_function_return_type(tokenizer)?);
+            Ok(parse_function_return_type(tokenizer)?)
         }
         _ => return Err(CastleError::Schema(format!("Expected sub operator, found: {:?}", token.kind).into(), token.span))
     }
-    return Ok(())
 }
 
 fn parse_function_return_type<R>(tokenizer: &mut Tokenizer<R>) -> Result<Type, CastleError>
