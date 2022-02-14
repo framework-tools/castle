@@ -6,26 +6,24 @@ use crate::{token::{Token, token::{TokenKind, Identifier, Punctuator}}, parsers:
 
 use super::expressions::PrimitiveValue;
 
+//For Schema Resolvers/Functions
+pub type IdentifierAndTypeArgument = (Box<str>, Type);
+//For Query Object Projections/Resolvers
+pub type IdentifierAndValueArgument = (Box<str>, PrimitiveValue);
 
 #[derive(Debug, PartialEq)]
-pub enum Argument {
-    Type(Type),
-    Identifier(Box<str>),
+pub enum ArgumentOrTuple {
     PrimitiveValue(PrimitiveValue),
     IdentifierAndType(IdentifierAndTypeArgument),
     IdentifierAndValue(IdentifierAndValueArgument),
 }
 
-pub type IdentifierAndTypeArgument = (Box<str>, Type);
-pub type IdentifierAndValueArgument = (Box<str>, PrimitiveValue);
 
-impl Argument {
+
+impl ArgumentOrTuple {
     pub fn new<R>(token: Token, tokenizer: &mut Tokenizer<R>) -> Result<Self, CastleError> 
     where R: Read {
         let argument = match token.kind {
-            TokenKind::PrimitiveType(primitive_type) => Argument::Type(Type::PrimitiveType(primitive_type)),
-            TokenKind::VecType(vec_type) => Argument::Type(Type::VecType(vec_type)),
-            TokenKind::OptionType(option_type) => Argument::Type(Type::OptionType(option_type)),
             TokenKind::Identifier(Identifier { name, ..}) => parse_identifier_argument(name, tokenizer)?, //can be ident, type, enum or a combo
             //parse option argument
             _ => parse_primitive_value_argument(token.kind)?
@@ -53,41 +51,33 @@ impl Argument {
     }
 }
 
-fn parse_identifier_argument<R>(name: Box<str>, tokenizer: &mut Tokenizer<R>) -> Result<Argument, CastleError>
+fn parse_identifier_argument<R>(name: Box<str>, tokenizer: &mut Tokenizer<R>) -> Result<ArgumentOrTuple, CastleError>
 where R: Read {
     let first_char = name.chars().nth(0);
-
-    if first_char.is_some(){
-        let first_char = first_char.unwrap();    
-        if first_char.is_uppercase() { return Ok(Argument::Type(Type::SchemaTypeOrEnum(name))) } //Enum or Type Argument
-        else { 
-            let token = tokenizer.next(true)?;
-            match token {
-                Some(token) => match_token_to_parse_argument(token, tokenizer, name),
-                None => return Err(CastleError::AbruptEOF("Error found in 'parse_identifier_argument'".into()))
-            }
-        }
-    } else {
-        return Err(CastleError::AbruptEOF("Error found in 'parse_identifier_argument'".into()))
+    let token = tokenizer.next(true)?;
+    match token {
+        Some(token) => match_token_to_parse_argument(token, tokenizer, name),
+        None => return Err(CastleError::AbruptEOF("Error found in 'parse_identifier_argument'".into()))
     }
 }
 
-fn match_token_to_parse_argument<R>(token: Token, tokenizer:&mut Tokenizer<R>, name: Box<str>) -> Result<Argument, CastleError> 
+fn match_token_to_parse_argument<R>(token: Token, tokenizer:&mut Tokenizer<R>, name: Box<str>) -> Result<ArgumentOrTuple, CastleError> 
 where R: Read {
     match token.kind {
         TokenKind::Punctuator(Punctuator::Colon) => { //Identifier and Type Argument
             let type_ = parse_type(tokenizer)?;
-            return Ok(Argument::IdentifierAndType((name, type_)))
+            let ident_and_type: IdentifierAndTypeArgument = (name, type_);
+            return Ok(ArgumentOrTuple::IdentifierAndType(ident_and_type));
         },
-        _ => return Ok(Argument::Identifier(name)) //Identifier Argument
+        _ => return Err(CastleError::Schema(format!("Expected ':' after identifier '{}'", name).into(), token.span))
     }
 }
 
 
-fn parse_primitive_value_argument(token_kind: TokenKind) -> Result<Argument, CastleError> {
+fn parse_primitive_value_argument(token_kind: TokenKind) -> Result<ArgumentOrTuple, CastleError> {
     let primitive_value = PrimitiveValue::new_from_token_kind(token_kind);
     match primitive_value {
-        Some(primitive_value) => return Ok(Argument::PrimitiveValue(primitive_value)),
+        Some(primitive_value) => return Ok(ArgumentOrTuple::PrimitiveValue(primitive_value)),
         None => Err(CastleError::Unimplemented("argument cannot be empty 2".into()))
     }
 }

@@ -4,7 +4,7 @@ use crate::parsers::schema_parser::types::schema_field::SchemaField;
 
 use super::{directive_definition::Directive};
 
-use super::{argument::Argument};
+use super::{argument::ArgumentOrTuple};
 
 
 #[derive(Debug, PartialEq)]
@@ -44,7 +44,7 @@ impl EnumVariant {
 #[derive(Debug, PartialEq)]
 pub enum EnumDataType {
     EnumUnit,
-    EnumTuple(Vec<Argument>),
+    EnumTuple(Vec<ArgumentOrTuple>),
     EnumObject(HashMap<Box<str>, SchemaField>)
 }
 

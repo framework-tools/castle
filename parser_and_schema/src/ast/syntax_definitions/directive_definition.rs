@@ -1,7 +1,9 @@
 
+use std::collections::HashMap;
+
 use crate::parsers::schema_parser::types::type_system::Type;
 
-use super::{argument::{Argument}, fn_definition::FnDefinition};
+use super::{argument::{ArgumentOrTuple, IdentifierAndValueArgument}, fn_definition::FnDefinition};
 
 #[derive(Debug, PartialEq)]
 pub enum DirectiveOnValue {
@@ -29,11 +31,11 @@ impl DirectiveDefinition {
 #[derive(Debug, PartialEq)]
 pub struct Directive {
     pub name: Box<str>,
-    pub arguments: Option<Vec<Argument>>
+    pub arguments: HashMap<Box<str>, IdentifierAndValueArgument>
 }
 
 impl Directive {
-    pub fn new(name: Box<str>, arguments: Option<Vec<Argument>>) -> Self {
+    pub fn new(name: Box<str>, arguments: HashMap<Box<str>, IdentifierAndValueArgument>) -> Self {
         Directive {
             name,
             arguments

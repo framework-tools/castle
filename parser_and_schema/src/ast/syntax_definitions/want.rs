@@ -2,7 +2,7 @@
 use std::{collections::HashMap};
 use shared::CastleError;
 
-use crate::ast::syntax_definitions::argument::Argument;
+use crate::ast::syntax_definitions::argument::ArgumentOrTuple;
 
 use super::{match_statement::{MatchStatement}, argument::IdentifierAndValueArgument};
 

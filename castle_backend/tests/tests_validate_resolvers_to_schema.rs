@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use castle_backend::{validation::validate_schema_with_functions::validate_schema_with_resolvers::{validate_schema_with_resolvers, validate_schema_with_directives}, resolvers::resolvers::Resolver};
-use parser_and_schema::{parsers::schema_parser::{parse_schema::parse_schema, types::{type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{fn_definition::FnDefinition, argument::Argument, directive_definition::{DirectiveDefinition, DirectiveOnValue, }}};
+use parser_and_schema::{parsers::schema_parser::{parse_schema::parse_schema, types::{type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{fn_definition::FnDefinition, argument::ArgumentOrTuple, directive_definition::{DirectiveDefinition, DirectiveOnValue, }}};
 use shared::CastleError;
 
 #[cfg(test)]
