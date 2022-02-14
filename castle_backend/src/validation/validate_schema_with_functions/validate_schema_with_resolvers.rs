@@ -68,7 +68,7 @@ pub fn validate_schema_with_resolvers(resolvers_identifiers: HashSet<&Box<str>>,
     for resolver_in_schema in parsed_schema.functions.values() {
         let resolver = resolvers_identifiers.get(&resolver_in_schema.name);
         if resolver.is_none() {
-            return Err(CastleError::UndefinedResolver("Resolver not found for function".into()))
+            return Err(CastleError::UndefinedResolver(format!("Resolver not found for fn definition in schema: {}", resolver_in_schema.name).into()))
         }
     }
     return Ok(())
@@ -86,7 +86,7 @@ pub fn validate_schema_with_directives(directives_identifiers: HashSet<&Box<str>
     for directive_in_schema in parsed_schema.directives.values() {
         let directive = directives_identifiers.get(&directive_in_schema.function.name);
         if directive.is_none() {
-            return Err(CastleError::UndefinedDirective("Directive not found for field".into()))
+            return Err(CastleError::UndefinedDirective(format!("Directive not found for directive definition in schema: {}", directive_in_schema.function.name).into()))
         }
     }
     return Ok(())
