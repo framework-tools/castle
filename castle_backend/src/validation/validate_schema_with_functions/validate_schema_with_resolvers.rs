@@ -28,9 +28,9 @@ use crate::resolvers::resolvers::Resolver;
 /// 
 /// 
 
-pub fn validate_schema_with_resolvers_and_directives(
+pub fn validate_schema_with_resolvers_and_directives<C, O>(
     parsed_schema: &SchemaDefinition,
-    resolvers: HashMap<Box<str>, Resolver>,
+    resolvers: HashMap<Box<str>, Resolver<C, O>>,
     directives: HashMap<Box<str>, DirectiveDefinition>
 ) -> Result<(), CastleError> {
     validate_schema_with_resolvers(resolvers, parsed_schema)?;

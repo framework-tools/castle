@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use parser_and_schema::ast::syntax_definitions::{directive_definition::{ DirectiveDefinition}};
+use parser_and_schema::ast::syntax_definitions::{directive_definition::{ DirectiveDefinition}, want::Want, argument::Argument};
 use shared::CastleError;
 
 

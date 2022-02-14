@@ -16,10 +16,10 @@ use super::{self_validation_schema::self_validate_schema::self_validate_schema, 
 /// - Cross validate query and schema
 ///    - query resolvers match the resolvers defined in the schema
 
-pub fn validate_everything(
+pub fn validate_everything<C, O>(
     schema: &str, 
     query: &str, 
-    resolvers: HashMap<Box<str>, Resolver>, 
+    resolvers: HashMap<Box<str>, Resolver<C, O>>, 
     directives: HashMap<Box<str>, DirectiveDefinition>, 
     ) -> Result<(), CastleError> {
 

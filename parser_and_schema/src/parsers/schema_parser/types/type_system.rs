@@ -13,7 +13,8 @@ pub enum Type {
     PrimitiveType(PrimitiveType),
     SchemaTypeOrEnum(Box<str>),
     VecType(VecType),
-    OptionType(OptionType)
+    OptionType(OptionType),
+    Void
 }
 
 impl Type {

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::parsers::schema_parser::types::type_system::Type;
 
 use super::argument::Argument;
@@ -8,15 +10,15 @@ use super::argument::Argument;
 #[derive(Debug, PartialEq)]
 pub struct FnDefinition {
     pub name: Box<str>,
-    pub args: Option<Vec<Argument>>,
-    pub return_type: Option<Type>,
+    pub args: HashMap<Box<str>, Argument>,
+    pub return_type: Type,
 }
 
 impl FnDefinition {
     pub fn initalise() -> Self {
         Self {
             name: "".to_string().into(),
-            args: None,
+            args: HashMap::new(),
             return_type: None,
         }
     }
@@ -28,7 +30,3 @@ impl FnDefinition {
         }
     }
 }
-
-
-#[derive(Debug, PartialEq)]
-pub struct FnStatement; // TODO: statements
