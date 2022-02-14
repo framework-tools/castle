@@ -7,7 +7,6 @@ use crate::{tokenizer::{tokenizer::{Tokenizer, }, parse_vec_type::get_vec_type_f
 use super::{primitive_type::PrimitiveType, vec_type::VecType, option_type::OptionType, };
 
 
-
 #[derive(Debug, PartialEq)]
 pub enum Type {
     PrimitiveType(PrimitiveType),
