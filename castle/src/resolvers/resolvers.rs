@@ -27,8 +27,7 @@ fn resolve_all_wants<C, T>(wants: Wants, resolver_map: ResolverMap<C, T>,  conte
 }
 
 ///For a Top Level Want (object projection or single field)
-/// Match the Want
-///     If object projection Want
+/// Match the Want & unwrap from object projection or single field
 ///     - Check it's not a match statement
 ///     - If not a match:
 ///         - Use the want's identifier to get the corresponding resolver
@@ -67,16 +66,6 @@ fn resolve_projection<C, T>(want: Want, context: &C, resolver_map: &ResolverMap<
     };
     return Ok(resolved_fields)
 }
-
-
-
-
-
-
-
-
-
-
 
 
 // for (identifier, field) in fields {

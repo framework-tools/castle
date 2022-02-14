@@ -162,7 +162,7 @@ fn check_directives_use_valid_directive_definitions(directive_definitions: &Hash
             return Err(CastleError::UndefinedDirective(format!("Directive {} is not defined", &directive.name).into()));
         }
         else {
-            validate_directive_definition_arguments_and_directive_arguments_if_some_else_return_error(directive, directive_definitions, schema)?;
+            validate_directive_definition_arguments_and_directive_arguments(directive, directive_definitions, schema)?;
             
 
         }
@@ -170,7 +170,7 @@ fn check_directives_use_valid_directive_definitions(directive_definitions: &Hash
     return Ok(())
 }
 
-fn validate_directive_definition_arguments_and_directive_arguments_if_some_else_return_error(directive: &Directive, directive_definitions: &HashMap<Box<str>, DirectiveDefinition>, schema: &SchemaDefinition) -> Result<(), CastleError> {
+fn validate_directive_definition_arguments_and_directive_arguments(directive: &Directive, directive_definitions: &HashMap<Box<str>, DirectiveDefinition>, schema: &SchemaDefinition) -> Result<(), CastleError> {
     let directive_definition = &directive_definitions[&directive.name].function;
 
     let directive_definition = directive_definition;

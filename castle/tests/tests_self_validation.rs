@@ -146,7 +146,7 @@ fn can_parse_defined_schema_enum_as_type_for_field() {
 fn err_if_parses_enum_with_unknown_tuple_type() -> Result<(), CastleError> {
     let schema = "
         enum FrameworkTypes {
-            SomeOtherType(String, DoesntExist)
+            SomeOtherType(identifier: String, unknown_type: DoesntExist)
         }
     ";
 
@@ -243,6 +243,9 @@ fn breaks_if_function_has_return_type_undefined() -> Result<(), CastleError> {
 #[test]
 fn breaks_if_directive_has_argument_undefined() -> Result<(), CastleError> {
     let schema = "
+        directive @authenticated(token: String) on FIELD
+        directive @is_admin(role: DoesntExist) on FIELD
+
         type Meow {
             is_admin: bool @authenticated(token: String) @is_admin(role: DoesntExist),
         }
