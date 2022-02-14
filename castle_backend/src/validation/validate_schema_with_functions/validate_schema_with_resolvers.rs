@@ -46,7 +46,7 @@ pub fn validate_schema_with_resolvers_and_directives<C, O>(
 ///     - Else, unwrap the resolver and continue
 ///     - For the resolver, check the fn definition in schema & fn definition in resolvers is identical
 ///     - Else throw error
-pub fn validate_schema_with_resolvers(resolvers: HashMap<Box<str>, Resolver>, parsed_schema: &SchemaDefinition ) -> Result<(), CastleError> {
+pub fn validate_schema_with_resolvers<C, O>(resolvers: HashMap<Box<str>, Resolver<C, O>>, parsed_schema: &SchemaDefinition ) -> Result<(), CastleError> {
     for resolver_in_schema in parsed_schema.functions.values() {
         let resolver = resolvers.get(&resolver_in_schema.name);
         if resolver.is_none() {

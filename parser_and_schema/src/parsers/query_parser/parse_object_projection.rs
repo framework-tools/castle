@@ -40,7 +40,7 @@ fn match_current_token_to_field_and_parse_field(tokenizer: &mut Tokenizer<impl R
 -> Result<bool, CastleError> {
     match token.kind {
         TokenKind::Identifier(identifier) => {
-            let should_break = parse_field(tokenizer, fields, identifier)?;
+            let should_break = parse_query_field(tokenizer, fields, identifier)?;
             if should_break { return Ok(true) }
             else { return Ok(false) }
         },
@@ -53,7 +53,7 @@ fn match_current_token_to_field_and_parse_field(tokenizer: &mut Tokenizer<impl R
     }
 }
 
-pub fn parse_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str>, Want>, identifier: Identifier) 
+pub fn parse_query_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str>, Want>, identifier: Identifier) 
 -> Result<bool, CastleError> where R: Read {
     let peeked_token = tokenizer.peek(true)?;
     match peeked_token {
@@ -64,7 +64,8 @@ pub fn parse_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str
                 else { return Ok(false) }
             }
             _ => {
-                let field = Want::SingleField(SingleField{ identifier: identifier.name.clone(), arguments: identifier.arguments, match_statement: None });
+                let arguments = Argument::convert_arguments_to_identifier_and_value_arguments(identifier.arguments)?;
+                let field = Want::SingleField(SingleField{ identifier: identifier.name.clone(), arguments, match_statement: None });
                 fields.insert(identifier.name, field);
                 return Ok(false)
             }
@@ -82,7 +83,7 @@ where R: Read {
             TokenKind::Keyword(Keyword::Match) => {
                 tokenizer.next(true)?; // consume the match keyword
                 let match_statements = parse_match_statements(tokenizer)?;
-                fields.insert(identifier.name.clone(), Want::new_object_projection(Some(identifier.name), None, Some(match_statements), None));
+                fields.insert(identifier.name.clone(), Want::new_object_projection(identifier.name, None, Some(match_statements), HashMap::new())); //added empty hashmap here
                 return Ok(false)
             },
             TokenKind::Punctuator(Punctuator::OpenBlock) => {
@@ -105,7 +106,7 @@ fn create_obj(identifier: Identifier, fields: HashMap<Box<str>, Want>) -> Result
         arguments = None;
     }
     let object_projection = ObjectProjection {
-        identifier: Some(identifier.name),
+        identifier: identifier.name,
         arguments,
         fields: Some(fields),
         match_statement: None

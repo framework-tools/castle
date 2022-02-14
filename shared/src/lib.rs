@@ -24,6 +24,7 @@ pub enum CastleError {
     QueryResolverNotDefinedInSchema(Box<str>),
     ArgumentsInQueryDoNotMatchResolver(Box<str>),
     FieldsInReturnTypeDoNotMatchQuery(Box<str>),
+    IncorrectArgumentType(Box<str>),
 }
 
 impl From<std::io::Error> for CastleError {
@@ -71,6 +72,7 @@ impl fmt::Display for CastleError {
             Self::QueryResolverNotDefinedInSchema(msg) => write!(f, "Query resolver not defined in schema: {}", msg),
             Self::ArgumentsInQueryDoNotMatchResolver(msg) => write!(f, "Arguments in query do not match resolver: {}", msg),
             Self::FieldsInReturnTypeDoNotMatchQuery(msg) => write!(f, "Fields in return type do not match query: {}", msg),
+            Self::IncorrectArgumentType(msg) => write!(f, "Incorrect argument type: {}", msg),
         }
     }
 }
@@ -99,6 +101,7 @@ impl ExtendedErrorDisplay for CastleError {
             Self::QueryResolverNotDefinedInSchema(msg) => format!("Query resolver not defined in schema: {}", msg),
             Self::ArgumentsInQueryDoNotMatchResolver(msg) => format!("Arguments in query do not match resolver: {}", msg),
             Self::FieldsInReturnTypeDoNotMatchQuery(msg) => format!("Fields in return type do not match query: {}", msg),
+            Self::IncorrectArgumentType(msg) => format!("Incorrect argument type: {}", msg),
         }
     }
 }

@@ -45,7 +45,7 @@ fn should_break_if_mismatched_arguments() -> Result<(), CastleError>{
     ";
 
     let query = "
-    me(id: Int, currency: String) {
+    me(id: 432, currency: \"USD\") {
         first_name,
         last_name
     }
@@ -77,7 +77,7 @@ fn should_break_if_mismatched_fields_in_return_type() -> Result<(), CastleError>
     ";
 
     let query = "
-    me(id: Int) {
+    me(id: 543) {
         first_name,
         last_name
     }

@@ -1,4 +1,4 @@
-use std::io::Read;
+use std::{io::Read, collections::HashMap};
 
 use shared::CastleError;
 
@@ -12,8 +12,12 @@ pub enum Argument {
     Type(Type),
     Identifier(Box<str>),
     PrimitiveValue(PrimitiveValue),
-    IdentifierAndType(Box<str>, Type)
+    IdentifierAndType(IdentifierAndTypeArgument),
+    IdentifierAndValue(IdentifierAndValueArgument),
 }
+
+pub type IdentifierAndTypeArgument = (Box<str>, Type);
+pub type IdentifierAndValueArgument = (Box<str>, PrimitiveValue);
 
 impl Argument {
     pub fn new<R>(token: Token, tokenizer: &mut Tokenizer<R>) -> Result<Self, CastleError> 
@@ -27,6 +31,25 @@ impl Argument {
             _ => parse_primitive_value_argument(token.kind)?
         };
         return Ok(argument)
+    }
+
+    pub fn convert_arguments_to_identifier_and_value_arguments(arguments: Option<Vec<Argument>>) -> Result<HashMap<Box<str>, IdentifierAndValueArgument>, CastleError>{
+        let mut arguments_for_query_object = HashMap::new();
+        if arguments.is_none() {
+            return Ok(arguments_for_query_object)
+        } else {
+            let arguments = arguments.unwrap();
+            for argument in arguments {
+                match argument {
+                    Argument::IdentifierAndValue(identifier_and_value) => {
+                        let (identifier, primitive_value) = identifier_and_value;
+                        arguments_for_query_object.insert(identifier, (identifier.clone(), primitive_value));
+                    },
+                    _ => return Err(CastleError::IncorrectArgumentType(format!("Expected identifier and value got different argument type, found: {:?}", argument).into()))
+                };
+            }
+        }
+        return Ok(arguments_for_query_object)
     }
 }
 
@@ -54,7 +77,7 @@ where R: Read {
     match token.kind {
         TokenKind::Punctuator(Punctuator::Colon) => { //Identifier and Type Argument
             let type_ = parse_type(tokenizer)?;
-            return Ok(Argument::IdentifierAndType(name, type_));
+            return Ok(Argument::IdentifierAndType((name, type_)))
         },
         _ => return Ok(Argument::Identifier(name)) //Identifier Argument
     }

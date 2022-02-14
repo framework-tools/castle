@@ -58,7 +58,7 @@ where R: Read {
         }
     }
     let identifier = condition.get_identifier();
-    return Ok(MatchArm::new(condition, Want::new_object_projection(Some(identifier), Some(match_arms), None, None)))
+    return Ok(MatchArm::new(condition, Want::new_object_projection(identifier, Some(match_arms), None, HashMap::new()))); // empty used hashmap new here
 }
 
 
@@ -110,7 +110,7 @@ where R: Read {
                 _ => return Err(CastleError::Parser("Expected identifier after colon in match arm".into(), identifier_token.span))
             };
             let match_statements = parse_match_statements(tokenizer)?;
-            match_arms.insert(identifier.name.clone(), Want::new_object_projection(Some(identifier.name), None, Some(match_statements), None));
+            match_arms.insert(identifier.name.clone(), Want::new_object_projection(identifier.name, None, Some(match_statements), HashMap::new())); // empty used hashmap new here
             let peeked_token = peek_next_token_and_unwrap(tokenizer)?;
             match &peeked_token.kind{
                 TokenKind::Punctuator(Punctuator::CloseBlock) => {
