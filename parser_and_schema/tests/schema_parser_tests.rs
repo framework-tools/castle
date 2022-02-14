@@ -1,6 +1,6 @@
-use std::{collections::{HashMap, hash_map}, vec, string};
+use std::{collections::{HashMap, hash_map}, vec, string, env::args};
 
-use parser_and_schema::{parsers::schema_parser::{schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}, types::{type_system::Type, primitive_type::PrimitiveType, schema_type::SchemaType, schema_field::SchemaField, vec_type::VecType, option_type::OptionType}, parse_schema::parse_schema}, ast::syntax_definitions::{enum_definition::{EnumVariant, EnumDataType, EnumDefinition}, schema_definition::SchemaDefinition, argument::Argument, fn_definition::FnDefinition, directive_definition::{Directive, self, DirectiveDefinition}}};
+use parser_and_schema::{parsers::schema_parser::{schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}, types::{type_system::Type, primitive_type::PrimitiveType, schema_type::SchemaType, schema_field::SchemaField, vec_type::VecType, option_type::OptionType}, parse_schema::parse_schema}, ast::syntax_definitions::{enum_definition::{EnumVariant, EnumDataType, EnumDefinition}, schema_definition::SchemaDefinition, argument::{ArgumentOrTuple, IdentifierAndTypeArgument, IdentifierAndValueArgument}, fn_definition::FnDefinition, directive_definition::{Directive, self, DirectiveDefinition}}};
 
 #[test]
 fn can_parse_empty_query() {
@@ -276,9 +276,9 @@ fn can_parse_enum_schema_with_values() {
         }
         
         enum FrameworkTypes {
-            ProfilePic(String),
-            User(User),
-            Organization(Organization),
+            ProfilePic(url: String),
+            User(type: User),
+            Organization(type: Organization),
         }
         ";
 
@@ -302,15 +302,19 @@ fn can_parse_enum_schema_with_values() {
         ("Organization".into(), SchemaType::new("Organization".into(), organization_fields)),
     ]);
 
+    let profile_pic_args = ("url".into(), Type::PrimitiveType(PrimitiveType::String));
+    let user_args = ("type".into(), Type::SchemaTypeOrEnum("User".into())); // are these correct?
+    let organization_args = ("type".into(), Type::SchemaTypeOrEnum("Organization".into())); // are these correct?
+
     let framework_types_enum = create_enum_from_vec("FrameworkTypes".into(), vec![
         ("ProfilePic".into(), EnumVariant::new("ProfilePic".into(), EnumDataType::EnumTuple(vec![
-            Argument::Type(Type::PrimitiveType(PrimitiveType::String)) 
+            ArgumentOrTuple::IdentifierAndType(profile_pic_args) 
         ]), Vec::new())),
         ("User".into(), EnumVariant::new("User".into(), EnumDataType::EnumTuple(vec![
-            Argument::Type(Type::SchemaTypeOrEnum("User".into())) 
+            ArgumentOrTuple::IdentifierAndType(user_args) 
         ]), Vec::new())),
         ("Organization".into(), EnumVariant::new("Organization".into(), EnumDataType::EnumTuple(vec![
-            Argument::Type(Type::SchemaTypeOrEnum("Organization".into())) 
+            ArgumentOrTuple::IdentifierAndType(organization_args) 
         ]), Vec::new())),
     ]);
 
@@ -334,15 +338,19 @@ fn can_parse_enum_schema_with_values() {
 fn can_parse_enum_multiple_arguments(){
     let schema = "
         enum FrameworkTypes {
-            ProfilePic(String, String, String),
+            ProfilePic(x: String, y: String, z: String),
         }
     ";
 
+    let argument_1 = ("x".into(), Type::PrimitiveType(PrimitiveType::String));
+    let argument_2 = ("y".into(), Type::PrimitiveType(PrimitiveType::String));
+    let argument_3 = ("z".into(), Type::PrimitiveType(PrimitiveType::String));
+
     let framework_types_enum = create_enum_from_vec("FrameworkTypes".into(), vec![
         ("ProfilePic".into(), EnumVariant::new("ProfilePic".into(), EnumDataType::EnumTuple(vec![
-            Argument::Type(Type::PrimitiveType(PrimitiveType::String)),
-            Argument::Type(Type::PrimitiveType(PrimitiveType::String)),
-            Argument::Type(Type::PrimitiveType(PrimitiveType::String)),
+            ArgumentOrTuple::IdentifierAndType(argument_1),
+            ArgumentOrTuple::IdentifierAndType(argument_2),
+            ArgumentOrTuple::IdentifierAndType(argument_3),
         ]), Vec::new())),
     ]);
 
@@ -370,9 +378,11 @@ fn can_parse_enum_with_fields(){
                 name: String,
                 age: Int,
             },
-            SomeOtherType(String),
+            SomeOtherType(string: String),
         }
     ";
+
+    let argument_1 = ("string".into(), Type::PrimitiveType(PrimitiveType::String));
 
     let framework_types_enum = create_enum_from_vec("FrameworkTypes".into(), vec![
         ("User".into(), EnumVariant::new("User".into(), EnumDataType::new_enum_object(vec![
@@ -381,7 +391,7 @@ fn can_parse_enum_with_fields(){
             ("age".into(), SchemaField::new("age".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new())),
         ]), Vec::new())),
         ("SomeOtherType".into(), EnumVariant::new("SomeOtherType".into(), EnumDataType::EnumTuple(vec![
-            Argument::Type(Type::PrimitiveType(PrimitiveType::String)),
+            ArgumentOrTuple::IdentifierAndType(argument_1),
         ]), Vec::new()))
     ]);
 
@@ -406,22 +416,25 @@ fn can_parse_function_with_args_and_return_type(){
         fn do_nothing (id: uuid, name: String) -> String
         fn get_user(id: uuid) -> User 
     ";
+    let id_arg = ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid));
+    let name_arg = ("name".into(), Type::PrimitiveType(PrimitiveType::String));
+    let user_id_arg = ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid));
 
-    let mut fn_do_nothing = FnDefinition::initalise();
-    fn_do_nothing.name = "do_nothing".into();
-    fn_do_nothing.args = Some(vec![
-        Argument::IdentifierAndType("id".into(), Type::PrimitiveType(PrimitiveType::Uuid)),
-        Argument::IdentifierAndType("name".into(), Type::PrimitiveType(PrimitiveType::String))
-    ]);
+    let name = "do_nothing".into();
+    let mut args = HashMap::new();
+    args.insert("name".into(), name_arg);
+    args.insert("id".into(), id_arg);
 
-    fn_do_nothing.return_type = Some(Type::PrimitiveType(PrimitiveType::String));
+    let return_type = Type::PrimitiveType(PrimitiveType::String);
+    let fn_do_nothing = FnDefinition::new(name, args, return_type,);
 
-    let mut fn_get_user = FnDefinition::initalise();
-    fn_get_user.name = "get_user".into();
-    fn_get_user.args = Some(vec![
-        Argument::IdentifierAndType("id".into(), Type::PrimitiveType(PrimitiveType::Uuid)),
-    ]);
-    fn_get_user.return_type = Some(Type::SchemaTypeOrEnum("User".into()));
+    let name = "get_user".into();
+    let mut args = HashMap::new();
+    args.insert("id".into(), user_id_arg);
+
+    let return_type = Type::SchemaTypeOrEnum("User".into());
+    let mut fn_get_user = FnDefinition::new(name, args, return_type,);
+
 
     let mut expected_functions: HashMap<Box<str>, FnDefinition> = HashMap::new();   
     expected_functions.insert("do_nothing".into(), fn_do_nothing);
@@ -486,15 +499,18 @@ fn can_parse_directives_on_fields(){
             is_admin: bool @authenticated(token: String) @is_admin(role: DoesntExist),
         }
     ";
+    
+    let token_arg = ("token".into(), Type::PrimitiveType(PrimitiveType::String));
+    let mut authenicated_args = HashMap::new();
+    authenicated_args.insert("token".into(), token_arg);
+    let role_arg = ("role".into(), Type::PrimitiveType(PrimitiveType::String));
+    let mut is_admin_args = HashMap::new();
+    is_admin_args.insert("role".into(), role_arg);
 
     let mut expected_fields = HashMap::new();
     expected_fields.insert("is_admin".into(), SchemaField::new("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), vec![
-        Directive::new("authenticated".into(), Some(vec![
-            Argument::IdentifierAndType("token".into(), Type::PrimitiveType(PrimitiveType::String)),
-        ])),
-        Directive::new("is_admin".into(), Some(vec![
-            Argument::IdentifierAndType("role".into(), Type::SchemaTypeOrEnum("DoesntExist".into())),
-        ])),
+        Directive::new("authenticated".into(), authenicated_args),
+        Directive::new("is_admin".into(), is_admin_args),
     ]));
     let mut expected_types = HashMap::new();
     expected_types.insert("Meow".into(), SchemaType::new("Meow".into(), expected_fields));
@@ -516,13 +532,18 @@ fn can_parse_directives_on_enums(){
         }
     ";
 
+    let token_arg: IdentifierAndTypeArgument = ("token".into(), Type::PrimitiveType(PrimitiveType::String));
+    let role_arg: (Box<str>, Type) = ("role".into(), Type::PrimitiveType(PrimitiveType::String));
+
+    let mut authenticated_arguments: HashMap<Box<str>, (Box<str>, Type)> = HashMap::new();
+    authenticated_arguments.insert("token".into(), token_arg);
+
+    let mut is_admin_arguments = HashMap::new();
+    is_admin_arguments.insert("role".into(), role_arg);
+
     let mut directives = Vec::new();
-    directives.push(Directive::new("authenticated".into(), Some(vec![
-        Argument::IdentifierAndType("token".into(), Type::PrimitiveType(PrimitiveType::String)),
-    ])));
-    directives.push(Directive::new("is_admin".into(), Some(vec![
-        Argument::IdentifierAndType("role".into(), Type::SchemaTypeOrEnum("DoesntExist".into())),
-    ])));
+    directives.push(Directive::new("authenticated".into(), authenticated_arguments));
+    directives.push(Directive::new("is_admin".into(), is_admin_arguments));
 
     let enum_variant = EnumVariant::new("Red".into(), EnumDataType::EnumUnit, directives);
 
@@ -540,10 +561,13 @@ fn can_parse_directives_fields(){
     let schema = "
     directive @test(ar: String) on FIELD
     ";
-    let arguments = vec![
-        Argument::IdentifierAndType("ar".into(), Type::PrimitiveType(PrimitiveType::String)),
-    ];
-    let function = FnDefinition::new("test".into(), Some(arguments), None);
+
+    let ar_arg = ("ar".into(), Type::PrimitiveType(PrimitiveType::String));
+
+    let mut args = HashMap::new();
+    args.insert("ar".into(), ar_arg);
+
+    let function = FnDefinition::new("test".into(), args, Type::Void);
     let directive_definition = DirectiveDefinition::new(function, directive_definition::DirectiveOnValue::Field);
 
     let mut expected = SchemaDefinition {
@@ -562,10 +586,14 @@ fn can_parse_directives_enums(){
     let schema = "
     directive @test(ar: String) on ENUM_VARIANT
     ";
-    let arguments = vec![
-        Argument::IdentifierAndType("ar".into(), Type::PrimitiveType(PrimitiveType::String)),
-    ];
-    let function = FnDefinition::new("test".into(), Some(arguments), None);
+
+    let ar_arg = ("ar".into(), Type::PrimitiveType(PrimitiveType::String));
+
+    let mut args = HashMap::new();
+    args.insert("ar".into(), ar_arg);
+
+    let return_type = Type::Void;
+    let function = FnDefinition::new("test".into(), args, return_type);
     let directive_definition = DirectiveDefinition::new(function, directive_definition::DirectiveOnValue::EnumVariant);
 
     let mut expected = SchemaDefinition {

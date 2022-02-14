@@ -43,7 +43,7 @@ where R: Read{
     let token = get_next_token_and_unwrap(tokenizer)?; // should be identifier
     return match token.kind { 
         TokenKind::Identifier(Identifier {name, arguments}) => {
-            let arguments = ArgumentOrTuple::convert_arguments_to_identifier_and_value_arguments(arguments)?;
+            let arguments = ArgumentOrTuple::convert_arguments_to_identifier_and_type_arguments(arguments)?;
             Ok(Directive::new(name, arguments))
         },
         _ => Err(CastleError::UndefinedTypeOrEnumInSchema("Expected identifier for directive".into()))
