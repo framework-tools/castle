@@ -1,6 +1,6 @@
 use std::{collections::HashMap};
 
-use parser_and_schema::{parsers::{query_parser::parse_query::ParsedQuery, schema_parser::types::{ type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{schema_definition::SchemaDefinition, want::{ Want, ObjectProjection}, expressions::PrimitiveValue, fn_definition::FnDefinition}};
+use parser_and_schema::{parsers::{query_parser::parse_query::ParsedQuery, schema_parser::types::{ type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{schema_definition::SchemaDefinition, want::{ Want, ObjectProjection}, expressions::PrimitiveValue, fn_definition::FnDefinition, argument::{IdentifierAndTypeArgument, IdentifierAndValueArgument}}};
 use shared::CastleError;
 
 /// Cross-Validation Between Query Parser & Schema Parser
@@ -49,22 +49,13 @@ pub fn validate_query_with_schema(parsed_query: &ParsedQuery, schema_definition:
             Want::SingleField(_single_field) => {
             },
             Want::ObjectProjection(object_projection) => {
-                let identifier = unwrap_identifier_throw_error_if_none(&object_projection.identifier)?;
                 let fields = unwrap_fields_throw_error_if_none(&object_projection.fields)?; //Need to think about match
-                
-                let resolver = schema_definition.functions.get(identifier);
+                let resolver = schema_definition.functions.get(&object_projection.identifier);
                 check_if_resolver_is_none_else_unwrap_resolver_and_check_if_arguments_are_compatible(resolver, object_projection, &schema_definition, fields)?;
             }
         }
     }
     return Ok(())
-}
-
-fn unwrap_identifier_throw_error_if_none(identifier: &Option<Box<str>>) -> Result<&Box<str>, CastleError> {
-    return match identifier {
-        Some(identifier)  => Ok(identifier),
-        None => Err(CastleError::NoIdentifierOnObjectProjection("No identifier on object projection".into())),
-    }
 }
 
 fn unwrap_fields_throw_error_if_none(fields: &Option<HashMap<Box<str>, Want>>) -> Result<&HashMap<Box<str>, Want>, CastleError> {
@@ -108,31 +99,21 @@ fn validate_resolver_and_assign_schema_type_for_fields_validation(
         Ok(())
 }
 
-fn unwrap_return_type_throw_error_if_none(return_type: &Option<Type>) -> Result<&Box<str>, CastleError> {
+fn unwrap_return_type_throw_error_if_none(return_type: &Type) -> Result<&Box<str>, CastleError> {
     return match return_type {
-        Some(return_type)  =>match return_type {
-            Type::SchemaTypeOrEnum(schema_type_or_enum) => Ok(schema_type_or_enum),
-            _ => Err(CastleError::NoIdentifierOnObjectProjection(" on resolver return type Not valid".into())),
-        },
-        None => Err(CastleError::NoIdentifierOnObjectProjection("No identifier on object projection".into())),
-    };
+        Type::SchemaTypeOrEnum(schema_type_or_enum) => Ok(schema_type_or_enum),
+        _ => Err(CastleError::NoIdentifierOnObjectProjection(" on resolver return type Not valid".into())),
+    }
 }
 
 fn take_unwrapped_resolver_and_throw_error_if_none_and_check_length_if_some(resolver: &FnDefinition, object_projection: &ObjectProjection) -> Result<(), CastleError> {
-    if resolver.args.is_none() && object_projection.arguments.is_none() { Ok(()) } 
-    else if resolver.args.is_none() || object_projection.arguments.is_none() {
-        return Err(CastleError::ArgumentsInQueryDoNotMatchResolver("arguments in query do not match resolver. One has no arguments".into()));
-    }
-    else {
-        let resolver_args = resolver.args.as_ref().unwrap();
-        let query_args = object_projection.arguments.as_ref().unwrap();
-        check_if_arguments_in_query_have_different_lengths(resolver_args, query_args)?;
-        iterate_through_argument_length_and_check_compatibility(resolver_args, query_args)?;
-        Ok(())
-    }
+    check_if_arguments_in_query_have_different_lengths(&resolver.args, &object_projection.arguments)?;
+    iterate_through_argument_length_and_check_compatibility(&resolver.args, &object_projection.arguments)?;
+    Ok(())
 }
 
-fn check_if_arguments_in_query_have_different_lengths(resolver_args: &Vec<Argument>, query_args: &Vec<Argument>) -> Result<(), CastleError> {
+fn check_if_arguments_in_query_have_different_lengths(resolver_args: &HashMap<Box<str>, IdentifierAndTypeArgument>, query_args: &HashMap<Box<str>, IdentifierAndValueArgument>)
+-> Result<(), CastleError> {
     
     //check args are compatible
     if query_args.len() != resolver_args.len() {
@@ -143,14 +124,20 @@ fn check_if_arguments_in_query_have_different_lengths(resolver_args: &Vec<Argume
     }
 }
 
-fn iterate_through_argument_length_and_check_compatibility(resolver_args: &Vec<Argument>, query_args: &Vec<Argument>) -> Result<(), CastleError> {
-    let mut i = 0;
-    while i < query_args.len() {
-        let arg_in_resolver = &resolver_args[i];
-        let arg_in_query = &query_args[i];
-        let compatible = check_arg_compatible(&arg_in_resolver, &arg_in_query)?;
+fn iterate_through_argument_length_and_check_compatibility(resolver_args: &HashMap<Box<str>, IdentifierAndTypeArgument>, query_args: &HashMap<Box<str>, IdentifierAndValueArgument>)
+-> Result<(), CastleError> {
+    for (query_arg_name, query_arg_value) in query_args.values() {
+        let arg_in_resolver = resolver_args.get(query_arg_name);
+        if arg_in_resolver.is_none() {
+            return Err(CastleError::QueryResolverNotDefinedInSchema("no matching with same identifier found for in schema".into()));
+        }
+        else {
+            let arg_in_resolver = arg_in_resolver.as_ref().unwrap();
+            check_type_and_value_are_compatible(&arg_in_resolver.1, query_arg_value)?;
+        }
+        let arg_in_resolver = arg_in_resolver.unwrap();
+        let compatible = check_type_and_value_are_compatible(&arg_in_resolver.1, &query_arg_value)?;
         if !compatible { return Err(CastleError::ArgumentsInQueryDoNotMatchResolver("arguments in query do not match resolver".into())); }
-        i += 1;
     }
     Ok(())
 }
@@ -158,15 +145,10 @@ fn iterate_through_argument_length_and_check_compatibility(resolver_args: &Vec<A
 /// use match to unwrap the argument in schema so we can use the type
 /// convert argument from query to its equivalent type (value) -> type
 /// if compatible return true, else return false
-fn check_arg_compatible(arg_in_resolver: &Argument, arg_in_query: &Argument) -> Result<bool, CastleError>{
-    let schema_type = match arg_in_resolver {
-        Argument::IdentifierAndType(_identifier, type_) => type_,
-        _ => return Err(CastleError::ArgumentsInQueryDoNotMatchResolver("Argument in resolver is not a schema type".into())),
-    };
-    let arg_value = match arg_in_query {
-        Argument::PrimitiveValue(value) => value,
-        _ => return Err(CastleError::ArgumentsInQueryDoNotMatchResolver("Argument in query is not a primitive value".into())),
-    };
+fn check_type_and_value_are_compatible(arg_in_resolver: &Type, arg_in_query: &PrimitiveValue)
+-> Result<bool, CastleError>{
+    let schema_type = arg_in_resolver;
+    let arg_value = arg_in_query;
     let query_type = convert_value_to_corresponding_type(&arg_value)?;
     if &query_type == schema_type { return Ok(true) }
     else { return Ok(false) }

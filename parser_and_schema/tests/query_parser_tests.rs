@@ -1,7 +1,7 @@
 
 use std::collections::HashMap;
 
-use parser_and_schema::ast::syntax_definitions::argument::Argument;
+use parser_and_schema::ast::syntax_definitions::argument::ArgumentOrTuple;
 use parser_and_schema::ast::syntax_definitions::enum_definition::{EnumValue, EnumDataType};
 use parser_and_schema::ast::syntax_definitions::expressions::{PrimitiveValue, Expression};
 use parser_and_schema::ast::syntax_definitions::match_statement::{MatchArm, MatchStatement};
@@ -32,7 +32,7 @@ fn can_parse_single_field() -> Result<(), CastleError> {
     let query = "first_name";
 
     let mut expected: HashMap<Box<str>, Want> = HashMap::new();
-    expected.insert("first_name".into(), Want::new_single_field("first_name".into(), None, None));
+    expected.insert("first_name".into(), Want::new_single_field("first_name".into(), HashMap::new(), None));
 
     let actual = parse_query(query)?;
 assert_eq!(expected, actual.wants);
@@ -44,8 +44,8 @@ fn can_parse_two_fields() -> Result<(), CastleError> {
     let query = "first_name() last_name()";
 
     let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
-        ("first_name".into(), Want::new_single_field("first_name".into(), None, None)),
-        ("last_name".into(), Want::new_single_field("last_name".into(), None, None)),
+        ("first_name".into(), Want::new_single_field("first_name".into(), HashMap::new(), None)),
+        ("last_name".into(), Want::new_single_field("last_name".into(), HashMap::new(), None)),
     ]);
 
     let actual = parse_query(query)?;
@@ -61,8 +61,8 @@ fn can_parse_two_fields_different_lines() -> Result<(), CastleError> {
     ";
 
     let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
-        ("first_name".into(), Want::new_single_field("first_name".into(), None, None)),
-        ("last_name".into(), Want::new_single_field("last_name".into(), None, None)),
+        ("first_name".into(), Want::new_single_field("first_name".into(), HashMap::new(), None)),
+        ("last_name".into(), Want::new_single_field("last_name".into(), HashMap::new(), None)),
     ]);
 
     let actual = parse_query(query)?;
