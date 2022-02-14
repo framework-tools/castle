@@ -3,11 +3,17 @@ use std::collections::HashMap;
 use parser_and_schema::ast::syntax_definitions::{want::{Want, ObjectProjection, SingleField}, argument::{IdentifierAndValueArgument}};
 use shared::CastleError;
 
+//A HashMap containing all Resolvers
 pub type ResolverMap<C, T> = HashMap<Box<str>, Box<Resolver<C, T>>>; 
+//A resolver takes in fields (inner wants), arguments and context and returns the resolved want
 pub type Resolver<C, T> = dyn Fn(&Wants, &Args, &C) -> Result<ResolvedWant<T>, CastleError>;
+//Fields that a query wants resolved
 pub type Wants = HashMap<Box<str>, Want>;
+//Arguments for a resolver
 pub type Args = HashMap<Box<str>, IdentifierAndValueArgument>;
+//The top level of resolved wants - The least nested layer in the query (not wrapped in another Want)
 pub type AllResolvedWants<T> = HashMap<Box<str>, ResolvedWant<T>>;
+//A single resolved want - Likely also for top layer
 pub type ResolvedWant<T> = HashMap<Box<str>, T>;
 
 ///For each top level want, resolve each want & insert in AllResolvedWants
@@ -60,6 +66,17 @@ fn resolve_projection<C, T>(want: Want, context: &C, resolver_map: &ResolverMap<
     };
     return Ok(resolved_fields)
 }
+
+
+
+
+
+
+
+
+
+
+
 
 // for (identifier, field) in fields {
 //     match field {

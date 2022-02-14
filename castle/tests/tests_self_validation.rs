@@ -1,4 +1,4 @@
-use castle_backend::validation::self_validation_schema::self_validate_schema::self_validate_schema;
+use castle::validation::self_validation_schema::self_validate_schema::self_validate_schema;
 use parser_and_schema::{parsers::schema_parser::{parse_schema::parse_schema, schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec}, types::{type_system::Type, primitive_type::PrimitiveType, schema_field::SchemaField, schema_type::SchemaType}}, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, schema_definition::SchemaDefinition}};
 use shared::CastleError;
 
@@ -17,7 +17,7 @@ use shared::CastleError;
 #[cfg(test)]
 #[test]
 fn parser_breaks_if_unknown_schema_type_or_enum() -> Result<(), CastleError> {
-    use castle_backend::validation::self_validation_schema::self_validate_schema::self_validate_schema;
+    use castle::validation::self_validation_schema::self_validate_schema::self_validate_schema;
 
     // In the User field organization,
     // Company is an undefined schema type or enum

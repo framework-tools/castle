@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use castle_backend::{validation::validate_schema_with_functions::validate_schema_with_resolvers::{validate_schema_with_resolvers, validate_schema_with_directives}, resolvers::resolvers::Resolver};
+use castle::{validation::validate_schema_with_functions::validate_schema_with_resolvers::{validate_schema_with_resolvers, validate_schema_with_directives}, resolvers::resolvers::Resolver};
 use parser_and_schema::{parsers::schema_parser::{parse_schema::parse_schema, types::{type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{fn_definition::FnDefinition, argument::ArgumentOrTuple, directive_definition::{DirectiveDefinition, DirectiveOnValue, }}};
 use shared::CastleError;
 
@@ -9,7 +9,7 @@ use shared::CastleError;
 fn test_resolver_defined_in_schema_that_does_not_exist_throws_error(){
     use std::collections::HashSet;
 
-    use castle_backend::resolvers::resolvers::ResolverMap;
+    use castle::resolvers::resolvers::ResolverMap;
     use parser_and_schema::ast::syntax_definitions::argument::IdentifierAndTypeArgument;
 
     let schema = "

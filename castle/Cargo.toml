@@ -1,5 +1,5 @@
 [package]
-name = "castle_backend"
+name = "castle"
 version = "0.1.0"
 edition = "2021"
 
