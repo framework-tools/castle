@@ -98,7 +98,7 @@ fn unwrap_return_type_throw_error_if_none(return_type: &Type) -> Result<&Box<str
 
 fn take_unwrapped_resolver_and_throw_error_if_none_and_check_length_if_some(resolver: &FnDefinition, object_projection: &ObjectProjection) -> Result<(), CastleError> {
     check_if_arguments_in_query_have_different_lengths(&resolver.args, &object_projection.arguments)?;
-    iterate_through_argument_length_and_check_compatibility(&resolver.args, &object_projection.arguments)?;
+    iterate_through_arguments_and_check_compatibility(&resolver.args, &object_projection.arguments)?;
     Ok(())
 }
 
@@ -115,7 +115,7 @@ fn check_if_arguments_in_query_have_different_lengths(resolver_args: &HashMap<Bo
     }
 }
 
-fn iterate_through_argument_length_and_check_compatibility(resolver_args: &HashMap<Box<str>, IdentifierAndTypeArgument>, query_args: &HashMap<Box<str>, IdentifierAndValueArgument>)
+fn iterate_through_arguments_and_check_compatibility(resolver_args: &HashMap<Box<str>, IdentifierAndTypeArgument>, query_args: &HashMap<Box<str>, IdentifierAndValueArgument>)
 -> Result<(), CastleError> {
     for (query_arg_name, query_arg_value) in query_args.values() {
         let arg_in_resolver = resolver_args.get(query_arg_name);
