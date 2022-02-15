@@ -52,23 +52,30 @@ use parser_and_schema::ast::syntax_definitions::argument::IdentifierAndValueArgu
 // }
 
 
-// type Args = HashMap<Box<str>, IdentifierAndValueArgument>;
-// #[cfg(test)]
-// #[test]
-// fn testing_castle_build_and_validate(){
-//     use castle::{castle_struct::castle_struct::{CastleBuilder, Castle}, resolvers::resolvers::{ResolverMap, Wants}, directives::directives::DirectiveMap};
-//     use shared::CastleError;
+#[cfg(test)]
+#[test]
+fn testing_castle_builds_and_validates(){
+    use castle::{castle_struct::castle_struct::{CastleBuilder, Castle}, resolvers::resolvers::{ResolverMap, Wants, Args}, directives::directives::DirectiveMap};
+    use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
+    use shared::CastleError;
 
-//     let mut builder = Castle::builder();
-//     async fn hello(wants: Option<Wants>, args: Args, context: ()) -> String {
-//         "world".to_string()
-//     }
+    let mut builder = Castle::builder();
+    //test resolver
+    fn hello(wants: &Option<Wants>, args: &Args, context: &()) -> String {
+        "world".to_string()
+    }
 
-//     // builder.add_resolver("", hello);
+    let fn_definition = FnDefinition::new(
+        "hello".into(), 
+        HashMap::new(), 
+        Type::PrimitiveType(PrimitiveType::String)
+    );
+
+    builder.add_resolver("hello", hello, fn_definition);
     
-//     builder.schema("
-//         fn hello() -> String
-//     ");
-//     let castle = builder.build();
-//     assert!(castle.is_ok());
-// }
+    let builder = builder.schema("
+        fn hello() -> String
+    ");
+    let castle = builder.build();
+    assert!(castle.is_ok());
+}

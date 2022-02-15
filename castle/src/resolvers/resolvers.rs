@@ -1,10 +1,25 @@
 use std::collections::HashMap;
 
-use parser_and_schema::ast::syntax_definitions::{want::{Want}, argument::{IdentifierAndValueArgument, self}};
+use parser_and_schema::ast::syntax_definitions::{want::{Want}, argument::{IdentifierAndValueArgument, self}, fn_definition::FnDefinition};
 use shared::CastleError;
 
 //A HashMap containing all Resolversß
-pub type ResolverMap<C, R> = HashMap<Box<str>, Resolver<C, R>>; 
+pub type ResolverMap<C, R> = HashMap<Box<str>, ResolverInfo<C, R>>;
+
+pub struct ResolverInfo<C, R> {
+    pub resolver: Resolver<C, R>,
+    pub resolver_definition: FnDefinition,
+}
+
+impl<C, R> ResolverInfo<C, R> {
+    pub fn new(resolver_defintion: FnDefinition, resolver: Resolver<C, R>) -> ResolverInfo<C, R> {
+        ResolverInfo {
+            resolver_definition: resolver_defintion,
+            resolver: resolver,
+        }
+    }
+}
+
 //A resolver takes in fields (inner wants), arguments and context and returns the resolved want
 pub type Resolver<C, R> = fn(&Option<Wants>, &Args, &C) -> R;
 //Fields that a query wants resolved
@@ -34,6 +49,7 @@ pub fn resolve_all_wants<C, T>(wants: Wants, resolver_map: &ResolverMap<C, T>,  
 fn resolve_projection<C, R>(identifier: Box<str>, want: Want, context: &C, resolver_map: &ResolverMap<C, R>) -> Result<R, CastleError> {
     let resolved;
     let resolver = resolver_map.get(&identifier).unwrap();
+    let resolver = resolver.resolver;
     match want {
         Want::SingleField(arguments) => {
             resolved = resolver(&None, &arguments, context);

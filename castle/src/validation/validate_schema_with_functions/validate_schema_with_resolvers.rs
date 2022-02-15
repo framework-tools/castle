@@ -35,7 +35,7 @@ pub fn validate_schema_with_resolvers_and_directives<C, T>(
 ) -> Result<(), CastleError> {
     let resolvers_identifiers = get_resolvers_identifiers(&resolvers);
     let directives_identifiers = get_directives_identifiers(&directives);
-    validate_schema_with_resolvers(resolvers_identifiers, parsed_schema)?;
+    validate_schema_with_resolvers(resolvers, parsed_schema)?;
     validate_schema_with_directives(directives_identifiers, parsed_schema)?;
     return Ok(())
 }
@@ -64,11 +64,16 @@ fn get_directives_identifiers<C, T>(directives: &DirectiveMap<C, T>) -> HashSet<
 ///     - Else, unwrap the resolver and continue
 ///     - For the resolver, check the fn definition in schema & fn definition in resolvers is identical
 ///     - Else throw error
-pub fn validate_schema_with_resolvers(resolvers_identifiers: HashSet<&Box<str>>, parsed_schema: &SchemaDefinition ) -> Result<(), CastleError> {
+pub fn validate_schema_with_resolvers<C, R>(resolvers: &ResolverMap<C, R>, parsed_schema: &SchemaDefinition ) -> Result<(), CastleError> {
     for resolver_in_schema in parsed_schema.functions.values() {
-        let resolver = resolvers_identifiers.get(&resolver_in_schema.name);
+        let resolver = resolvers.get(&resolver_in_schema.name);
         if resolver.is_none() {
             return Err(CastleError::UndefinedResolver(format!("Resolver not found for fn definition in schema: {}", resolver_in_schema.name).into()))
+        } else {
+            let resolver_info = resolver.unwrap();
+            if &resolver_info.resolver_definition != resolver_in_schema {
+                return Err(CastleError::AbruptEOF("Resolver definition does not match function definition".into()))
+            }
         }
     }
     return Ok(())
