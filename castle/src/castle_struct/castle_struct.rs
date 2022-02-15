@@ -36,19 +36,20 @@ impl<C, R> Castle<C, R> {
 
         Ok(castle)
     }
-    ///This function runs every validation for schema, parser, and resolvers
+
+    ///This function runs self validation and cross validation with resolvers and schemas
     /// - Self validate schema 
     ///     - all schema_types and enums used as types have been defined in the schema
     /// - Validate schema resolvers & directives (functions) match the ones we've built in Rust
-    /// - Cross validate query and schema
-    ///    - query resolvers match the resolvers defined in the schema
-
     pub fn validate(&self) -> Result<(), CastleError> {
         self_validate_schema(&self.parsed_schema)?;
         validate_schema_with_resolvers_and_directives(&self.parsed_schema, &self.resolvers, &self.directives)?;
         return Ok(())
     }
 
+    /// Parse query
+    /// Cross validate query and schema
+    /// resolve all wants
     pub fn parse_query_resolve_wants(&self, query: &str, context: C) -> Result<AllResolvedWants<R>, CastleError> {
         let parsed_query = parse_query(query)?;
         validate_query_with_schema(&parsed_query, &self.parsed_schema)?;
