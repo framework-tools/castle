@@ -19,7 +19,6 @@ pub struct ParsedQuery {
 pub fn parse_query(query: &str) -> Result<ParsedQuery, CastleError> {
     let bytes = query.as_bytes();
     let mut tokenizer = Tokenizer::new(bytes);
-
     let wants = parse_query_tokens (&mut tokenizer)?;
     // check_end_of_file(&mut tokenizer)?; - need to re-implement this correcly
     let parsed_query = ParsedQuery { wants };
@@ -75,13 +74,13 @@ where R: Read {
                 },
                 _ => {
                     let arguments = ArgumentOrTuple::convert_arguments_to_identifier_and_value_arguments(identifier.arguments)?;
-                    Ok(Want::new_single_field(identifier.name, arguments, None))
+                    Ok(Want::new_single_field(identifier.name, arguments))
                 }
             }
         },
         None => {
             let arguments = ArgumentOrTuple::convert_arguments_to_identifier_and_value_arguments(identifier.arguments)?;
-            Ok(Want::new_single_field(identifier.name, arguments, None))
+            Ok(Want::new_single_field(identifier.name, arguments))
         }
     }
 }

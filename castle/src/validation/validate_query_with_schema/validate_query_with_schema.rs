@@ -1,6 +1,6 @@
 use std::{collections::HashMap};
 
-use parser_and_schema::{parsers::{query_parser::parse_query::ParsedQuery, schema_parser::types::{ type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{schema_definition::SchemaDefinition, want::{ Want, ObjectProjection}, expressions::PrimitiveValue, fn_definition::FnDefinition, argument::{IdentifierAndTypeArgument, IdentifierAndValueArgument}}};
+use parser_and_schema::{parsers::{query_parser::parse_query::ParsedQuery, schema_parser::types::{ type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{schema_definition::SchemaDefinition, want::{ Want, ObjectProjection, FieldsType}, expressions::PrimitiveValue, fn_definition::FnDefinition, argument::{IdentifierAndTypeArgument, IdentifierAndValueArgument}, match_statement}};
 use shared::CastleError;
 
 /// Cross-Validation Between Query Parser & Schema Parser
@@ -49,25 +49,22 @@ pub fn validate_query_with_schema(parsed_query: &ParsedQuery, schema_definition:
             Want::SingleField(_single_field) => {
             },
             Want::ObjectProjection(object_projection) => {
-                let fields = unwrap_fields_throw_error_if_none(&object_projection.fields)?; //Need to think about match
-                let resolver = schema_definition.functions.get(&object_projection.identifier);
-                if resolver.is_none() {
-                    return Err(CastleError::QueryResolverNotDefinedInSchema(format!("no matching resolver found in schema. Got: '{}' in query ", object_projection.identifier).into()));
-                } 
-                else {
-                    validate_resolver_and_assign_schema_type_for_fields_validation(resolver, object_projection, schema_definition, fields)?;
+                match &object_projection.fields{
+                    FieldsType::Match(match_statement) => {},  // need to implement
+                    FieldsType::Regular(fields) => {
+                        let resolver = schema_definition.functions.get(&object_projection.identifier);
+                        if resolver.is_none() {
+                            return Err(CastleError::QueryResolverNotDefinedInSchema(format!("no matching resolver found in schema. Got: '{}' in query ", object_projection.identifier).into()));
+                        } 
+                        else {
+                            validate_resolver_and_assign_schema_type_for_fields_validation(resolver, object_projection, schema_definition, &fields)?;
+                        }
+                    }
                 }
             }
         }
     }
     return Ok(())
-}
-
-fn unwrap_fields_throw_error_if_none(fields: &Option<HashMap<Box<str>, Want>>) -> Result<&HashMap<Box<str>, Want>, CastleError> {
-    return match fields {
-        Some(identifier)  => Ok(identifier),
-        None => Err(CastleError::NoIdentifierOnObjectProjection("No identifier on object projection".into())),
-    };
 }
 
 fn validate_resolver_and_assign_schema_type_for_fields_validation(

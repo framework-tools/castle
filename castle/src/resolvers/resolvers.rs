@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use parser_and_schema::ast::syntax_definitions::{want::{Want, ObjectProjection, SingleField}, argument::{IdentifierAndValueArgument}};
+use parser_and_schema::ast::syntax_definitions::{want::{Want, ObjectProjection, SingleField, FieldsType}, argument::{IdentifierAndValueArgument}};
 use shared::CastleError;
 
 //A HashMap containing all Resolvers
@@ -38,14 +38,15 @@ fn resolve_all_wants<C, T>(wants: Wants, resolver_map: ResolverMap<C, T>,  conte
 fn resolve_projection<C, T>(want: Want, context: &C, resolver_map: &ResolverMap<C, T>) -> Result<ResolvedWant<T>, CastleError> {
     let mut resolved_fields = HashMap::new();
     match want {
-        Want::ObjectProjection(ObjectProjection { identifier, arguments, fields, match_statement }) => {
-            if match_statement.is_none() {
-                if fields.is_none() {
-                    return Err(CastleError::EmptyObject("ObjectProjection must have fields or match_statement".into()));
-                } else {
-                    let fields = fields.unwrap();
+        Want::ObjectProjection(ObjectProjection { identifier, arguments, fields }) => {
+            match fields{
+                FieldsType::Regular(fields) => {
                     let resolver = resolver_map.get(&identifier).unwrap();
-                    resolved_fields = resolver(&fields, &arguments, &context)?;
+                    let resolved_fields = resolver(&fields, &arguments, context)?;
+                    return Ok(resolved_fields);
+                },
+                FieldsType::Match(match_statement) => {
+                    // need to implement
                 }
             }
         },
@@ -58,7 +59,6 @@ fn resolve_projection<C, T>(want: Want, context: &C, resolver_map: &ResolverMap<
             let want = Want::SingleField(SingleField {
                 identifier: single_field.identifier.clone(),
                 arguments: HashMap::new(),
-                match_statement: None
             });
             single_field_in_hashmap.insert(identifier, want);
             resolved_fields = resolver(&single_field_in_hashmap, &arguments, &context)?;

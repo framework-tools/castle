@@ -3,7 +3,7 @@ use std::{io::Read, collections::HashMap};
 use shared::CastleError;
 use token::Token;
 
-use crate::{tokenizer::{tokenizer::{Tokenizer}, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}}, ast::syntax_definitions::{match_statement::{MatchStatement, MatchArm}, expressions::{Expression, PrimitiveValue}, enum_definition::EnumValue, keyword::Keyword, want::Want}, token::{token::{TokenKind, Punctuator, Identifier, Numeric, self},}};
+use crate::{tokenizer::{tokenizer::{Tokenizer}, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}}, ast::syntax_definitions::{match_statement::{MatchStatement, MatchArm}, expressions::{Expression, PrimitiveValue}, enum_definition::EnumValue, keyword::Keyword, want::{Want, FieldsType}}, token::{token::{TokenKind, Punctuator, Identifier, Numeric, self},}};
 
 use super::{parse_query::match_peeked_token_to_want, parse_object_projection::parse_object_projection};
 
@@ -45,7 +45,6 @@ where R: Read{
     return Ok(match_statement)
 }
 
-
 fn get_match_arm<R>(tokenizer: &mut Tokenizer<R>, token: Token) -> Result<MatchArm, CastleError>
 where R: Read {
     let condition = get_condition(tokenizer, token)?;
@@ -58,10 +57,8 @@ where R: Read {
         }
     }
     let identifier = condition.get_identifier();
-    return Ok(MatchArm::new(condition, Want::new_object_projection(identifier, Some(match_arms), None, HashMap::new()))); // empty used hashmap new here
+    return Ok(MatchArm::new(condition, Want::new_object_projection(identifier, FieldsType::Regular(match_arms), HashMap::new()))); // empty used hashmap new here
 }
-
-
 
 /// Peek next token
 /// If token is an ident - continue
@@ -110,7 +107,7 @@ where R: Read {
                 _ => return Err(CastleError::Parser("Expected identifier after colon in match arm".into(), identifier_token.span))
             };
             let match_statements = parse_match_statements(tokenizer)?;
-            match_arms.insert(identifier.name.clone(), Want::new_object_projection(identifier.name, None, Some(match_statements), HashMap::new())); // empty used hashmap new here
+            match_arms.insert(identifier.name.clone(), Want::new_object_projection(identifier.name, FieldsType::Match(match_statements), HashMap::new())); // empty used hashmap new here
             let peeked_token = peek_next_token_and_unwrap(tokenizer)?;
             match &peeked_token.kind{
                 TokenKind::Punctuator(Punctuator::CloseBlock) => {
@@ -210,8 +207,6 @@ where R: Read {
         _ => Err(CastleError::AbruptEOF("unexpected end of file in skip_arrow_syntax".into()))
     }
 }
-
-
 
 pub fn convert_numeric_token_to_expression(numeric_literal: Numeric) -> Expression {
     return match numeric_literal {

@@ -35,6 +35,6 @@ where R: Read {
         },
         TokenKind::Punctuator(Punctuator::Comma) => return Ok(false),
         TokenKind::Punctuator(Punctuator::CloseParen) => return Ok(true),
-        _ => return Err(CastleError::Schema(format!("Expected identifier, found: {:?}", token.kind).into(), token.span))
+        _ => return Err(CastleError::Schema(format!("Expected identifier, Comma or CloseParen found: {:?}", token.kind).into(), token.span))
     }
 }

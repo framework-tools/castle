@@ -1,6 +1,6 @@
 use std::{io::Read, collections::HashMap};
 
-use crate::{ast::syntax_definitions::{want::{Want, ObjectProjection, SingleField}, keyword::{Keyword}}, token::{token::{TokenKind, Punctuator, Identifier}, Token}, tokenizer::{tokenizer::Tokenizer, tokenizer_utils::get_next_token_and_unwrap}};
+use crate::{ast::syntax_definitions::{want::{Want, ObjectProjection, SingleField, FieldsType}, keyword::{Keyword}}, token::{token::{TokenKind, Punctuator, Identifier}, Token}, tokenizer::{tokenizer::Tokenizer, tokenizer_utils::get_next_token_and_unwrap}};
 use shared::CastleError;
 
 use crate::ast::syntax_definitions::argument::ArgumentOrTuple;
@@ -65,7 +65,7 @@ pub fn parse_query_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<B
             }
             _ => {
                 let arguments = ArgumentOrTuple::convert_arguments_to_identifier_and_value_arguments(identifier.arguments)?;
-                let field = Want::SingleField(SingleField{ identifier: identifier.name.clone(), arguments, match_statement: None });
+                let field = Want::SingleField(SingleField{ identifier: identifier.name.clone(), arguments });
                 fields.insert(identifier.name, field);
                 return Ok(false)
             }
@@ -83,7 +83,7 @@ where R: Read {
             TokenKind::Keyword(Keyword::Match) => {
                 tokenizer.next(true)?; // consume the match keyword
                 let match_statements = parse_match_statements(tokenizer)?;
-                fields.insert(identifier.name.clone(), Want::new_object_projection(identifier.name, None, Some(match_statements), HashMap::new())); //added empty hashmap here
+                fields.insert(identifier.name.clone(), Want::new_object_projection(identifier.name, FieldsType::Match(match_statements),  HashMap::new())); 
                 return Ok(false)
             },
             TokenKind::Punctuator(Punctuator::OpenBlock) => {
@@ -107,8 +107,7 @@ fn create_obj(identifier: Identifier, fields: HashMap<Box<str>, Want>) -> Result
     let object_projection = ObjectProjection {
         identifier: identifier.name,
         arguments,
-        fields: Some(fields),
-        match_statement: None
+        fields: FieldsType::Regular(fields),
     };
     return Ok(Want::ObjectProjection(object_projection))
 }

@@ -2,7 +2,6 @@
 use std::{collections::HashMap};
 use shared::CastleError;
 
-use crate::ast::syntax_definitions::argument::ArgumentOrTuple;
 
 use super::{match_statement::{MatchStatement}, argument::IdentifierAndValueArgument};
 
@@ -17,19 +16,23 @@ pub enum Want {
 pub struct SingleField {
     pub identifier: Box<str>,
     pub arguments: HashMap<Box<str>, IdentifierAndValueArgument>,
-    pub match_statement: Option<MatchStatement>
 }
 
 #[derive(Debug, PartialEq)]
 pub struct ObjectProjection {
     pub identifier:  Box<str>,
     pub arguments: HashMap<Box<str>, IdentifierAndValueArgument>,
-    pub fields: Option<HashMap<Box<str>, Want>>,
-    pub match_statement: Option<MatchStatement>
+    pub fields: FieldsType
+}
+
+#[derive(Debug, PartialEq)]
+pub enum FieldsType {
+    Regular(HashMap<Box<str>, Want>),
+    Match(MatchStatement)
 }
 
 impl Want {
-    pub fn new_single_field(identifier: Box<str>, arguments: HashMap<Box<str>, IdentifierAndValueArgument>, match_statement: Option<MatchStatement>) -> Self {
+    pub fn new_single_field(identifier: Box<str>, arguments: HashMap<Box<str>, IdentifierAndValueArgument>) -> Self {
         // let arguments;
         // if args.is_some() {
         //     let args = args.unwrap();
@@ -44,16 +47,14 @@ impl Want {
         Want::SingleField(SingleField {
             identifier,
             arguments,
-            match_statement
         })
     }
 
-    pub fn new_object_projection(identifier: Box<str>, fields: Option<HashMap<Box<str>, Want>>, match_statement: Option<MatchStatement>, arguments: HashMap<Box<str>, IdentifierAndValueArgument>) -> Self {
+    pub fn new_object_projection(identifier: Box<str>, fields: FieldsType, arguments: HashMap<Box<str>, IdentifierAndValueArgument>) -> Self {
         Want::ObjectProjection(ObjectProjection {
             identifier,
             fields,
             arguments,
-            match_statement
         })
     }
 
@@ -66,22 +67,20 @@ impl Want {
 }
 
 impl SingleField {
-    pub fn new(identifier: Box<str>, arguments: HashMap<Box<str>, IdentifierAndValueArgument>, match_statement: Option<MatchStatement>) -> Want {
+    pub fn new(identifier: Box<str>, arguments: HashMap<Box<str>, IdentifierAndValueArgument>) -> Want {
         Want::SingleField(SingleField {
             identifier,
             arguments,
-            match_statement
         })
     }
 }
 
 impl ObjectProjection {
-    pub fn new(identifier: Box<str>, fields: Option<HashMap<Box<str>, Want>>,match_statement: Option<MatchStatement>, arguments: HashMap<Box<str>, IdentifierAndValueArgument>) -> Want {
+    pub fn new(identifier: Box<str>, fields: FieldsType, arguments: HashMap<Box<str>, IdentifierAndValueArgument>) -> Want {
         Want::ObjectProjection(ObjectProjection {
             identifier,
             fields,
             arguments,
-            match_statement
         })
     }
 }

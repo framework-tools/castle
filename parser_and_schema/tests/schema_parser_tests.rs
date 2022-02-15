@@ -277,8 +277,8 @@ fn can_parse_enum_schema_with_values() {
         
         enum FrameworkTypes {
             ProfilePic(url: String),
-            User(type: User),
-            Organization(type: Organization),
+            User(user_type: User),
+            Organization(org_type: Organization),
         }
         ";
 
@@ -303,8 +303,8 @@ fn can_parse_enum_schema_with_values() {
     ]);
 
     let profile_pic_args = ("url".into(), Type::PrimitiveType(PrimitiveType::String));
-    let user_args = ("type".into(), Type::SchemaTypeOrEnum("User".into())); // are these correct?
-    let organization_args = ("type".into(), Type::SchemaTypeOrEnum("Organization".into())); // are these correct?
+    let user_args = ("user_type".into(), Type::SchemaTypeOrEnum("User".into())); // are these correct?
+    let organization_args = ("org_type".into(), Type::SchemaTypeOrEnum("Organization".into())); // are these correct?
 
     let framework_types_enum = create_enum_from_vec("FrameworkTypes".into(), vec![
         ("ProfilePic".into(), EnumVariant::new("ProfilePic".into(), EnumDataType::EnumTuple(vec![
@@ -378,11 +378,11 @@ fn can_parse_enum_with_fields(){
                 name: String,
                 age: Int,
             },
-            SomeOtherType(string: String),
+            SomeOtherType(a_string: String),
         }
     ";
 
-    let argument_1 = ("string".into(), Type::PrimitiveType(PrimitiveType::String));
+    let argument_1 = ("a_string".into(), Type::PrimitiveType(PrimitiveType::String));
 
     let framework_types_enum = create_enum_from_vec("FrameworkTypes".into(), vec![
         ("User".into(), EnumVariant::new("User".into(), EnumDataType::new_enum_object(vec![
@@ -503,7 +503,7 @@ fn can_parse_directives_on_fields(){
     let token_arg = ("token".into(), Type::PrimitiveType(PrimitiveType::String));
     let mut authenicated_args = HashMap::new();
     authenicated_args.insert("token".into(), token_arg);
-    let role_arg = ("role".into(), Type::PrimitiveType(PrimitiveType::String));
+    let role_arg = ("role".into(), Type::SchemaTypeOrEnum("DoesntExist".into()));
     let mut is_admin_args = HashMap::new();
     is_admin_args.insert("role".into(), role_arg);
 
