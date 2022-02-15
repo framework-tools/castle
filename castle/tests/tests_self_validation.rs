@@ -190,6 +190,9 @@ fn err_if_parses_enum_with_unknown_object_type() -> Result<(), CastleError> {
 fn breaks_if_function_has_argument_undefined() -> Result<(), CastleError> {
     let schema = "
         fn do_nothing(name: String, id: DoesntExist) -> User
+        type User {
+            id: uuid
+        }
     ";
 
     let schema_definition = parse_schema(schema)?;
@@ -205,9 +208,9 @@ fn breaks_if_function_has_argument_undefined() -> Result<(), CastleError> {
 }
 
 #[test]
-fn breaks_if_function_has_tuple_argument() -> Result<(), CastleError> {
+fn breaks_if_function_has_undefined_return_type_inside_vec() -> Result<(), CastleError> {
     let schema = "
-        fn do_nothing(name: String, id: DoesntExist) -> (String, User)
+        fn do_nothing(name: String) -> Vec<User>
     ";
 
     let schema_definition = parse_schema(schema)?;
@@ -221,6 +224,26 @@ fn breaks_if_function_has_tuple_argument() -> Result<(), CastleError> {
         panic!("No error thrown");
     }
 }
+
+
+#[test]
+fn breaks_if_function_has_undefined_arg_type_inside_vec() -> Result<(), CastleError> {
+    let schema = "
+        fn do_nothing(name: Vec<Name>) -> Vec<String>
+    ";
+
+    let schema_definition = parse_schema(schema)?;
+    let actual = self_validate_schema(&schema_definition);
+    if actual.is_err() {
+        match actual {
+            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => { return Ok(()) }, //passes
+            _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
+        }
+    } else {
+        panic!("No error thrown");
+    }
+}
+
 
 #[test]
 fn breaks_if_function_has_return_type_undefined() -> Result<(), CastleError> {
@@ -244,10 +267,10 @@ fn breaks_if_function_has_return_type_undefined() -> Result<(), CastleError> {
 fn breaks_if_directive_has_argument_undefined() -> Result<(), CastleError> {
     let schema = "
         directive @authenticated(token: String) on FIELD
-        directive @is_admin(role: DoesntExist) on FIELD
+        directive @is_admin(role: Vec<DoesntExist>) on FIELD
 
         type Meow {
-            is_admin: bool @authenticated(token: String) @is_admin(role: DoesntExist),
+            is_admin: bool @authenticated(token: String) @is_admin(role: Vec<DoesntExist>),
         }
     ";
 

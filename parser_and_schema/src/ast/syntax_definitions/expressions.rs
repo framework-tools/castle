@@ -75,6 +75,20 @@ impl PrimitiveValue {
             _ => None
         }
     }
+
+    pub fn check_if_primitive_value(token_kind: &TokenKind) -> bool {
+        match token_kind {
+            TokenKind::StringLiteral(s) => true,
+            TokenKind::NumericLiteral(numeric) => true,
+            TokenKind::BooleanLiteral(b) => true,
+            TokenKind::Keyword(keyword) => match keyword {
+                Keyword::True => true,
+                Keyword::False => true,
+                _ => false,
+            },
+            _ => false
+        }
+    }
 }
 fn match_numeric_token_to_primitive(numeric:Numeric) -> Option<PrimitiveValue> {
     match numeric {

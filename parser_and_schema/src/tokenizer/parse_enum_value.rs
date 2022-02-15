@@ -42,21 +42,6 @@ where R: Read {
     return Ok((enum_parent.into(), variant.into()))
 }
 
-#[test]
-fn test_parse_emum_value(){
-    let mut tokenizer = Tokenizer::new("Color::Red ".as_bytes());
-    let token = get_next_token_and_unwrap(&mut tokenizer);
-    let token = token.unwrap(); 
-    let expected_enum = EnumValue {
-        identifier: "Color::Red".into(),
-        enum_parent: "Color".into(),
-        variant: "Red".into(),
-        data_type: EnumDataType::EnumUnit
-    };
-    let expected_token_kind = TokenKind::EnumValue(expected_enum);
-    assert_eq!(token.kind, expected_token_kind);
-}
-
 fn get_enum_data_type<R>(tokenizer: &mut Tokenizer<R>) -> Result<EnumDataType, CastleError>
 where R: Read {
     let peeked_char = peek_next_char_and_unwrap(&mut tokenizer.cursor)?;

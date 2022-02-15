@@ -1,8 +1,9 @@
 use std::{io::Read, collections::HashMap};
 
+use input_cursor::Span;
 use shared::CastleError;
 
-use crate::{token::{Token, token::{TokenKind, Identifier, Punctuator}}, parsers::schema_parser::types::type_system::{Type, parse_type}, tokenizer::tokenizer::{Tokenizer}};
+use crate::{token::{Token, token::{TokenKind, Identifier, Punctuator}}, parsers::schema_parser::types::type_system::{Type, parse_type}, tokenizer::{tokenizer::{Tokenizer}, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}}};
 
 use super::expressions::PrimitiveValue;
 
@@ -68,7 +69,7 @@ impl ArgumentOrTuple {
 
     pub fn convert_arguments_as_hashmaps_to_identifier_and_type_arguments(arguments: HashMap<Box<str>, ArgumentOrTuple>) -> Result<HashMap<Box<str>, IdentifierAndTypeArgument>, CastleError>{
         let mut arguments_for_query_object = HashMap::new();
-        for (identifier, argument) in arguments {
+        for (_identifier, argument) in arguments {
             match argument {
                 ArgumentOrTuple::IdentifierAndType(identifier_and_type) => {
                     let (identifier, primitive_value) = identifier_and_type;
@@ -91,13 +92,22 @@ where R: Read {
     }
 }
 
-fn match_token_to_parse_argument<R>(token: Token, tokenizer:&mut Tokenizer<R>, name: Box<str>) -> Result<ArgumentOrTuple, CastleError> 
+pub fn match_token_to_parse_argument<R>(token: Token, tokenizer:&mut Tokenizer<R>, name: Box<str>) -> Result<ArgumentOrTuple, CastleError> 
 where R: Read {
     match token.kind {
         TokenKind::Punctuator(Punctuator::Colon) => { //Identifier and Type Argument
-            let type_ = parse_type(tokenizer)?;
-            let ident_and_type: IdentifierAndTypeArgument = (name, type_);
-            return Ok(ArgumentOrTuple::IdentifierAndType(ident_and_type));
+            let token = get_next_token_and_unwrap(tokenizer)?;
+            let is_primitive_value = PrimitiveValue::check_if_primitive_value(&token.kind);
+            if is_primitive_value {
+                let primitive_value = PrimitiveValue::new_from_token_kind(token.kind);
+                let primitive_value = primitive_value.unwrap();
+                let ident_and_type: IdentifierAndValueArgument = (name, primitive_value);
+                return Ok(ArgumentOrTuple::IdentifierAndValue(ident_and_type));
+            } else {
+                let type_ = parse_type(token, tokenizer)?;
+                let ident_and_type: IdentifierAndTypeArgument = (name, type_);
+                return Ok(ArgumentOrTuple::IdentifierAndType(ident_and_type));
+            }
         },
         _ => return Err(CastleError::Schema(format!("Expected ':' after identifier '{}'", name).into(), token.span))
     }
@@ -108,6 +118,6 @@ fn parse_primitive_value_argument(token_kind: TokenKind) -> Result<ArgumentOrTup
     let primitive_value = PrimitiveValue::new_from_token_kind(token_kind);
     match primitive_value {
         Some(primitive_value) => return Ok(ArgumentOrTuple::PrimitiveValue(primitive_value)),
-        None => Err(CastleError::Unimplemented("argument cannot be empty 2".into()))
+        None => Err(CastleError::PrimitiveValue(format!("Expected primitive value, found: maybe you should have typed it correctly you lazy fuck").into()))
     }
 }

@@ -246,7 +246,7 @@ fn can_parse_object_projection_with_multiple_arguments() {
         last_name
         email
         profile_pic(r: 4, g: 60, b: 32, opacity: 0.5)
-        heading(color: \"#FF0000\", bool: true)
+        heading(color: \"#FF0000\", arg: true)
     }";
 
     let mut profile_pic_argument = HashMap::new();
@@ -257,7 +257,7 @@ fn can_parse_object_projection_with_multiple_arguments() {
 
     let mut heading_argument = HashMap::new();
     heading_argument.insert("color".into(), ("color".into(), PrimitiveValue::String("#FF0000".into())));
-    heading_argument.insert("bool".into(), ("bool".into(), PrimitiveValue::Boolean(true)));
+    heading_argument.insert("arg".into(), ("arg".into(), PrimitiveValue::Boolean(true)));
 
     let mut me_argument: HashMap<Box<str>, IdentifierAndValueArgument> = HashMap::new();
     let me_arg_1 = ("size".into(), PrimitiveValue::UInt(3));
@@ -297,7 +297,7 @@ fn can_parse_object_projection_with_inner_object() {
     ]);
 
         let mut email_argument = HashMap::new();
-        email_argument.insert("48".into(), ("size".into(), PrimitiveValue::UInt(48)));
+        email_argument.insert("size".into(), ("size".into(), PrimitiveValue::UInt(48)));
         let fields = insert_each_field_into_fields(vec![
             ("name".into(), Want::new_object_projection("name".into(), Some(inner_fields), None, HashMap::new())),
             ("last_name".into(), Want::new_single_field("last_name".into(), HashMap::new(), None)),

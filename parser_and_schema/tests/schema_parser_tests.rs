@@ -1,6 +1,6 @@
 use std::{collections::{HashMap, hash_map}, vec, string, env::args};
 
-use parser_and_schema::{parsers::schema_parser::{schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}, types::{type_system::Type, primitive_type::PrimitiveType, schema_type::SchemaType, schema_field::SchemaField, vec_type::VecType, option_type::OptionType}, parse_schema::parse_schema}, ast::syntax_definitions::{enum_definition::{EnumVariant, EnumDataType, EnumDefinition}, schema_definition::SchemaDefinition, argument::{ArgumentOrTuple, IdentifierAndTypeArgument, IdentifierAndValueArgument}, fn_definition::FnDefinition, directive_definition::{Directive, self, DirectiveDefinition}}};
+use parser_and_schema::{parsers::schema_parser::{schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}, types::{type_system::Type, primitive_type::PrimitiveType, schema_type::SchemaType, schema_field::SchemaField, vec_type::VecType, option_type::OptionType}, parse_schema::parse_schema}, ast::syntax_definitions::{enum_definition::{EnumVariant, EnumDataType, EnumDefinition}, schema_definition::SchemaDefinition, argument::{ArgumentOrTuple, IdentifierAndTypeArgument, IdentifierAndValueArgument}, fn_definition::FnDefinition, directive_definition::{Directive, self, DirectiveDefinition, DirectiveOnValue}}};
 
 #[test]
 fn can_parse_empty_query() {
@@ -530,10 +530,12 @@ fn can_parse_directives_on_enums(){
         enum Meow {
             Red @authenticated(token: String) @is_admin(role: DoesntExist),
         }
+        directive @authenticated(token: String) on ENUM_VARIANT
+        directive @is_admin(role: DoesntExist) on ENUM_VARIANT
     ";
 
     let token_arg: IdentifierAndTypeArgument = ("token".into(), Type::PrimitiveType(PrimitiveType::String));
-    let role_arg: (Box<str>, Type) = ("role".into(), Type::PrimitiveType(PrimitiveType::String));
+    let role_arg: (Box<str>, Type) = ("role".into(), Type::SchemaTypeOrEnum("DoesntExist".into()));
 
     let mut authenticated_arguments: HashMap<Box<str>, (Box<str>, Type)> = HashMap::new();
     authenticated_arguments.insert("token".into(), token_arg);
@@ -547,11 +549,25 @@ fn can_parse_directives_on_enums(){
 
     let enum_variant = EnumVariant::new("Red".into(), EnumDataType::EnumUnit, directives);
 
+    let token_arg: IdentifierAndTypeArgument = ("token".into(), Type::PrimitiveType(PrimitiveType::String));
+    let mut authenticated_arguments: HashMap<Box<str>, (Box<str>, Type)> = HashMap::new();
+    authenticated_arguments.insert("token".into(), token_arg);
+
+    let mut is_admin_arguments: HashMap<Box<str>, (Box<str>, Type)> = HashMap::new();
+    let role_arg: (Box<str>, Type) = ("role".into(), Type::SchemaTypeOrEnum("DoesntExist".into()));
+    is_admin_arguments.insert("role".into(), role_arg);
+    let authenticated_directive = FnDefinition::new("authenticated".into(), authenticated_arguments, Type::Void);
+    let authenticated_directive = DirectiveDefinition::new(authenticated_directive, DirectiveOnValue::EnumVariant);
+    let is_admin_directive = FnDefinition::new("is_admin".into(), is_admin_arguments, Type::Void);
+    let is_admin_directive = DirectiveDefinition::new(is_admin_directive, DirectiveOnValue::EnumVariant);
     let mut enum_meow = EnumDefinition::new("Meow".into(), HashMap::new(), HashMap::new());
     enum_meow.variants.insert("Red".into(), enum_variant);
 
     let mut expected = SchemaDefinition::new();
     expected.enums.insert("Meow".into(), enum_meow);
+    expected.directives.insert("authenticated".into(), authenticated_directive);
+    expected.directives.insert("is_admin".into(), is_admin_directive);
+
     let actual = parse_schema(schema).unwrap();
     assert_eq!(expected, actual);
 }

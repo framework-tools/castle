@@ -41,6 +41,7 @@ fn get_fn_return_type<R>(tokenizer: &mut Tokenizer<R>)
 fn parse_function_return_type<R>(tokenizer: &mut Tokenizer<R>) -> Result<Type, CastleError>
 where R: Read {
     tokenizer.next(false)?; //skip chevron right from return arrow
-    let return_type = parse_type(tokenizer)?;
+    let token = get_next_token_and_unwrap(tokenizer)?;
+    let return_type = parse_type(token, tokenizer)?;
     return Ok(return_type)
 }

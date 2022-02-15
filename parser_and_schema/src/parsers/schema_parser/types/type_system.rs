@@ -2,7 +2,7 @@ use std::io::Read;
 
 use shared::CastleError;
 
-use crate::{tokenizer::{tokenizer::{Tokenizer, }, parse_vec_type::get_vec_type_from_word, tokenizer_utils::get_next_token_and_unwrap}, token::token::TokenKind};
+use crate::{tokenizer::{tokenizer::{Tokenizer, }, parse_vec_type::get_vec_type_from_word, tokenizer_utils::get_next_token_and_unwrap}, token::{token::TokenKind, Token}};
 
 use super::{primitive_type::PrimitiveType, vec_type::VecType, option_type::OptionType, };
 
@@ -32,9 +32,8 @@ impl Type {
 ///  - else if token kind identifier parse identifier as schematype
 ///  - return parsed type
 ///  
-pub fn parse_type<R>(tokenizer: &mut Tokenizer<R>) -> Result<Type, CastleError> 
+pub fn parse_type<R>(token: Token, tokenizer: &mut Tokenizer<R>) -> Result<Type, CastleError> 
 where R: Read{
-    let token = get_next_token_and_unwrap(tokenizer)?;
     match token.kind {
         TokenKind::PrimitiveType(primitive_type) => return Ok(Type::PrimitiveType(primitive_type)),
         TokenKind::Identifier(identifier) => return Ok(Type::SchemaTypeOrEnum(identifier.name)),

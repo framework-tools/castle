@@ -2,7 +2,7 @@ use std::io::Read;
 
 use shared::CastleError;
 
-use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::peek_next_token_and_unwrap}, token::{token::{TokenKind, Punctuator}, Token}};
+use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}}, token::{token::{TokenKind, Punctuator}, Token}};
 
 use super::types::{schema_field::{SchemaField}, type_system::parse_type, parse_directive::parse_directives};
 
@@ -18,7 +18,8 @@ pub fn parse_schema_field<R>(tokenizer: &mut Tokenizer<R>, token: Token) -> Resu
 where R: Read{
     let identifier = get_identifier(token)?;
     tokenizer.next(true)?; // skip colon
-    let type_ = parse_type(tokenizer)?; // get fields type
+    let token = get_next_token_and_unwrap(tokenizer)?;
+    let type_ = parse_type(token, tokenizer)?; // get fields type
     let directives = parse_directives(tokenizer)?;
     return Ok(SchemaField { name: identifier, type_, directives });
 }

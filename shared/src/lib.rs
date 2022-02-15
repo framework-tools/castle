@@ -25,6 +25,7 @@ pub enum CastleError {
     ArgumentsInQueryDoNotMatchResolver(Box<str>),
     FieldsInReturnTypeDoNotMatchQuery(Box<str>),
     IncorrectArgumentType(Box<str>),
+    PrimitiveValue(Box<str>),
 }
 
 impl From<std::io::Error> for CastleError {
@@ -73,6 +74,7 @@ impl fmt::Display for CastleError {
             Self::ArgumentsInQueryDoNotMatchResolver(msg) => write!(f, "Arguments in query do not match resolver: {}", msg),
             Self::FieldsInReturnTypeDoNotMatchQuery(msg) => write!(f, "Fields in return type do not match query: {}", msg),
             Self::IncorrectArgumentType(msg) => write!(f, "Incorrect argument type: {}", msg),
+            Self::PrimitiveValue(msg) => write!(f, "Primitive value: {}", msg),
         }
     }
 }
@@ -102,6 +104,7 @@ impl ExtendedErrorDisplay for CastleError {
             Self::ArgumentsInQueryDoNotMatchResolver(msg) => format!("Arguments in query do not match resolver: {}", msg),
             Self::FieldsInReturnTypeDoNotMatchQuery(msg) => format!("Fields in return type do not match query: {}", msg),
             Self::IncorrectArgumentType(msg) => format!("Incorrect argument type: {}", msg),
+            Self::PrimitiveValue(msg) => format!("Primitive value: {}", msg),
         }
     }
 }

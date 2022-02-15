@@ -3,7 +3,7 @@ use std::io::Read;
 use input_cursor::Cursor;
 use shared::CastleError;
 
-use crate::{ast::syntax_definitions::argument::ArgumentOrTuple, token::{token::{Punctuator, TokenKind}, Token}};
+use crate::{ast::syntax_definitions::argument::{ArgumentOrTuple, match_token_to_parse_argument}, token::{token::{Punctuator, TokenKind}, Token}};
 
 use super::{tokenizer::{advance_and_parse_token, Tokenizer}, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}};
 
@@ -16,29 +16,25 @@ pub fn get_arguments<R>(tokenizer: &mut Tokenizer<R>) -> Result<Vec<ArgumentOrTu
 where R: Read {
     let mut arguments = Vec::new();
     loop {
-        let end_of_arguments = unwrap_char_parse_argument_or_end(&mut arguments, tokenizer)?;
+        let end_of_arguments = parse_argument(&mut arguments, tokenizer)?;
         if end_of_arguments { break; }
     }
     return Ok(arguments)
 }
 
-fn unwrap_char_parse_argument_or_end<R>(arguments: &mut Vec<ArgumentOrTuple>, tokenizer: &mut Tokenizer<R>) -> Result<bool, CastleError>
+fn parse_argument<R>(arguments: &mut Vec<ArgumentOrTuple>, tokenizer: &mut Tokenizer<R>) -> Result<bool, CastleError>
 where R: Read {
     let token = get_next_token_and_unwrap(tokenizer)?;
-    return match token.kind {
-        TokenKind::Punctuator(Punctuator::CloseParen) => Ok(true), //break loop
-        TokenKind::Punctuator(Punctuator::Comma) => Ok(false),
-        _ => {
-            add_argument_to_arguments_list(tokenizer, arguments, token)?;
+    match token.kind {
+        TokenKind::Identifier(identifier) => {
+            let name = identifier.name;
+            let token = get_next_token_and_unwrap(tokenizer)?;
+            let argument = match_token_to_parse_argument(token, tokenizer, name)?;
+            arguments.push(argument);
             return Ok(false);
-        }
+        },
+        TokenKind::Punctuator(Punctuator::Comma) => return Ok(false),
+        TokenKind::Punctuator(Punctuator::CloseParen) => return Ok(true),
+        _ => return Err(CastleError::Schema(format!("Expected identifier, found: {:?}", token.kind).into(), token.span))
     }
-}
-
-fn add_argument_to_arguments_list<R>(tokenizer: &mut Tokenizer<R>, arguments: &mut Vec<ArgumentOrTuple>, token: Token)
--> Result<(), CastleError> 
-where R: Read {
-    let argument = ArgumentOrTuple::new(token, tokenizer)?;
-    arguments.push(argument);
-    return Ok(())
 }

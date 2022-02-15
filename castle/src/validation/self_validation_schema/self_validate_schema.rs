@@ -122,12 +122,11 @@ fn check_enum_object_field_types_are_defined(schema: &SchemaDefinition, fields: 
 ///     - call check_arguments_or_tuples_are_defined
 ///    - Return Ok(()) at bottom outside loop
 fn check_directives_use_valid_types(schema: &SchemaDefinition, directives: &Vec<Directive>) -> Result<(), CastleError> {
-    // for directive in directives {
-    //     for (_ident,arg ) in directive.arguments.values() {
-    //         check_argument_is_defined(schema, arg)?;
-    //     }
-    //     check_arguments_or_tuples_are_defined(schema, &directive.arguments)?;
-    // }
+    for directive in directives {
+        for (_ident,arg ) in directive.arguments.values() {
+            check_type_used_has_been_defined(schema, arg)?;
+        }
+    }
     return  Ok(())
 }
 
@@ -146,12 +145,7 @@ fn for_each_fn_check_arguments_and_return_types_are_valid(schema: &SchemaDefinit
             check_type_used_has_been_defined(schema, type_)?;
         }
 
-        match &fn_definition.return_type {
-            Type::SchemaTypeOrEnum(type_to_check) => {
-                check_type_or_enum_exists(&type_to_check, schema)?;
-            },
-            _ => {}
-        };
+        check_type_used_has_been_defined(schema, &fn_definition.return_type)?; //check return type
     }
     return Ok(())
 }
@@ -163,8 +157,6 @@ fn check_directives_use_valid_directive_definitions(directive_definitions: &Hash
         }
         else {
             validate_directive_definition_arguments_and_directive_arguments(directive, directive_definitions, schema)?;
-            
-
         }
     }
     return Ok(())
@@ -183,6 +175,12 @@ fn validate_directive_definition_arguments_and_directive_arguments(directive: &D
     for arg in directive_definition_args.keys() {
         if !directive_args.contains_key(arg) {
             return Err(CastleError::DirectiveDoesNotMatchSchemaDirective(format!("Directive {} does not have argument {:?}", &directive.name, &arg).into()));
+        } else {
+            let arg_type = &directive_definition_args[arg];
+            let directive_arg_type = &directive_args[arg];
+            if arg_type != directive_arg_type {
+                return Err(CastleError::DirectiveDoesNotMatchSchemaDirective(format!("Directive {} does not have argument {:?} with type {:?}", &directive.name, &arg, &arg_type).into()));
+            }
         }
     }
     return Ok(())
