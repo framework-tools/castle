@@ -1,9 +1,9 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashSet};
 
 use parser_and_schema::ast::syntax_definitions::{schema_definition::SchemaDefinition, directive_definition::{DirectiveDefinition}};
 use shared::CastleError;
 
-use crate::{resolvers::resolvers::{Resolver, ResolverMap}, directives::directives::DirectiveMap};
+use crate::{resolvers::resolvers::{ResolverMap}, directives::directives::DirectiveMap};
 
 
 

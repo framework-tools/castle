@@ -17,7 +17,7 @@ where R: Read{
 }
 
 
-fn loop_through_tokens_and_parse_fields<R>(tokenizer: &mut Tokenizer<R>) -> Result<HashMap<Box<str>, Want>, CastleError> 
+pub fn loop_through_tokens_and_parse_fields<R>(tokenizer: &mut Tokenizer<R>) -> Result<HashMap<Box<str>, Want>, CastleError> 
 where R: Read {
     let mut fields: HashMap<Box<str>, Want> = HashMap::new();
     let err = None;
@@ -60,6 +60,7 @@ pub fn parse_query_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<B
         Some(peeked_token) => match peeked_token.kind {
             TokenKind::Punctuator(Punctuator::Colon) => {
                 let should_break = check_match_or_object_then_parse(tokenizer, fields, identifier)?;
+                
                 if should_break { return Ok(true) }
                 else { return Ok(false) }
             }

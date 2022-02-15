@@ -26,6 +26,7 @@ pub enum CastleError {
     FieldsInReturnTypeDoNotMatchQuery(Box<str>),
     IncorrectArgumentType(Box<str>),
     PrimitiveValue(Box<str>),
+    MissingSchema(Box<str>),
 }
 
 impl From<std::io::Error> for CastleError {
@@ -75,6 +76,7 @@ impl fmt::Display for CastleError {
             Self::FieldsInReturnTypeDoNotMatchQuery(msg) => write!(f, "Fields in return type do not match query: {}", msg),
             Self::IncorrectArgumentType(msg) => write!(f, "Incorrect argument type: {}", msg),
             Self::PrimitiveValue(msg) => write!(f, "Primitive value: {}", msg),
+            Self::MissingSchema(msg) => write!(f, "Missing schema: {}", msg),
         }
     }
 }
@@ -105,6 +107,7 @@ impl ExtendedErrorDisplay for CastleError {
             Self::FieldsInReturnTypeDoNotMatchQuery(msg) => format!("Fields in return type do not match query: {}", msg),
             Self::IncorrectArgumentType(msg) => format!("Incorrect argument type: {}", msg),
             Self::PrimitiveValue(msg) => format!("Primitive value: {}", msg),
+            Self::MissingSchema(msg) => format!("Missing schema: {}", msg),
         }
     }
 }

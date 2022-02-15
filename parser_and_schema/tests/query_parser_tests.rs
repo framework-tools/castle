@@ -419,7 +419,7 @@ fn can_parse_object_projection_with_match_inside_match() {
                         Size::Rectangle => {
                             width
                             height
-                        }
+                        },
                         Size::Square => {
                             side
                         }
@@ -447,7 +447,7 @@ fn can_parse_object_projection_with_match_inside_match() {
     
     let size_match = MatchStatement::new(vec![
         MatchArm::new(
-            Expression::EnumValue( EnumValue { identifier: "Size::Rectangle ".into(), enum_parent: "Size".into(), variant: "Rectangle".into(), data_type: EnumDataType::EnumUnit }),
+            Expression::EnumValue( EnumValue { identifier: "Size::Rectangle".into(), enum_parent: "Size".into(), variant: "Rectangle".into(), data_type: EnumDataType::EnumUnit }),
             Want::new_object_projection("Size::Rectangle".into(), FieldsType::Regular(rectangle_fields), HashMap::new()),
         ),
         MatchArm::new(

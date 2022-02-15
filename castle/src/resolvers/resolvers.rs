@@ -3,21 +3,21 @@ use std::collections::HashMap;
 use parser_and_schema::ast::syntax_definitions::{want::{Want, ObjectProjection, SingleField, FieldsType}, argument::{IdentifierAndValueArgument}};
 use shared::CastleError;
 
-//A HashMap containing all Resolvers
-pub type ResolverMap<C, T> = HashMap<Box<str>, Box<Resolver<C, T>>>; 
+//A HashMap containing all Resolversß
+pub type ResolverMap<C, R> = HashMap<Box<str>, Resolver<C, R>>; 
 //A resolver takes in fields (inner wants), arguments and context and returns the resolved want
-pub type Resolver<C, T> = dyn Fn(&Wants, &Args, &C) -> Result<ResolvedWant<T>, CastleError>;
+pub type Resolver<C, R> = fn(&Wants, &Args, &C) -> Result<TopLevelResolvers<R>, CastleError>;
 //Fields that a query wants resolved
 pub type Wants = HashMap<Box<str>, Want>;
 //Arguments for a resolver
 pub type Args = HashMap<Box<str>, IdentifierAndValueArgument>;
 //The top level of resolved wants - The least nested layer in the query (not wrapped in another Want)
-pub type AllResolvedWants<T> = HashMap<Box<str>, ResolvedWant<T>>;
+pub type AllResolvedWants<T> = HashMap<Box<str>, TopLevelResolvers<T>>;
 //A single resolved want - Likely also for top layer
-pub type ResolvedWant<T> = HashMap<Box<str>, T>;
+pub type TopLevelResolvers<T> = HashMap<Box<str>, T>;
 
 ///For each top level want, resolve each want & insert in AllResolvedWants
-fn resolve_all_wants<C, T>(wants: Wants, resolver_map: ResolverMap<C, T>,  context: C) -> Result<AllResolvedWants<T>, CastleError> {
+pub fn resolve_all_wants<C, T>(wants: Wants, resolver_map: &ResolverMap<C, T>,  context: C) -> Result<AllResolvedWants<T>, CastleError> {
     let mut all_wants_in_query = HashMap::new();
     for (identifier, want ) in wants {
         let resolved_want = resolve_projection(want, &context, &resolver_map)?;
@@ -35,7 +35,7 @@ fn resolve_all_wants<C, T>(wants: Wants, resolver_map: ResolverMap<C, T>,  conte
 ///         - Return the resolved fields    
 /// 
 ///     Else If single field want, resolve it
-fn resolve_projection<C, T>(want: Want, context: &C, resolver_map: &ResolverMap<C, T>) -> Result<ResolvedWant<T>, CastleError> {
+fn resolve_projection<C, T>(want: Want, context: &C, resolver_map: &ResolverMap<C, T>) -> Result<TopLevelResolvers<T>, CastleError> {
     let mut resolved_fields = HashMap::new();
     match want {
         Want::ObjectProjection(ObjectProjection { identifier, arguments, fields }) => {
@@ -66,17 +66,3 @@ fn resolve_projection<C, T>(want: Want, context: &C, resolver_map: &ResolverMap<
     };
     return Ok(resolved_fields)
 }
-
-
-// for (identifier, field) in fields {
-//     match field {
-//         Want::ObjectProjection(object_projection) => {
-//             let resolved_field = resolve_want(field, context)?;
-//             resolved_fields.insert(identifier, resolved_field);
-//         },
-//         Want::SingleField(single_field) => {
-//             let resolved_field = resolve_single_field_want(single_field, context)?;
-//             resolved_fields.insert(identifier, resolved_field);
-//         },
-//     }
-// }
