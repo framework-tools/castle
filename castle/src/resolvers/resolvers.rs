@@ -32,7 +32,7 @@ pub fn resolve_all_wants<C, T>(wants: Wants, resolver_map: &ResolverMap<C, T>,  
 ///         - Pass in the want's fields, arguments, and context to get the resolved fields
 ///         - Return the resolved fields    
 fn resolve_projection<C, R>(identifier: Box<str>, want: Want, context: &C, resolver_map: &ResolverMap<C, R>) -> Result<R, CastleError> {
-    let mut resolved;
+    let resolved;
     let resolver = resolver_map.get(&identifier).unwrap();
     match want {
         Want::SingleField(arguments) => {
@@ -42,8 +42,10 @@ fn resolve_projection<C, R>(identifier: Box<str>, want: Want, context: &C, resol
             resolved = resolver(&Some(fields), &arguments, context);
         },
         Want::Match(match_statement) => {
-            resolved = resolver(&None, &HashMap::new(), context);
-        }, //unimplemented
+            let mut match_fields = HashMap::new();
+            match_fields.insert(identifier, Want::Match(match_statement));
+            resolved = resolver(&Some(match_fields), &HashMap::new(), context);
+        },
     };
     return Ok(resolved)
 }
