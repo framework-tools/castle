@@ -29,11 +29,7 @@ impl<C, R> Castle<C, R> {
             parsed_schema,
             directives
         };
-
         castle.validate()?;
-
-        // castle.validate_resolvers_to_schema()?;
-
         Ok(castle)
     }
 
@@ -59,10 +55,9 @@ impl<C, R> Castle<C, R> {
 }
 
 pub struct CastleBuilder<C, R> {
-    pub resolvers: ResolverMap<C, R>,
-    pub directives: DirectiveMap<C, R>,
-    pub schema: Option<String>,
-    pub parsed_schema: Option<SchemaDefinition>,
+    resolvers: ResolverMap<C, R>,
+    directives: DirectiveMap<C, R>,
+    schema: Option<String>,
 }
 
 impl<C, R> CastleBuilder<C, R> {
@@ -70,13 +65,12 @@ impl<C, R> CastleBuilder<C, R> {
         Self {
             resolvers: HashMap::new(),
             schema: None,
-            parsed_schema: None,
             directives: HashMap::new(),
         }
     }
 
-    pub fn schema(mut self, schema: String) -> Self {
-        self.schema = Some(schema);
+    pub fn schema<Schema: Into<String>>(mut self, schema: Schema) -> Self {
+        self.schema = Some(schema.into());
         self
     }
 
@@ -93,5 +87,9 @@ impl<C, R> CastleBuilder<C, R> {
 
     pub fn add_resolver(&mut self, resolver_name: &str, resolver: Resolver<C, R>) {
         self.resolvers.insert(resolver_name.into(), resolver);
+    }
+
+    pub fn add_directive(&mut self, directive_name: &str, directive: Resolver<C, R>) {
+        self.directives.insert(directive_name.into(), directive);
     }
 }

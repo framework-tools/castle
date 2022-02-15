@@ -414,6 +414,7 @@ fn can_parse_object_projection_with_match_inside_match() {
         me() {
             icon: match {
                 Icon::Svg => {
+                    type: "svg",
                     url(size: 48)
                     size: match {
                         Size::Rectangle => {

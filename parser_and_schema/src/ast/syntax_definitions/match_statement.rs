@@ -1,28 +1,17 @@
 
-use super::{want::Want, expressions::Expression};
+use super::{expressions::Expression, want::WantType};
 
 
-#[derive(Debug, PartialEq)]
-pub struct MatchStatement {
-    pub statements: Vec<MatchArm>
-}
-
-impl MatchStatement {
-    pub fn new(statements: Vec<MatchArm>) -> Self {
-        MatchStatement {
-            statements
-        }
-    }
-}
+pub type MatchStatement = Vec<MatchArm>;
 
 #[derive(Debug, PartialEq)]
 pub struct MatchArm {
     pub condition: Expression,
-    pub object: Want
+    pub object: WantType
 }
 
 impl MatchArm{
-    pub fn new(condition: Expression, object: Want) -> Self {
+    pub fn new(condition: Expression, object: WantType) -> Self {
         MatchArm {
             condition,
             object

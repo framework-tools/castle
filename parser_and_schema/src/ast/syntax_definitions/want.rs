@@ -8,79 +8,23 @@ use super::{match_statement::{MatchStatement}, argument::IdentifierAndValueArgum
 
 #[derive(Debug, PartialEq)]
 pub enum Want {
-    SingleField(SingleField),
-    ObjectProjection(ObjectProjection),
+    SingleField(WantArguments),
+    ObjectProjection(Wants, WantArguments),
+    Match(MatchStatement),
 }
 
-#[derive(Debug, PartialEq)]
-pub struct SingleField {
-    pub identifier: Box<str>,
-    pub arguments: HashMap<Box<str>, IdentifierAndValueArgument>,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct ObjectProjection {
-    pub identifier:  Box<str>,
-    pub arguments: HashMap<Box<str>, IdentifierAndValueArgument>,
-    pub fields: FieldsType
-}
-
-#[derive(Debug, PartialEq)]
-pub enum FieldsType {
-    Regular(HashMap<Box<str>, Want>),
-    Match(MatchStatement)
-}
+pub type Wants = HashMap<Box<str>, Want>;
+pub type WantArguments = HashMap<Box<str>, IdentifierAndValueArgument>;
 
 impl Want {
-    pub fn new_single_field(identifier: Box<str>, arguments: HashMap<Box<str>, IdentifierAndValueArgument>) -> Self {
-        // let arguments;
-        // if args.is_some() {
-        //     let args = args.unwrap();
-        //     if args.len() == 0 {
-        //         arguments = None;
-        //     } else {
-        //         arguments = Some(args);
-        //     }
-        // } else {
-        //     arguments = args;
-        // }
-        Want::SingleField(SingleField {
-            identifier,
-            arguments,
-        })
+    pub fn new_single_field(arguments: HashMap<Box<str>, IdentifierAndValueArgument>) -> Self {
+        Want::SingleField(arguments)
     }
 
-    pub fn new_object_projection(identifier: Box<str>, fields: FieldsType, arguments: HashMap<Box<str>, IdentifierAndValueArgument>) -> Self {
-        Want::ObjectProjection(ObjectProjection {
-            identifier,
+    pub fn new_object_projection(identifier: Box<str>, fields: Wants, arguments: WantArguments) -> Self {
+        Want::ObjectProjection(
             fields,
             arguments,
-        })
-    }
-
-    pub fn get_identifier(&self) -> Result<Box<str>, CastleError> {
-        return match self {
-            Want::SingleField(single_field) => Ok(single_field.identifier.clone()),
-            Want::ObjectProjection(projection) => Ok(projection.identifier.clone()),
-        }
-    }
-}
-
-impl SingleField {
-    pub fn new(identifier: Box<str>, arguments: HashMap<Box<str>, IdentifierAndValueArgument>) -> Want {
-        Want::SingleField(SingleField {
-            identifier,
-            arguments,
-        })
-    }
-}
-
-impl ObjectProjection {
-    pub fn new(identifier: Box<str>, fields: FieldsType, arguments: HashMap<Box<str>, IdentifierAndValueArgument>) -> Want {
-        Want::ObjectProjection(ObjectProjection {
-            identifier,
-            fields,
-            arguments,
-        })
+        )
     }
 }
