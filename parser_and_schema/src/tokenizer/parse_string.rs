@@ -52,7 +52,7 @@ where R: Read {
     // \\     Backslash
     // \/     Forward slash
     // \"     Double quote
-    let mut string = string;
+    let string = string;
     let ch = get_character_with_peek(cursor, cursor.pos())?;
     match ch {
         'b' => string.push('\u{0008}'),

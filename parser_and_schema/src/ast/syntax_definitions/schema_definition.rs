@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::parsers::schema_parser::types::schema_type::SchemaType;
 
-use super::directive_definition::{Directive, DirectiveDefinition};
+use super::directive_definition::{ DirectiveDefinition};
 use super::enum_definition::EnumDefinition;
 use super::fn_definition::FnDefinition;
 

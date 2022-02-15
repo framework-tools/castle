@@ -188,7 +188,7 @@ where
     }
 }
 
-pub fn get_character_with_peek<R>(cursor: &mut Cursor<R>, start: Position) -> Result<char, CastleError> 
+pub fn get_character_with_peek<R>(cursor: &mut Cursor<R>, _start: Position) -> Result<char, CastleError> 
 where R: Read {
     let c = cursor.peek_char()?.ok_or(CastleError::AbruptEOF("Error found in 'get_character_with_peek'".into()))?;
     let ch = char::try_from(c).ok().ok_or(CastleError::lex("invalid character",cursor.pos()))?;

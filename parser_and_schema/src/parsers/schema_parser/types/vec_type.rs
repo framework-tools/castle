@@ -1,6 +1,6 @@
 
 
-use super::type_system::{Type, parse_type, get_type_from_string};
+use super::type_system::{Type, get_type_from_string};
 
 
 #[derive(Debug, PartialEq)]

@@ -34,7 +34,7 @@ pub fn parse_query(query: &str) -> Result<ParsedQuery, CastleError> {
 fn parse_query_tokens<R>(tokenizer: &mut Tokenizer<R>) -> Result<HashMap<Box<str>, Want>, CastleError> 
 where R: Read {
     let mut wants = HashMap::new();
-    let mut err = None;
+    let err = None;
     loop {
         let token = tokenizer.next(true)?;
         match token {
@@ -83,16 +83,4 @@ where R: Read {
             Ok(Want::new_single_field(identifier.name, arguments))
         }
     }
-}
-
-fn check_end_of_file<R>(tokenizer: &mut Tokenizer<R>) -> Result<(), CastleError> 
-where R: Read {
-    let token = tokenizer.peek(false)?;
-    if token.is_some() {
-        return Err(CastleError::Parser(
-            format!("Expected EOF, found: {:?}", token.unwrap().kind()).into(),
-            *token.unwrap().span(),
-        ));
-    }
-    else{ return Ok(()) }
 }

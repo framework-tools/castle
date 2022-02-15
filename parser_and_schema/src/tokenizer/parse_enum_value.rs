@@ -3,7 +3,7 @@ use std::{io::Read, char, collections::HashMap};
 use input_cursor::{Position, Cursor, Span};
 use shared::CastleError;
 
-use crate::{token::{Token, token::TokenKind}, ast::syntax_definitions::{enum_definition::{EnumValue, EnumDataType}, argument::ArgumentOrTuple}, parsers::schema_parser::parse_schema_type::check_token_and_parse_schema_field_or_break, tokenizer::tokenizer_utils::get_next_token_and_unwrap};
+use crate::{token::{Token, token::TokenKind}, ast::syntax_definitions::{enum_definition::{EnumValue, EnumDataType}}, parsers::schema_parser::parse_schema_type::check_token_and_parse_schema_field_or_break};
 
 use super::{tokenizer::Tokenizer, parse_arguments::get_arguments};
 //
@@ -21,15 +21,14 @@ use super::{tokenizer::Tokenizer, parse_arguments::get_arguments};
 pub fn parse_enum_value<R>(tokenizer: &mut Tokenizer<R>, word: String, start: Position) -> Result<Token, CastleError>
 where R: Read {
     let identifier: Box<str> = word.clone().into();
-    let (enum_parent, variant) = get_enum_parent_and_variant(tokenizer, word)?;
+    let (enum_parent, variant) = get_enum_parent_and_variant(word)?;
     let data_type = get_enum_data_type(tokenizer)?;
     let enum_value = EnumValue { identifier, enum_parent, variant, data_type };
     return Ok(Token::new(TokenKind::EnumValue(enum_value), Span::new(start, tokenizer.cursor.pos())));
 }
 
 
-fn get_enum_parent_and_variant<R>(tokenizer: &mut Tokenizer<R>, word: String) -> Result<(Box<str>, Box<str>), CastleError>
-where R: Read {
+fn get_enum_parent_and_variant(word: String) -> Result<(Box<str>, Box<str>), CastleError> {
     let mut enum_parent = String::new();
     let mut variant = String::new();
     let mut colon_count = 0;
@@ -82,6 +81,6 @@ where R: Read {
             },
             None => return Err(CastleError::AbruptEOF("peek_next_char_unwrap_and_convert_to_char".into()))
         },
-        Err(e) => return Err(CastleError::AbruptEOF("peek_next_char_unwrap_and_convert_to_char".into()))
+        Err(_e) => return Err(CastleError::AbruptEOF("peek_next_char_unwrap_and_convert_to_char".into()))
     }
 }

@@ -4,7 +4,7 @@ use shared::CastleError;
 
 use crate::{token::{Token, token::{TokenKind, Identifier, Punctuator}}, tokenizer::{tokenizer::Tokenizer, tokenizer_utils::{get_next_token_and_unwrap}}, ast::syntax_definitions::{keyword::Keyword, schema_definition::SchemaDefinition}};
 
-use super::{types::{schema_type::SchemaType, schema_field::SchemaField}, parse_schema_field::parse_schema_field, enums::parse_enum::parse_enum_definition, functions::{parse_function::parse_function, parse_directive_definition::{self, parse_directive_definition}}};
+use super::{types::{schema_type::SchemaType, schema_field::SchemaField}, parse_schema_field::parse_schema_field, enums::parse_enum::parse_enum_definition, functions::{parse_function::parse_function, parse_directive_definition::{parse_directive_definition}}};
 
 
 pub fn check_token_and_parse_schema_or_break<R>(

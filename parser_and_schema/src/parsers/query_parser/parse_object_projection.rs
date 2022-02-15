@@ -7,7 +7,7 @@ use crate::ast::syntax_definitions::argument::ArgumentOrTuple;
 
 use super::{parse_inner_object::parse_inner_object, parse_match_statements::parse_match_statements};
 
-pub fn parse_object_projection<R>(identifier:Identifier, tokenizer: &mut Tokenizer<R>, should_skip_start: bool) -> Result<Want, CastleError> 
+pub fn parse_object_projection<R>(identifier:Identifier, tokenizer: &mut Tokenizer<R>, _should_skip_start: bool) -> Result<Want, CastleError> 
 where R: Read{
 
     let fields = loop_through_tokens_and_parse_fields(tokenizer)?;

@@ -33,8 +33,6 @@ pub fn resolve_all_wants<C, T>(wants: Wants, resolver_map: &ResolverMap<C, T>,  
 ///         - Use the want's identifier to get the corresponding resolver
 ///         - Pass in the want's fields, arguments, and context to get the resolved fields
 ///         - Return the resolved fields    
-/// 
-///     Else If single field want, resolve it
 fn resolve_projection<C, T>(want: Want, context: &C, resolver_map: &ResolverMap<C, T>) -> Result<TopLevelResolvers<T>, CastleError> {
     let mut resolved_fields = HashMap::new();
     match want {

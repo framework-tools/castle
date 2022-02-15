@@ -1,11 +1,10 @@
 use std::io::Read;
 
-use input_cursor::Cursor;
 use shared::CastleError;
 
-use crate::{ast::syntax_definitions::argument::{ArgumentOrTuple, match_token_to_parse_argument}, token::{token::{Punctuator, TokenKind}, Token}};
+use crate::{ast::syntax_definitions::argument::{ArgumentOrTuple, match_token_to_parse_argument}, token::{token::{Punctuator, TokenKind}}};
 
-use super::{tokenizer::{advance_and_parse_token, Tokenizer}, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}};
+use super::{tokenizer::{ Tokenizer}, tokenizer_utils::{ get_next_token_and_unwrap}};
 
 /// Takes in Cursor returns arguments token
 ///  - The '(' is already consumed

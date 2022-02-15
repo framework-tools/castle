@@ -1,6 +1,6 @@
 use std::collections::{HashSet};
 
-use parser_and_schema::ast::syntax_definitions::{schema_definition::SchemaDefinition, directive_definition::{DirectiveDefinition}};
+use parser_and_schema::ast::syntax_definitions::{schema_definition::SchemaDefinition};
 use shared::CastleError;
 
 use crate::{resolvers::resolvers::{ResolverMap}, directives::directives::DirectiveMap};

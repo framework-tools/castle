@@ -1,9 +1,9 @@
-use std::{collections::HashMap, option};
+use std::{collections::HashMap};
 
-use parser_and_schema::{ast::syntax_definitions::schema_definition::{SchemaDefinition, self}, parsers::{schema_parser::parse_schema::parse_schema, query_parser::parse_query::parse_query}};
+use parser_and_schema::{ast::syntax_definitions::schema_definition::{SchemaDefinition}, parsers::{schema_parser::parse_schema::parse_schema, query_parser::parse_query::parse_query}};
 use shared::CastleError;
 
-use crate::{resolvers::resolvers::{ResolverMap, Resolver, TopLevelResolvers, resolve_all_wants, AllResolvedWants}, directives::directives::DirectiveMap, validation::{self_validation_schema::self_validate_schema::self_validate_schema, validate_schema_with_functions::validate_schema_with_resolvers::validate_schema_with_resolvers_and_directives, validate_query_with_schema::validate_query_with_schema::validate_query_with_schema}};
+use crate::{resolvers::resolvers::{ResolverMap, Resolver, resolve_all_wants, AllResolvedWants}, directives::directives::DirectiveMap, validation::{self_validation_schema::self_validate_schema::self_validate_schema, validate_schema_with_functions::validate_schema_with_resolvers::validate_schema_with_resolvers_and_directives, validate_query_with_schema::validate_query_with_schema::validate_query_with_schema}};
 
 pub struct Castle<C, R>{
     resolvers: ResolverMap<C, R>,
@@ -23,7 +23,7 @@ impl<C, R> Castle<C, R> {
         schema: String
     ) -> Result<Castle<C, R>, CastleError> {
         let parsed_schema = parse_schema(&schema)?;
-        let mut castle = Castle {
+        let castle = Castle {
             resolvers,
             schema,
             parsed_schema,

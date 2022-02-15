@@ -1,4 +1,4 @@
-use std::{io::Read, collections::HashMap, env::args,};
+use std::{io::Read};
 
 use shared::CastleError;
 

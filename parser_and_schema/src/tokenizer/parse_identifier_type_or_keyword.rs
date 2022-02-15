@@ -88,6 +88,6 @@ where R: Read {
                 None => return Err(CastleError::AbruptEOF("parsing word from chars".into()))
             }
         },
-        Err(e) => return Err(CastleError::AbruptEOF("get word from chars".into()))
+        Err(_e) => return Err(CastleError::AbruptEOF("get word from chars".into()))
     }
 }

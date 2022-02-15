@@ -5,7 +5,7 @@ use shared::CastleError;
 
 use crate::{token::{Token, token::TokenKind}, parsers::schema_parser::types::primitive_type::PrimitiveType};
 
-use super::{parse_identifier::parse_identifier_token, tokenizer::Tokenizer};
+use super::{tokenizer::Tokenizer};
 
 pub fn get_primitive_type_or_return_none<R>(tokenizer: &mut Tokenizer<R>, word: &String, start: Position)
 -> Result<Option<Token>, CastleError> where R: Read {

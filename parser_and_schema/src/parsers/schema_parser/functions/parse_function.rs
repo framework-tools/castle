@@ -42,6 +42,6 @@ fn parse_function_return_type<R>(tokenizer: &mut Tokenizer<R>) -> Result<Type, C
 where R: Read {
     tokenizer.next(false)?; //skip chevron right from return arrow
     let token = get_next_token_and_unwrap(tokenizer)?;
-    let return_type = parse_type(token, tokenizer)?;
+    let return_type = parse_type(token)?;
     return Ok(return_type)
 }

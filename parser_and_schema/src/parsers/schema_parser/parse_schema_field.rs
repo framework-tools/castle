@@ -19,7 +19,7 @@ where R: Read{
     let identifier = get_identifier(token)?;
     tokenizer.next(true)?; // skip colon
     let token = get_next_token_and_unwrap(tokenizer)?;
-    let type_ = parse_type(token, tokenizer)?; // get fields type
+    let type_ = parse_type(token)?; // get fields type
     let directives = parse_directives(tokenizer)?;
     return Ok(SchemaField { name: identifier, type_, directives });
 }

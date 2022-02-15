@@ -17,7 +17,7 @@ pub fn parse_identifier_token<R>(tokenizer: &mut Tokenizer<R>, word: String, sta
     }), Span::new(start, tokenizer.cursor.pos())))
 }
 
-pub fn parse_arguments<R>(tokenizer: &mut Tokenizer<R>, start: Position, has_arguments: bool) -> Result<Option<Vec<ArgumentOrTuple>>, CastleError> 
+pub fn parse_arguments<R>(tokenizer: &mut Tokenizer<R>, _start: Position, has_arguments: bool) -> Result<Option<Vec<ArgumentOrTuple>>, CastleError> 
 where R: Read {
     let arguments;
     if has_arguments { arguments = Some(get_arguments(tokenizer)?); } // this also is used for tuples on enums

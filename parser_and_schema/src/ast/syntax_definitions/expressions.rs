@@ -78,9 +78,9 @@ impl PrimitiveValue {
 
     pub fn check_if_primitive_value(token_kind: &TokenKind) -> bool {
         match token_kind {
-            TokenKind::StringLiteral(s) => true,
-            TokenKind::NumericLiteral(numeric) => true,
-            TokenKind::BooleanLiteral(b) => true,
+            TokenKind::StringLiteral(_s) => true,
+            TokenKind::NumericLiteral(_numeric) => true,
+            TokenKind::BooleanLiteral(_b) => true,
             TokenKind::Keyword(keyword) => match keyword {
                 Keyword::True => true,
                 Keyword::False => true,

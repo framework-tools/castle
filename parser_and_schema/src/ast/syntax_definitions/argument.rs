@@ -1,9 +1,8 @@
 use std::{io::Read, collections::HashMap};
 
-use input_cursor::Span;
 use shared::CastleError;
 
-use crate::{token::{Token, token::{TokenKind, Identifier, Punctuator}}, parsers::schema_parser::types::type_system::{Type, parse_type}, tokenizer::{tokenizer::{Tokenizer}, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}}};
+use crate::{token::{Token, token::{TokenKind, Identifier, Punctuator}}, parsers::schema_parser::types::type_system::{Type, parse_type}, tokenizer::{tokenizer::{Tokenizer}, tokenizer_utils::{get_next_token_and_unwrap}}};
 
 use super::expressions::PrimitiveValue;
 
@@ -84,7 +83,6 @@ impl ArgumentOrTuple {
 
 fn parse_identifier_argument<R>(name: Box<str>, tokenizer: &mut Tokenizer<R>) -> Result<ArgumentOrTuple, CastleError>
 where R: Read {
-    let first_char = name.chars().nth(0);
     let token = tokenizer.next(true)?;
     match token {
         Some(token) => match_token_to_parse_argument(token, tokenizer, name),
@@ -104,7 +102,7 @@ where R: Read {
                 let ident_and_type: IdentifierAndValueArgument = (name, primitive_value);
                 return Ok(ArgumentOrTuple::IdentifierAndValue(ident_and_type));
             } else {
-                let type_ = parse_type(token, tokenizer)?;
+                let type_ = parse_type(token)?;
                 let ident_and_type: IdentifierAndTypeArgument = (name, type_);
                 return Ok(ArgumentOrTuple::IdentifierAndType(ident_and_type));
             }
