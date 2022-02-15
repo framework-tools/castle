@@ -9,7 +9,7 @@ use shared::CastleError;
 fn test_resolver_defined_in_schema_that_does_not_exist_throws_error(){
     use std::collections::HashSet;
 
-    use castle::resolvers::resolvers::ResolverMap;
+    use castle::resolvers::resolvers::{ResolverMap, Args};
     use parser_and_schema::ast::syntax_definitions::argument::IdentifierAndTypeArgument;
 
     let schema = "
@@ -18,7 +18,20 @@ fn test_resolver_defined_in_schema_that_does_not_exist_throws_error(){
     ";
 
     let parsed_schema = parse_schema(schema).unwrap();
-    let resolver_map= HashMap::new();
+    fn random_resolver(wants: &Option<Wants>, args: &Args, context: &()) -> Result<String, CastleError> {
+        Ok("hello".to_string())
+    }
+    let random_resolver_definition = FnDefinition {
+        args: HashMap::new(),
+        name: "random_resolver".into(),
+        return_type: Type::PrimitiveType(PrimitiveType::String),
+    };
+    let random_resolver_info = ResolverInfo {
+        resolver: random_resolver,
+        resolver_definition: random_resolver_definition,
+    };
+    let mut resolver_map= HashMap::new();
+    resolver_map.insert("random_resolver".into(), random_resolver_info);
     let result = validate_schema_with_resolvers(&resolver_map, &parsed_schema);
     if result.is_err() {
         match result {
@@ -46,13 +59,13 @@ fn test_resolver_defined_in_schema_that_has_different_arguments(){
     arguments.insert("anything".into(), anything_arg);
     let function_definition = FnDefinition::new("me".into(), arguments, Type::PrimitiveType(PrimitiveType::String));
 
-    fn me<C, R>(wants: &Option<Wants>, args: &HashMap<Box<str>, IdentifierAndValueArgument>, context: &()) -> Result<String, CastleError> {
+    fn me(wants: &Option<Wants>, args: &HashMap<Box<str>, IdentifierAndValueArgument>, context: &()) -> Result<String, CastleError> {
         Ok("".to_string())
     }
     let resolver = ResolverInfo::new(function_definition, me);
     let mut resolvers = HashMap::new();
     resolvers.insert("me".into(), resolver);
-    let result = validate_schema_with_resolvers(resolvers, &parsed_schema);
+    let result = validate_schema_with_resolvers(&resolvers, &parsed_schema);
 
     if result.is_err() {
         match result {

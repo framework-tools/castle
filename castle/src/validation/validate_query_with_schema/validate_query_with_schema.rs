@@ -45,18 +45,18 @@ use shared::CastleError;
 
 pub fn validate_query_with_schema(parsed_query: &ParsedQuery, schema_definition: &SchemaDefinition) -> Result<(), CastleError>{
     for (identifier, want) in &parsed_query.wants {
-        match want {
-            Want::SingleField(_single_field) => {},
-            Want::ObjectProjection(fields, arguments) => {
-                let resolver = schema_definition.functions.get(identifier);
-                if resolver.is_none() {
-                    return Err(CastleError::QueryResolverNotDefinedInSchema(format!("no matching resolver found in schema. Got: '{}' in query ", identifier).into()));
-                } 
-                else {
+        let resolver = schema_definition.functions.get(identifier);
+        if resolver.is_none() {
+            return Err(CastleError::QueryResolverNotDefinedInSchema(format!("no matching resolver found in schema. Got: '{}' in query ", identifier).into()));
+        } 
+        else {
+            match want {
+                Want::SingleField(_single_field) => {},
+                Want::ObjectProjection(fields, arguments) => {
                     validate_resolver_and_assign_schema_type_for_fields_validation(resolver, identifier, &fields, arguments, schema_definition, )?;
-                }
-            },
-            Want::Match(_) => {},  // need to implement
+                },
+                Want::Match(_) => {},  // need to implement
+            }
         }
     }
     return Ok(())
@@ -69,18 +69,18 @@ fn validate_resolver_and_assign_schema_type_for_fields_validation(
     arguments: &WantArguments,
     schema_definition: &SchemaDefinition
 ) -> Result<(), CastleError> {
-        let resolver = resolver.unwrap();
-        take_unwrapped_resolver_and_throw_error_if_none_and_check_length_if_some(resolver, &identifier, fields, &arguments)?;
-        let return_type = unwrap_return_type_throw_error_if_none(&resolver.return_type)?;
-        let schema_type = schema_definition.schema_types.get(return_type);                    // use resolver.return_type to get the schema_type from schema_definition.schema_types
-        let schema_type = schema_type.unwrap();
-        let schema_type_fields = &schema_type.fields;                               // unwrap the type from the schema_type
-        for field in fields.keys(){                                                                   // for each field in fields, check if the field is in schema_type_fields
-            if !schema_type_fields.contains_key(field) {
-                return Err(CastleError::FieldsInReturnTypeDoNotMatchQuery(format!("Field in want: {}, not found in schema type: {:?}", field, schema_type).into() ));
-            }
+    let resolver = resolver.unwrap();
+    take_unwrapped_resolver_and_throw_error_if_none_and_check_length_if_some(resolver, &identifier, fields, &arguments)?;
+    let return_type = unwrap_return_type_throw_error_if_none(&resolver.return_type)?;
+    let schema_type = schema_definition.schema_types.get(return_type);                    // use resolver.return_type to get the schema_type from schema_definition.schema_types
+    let schema_type = schema_type.unwrap();
+    let schema_type_fields = &schema_type.fields;                               // unwrap the type from the schema_type
+    for field in fields.keys(){                                                                   // for each field in fields, check if the field is in schema_type_fields
+        if !schema_type_fields.contains_key(field) {
+            return Err(CastleError::FieldsInReturnTypeDoNotMatchQuery(format!("Field in want: {}, not found in schema type: {:?}", field, schema_type).into() ));
         }
-        Ok(())
+    }
+    Ok(())
 }
 
 fn unwrap_return_type_throw_error_if_none(return_type: &Type) -> Result<&Box<str>, CastleError> {
