@@ -21,10 +21,16 @@ impl Want {
         Want::SingleField(arguments)
     }
 
-    pub fn new_object_projection(identifier: Box<str>, fields: Wants, arguments: WantArguments) -> Self {
+    pub fn new_object_projection(fields: Wants, arguments: WantArguments) -> Self {
         Want::ObjectProjection(
             fields,
             arguments,
+        )
+    }
+
+    pub fn new_match(match_statements: MatchStatement) -> Self {
+        Want::Match(
+            match_statements
         )
     }
 }

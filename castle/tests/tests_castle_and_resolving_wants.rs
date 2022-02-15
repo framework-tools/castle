@@ -52,23 +52,23 @@ use parser_and_schema::ast::syntax_definitions::argument::IdentifierAndValueArgu
 // }
 
 
-type Args = HashMap<Box<str>, IdentifierAndValueArgument>;
-#[cfg(test)]
-#[test]
-fn testing_castle_build_and_validate(){
-    use castle::{castle_struct::castle_struct::{CastleBuilder, Castle}, resolvers::resolvers::{ResolverMap, Wants}, directives::directives::DirectiveMap};
-    use shared::CastleError;
+// type Args = HashMap<Box<str>, IdentifierAndValueArgument>;
+// #[cfg(test)]
+// #[test]
+// fn testing_castle_build_and_validate(){
+//     use castle::{castle_struct::castle_struct::{CastleBuilder, Castle}, resolvers::resolvers::{ResolverMap, Wants}, directives::directives::DirectiveMap};
+//     use shared::CastleError;
 
-    let mut builder = Castle::builder();
-    async fn hello(wants: Option<Wants>, args: Args, context: ()) -> String {
-        "world".to_string()
-    }
+//     let mut builder = Castle::builder();
+//     async fn hello(wants: Option<Wants>, args: Args, context: ()) -> String {
+//         "world".to_string()
+//     }
 
-    builder.add_resolver("", hello);
+//     // builder.add_resolver("", hello);
     
-    builder.schema("
-        fn hello() -> String
-    ");
-    let castle = builder.build();
-    assert!(castle.is_ok());
-}
+//     builder.schema("
+//         fn hello() -> String
+//     ");
+//     let castle = builder.build();
+//     assert!(castle.is_ok());
+// }

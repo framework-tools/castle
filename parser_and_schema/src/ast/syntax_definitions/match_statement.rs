@@ -1,5 +1,5 @@
 
-use super::{expressions::Expression, want::WantType};
+use super::{expressions::Expression, want::{Want, Wants}};
 
 
 pub type MatchStatement = Vec<MatchArm>;
@@ -7,14 +7,14 @@ pub type MatchStatement = Vec<MatchArm>;
 #[derive(Debug, PartialEq)]
 pub struct MatchArm {
     pub condition: Expression,
-    pub object: WantType
+    pub fields: Wants
 }
 
 impl MatchArm{
-    pub fn new(condition: Expression, object: WantType) -> Self {
+    pub fn new(condition: Expression, fields: Wants) -> Self {
         MatchArm {
             condition,
-            object
+            fields
         }
     }
 }

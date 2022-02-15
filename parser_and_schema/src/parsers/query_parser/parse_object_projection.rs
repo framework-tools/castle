@@ -1,13 +1,13 @@
 use std::{io::Read, collections::HashMap};
 
-use crate::{ast::syntax_definitions::{want::{Want, ObjectProjection, SingleField, FieldsType}, keyword::{Keyword}}, token::{token::{TokenKind, Punctuator, Identifier}, Token}, tokenizer::{tokenizer::Tokenizer, tokenizer_utils::get_next_token_and_unwrap}};
+use crate::{ast::syntax_definitions::{want::{Want, WantArguments, Wants}, keyword::{Keyword}}, token::{token::{TokenKind, Punctuator, Identifier}, Token}, tokenizer::{tokenizer::Tokenizer, tokenizer_utils::get_next_token_and_unwrap}};
 use shared::CastleError;
 
 use crate::ast::syntax_definitions::argument::ArgumentOrTuple;
 
 use super::{parse_inner_object::parse_inner_object, parse_match_statements::parse_match_statements};
 
-pub fn parse_object_projection<R>(identifier:Identifier, tokenizer: &mut Tokenizer<R>, _should_skip_start: bool) -> Result<Want, CastleError> 
+pub fn parse_object_projection<R>(identifier:Identifier, tokenizer: &mut Tokenizer<R>) -> Result<Want, CastleError> 
 where R: Read{
 
     let fields = loop_through_tokens_and_parse_fields(tokenizer)?;
@@ -66,7 +66,7 @@ pub fn parse_query_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<B
             }
             _ => {
                 let arguments = ArgumentOrTuple::convert_arguments_to_identifier_and_value_arguments(identifier.arguments)?;
-                let field = Want::SingleField(SingleField{ identifier: identifier.name.clone(), arguments });
+                let field = Want::SingleField(arguments);
                 fields.insert(identifier.name, field);
                 return Ok(false)
             }
@@ -84,7 +84,7 @@ where R: Read {
             TokenKind::Keyword(Keyword::Match) => {
                 tokenizer.next(true)?; // consume the match keyword
                 let match_statements = parse_match_statements(tokenizer)?;
-                fields.insert(identifier.name.clone(), Want::new_object_projection(identifier.name, FieldsType::Match(match_statements),  HashMap::new())); 
+                fields.insert(identifier.name.clone(), Want::new_match(match_statements)); 
                 return Ok(false)
             },
             TokenKind::Punctuator(Punctuator::OpenBlock) => {
@@ -105,12 +105,8 @@ fn create_obj(identifier: Identifier, fields: HashMap<Box<str>, Want>) -> Result
     } else {
         arguments = HashMap::new();
     }
-    let object_projection = ObjectProjection {
-        identifier: identifier.name,
-        arguments,
-        fields: FieldsType::Regular(fields),
-    };
-    return Ok(Want::ObjectProjection(object_projection))
+    let object_projection = Want::new_object_projection(fields, arguments);
+    return Ok(object_projection)
 }
 
 fn create_err_for_parser(token: &Token) -> Result<Option<Result<Want, CastleError>>, CastleError> {

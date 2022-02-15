@@ -1,8 +1,8 @@
-use std::{io::Read, collections::HashMap};
+use std::{io::Read};
 use shared::CastleError;
 use token::Token;
 
-use crate::{tokenizer::{tokenizer::{Tokenizer}, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}}, ast::syntax_definitions::{match_statement::{MatchStatement, MatchArm}, expressions::{Expression, PrimitiveValue}, enum_definition::EnumValue, keyword::Keyword, want::{Want, FieldsType}}, token::{token::{TokenKind, Punctuator, Identifier, Numeric, self},}};
+use crate::{tokenizer::{tokenizer::{Tokenizer}, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}}, ast::syntax_definitions::{match_statement::{MatchStatement, MatchArm}, expressions::{Expression, PrimitiveValue}, enum_definition::EnumValue, keyword::Keyword, want::{Want}}, token::{token::{TokenKind, Punctuator, Identifier, Numeric, self},}};
 
 use super::{ parse_object_projection::{loop_through_tokens_and_parse_fields}};
 
@@ -19,7 +19,7 @@ where R: Read {
 fn get_all_match_arms<R>(tokenizer: &mut Tokenizer<R>) -> Result<MatchStatement, CastleError>
 where R: Read{
     let mut err = None;
-    let mut match_statement = MatchStatement::new(Vec::new());
+    let mut match_statement = Vec::new();
     loop {
         let token = tokenizer.peek(true)?;
         match token {
@@ -35,7 +35,7 @@ where R: Read{
                 => {
                     let token = get_next_token_and_unwrap(tokenizer)?; // consume the identifier
                     let match_arm = get_match_arm(tokenizer, token)?;
-                    match_statement.statements.push(match_arm);
+                    match_statement.push(match_arm);
                 },
                 TokenKind::Punctuator(Punctuator::Comma) => {
                     tokenizer.next(true)?; // consume the comma
@@ -58,7 +58,7 @@ where R: Read {
     let identifier = condition.get_identifier();
     skip_arrow_syntax(tokenizer)?;
     let match_arm_fields = loop_through_tokens_and_parse_fields(tokenizer)?;
-    return Ok(MatchArm::new(condition, Want::new_object_projection(identifier, FieldsType::Regular(match_arm_fields), HashMap::new()))); // empty used hashmap new here
+    return Ok(MatchArm::new(condition, match_arm_fields)); // empty used hashmap new here
 }
 
 fn get_condition(token: Token) -> Result<Expression, CastleError>{

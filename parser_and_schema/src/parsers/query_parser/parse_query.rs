@@ -39,8 +39,7 @@ where R: Read {
         let token = tokenizer.next(true)?;
         match token {
             Some(token) => { 
-                let want = match_token_to_want(token, tokenizer)?;
-                let identifier = want.get_identifier()?;
+                let (identifier, want) = match_token_to_want(token, tokenizer)?;
                 wants.insert(identifier, want);
             },
             None => { break; }
@@ -50,13 +49,16 @@ where R: Read {
     else { return Ok(wants) }
 }
 
-fn match_token_to_want<R>(token: Token, tokenizer: &mut Tokenizer<R>) -> Result<Want, CastleError>
+fn match_token_to_want<R>(token: Token, tokenizer: &mut Tokenizer<R>) -> Result<(Box<str>, Want), CastleError>
 where R: Read{
     return match token.kind {
-        TokenKind::Identifier(identifier) => Ok(match_peeked_token_to_want(identifier, tokenizer)?),
+        TokenKind::Identifier(identifier) => {
+            let name = identifier.name.clone();
+            Ok((name.clone(), match_peeked_token_to_want(identifier, tokenizer)?))
+        },
         TokenKind::EnumValue(enum_value) => {
             let name = enum_value.identifier;
-            Ok(match_peeked_token_to_want(Identifier { name, arguments: None }, tokenizer)?)
+            Ok((name.clone(), match_peeked_token_to_want(Identifier { name, arguments: None }, tokenizer)?))
         }
         _ => Err(CastleError::Parser( format!("2. unexpected token, expected identifier, got: {:?}", token.kind).into(), token.span))
     }
@@ -70,17 +72,17 @@ where R: Read {
             match &next_token.kind {
                 TokenKind::Punctuator(Punctuator::OpenBlock) => {
                     tokenizer.next(true)?;
-                    parse_object_projection(identifier, tokenizer, false)
+                    parse_object_projection(identifier, tokenizer)
                 },
                 _ => {
                     let arguments = ArgumentOrTuple::convert_arguments_to_identifier_and_value_arguments(identifier.arguments)?;
-                    Ok(Want::new_single_field(identifier.name, arguments))
+                    Ok(Want::new_single_field(arguments))
                 }
             }
         },
         None => {
             let arguments = ArgumentOrTuple::convert_arguments_to_identifier_and_value_arguments(identifier.arguments)?;
-            Ok(Want::new_single_field(identifier.name, arguments))
+            Ok(Want::new_single_field(arguments))
         }
     }
 }

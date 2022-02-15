@@ -1,6 +1,6 @@
 use std::{collections::HashMap};
 
-use parser_and_schema::{parsers::{query_parser::parse_query::ParsedQuery, schema_parser::types::{ type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{schema_definition::SchemaDefinition, want::{ Want, ObjectProjection, FieldsType}, expressions::PrimitiveValue, fn_definition::FnDefinition, argument::{IdentifierAndTypeArgument, IdentifierAndValueArgument}}};
+use parser_and_schema::{parsers::{query_parser::parse_query::ParsedQuery, schema_parser::types::{ type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{schema_definition::SchemaDefinition, want::{Want, Wants, WantArguments}, expressions::PrimitiveValue, fn_definition::FnDefinition, argument::{IdentifierAndTypeArgument, IdentifierAndValueArgument, self}}};
 use shared::CastleError;
 
 /// Cross-Validation Between Query Parser & Schema Parser
@@ -44,36 +44,33 @@ use shared::CastleError;
 ///  - If no errors at this point, return Ok(())
 
 pub fn validate_query_with_schema(parsed_query: &ParsedQuery, schema_definition: &SchemaDefinition) -> Result<(), CastleError>{
-    for want in parsed_query.wants.values() {
+    for (identifier, want) in &parsed_query.wants {
         match want {
-            Want::SingleField(_single_field) => {
-            },
-            Want::ObjectProjection(object_projection) => {
-                match &object_projection.fields{
-                    FieldsType::Match(match_statement) => {},  // need to implement
-                    FieldsType::Regular(fields) => {
-                        let resolver = schema_definition.functions.get(&object_projection.identifier);
-                        if resolver.is_none() {
-                            return Err(CastleError::QueryResolverNotDefinedInSchema(format!("no matching resolver found in schema. Got: '{}' in query ", object_projection.identifier).into()));
-                        } 
-                        else {
-                            validate_resolver_and_assign_schema_type_for_fields_validation(resolver, object_projection, schema_definition, &fields)?;
-                        }
-                    }
+            Want::SingleField(_single_field) => {},
+            Want::ObjectProjection(fields, arguments) => {
+                let resolver = schema_definition.functions.get(identifier);
+                if resolver.is_none() {
+                    return Err(CastleError::QueryResolverNotDefinedInSchema(format!("no matching resolver found in schema. Got: '{}' in query ", identifier).into()));
+                } 
+                else {
+                    validate_resolver_and_assign_schema_type_for_fields_validation(resolver, identifier, &fields, arguments, schema_definition, )?;
                 }
-            }
+            },
+            Want::Match(_) => {},  // need to implement
         }
     }
     return Ok(())
 }
 
 fn validate_resolver_and_assign_schema_type_for_fields_validation(
-    resolver: Option<&FnDefinition>, 
-    object_projection: &ObjectProjection, 
-    schema_definition: &SchemaDefinition, 
-    fields: &HashMap<Box<str>, Want>) -> Result<(), CastleError> {
+    resolver: Option<&FnDefinition>,
+    identifier: &Box<str>,
+    fields: &Wants,
+    arguments: &WantArguments,
+    schema_definition: &SchemaDefinition
+) -> Result<(), CastleError> {
         let resolver = resolver.unwrap();
-        take_unwrapped_resolver_and_throw_error_if_none_and_check_length_if_some(resolver, object_projection)?;
+        take_unwrapped_resolver_and_throw_error_if_none_and_check_length_if_some(resolver, &identifier, fields, &arguments)?;
         let return_type = unwrap_return_type_throw_error_if_none(&resolver.return_type)?;
         let schema_type = schema_definition.schema_types.get(return_type);                    // use resolver.return_type to get the schema_type from schema_definition.schema_types
         let schema_type = schema_type.unwrap();
@@ -93,9 +90,9 @@ fn unwrap_return_type_throw_error_if_none(return_type: &Type) -> Result<&Box<str
     }
 }
 
-fn take_unwrapped_resolver_and_throw_error_if_none_and_check_length_if_some(resolver: &FnDefinition, object_projection: &ObjectProjection) -> Result<(), CastleError> {
-    check_if_arguments_in_query_have_different_lengths(&resolver.args, &object_projection.arguments)?;
-    iterate_through_arguments_and_check_compatibility(&resolver.args, &object_projection.arguments)?;
+fn take_unwrapped_resolver_and_throw_error_if_none_and_check_length_if_some(resolver: &FnDefinition, identifier: &Box<str>, fields: &Wants, arguments: &WantArguments,) -> Result<(), CastleError> {
+    check_if_arguments_in_query_have_different_lengths(&resolver.args, &arguments)?;
+    iterate_through_arguments_and_check_compatibility(&resolver.args, &arguments)?;
     Ok(())
 }
 
