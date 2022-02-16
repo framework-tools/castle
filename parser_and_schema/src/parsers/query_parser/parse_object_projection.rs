@@ -32,7 +32,6 @@ where R: Read {
 
 fn handle_errors_for_fields(err: Option<CastleError>, fields: &mut HashMap<Box<str>, Want> ) -> Result<&mut HashMap<Box<str>, Want>, CastleError> {
     if err.is_some() { return Err(err.unwrap()); }
-    else if fields.is_empty() { return Err(CastleError::EmptyObject("can't create empty object".into())) }
     else { return Ok(fields) }
 }
 
@@ -58,29 +57,6 @@ pub fn parse_query_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<B
     let peeked_token = tokenizer.peek(true)?;
     match peeked_token {
         Some(peeked_token) => match peeked_token.kind {
-            TokenKind::Punctuator(Punctuator::Colon) => {
-                let should_break = check_match_or_object_then_parse(tokenizer, fields, identifier)?;
-                
-                if should_break { return Ok(true) }
-                else { return Ok(false) }
-            }
-            _ => {
-                let arguments = ArgumentOrTuple::convert_arguments_to_identifier_and_value_arguments(identifier.arguments)?;
-                let field = Want::SingleField(arguments);
-                fields.insert(identifier.name, field);
-                return Ok(false)
-            }
-        },
-        None => { return Ok(false) }
-    }
-}
-
-fn check_match_or_object_then_parse<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<Box<str>, Want>, identifier: Identifier) -> Result<bool, CastleError> 
-where R: Read {
-    tokenizer.next(true)?; // consume ':'
-    let peeked_token = tokenizer.peek(true)?;
-    return match peeked_token {
-        Some(peeked_token) => match &peeked_token.kind {
             TokenKind::Keyword(Keyword::Match) => {
                 tokenizer.next(true)?; // consume the match keyword
                 let match_statements = parse_match_statements(tokenizer)?;
@@ -91,9 +67,14 @@ where R: Read {
                 parse_inner_object(tokenizer, fields, identifier)?;
                 return Ok(false)
             },
-            _ => Ok(true) // end of object projection
+            _ => {
+                let arguments = ArgumentOrTuple::convert_arguments_to_identifier_and_value_arguments(identifier.arguments)?;
+                let field = Want::SingleField(arguments);
+                fields.insert(identifier.name, field);
+                return Ok(false)
+            }
         },
-        None => Ok(true) // end of object projection
+        None => { return Ok(false) }
     }
 }
 

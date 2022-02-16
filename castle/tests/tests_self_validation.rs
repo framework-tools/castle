@@ -564,4 +564,3 @@ fn should_break_if_directive_on_value_not_compatible_with_its_usage_other_way( )
         panic!("No error thrown");
     }
 }
-

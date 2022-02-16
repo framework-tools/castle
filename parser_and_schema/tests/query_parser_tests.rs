@@ -274,7 +274,6 @@ fn can_parse_object_projection_with_multiple_arguments() {
         ("me".into(), Want::new_object_projection(fields, me_argument)),
     ]);
     let actual = parse_query(query).unwrap();
-    println!("actual: {:#?}", actual);
     assert_eq!(expected, actual.wants);
 }
 
@@ -282,7 +281,7 @@ fn can_parse_object_projection_with_multiple_arguments() {
 fn can_parse_object_projection_with_inner_object() {
     let query = "
     me() {
-        name: {
+        name() {
             first_name
             last_name
         }
@@ -313,9 +312,9 @@ fn can_parse_object_projection_with_inner_object() {
 fn can_parse_object_projection_with_nested_object() {
     let query = "
     me() {
-        profile_pic: {
+        profile_pic() {
             url
-            size: {
+            size() {
                 width
                 height
             }
@@ -351,7 +350,7 @@ fn can_parse_object_projection_with_match() {
             last_name
             email
             profile_picture(size: 48)
-            icon: match {
+            icon() match {
                 Icon::Svg => {
                     url
                     size
@@ -411,10 +410,10 @@ fn can_parse_object_projection_with_match() {
 fn can_parse_object_projection_with_match_inside_match() {
     let query = "
         me() {
-            icon: match {
+            icon() match {
                 Icon::Svg => {
                     url(size: 48)
-                    size: match {
+                    size() match {
                         Size::Rectangle => {
                             width
                             height
@@ -541,7 +540,7 @@ fn trying_to_break_test_v4() {
         profile_picture(
             size: 48
         )
-        icon: match {
+        icon() match {
             Icon::Svg => {     
                 url  
                 size    
@@ -604,12 +603,16 @@ fn trying_to_break_test_v4() {
 }
 
 #[test]
-fn should_not_parse_object_with_no_fields_and_no_match() {
+fn should_parse_object_with_no_fields_and_no_match() -> Result<(), CastleError> {
     let query = "
     me() {
 
     }";
 
-    let answer = parse_query(query).is_err();
-    assert!(answer);
+    let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
+        ("me".into(), Want::new_object_projection(HashMap::new(), HashMap::new())),
+    ]);
+    let actual = parse_query(query)?;
+    assert_eq!(expected, actual.wants);
+    Ok(())
 }

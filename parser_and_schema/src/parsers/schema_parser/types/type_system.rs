@@ -46,7 +46,6 @@ pub fn parse_type(token: Token) -> Result<Type, CastleError> {
 pub fn get_type_from_string(type_as_str: &str) -> Type {
     if type_as_str.len() > 5 {
         if &type_as_str[..4] == "Vec<" { 
-            println!("working");
             return VecType::new(&type_as_str)
         }
 

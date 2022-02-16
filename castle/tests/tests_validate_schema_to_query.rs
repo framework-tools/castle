@@ -180,7 +180,7 @@ fn should_break_if_use_undefined_enum_parent_in_query() -> Result<(), CastleErro
 
     let query = "
     me(id: 543) {
-        name: match {
+        name() match {
             Name::UserName => {
                 name
             },
@@ -225,7 +225,7 @@ fn should_break_if_use_undefined_enum_variant_in_query() -> Result<(), CastleErr
 
     let query = "
     me(id: 543) {
-        name: match {
+        name() match {
             Name::StandardName => {
                 first_name,
                 last_name

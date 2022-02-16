@@ -27,7 +27,7 @@ use shared::CastleError;
 ///                         ";
 /// Steps:
 /// - For each Want in the query:
-///    - match want to want to single field (leave this empty for now) & object projection
+///    - match want to want to single field & object projection
 ///    - check if the want is defined in the schema
 ///    (HashMap.get(want.identifier))
 ///    - If Some value, unwrap the value & continue 
