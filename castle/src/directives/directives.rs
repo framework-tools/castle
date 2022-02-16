@@ -4,6 +4,6 @@ use parser_and_schema::ast::syntax_definitions::{want::Want, argument::ArgumentO
 
 use crate::resolvers::resolvers::Resolver;
 
-pub type DirectiveMap<C, T> = HashMap<Box<str>, Directive<C, T>>; 
+pub type DirectiveMap<C, T> = HashMap<Box<str>, Resolver<C, T>>; 
 pub type Wants = HashMap<Box<str>, Want>;
 pub type DirectiveOutput<T> = Box<T>;

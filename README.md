@@ -1,4 +1,29 @@
 # castle
+// fn my_resolver(want: WantType) -> () {
+//     if let WantType::Match(Match { patterns}) => {
+//         let returned_object = IconTypes::Svg {
+//             url: "https://example.com/icon.svg".into(),
+//             size: 48,
+//         };
+
+//         match returned_object {
+//             IconTypes::Emoji { unicode } => {
+//                 if let Some(want) = patterns.get("SVG") {
+//                     match want {
+//                         WantType::ObjectProjection(wants) => {
+//                             let mut returned_object = Value::object();
+//                             returned_object.insert("url".into(), ("https://example.com/icon.svg".into(), PrimitiveValue::String));
+//                             returned_object.insert("size".into(), (48, PrimitiveValue::UInt));
+//                             return returned_object;
+//                         },
+//                         _ => panic!("Expected an object projection"),
+//                     }
+//                 }
+//                 return Value::None
+//             },
+//         }
+//     }
+// }
 
 Intended to be used inside of a rust web api server.
 

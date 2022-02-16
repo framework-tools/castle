@@ -1,9 +1,9 @@
 use std::{collections::HashMap};
 
-use parser_and_schema::{ast::syntax_definitions::{schema_definition::SchemaDefinition, enum_definition::EnumDataType, directive_definition::{Directive, DirectiveDefinition, self}, argument::{ArgumentOrTuple}}, parsers::schema_parser::types::{type_system::Type, vec_type::VecType, option_type::OptionType, schema_field::SchemaField}};
+use parser_and_schema::{ast::syntax_definitions::{schema_definition::SchemaDefinition, enum_definition::EnumDataType, directive_definition::{Directive, DirectiveDefinition, DirectiveOnValue}, argument::{ArgumentOrTuple}}, parsers::schema_parser::types::{type_system::Type, vec_type::VecType, option_type::OptionType, schema_field::SchemaField}};
 use shared::CastleError;
 
-use crate::directives;
+use crate::directives::directives::DirectiveMap;
 
 
 /// It needs to check every type, enum etc that’s used is defined in the schema.
@@ -51,6 +51,17 @@ fn for_each_schema_type_check_field_type_is_valid(schema: &SchemaDefinition) -> 
             check_type_used_has_been_defined(schema, &field.type_)?;
             check_directives_use_valid_types(schema, &field.directives)?;
             check_directives_use_valid_directive_definitions(&schema.directives, &field.directives, schema)?;
+            check_directive_definition_on_value_is_compatible(schema, &field.directives, DirectiveOnValue::Field)?;
+        }
+    }
+    return Ok(())
+}
+
+fn check_directive_definition_on_value_is_compatible(schema_def: &SchemaDefinition, directives: &Vec<Directive>, on: DirectiveOnValue) -> Result<(), CastleError> {
+    for directive in directives {
+        let directive_definition = schema_def.directives.get(&directive.name).unwrap();
+        if directive_definition.on != on {
+            return Err(CastleError::DirectiveOnValueNotCompatible(format!("Directive definition is on field: {}", directive.name).into()));
         }
     }
     return Ok(())
@@ -90,6 +101,8 @@ fn for_each_enum_check_all_types_in_their_values_are_valid(schema: &SchemaDefini
     for (_enum_name, enum_definition) in &schema.enums {
         for (_variant_name, variant) in &enum_definition.variants {
             check_directives_use_valid_directive_definitions(&schema.directives, &variant.directives, schema)?;
+            check_directives_use_valid_types(schema, &variant.directives)?;
+            check_directive_definition_on_value_is_compatible(schema, &variant.directives, DirectiveOnValue::EnumVariant)?;
             match &variant.enum_data_type {
                 EnumDataType::EnumTuple(tuple_types) => {
                     check_arguments_or_tuples_are_defined(schema, tuple_types)?;
@@ -137,6 +150,7 @@ fn check_directives_use_valid_types(schema: &SchemaDefinition, directives: &Vec<
     for directive in directives {
         for (_ident,arg ) in directive.arguments.values() {
             check_type_used_has_been_defined(schema, arg)?;
+            
         }
     }
     return  Ok(())
@@ -156,7 +170,6 @@ fn for_each_fn_check_arguments_and_return_types_are_valid(schema: &SchemaDefinit
         for (_name, type_) in arguments.values() {
             check_type_used_has_been_defined(schema, type_)?;
         }
-
         check_type_used_has_been_defined(schema, &fn_definition.return_type)?; //check return type
     }
     return Ok(())
@@ -176,11 +189,15 @@ fn check_directives_use_valid_directive_definitions(directive_definitions: &Hash
 }
 
 fn validate_directive_definition_arguments_and_directive_arguments(directive: &Directive, directive_definition: &DirectiveDefinition, schema: &SchemaDefinition) -> Result<(), CastleError> {
+    if directive.arguments.len() != directive_definition.function.args.len() {
+        return Err(CastleError::DirectiveDoesNotMatchSchemaDirective(format!("Directive {} has {} arguments but the definition has {} arguments", &directive.name, directive.arguments.len(), directive_definition.function.args.len()).into()));
+    }
+        
     for (_name, type_) in directive.arguments.values() {
         check_type_used_has_been_defined(schema, type_)?;
     }
 
-    let directive_definition_args = &directive_definition.argume;
+    let directive_definition_args = &directive_definition.function.args;
     let directive_args = &directive.arguments;
     for arg in directive_definition_args.keys() {
         if !directive_args.contains_key(arg) {

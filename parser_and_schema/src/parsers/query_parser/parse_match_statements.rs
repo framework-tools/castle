@@ -2,7 +2,7 @@ use std::{io::Read};
 use shared::CastleError;
 use token::Token;
 
-use crate::{tokenizer::{tokenizer::{Tokenizer}, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}}, ast::syntax_definitions::{match_statement::{MatchStatement, MatchArm}, expressions::{Expression, PrimitiveValue}, enum_definition::EnumValue, keyword::Keyword, want::{Want}}, token::{token::{TokenKind, Punctuator, Identifier, Numeric, self},}};
+use crate::{tokenizer::{tokenizer::{Tokenizer}, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}}, ast::syntax_definitions::{match_statement::{MatchStatement, MatchArm}, expressions::{Expression, PrimitiveValue}, enum_definition::EnumValue, want::{}}, token::{token::{TokenKind, Punctuator, Numeric, self},}};
 
 use super::{ parse_object_projection::{loop_through_tokens_and_parse_fields}};
 
@@ -55,20 +55,14 @@ where R: Read{
 fn get_match_arm<R>(tokenizer: &mut Tokenizer<R>, token: Token) -> Result<MatchArm, CastleError>
 where R: Read {
     let condition = get_condition(token)?;
-    let identifier = condition.get_identifier();
     skip_arrow_syntax(tokenizer)?;
     let match_arm_fields = loop_through_tokens_and_parse_fields(tokenizer)?;
     return Ok(MatchArm::new(condition, match_arm_fields)); // empty used hashmap new here
 }
 
-fn get_condition(token: Token) -> Result<Expression, CastleError>{
+fn get_condition(token: Token) -> Result<EnumValue, CastleError>{
     let condition = match token.kind {
-        TokenKind::EnumValue(EnumValue { enum_parent, variant, data_type, .. }) => Some(Expression::EnumValue(EnumValue::new(enum_parent, variant, data_type))),
-        TokenKind::Identifier(Identifier { name, arguments }) => Some(Expression::Identifier(Identifier::new(name, arguments))),
-        TokenKind::StringLiteral(string_literal) => Some(Expression::PrimitiveValue(PrimitiveValue::String(string_literal))),
-        TokenKind::NumericLiteral(numeric_literal) => Some(convert_numeric_token_to_expression(numeric_literal)),
-        TokenKind::Keyword(Keyword::True) => Some(Expression::PrimitiveValue(PrimitiveValue::Boolean(true))),
-        TokenKind::Keyword(Keyword::False) => Some(Expression::PrimitiveValue(PrimitiveValue::Boolean(false))),
+        TokenKind::EnumValue(EnumValue { enum_parent, variant, data_type, .. }) => Some(EnumValue::new(enum_parent, variant, data_type)),
         _ => None
     };
     if condition.is_some() {

@@ -19,6 +19,7 @@ pub enum CastleError {
     ResolverDoesNotMatchSchemaFunction(Box<str>),
     UndefinedDirective(Box<str>),
     DirectiveDoesNotMatchSchemaDirective(Box<str>),
+    DirectiveOnValueNotCompatible(Box<str>),
     MatchError(Box<str>),
     NoIdentifierOnObjectProjection(Box<str>),
     QueryResolverNotDefinedInSchema(Box<str>),
@@ -28,7 +29,6 @@ pub enum CastleError {
     PrimitiveValue(Box<str>),
     MissingSchema(Box<str>),
     EnumInQueryNotDefinedInSchema(Box<str>),
-    MatchStatementNotExhausted(Box<str>),
 }
 
 impl From<std::io::Error> for CastleError {
@@ -72,6 +72,7 @@ impl fmt::Display for CastleError {
             Self::UndefinedDirective(msg) => write!(f, "Undefined directive: {}", msg),
             Self::ResolverDoesNotMatchSchemaFunction(msg) => write!(f, "Resolver does not match schema function: {}", msg),
             Self::DirectiveDoesNotMatchSchemaDirective(msg) => write!(f, "Directive does not match schema directive: {}", msg),
+            Self::DirectiveOnValueNotCompatible(msg) => write!(f, "Directive on value not compatible: {}", msg),
             Self::NoIdentifierOnObjectProjection(msg) => write!(f, "No identifier on object projection: {}", msg),
             Self::QueryResolverNotDefinedInSchema(msg) => write!(f, "Query resolver not defined in schema: {}", msg),
             Self::ArgumentsInQueryDoNotMatchResolver(msg) => write!(f, "Arguments in query do not match resolver: {}", msg),
@@ -80,7 +81,7 @@ impl fmt::Display for CastleError {
             Self::PrimitiveValue(msg) => write!(f, "Primitive value: {}", msg),
             Self::MissingSchema(msg) => write!(f, "Missing schema: {}", msg),
             Self::EnumInQueryNotDefinedInSchema(msg) => write!(f, "Enum in query not defined in schema: {}", msg),
-            Self::MatchStatementNotExhausted(msg) => write!(f, "Match statement not exhausted: {}", msg),
+            
         }
     }
 }
@@ -105,6 +106,7 @@ impl ExtendedErrorDisplay for CastleError {
             Self::UndefinedDirective(msg) => format!("Undefined directive: {}", msg),
             Self::ResolverDoesNotMatchSchemaFunction(msg) => format!("Resolver does not match schema function: {}", msg),
             Self::DirectiveDoesNotMatchSchemaDirective(msg) => format!("Directive does not match schema directive: {}", msg),
+            Self::DirectiveOnValueNotCompatible(msg) => format!("Directive on value not compatible: {}", msg),
             Self::NoIdentifierOnObjectProjection(msg) => format!("No identifier on object projection: {}", msg),
             Self::QueryResolverNotDefinedInSchema(msg) => format!("Query resolver not defined in schema: {}", msg),
             Self::ArgumentsInQueryDoNotMatchResolver(msg) => format!("Arguments in query do not match resolver: {}", msg),
@@ -113,7 +115,6 @@ impl ExtendedErrorDisplay for CastleError {
             Self::PrimitiveValue(msg) => format!("Primitive value: {}", msg),
             Self::MissingSchema(msg) => format!("Missing schema: {}", msg),
             Self::EnumInQueryNotDefinedInSchema(msg) => format!("Enum in query not defined in schema: {}", msg),
-            Self::MatchStatementNotExhausted(msg) => format!("Match statement not exhausted: {}", msg),
         }
     }
 }

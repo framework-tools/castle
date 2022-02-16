@@ -3,13 +3,13 @@ use std::{collections::HashMap};
 use parser_and_schema::{ast::syntax_definitions::{schema_definition::{SchemaDefinition}, fn_definition::FnDefinition, directive_definition::{self, DirectiveDefinition}}, parsers::{schema_parser::parse_schema::parse_schema, query_parser::parse_query::parse_query}};
 use shared::CastleError;
 
-use crate::{resolvers::resolvers::{ResolverMap, Resolver, resolve_all_wants, TopLevelResolvers, ResolverInfo}, directives::directives::{DirectiveMap, DirectiveInfo}, validation::{self_validation_schema::self_validate_schema::self_validate_schema, validate_backend_fns_with_schema::validate_backend_fns_with_schema::validate_schema_with_resolvers_and_directives, validate_query_with_schema::validate_query_with_schema::validate_query_with_schema}};
+use crate::{resolvers::resolvers::{ResolverMap, Resolver, resolve_all_wants, TopLevelResolvers}, directives::directives::{DirectiveMap}, validation::{self_validation_schema::self_validate_schema::self_validate_schema, validate_backend_fns_with_schema::validate_backend_fns_with_schema::validate_schema_with_resolvers_and_directives, validate_query_with_schema::validate_query_with_schema::validate_query_with_schema}};
 
 pub struct Castle<C, R>{
-    resolvers: ResolverMap<C, R>,
-    schema: String,
-    parsed_schema: SchemaDefinition,
-    directives: DirectiveMap<C, R>,
+    pub resolvers: ResolverMap<C, R>,
+    pub schema: String,
+    pub parsed_schema: SchemaDefinition,
+    pub directives: DirectiveMap<C, R>,
 }
 
 impl<C, R> Castle<C, R> {
@@ -55,8 +55,8 @@ impl<C, R> Castle<C, R> {
 }
 
 pub struct CastleBuilder<C, R> {
-    resolvers: ResolverMap<C, R>,
-    directives: DirectiveMap<C, R>,
+    pub resolvers: ResolverMap<C, R>,
+    pub directives: DirectiveMap<C, R>,
     schema: Option<String>,
 }
 
@@ -69,12 +69,12 @@ impl<C, R> CastleBuilder<C, R> {
         }
     }
 
-    pub fn schema<Schema: Into<String>>(mut self, schema: Schema) -> Self {
+    pub fn add_schema<Schema: Into<String>>(mut self, schema: Schema) -> Self {
         self.schema = Some(schema.into());
         self
     }
 
-    pub fn build(self) -> Result<Castle<C, R>, CastleError> {
+    pub fn build_and_validate(self) -> Result<Castle<C, R>, CastleError> {
         let schema;
         if self.schema.is_none() {
             return Err(CastleError::MissingSchema("No schema provided".into()));
@@ -85,19 +85,11 @@ impl<C, R> CastleBuilder<C, R> {
         Castle::build_and_validate(self.resolvers, self.directives, schema)
     }
 
-    pub fn add_resolver(&mut self, resolver_name: &str, resolver: Resolver<C, R>, resolver_definition: FnDefinition) {
-        let resolver_info = ResolverInfo {
-            resolver,
-            resolver_definition,
-        };
-        self.resolvers.insert(resolver_name.into(), resolver_info);
+    pub fn add_resolver(&mut self, resolver_name: &str, resolver: Resolver<C, R>) {
+        self.resolvers.insert(resolver_name.into(), resolver);
     }
 
-    pub fn add_directive(&mut self, directive_name: &str, directive: Resolver<C, R>, directive_definition: DirectiveDefinition) {
-        let directive_info = DirectiveInfo {
-            directive,
-            directive_definition
-        };
-        self.directives.insert(directive_name.into(), directive_info);
+    pub fn add_directive(&mut self, directive_name: &str, directive: Resolver<C, R>) {
+        self.directives.insert(directive_name.into(), directive);
     }
 }

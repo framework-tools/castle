@@ -1,6 +1,6 @@
 use std::{collections::HashMap};
 
-use parser_and_schema::{parsers::{query_parser::parse_query::ParsedQuery, schema_parser::types::{ type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{schema_definition::SchemaDefinition, want::{Want, Wants, WantArguments}, expressions::PrimitiveValue, fn_definition::FnDefinition, argument::{IdentifierAndTypeArgument, IdentifierAndValueArgument, self}}};
+use parser_and_schema::{parsers::{query_parser::parse_query::ParsedQuery, schema_parser::types::{ type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{schema_definition::SchemaDefinition, want::{Want, Wants, WantArguments}, expressions::PrimitiveValue, fn_definition::FnDefinition, argument::{IdentifierAndTypeArgument, IdentifierAndValueArgument, self}, match_statement::{self, MatchArm}, enum_definition}};
 use shared::CastleError;
 
 /// Cross-Validation Between Query Parser & Schema Parser
@@ -46,16 +46,21 @@ use shared::CastleError;
 pub fn validate_query_with_schema(parsed_query: &ParsedQuery, schema_definition: &SchemaDefinition) -> Result<(), CastleError>{
     for (identifier, want) in &parsed_query.wants {
         let resolver = schema_definition.functions.get(identifier);
+        //check resolver exists in schema
         if resolver.is_none() {
             return Err(CastleError::QueryResolverNotDefinedInSchema(format!("no matching resolver found in schema. Got: '{}' in query ", identifier).into()));
         } 
         else {
             match want {
-                Want::SingleField(_single_field) => {},
-                Want::ObjectProjection(fields, arguments) => {
-                    validate_resolver_and_assign_schema_type_for_fields_validation(resolver, identifier, &fields, arguments, schema_definition, )?;
+                Want::SingleField(arguments) => {
+                    validate_resolver_and_assign_schema_type_for_fields_validation(resolver, identifier, &None, arguments, schema_definition, )?;
                 },
-                Want::Match(_) => {},  // need to implement
+                Want::ObjectProjection(fields, arguments) => {
+                    validate_resolver_and_assign_schema_type_for_fields_validation(resolver, identifier, &Some(&fields), arguments, schema_definition, )?;
+                },
+                Want::Match(match_statement) => {
+                    validate_enum_used_is_defined_in_schema(match_statement, schema_definition)?;
+                },  // need to implement
             }
         }
     }
@@ -65,32 +70,81 @@ pub fn validate_query_with_schema(parsed_query: &ParsedQuery, schema_definition:
 fn validate_resolver_and_assign_schema_type_for_fields_validation(
     resolver: Option<&FnDefinition>,
     identifier: &Box<str>,
-    fields: &Wants,
+    fields: &Option<&Wants>,
     arguments: &WantArguments,
     schema_definition: &SchemaDefinition
 ) -> Result<(), CastleError> {
     let resolver = resolver.unwrap();
-    take_unwrapped_resolver_and_throw_error_if_none_and_check_length_if_some(resolver, &identifier, fields, &arguments)?;
-    let return_type = unwrap_return_type_throw_error_if_none(&resolver.return_type)?;
-    let schema_type = schema_definition.schema_types.get(return_type);                    // use resolver.return_type to get the schema_type from schema_definition.schema_types
-    let schema_type = schema_type.unwrap();
-    let schema_type_fields = &schema_type.fields;                               // unwrap the type from the schema_type
-    for field in fields.keys(){                                                                   // for each field in fields, check if the field is in schema_type_fields
-        if !schema_type_fields.contains_key(field) {
-            return Err(CastleError::FieldsInReturnTypeDoNotMatchQuery(format!("Field in want: {}, not found in schema type: {:?}", field, schema_type).into() ));
-        }
+    check_arguments_are_compatible(resolver, &arguments)?;
+    if fields.is_none() {
+        validate_single_field_want(resolver, &identifier)?;
     }
-    Ok(())
+    else {
+        validate_object_projection_want(resolver, schema_definition, fields)?;
+    }
+    return Ok(())
 }
 
-fn unwrap_return_type_throw_error_if_none(return_type: &Type) -> Result<&Box<str>, CastleError> {
+fn validate_single_field_want(resolver: &FnDefinition, identifier: &Box<str>) -> Result<(), CastleError> {
+    match resolver.return_type {
+        Type::SchemaTypeOrEnum(_) => {
+            Err(CastleError::FieldsInReturnTypeDoNotMatchQuery(format!("no fields in return type. Got: '{}' in query ", identifier).into()))
+        },
+        Type::Void => {
+            Err(CastleError::FieldsInReturnTypeDoNotMatchQuery(format!("no fields in return type. Got: '{}' in query ", identifier).into()))
+        },
+        _ => return Ok(())
+    }
+}
+
+fn validate_object_projection_want(resolver: &FnDefinition, schema_definition: &SchemaDefinition, fields: &Option<&Wants>) -> Result<(), CastleError>{
+    let return_type = check_return_type_is_schema_type_or_enum(&resolver.return_type)?;
+        let schema_type = schema_definition.schema_types.get(return_type);    // use resolver.return_type to get the schema_type from schema_definition.schema_types
+        let schema_type = schema_type.unwrap();
+        let schema_type_fields = &schema_type.fields;     // unwrap the type from the schema_type
+        let fields = fields.unwrap();
+        for (identifier, field) in fields{    // for each field in fields, check if the field is in schema_type_fields
+            if !schema_type_fields.contains_key(identifier) {
+                return Err(CastleError::FieldsInReturnTypeDoNotMatchQuery(format!("Field in want: {}, not found in schema type: {:?}", identifier, schema_type).into() ));
+            }
+            match field{
+                Want::Match(match_statement) => {
+                    validate_enum_used_is_defined_in_schema(match_statement, schema_definition)?;
+                },
+                _ => {
+                    // do nothing
+                }
+            }
+        }
+        Ok(())
+}
+
+fn validate_enum_used_is_defined_in_schema(match_statement: &Vec<MatchArm>, schema_definition: &SchemaDefinition) -> Result<(), CastleError>{
+    for match_arm in match_statement {
+        let condition = &match_arm.condition;
+        let condition_parent = &condition.enum_parent;
+        if !schema_definition.enums.contains_key(condition_parent) {
+            return Err(CastleError::EnumInQueryNotDefinedInSchema(format!("Enum: {} not defined in schema", condition_parent).into()));
+        } 
+        else {
+            let enum_definition = schema_definition.enums.get(condition_parent).unwrap();
+            let condition_variant = &condition.variant;
+            if !enum_definition.variants.contains_key(condition_variant){
+                return Err(CastleError::EnumInQueryNotDefinedInSchema(format!("Enum variant: {} not defined in schema", condition_variant).into()));
+            }
+        }
+    }
+    return Ok(())
+}
+
+fn check_return_type_is_schema_type_or_enum(return_type: &Type) -> Result<&Box<str>, CastleError> {
     return match return_type {
         Type::SchemaTypeOrEnum(schema_type_or_enum) => Ok(schema_type_or_enum),
         _ => Err(CastleError::NoIdentifierOnObjectProjection(format!(" on resolver return type Not valid. Type: {:?}", return_type).into())),
     }
 }
 
-fn take_unwrapped_resolver_and_throw_error_if_none_and_check_length_if_some(resolver: &FnDefinition, identifier: &Box<str>, fields: &Wants, arguments: &WantArguments,) -> Result<(), CastleError> {
+fn check_arguments_are_compatible(resolver: &FnDefinition, arguments: &WantArguments,) -> Result<(), CastleError> {
     check_if_arguments_in_query_have_different_lengths(&resolver.args, &arguments)?;
     iterate_through_arguments_and_check_compatibility(&resolver.args, &arguments)?;
     Ok(())
@@ -137,6 +191,9 @@ fn check_type_and_value_are_compatible(arg_in_resolver: &Type, arg_in_query: &Pr
     let arg_value = arg_in_query;
     let query_type = convert_value_to_corresponding_type(&arg_value)?;
     if &query_type == schema_type { return Ok(true) }
+    else if query_type == Type::PrimitiveType(PrimitiveType::UInt) && schema_type == &Type::PrimitiveType(PrimitiveType::Int){
+        return Ok(true)
+    }
     else { return Ok(false) }
 }
 

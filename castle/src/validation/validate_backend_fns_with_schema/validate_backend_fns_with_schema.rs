@@ -69,11 +69,6 @@ pub fn validate_schema_with_resolvers<C, R>(resolvers: &ResolverMap<C, R>, parse
         let resolver = resolvers.get(&resolver_in_schema.name);
         if resolver.is_none() {
             return Err(CastleError::UndefinedResolver(format!("Resolver not found for fn definition in schema: {}", resolver_in_schema.name).into()))
-        } else {
-            let resolver_info = resolver.unwrap();
-            if &resolver_info.resolver_definition != resolver_in_schema {
-                return Err(CastleError::ResolverDoesNotMatchSchemaFunction("Resolver definition does not match function definition".into()))
-            }
         }
     }
     return Ok(())

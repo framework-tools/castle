@@ -31,7 +31,7 @@ fn if_object_projection_identifier_is_not_defined_as_resolver_in_schema_should_t
     if result.is_err() {
         match result {
             Err(CastleError::QueryResolverNotDefinedInSchema(_message)) => return Ok(()),
-            _ => panic!("threw wrong error: {:?}", result)
+            _ => panic!("threw wrong error expected QueryResolverNotDefinedInSchema, got: {:?}", result)
         }
     } else {
         panic!("should have thrown error");
@@ -61,7 +61,7 @@ fn should_break_if_mismatched_arguments() -> Result<(), CastleError>{
     if result.is_err() {
         match result {
             Err(CastleError::ArgumentsInQueryDoNotMatchResolver(_message)) => return Ok(()),
-            _ => panic!("threw wrong error: {:?}", result)
+            _ => panic!("threw wrong error expected ArgumentsInQueryDoNotMatchResolver, got:{:?}", result)
         }
     } else {
         panic!("should have thrown error");
@@ -88,7 +88,7 @@ fn should_break_if_mismatched_arguments_other_way() -> Result<(), CastleError>{
     if result.is_err() {
         match result {
             Err(CastleError::ArgumentsInQueryDoNotMatchResolver(_message)) => return Ok(()),
-            _ => panic!("threw wrong error: {:?}", result)
+            _ => panic!("threw wrong error expected ArgumentsInQueryDoNotMatchResolver, got: {:?}", result)
         }
     } else {
         panic!("should have thrown error");
@@ -120,7 +120,7 @@ fn should_break_if_same_arguments_but_mismatching_types() -> Result<(), CastleEr
     if result.is_err() {
         match result {
             Err(CastleError::ArgumentsInQueryDoNotMatchResolver(_message)) => return Ok(()),
-            _ => panic!("threw wrong error: {:?}", result)
+            _ => panic!("threw wrong error expected ArgumentsInQueryDoNotMatchResolver, got: {:?}", result)
         }
     } else {
         panic!("should have thrown error");
@@ -151,8 +151,8 @@ fn should_break_if_mismatched_fields_in_return_type() -> Result<(), CastleError>
     let result = validate_query_with_schema(&parsed_query, &schema_definition);
     if result.is_err() {
         match result {
-            Err(CastleError::ArgumentsInQueryDoNotMatchResolver(_message)) => return Ok(()),
-            _ => panic!("threw wrong error: {:?}", result)
+            Err(CastleError::FieldsInReturnTypeDoNotMatchQuery(_message)) => return Ok(()),
+            _ => panic!("threw wrong error expected FieldsInReturnTypeDoNotMatchQuery, got: {:?}", result)
         }
     } else {
         panic!("should have thrown error");
@@ -172,26 +172,22 @@ fn should_break_if_use_undefined_enum_parent_in_query() -> Result<(), CastleErro
     }
 
     enum Name {
-        StandardName(StandardName),
-        UserName(String)
+        StandardName,
+        UserName
     }
 
-    type StandardName {
-        first_name: String,
-        last_name: String,
-    }
     ";
 
     let query = "
     me(id: 543) {
         name: match {
+            Name::UserName => {
+                name
+            },
             DoesntExist::DoesntExist => {
                 first_name,
                 last_name
             },
-            Name::UserName(name) => {
-                name: name
-            }
         }
     }
     ";
@@ -202,7 +198,7 @@ fn should_break_if_use_undefined_enum_parent_in_query() -> Result<(), CastleErro
     if result.is_err() {
         match result {
             Err(CastleError::EnumInQueryNotDefinedInSchema(_message)) => return Ok(()),
-            _ => panic!("threw wrong error: {:?}", result)
+            _ => panic!("threw wrong error expected EnumInQueryNotDefinedInSchema, got: {:?}", result)
         }
     } else {
         panic!("should have thrown error");
@@ -221,22 +217,18 @@ fn should_break_if_use_undefined_enum_variant_in_query() -> Result<(), CastleErr
     }
 
     enum Name {
-        StandardName(StandardName),
-        UserName(String)
+        StandardName,
+        UserName
     }
 
-    type StandardName {
-        first_name: String,
-        last_name: String,
-    }
     ";
 
     let query = "
     me(id: 543) {
         name: match {
-            Name::StandardName(standard_name) => {
-                first_name: standard_name.first_name,
-                last_name: standard_name.last_name
+            Name::StandardName => {
+                first_name,
+                last_name
             },
             Name::DoesntExist => {
                 first_name,
@@ -252,7 +244,7 @@ fn should_break_if_use_undefined_enum_variant_in_query() -> Result<(), CastleErr
     if result.is_err() {
         match result {
             Err(CastleError::EnumInQueryNotDefinedInSchema(_message)) => return Ok(()),
-            _ => panic!("threw wrong error: {:?}", result)
+            _ => panic!("threw wrong error expected EnumInQueryNotDefinedInSchema, got: {:?}", result)
         }
     } else {
         panic!("should have thrown error");

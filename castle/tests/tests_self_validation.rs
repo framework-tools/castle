@@ -422,7 +422,7 @@ fn should_break_if_used_directive_is_not_defined( ) -> Result<(), CastleError> {
     if actual.is_err() {
         match actual {
             Err(CastleError::UndefinedDirective(_)) => { return Ok(()) }, //passes
-            _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
+            _ => panic!("Expected error to be of type UndefinedDirective, found: {:?}", actual),
         }
     } else {
         panic!("No error thrown");
@@ -445,7 +445,7 @@ fn should_break_if_used_directive_is_not_defined_enum( ) -> Result<(), CastleErr
     if actual.is_err() {
         match actual {
             Err(CastleError::UndefinedDirective(_)) => { return Ok(()) }, //passes
-            _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
+            _ => panic!("Expected error to be of type UndefinedDirective, found: {:?}", actual),
         }
     } else {
         panic!("No error thrown");
@@ -466,7 +466,7 @@ fn should_break_if_directive_and_its_definition_have_mismatched_types( ) -> Resu
     if actual.is_err() {
         match actual {
             Err(CastleError::DirectiveDoesNotMatchSchemaDirective(_)) => { return Ok(()) }, //passes
-            _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
+            _ => panic!("Expected error to be of type DirectiveDoesNotMatchSchemaDirective, found: {:?}", actual),
         }
     } else {
         panic!("No error thrown");
@@ -491,7 +491,7 @@ fn should_break_if_directive_and_its_definition_have_mismatched_types_other_way(
     if actual.is_err() {
         match actual {
             Err(CastleError::DirectiveDoesNotMatchSchemaDirective(_)) => { return Ok(()) }, //passes
-            _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
+            _ => panic!("Expected error to be of type DirectiveDoesNotMatchSchemaDirective, found: {:?}", actual),
         }
     } else {
         panic!("No error thrown");
@@ -514,7 +514,7 @@ fn should_break_if_directive_and_directive_definition_have_same_arguments_with_d
     if actual.is_err() {
         match actual {
             Err(CastleError::DirectiveDoesNotMatchSchemaDirective(_)) => { return Ok(()) }, //passes
-            _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
+            _ => panic!("Expected error to be of type DirectiveDoesNotMatchSchemaDirective, found: {:?}", actual),
         }
     } else {
         panic!("No error thrown");
@@ -534,8 +534,8 @@ fn should_break_if_directive_on_value_not_compatible_with_its_usage( ) -> Result
     let actual = self_validate_schema(&schema_definition);
     if actual.is_err() {
         match actual {
-            Err(CastleError::DirectiveDoesNotMatchSchemaDirective(_)) => { return Ok(()) }, //passes
-            _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
+            Err(CastleError::DirectiveOnValueNotCompatible(_)) => { return Ok(()) }, //passes
+            _ => panic!("Expected error to be of type DirectiveOnValueNotCompatible, found: {:?}", actual),
         }
     } else {
         panic!("No error thrown");
@@ -550,15 +550,15 @@ fn should_break_if_directive_on_value_not_compatible_with_its_usage_other_way( )
             Medium,
             Large @check_size(token: String)
         }
-        directive @authenticated(token: String) on FIELD
+        directive @check_size(token: String) on FIELD
     ";
 
     let schema_definition = parse_schema(schema)?;
     let actual = self_validate_schema(&schema_definition);
     if actual.is_err() {
         match actual {
-            Err(CastleError::DirectiveDoesNotMatchSchemaDirective(_)) => { return Ok(()) }, //passes
-            _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
+            Err(CastleError::DirectiveOnValueNotCompatible(_)) => { return Ok(()) }, //passes
+            _ => panic!("Expected error to be of type DirectiveOnValueNotCompatible, found: {:?}", actual),
         }
     } else {
         panic!("No error thrown");
