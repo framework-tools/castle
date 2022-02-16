@@ -1,7 +1,9 @@
 use std::{collections::HashMap};
 
-use parser_and_schema::{ast::syntax_definitions::{schema_definition::SchemaDefinition, enum_definition::EnumDataType, directive_definition::{Directive, DirectiveDefinition}, argument::{ArgumentOrTuple}}, parsers::schema_parser::types::{type_system::Type, vec_type::VecType, option_type::OptionType, schema_field::SchemaField}};
+use parser_and_schema::{ast::syntax_definitions::{schema_definition::SchemaDefinition, enum_definition::EnumDataType, directive_definition::{Directive, DirectiveDefinition, self}, argument::{ArgumentOrTuple}}, parsers::schema_parser::types::{type_system::Type, vec_type::VecType, option_type::OptionType, schema_field::SchemaField}};
 use shared::CastleError;
+
+use crate::directives;
 
 
 /// It needs to check every type, enum etc that’s used is defined in the schema.
@@ -17,9 +19,19 @@ use shared::CastleError;
 /// - Directive arguments has unknown type
 
 pub fn self_validate_schema(schema: &SchemaDefinition) -> Result<(), CastleError>{
+    for_each_directive_check_arguments_exist(schema)?;
     for_each_schema_type_check_field_type_is_valid(schema)?;
     for_each_enum_check_all_types_in_their_values_are_valid(schema)?;
     for_each_fn_check_arguments_and_return_types_are_valid(schema)?;
+    return Ok(())
+}
+
+fn for_each_directive_check_arguments_exist(schema: &SchemaDefinition) -> Result<(), CastleError>{
+    for (_, directive_definition) in &schema.directives {
+        for (_, (_ident, type_)) in &directive_definition.function.args {
+            check_type_used_has_been_defined(schema, type_)?;
+        }
+    }
     return Ok(())
 }
 
@@ -156,21 +168,19 @@ fn check_directives_use_valid_directive_definitions(directive_definitions: &Hash
             return Err(CastleError::UndefinedDirective(format!("Directive {} is not defined", &directive.name).into()));
         }
         else {
-            validate_directive_definition_arguments_and_directive_arguments(directive, directive_definitions, schema)?;
+            let directive_definition = &directive_definitions[&directive.name];
+            validate_directive_definition_arguments_and_directive_arguments(directive, directive_definition, schema)?;
         }
     }
     return Ok(())
 }
 
-fn validate_directive_definition_arguments_and_directive_arguments(directive: &Directive, directive_definitions: &HashMap<Box<str>, DirectiveDefinition>, schema: &SchemaDefinition) -> Result<(), CastleError> {
-    let directive_definition = &directive_definitions[&directive.name].function;
-
-    let directive_definition = directive_definition;
-    for (_name, type_) in directive_definition.args.values() {
+fn validate_directive_definition_arguments_and_directive_arguments(directive: &Directive, directive_definition: &DirectiveDefinition, schema: &SchemaDefinition) -> Result<(), CastleError> {
+    for (_name, type_) in directive.arguments.values() {
         check_type_used_has_been_defined(schema, type_)?;
     }
 
-    let directive_definition_args = &directive_definition.args;
+    let directive_definition_args = &directive_definition.argume;
     let directive_args = &directive.arguments;
     for arg in directive_definition_args.keys() {
         if !directive_args.contains_key(arg) {

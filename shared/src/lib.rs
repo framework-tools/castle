@@ -27,6 +27,8 @@ pub enum CastleError {
     IncorrectArgumentType(Box<str>),
     PrimitiveValue(Box<str>),
     MissingSchema(Box<str>),
+    EnumInQueryNotDefinedInSchema(Box<str>),
+    MatchStatementNotExhausted(Box<str>),
 }
 
 impl From<std::io::Error> for CastleError {
@@ -77,6 +79,8 @@ impl fmt::Display for CastleError {
             Self::IncorrectArgumentType(msg) => write!(f, "Incorrect argument type: {}", msg),
             Self::PrimitiveValue(msg) => write!(f, "Primitive value: {}", msg),
             Self::MissingSchema(msg) => write!(f, "Missing schema: {}", msg),
+            Self::EnumInQueryNotDefinedInSchema(msg) => write!(f, "Enum in query not defined in schema: {}", msg),
+            Self::MatchStatementNotExhausted(msg) => write!(f, "Match statement not exhausted: {}", msg),
         }
     }
 }
@@ -108,6 +112,8 @@ impl ExtendedErrorDisplay for CastleError {
             Self::IncorrectArgumentType(msg) => format!("Incorrect argument type: {}", msg),
             Self::PrimitiveValue(msg) => format!("Primitive value: {}", msg),
             Self::MissingSchema(msg) => format!("Missing schema: {}", msg),
+            Self::EnumInQueryNotDefinedInSchema(msg) => format!("Enum in query not defined in schema: {}", msg),
+            Self::MatchStatementNotExhausted(msg) => format!("Match statement not exhausted: {}", msg),
         }
     }
 }

@@ -3,7 +3,7 @@ use std::collections::{HashSet};
 use parser_and_schema::ast::syntax_definitions::{schema_definition::SchemaDefinition};
 use shared::CastleError;
 
-use crate::{resolvers::resolvers::{ResolverMap}, directives::directives::DirectiveMap};
+use crate::{resolvers::resolvers::{ResolverMap}, directives::{directives::DirectiveMap, self}};
 
 
 
@@ -36,7 +36,7 @@ pub fn validate_schema_with_resolvers_and_directives<C, T>(
     let resolvers_identifiers = get_resolvers_identifiers(&resolvers);
     let directives_identifiers = get_directives_identifiers(&directives);
     validate_schema_with_resolvers(resolvers, parsed_schema)?;
-    validate_schema_with_directives(directives_identifiers, parsed_schema)?;
+    validate_schema_with_directives(&directives, parsed_schema)?;
     return Ok(())
 }
 
@@ -72,7 +72,7 @@ pub fn validate_schema_with_resolvers<C, R>(resolvers: &ResolverMap<C, R>, parse
         } else {
             let resolver_info = resolver.unwrap();
             if &resolver_info.resolver_definition != resolver_in_schema {
-                return Err(CastleError::AbruptEOF("Resolver definition does not match function definition".into()))
+                return Err(CastleError::ResolverDoesNotMatchSchemaFunction("Resolver definition does not match function definition".into()))
             }
         }
     }
@@ -87,9 +87,9 @@ pub fn validate_schema_with_resolvers<C, R>(resolvers: &ResolverMap<C, R>, parse
 ///     - For the directives, check the fn definition in schema & directive definition in resolvers is identical
 ///     - Else throw error
 ///   - If no errors, return Ok(())
-pub fn validate_schema_with_directives(directives_identifiers: HashSet<&Box<str>>, parsed_schema: &SchemaDefinition) -> Result<(), CastleError> {
-    for directive_in_schema in parsed_schema.directives.values() {
-        let directive = directives_identifiers.get(&directive_in_schema.function.name);
+pub fn validate_schema_with_directives<C, R>(directives: &DirectiveMap<C, R>, parsed_schema: &SchemaDefinition) -> Result<(), CastleError> {
+    for (identifier, directive_in_schema) in &parsed_schema.directives {
+        let directive = directives.get(identifier);
         if directive.is_none() {
             return Err(CastleError::UndefinedDirective(format!("Directive not found for directive definition in schema: {}", directive_in_schema.function.name).into()))
         }

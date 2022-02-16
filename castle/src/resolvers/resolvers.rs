@@ -4,21 +4,7 @@ use parser_and_schema::ast::syntax_definitions::{want::{Want}, argument::{Identi
 use shared::CastleError;
 
 //A HashMap containing all Resolversß
-pub type ResolverMap<C, R> = HashMap<Box<str>, ResolverInfo<C, R>>;
-
-pub struct ResolverInfo<C, R> {
-    pub resolver: Resolver<C, R>,
-    pub resolver_definition: FnDefinition,
-}
-
-impl<C, R> ResolverInfo<C, R> {
-    pub fn new(resolver_defintion: FnDefinition, resolver: Resolver<C, R>) -> ResolverInfo<C, R> {
-        ResolverInfo {
-            resolver_definition: resolver_defintion,
-            resolver: resolver,
-        }
-    }
-}
+pub type ResolverMap<C, R> = HashMap<Box<str>, Resolver<C, R>>;
 
 //A resolver takes in fields (inner wants), arguments and context and returns the resolved want
 pub type Resolver<C, R> = fn(&Option<Wants>, &Args, &C) -> R;

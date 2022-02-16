@@ -266,6 +266,25 @@ fn breaks_if_function_has_return_type_undefined() -> Result<(), CastleError> {
     }
 }
 
+
+#[test]
+fn breaks_if_directive_definition_has_type_undefined() -> Result<(), CastleError> {
+    let schema = "
+        directive @do_nothing(id: String, name: DoesntExist) on FIELD
+    ";
+
+    let schema_definition = parse_schema(schema)?;
+    let actual = self_validate_schema(&schema_definition);
+    if actual.is_err() {
+        match actual {
+            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => { return Ok(()) }, //passes
+            _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
+        }
+    } else {
+        panic!("No error thrown");
+    }
+}
+
 #[test]
 fn breaks_if_directive_has_argument_undefined() -> Result<(), CastleError> {
     let schema = "
