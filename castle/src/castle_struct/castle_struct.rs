@@ -63,7 +63,7 @@ pub struct CastleBuilder<C, R> {
 impl<C, R> CastleBuilder<C, R> {
     pub fn new() -> Self {
         Self {
-            resolvers: HashMap::new(),
+            resolvers: ResolverMap::new(),
             schema: None,
             directives: HashMap::new(),
         }
@@ -86,7 +86,7 @@ impl<C, R> CastleBuilder<C, R> {
     }
 
     pub fn add_resolver(&mut self, resolver_name: &str, resolver: Resolver<C, R>) {
-        self.resolvers.insert(resolver_name.into(), resolver);
+        self.resolvers.resolvers.insert(resolver_name.into(), resolver);
     }
 
     pub fn add_directive(&mut self, directive_name: &str, directive: Resolver<C, R>) {

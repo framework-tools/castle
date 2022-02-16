@@ -6,15 +6,25 @@ use shared::CastleError;
 use crate::castle_struct::resolver_return_types::ReturnValue;
 
 //A HashMap containing all Resolvers
-pub type ResolverMap<C, R> = HashMap<Box<str>, Resolver<C, R>>;
+pub struct ResolverMap<C, R> {
+    pub resolvers: HashMap<Box<str>, Resolver<C, R>>
+}
+
+impl<C, R> ResolverMap<C, R> {
+    pub fn new() -> Self {
+        ResolverMap {
+            resolvers: HashMap::new()
+        }
+    }
+}
 
 //A resolver takes in fields (inner wants), arguments and context and returns the resolved want
-pub type Resolver<C, R> = fn(&Option<Wants>, &Args, &C) -> ReturnValue<R>;
+pub type Resolver<C, R> = fn(Option<&Wants>, &Args, &ResolverMap<C, R>, &C) -> ReturnValue<R>;
 //Fields that a query wants resolved
 pub type Wants = HashMap<Box<str>, Want>;
 //Arguments for a resolver
 pub type Args = HashMap<Box<str>, IdentifierAndValueArgument>;
-//A single resolved want - Likely also for top layer
+//A single resolved want on the top layer of a query
 pub type TopLevelResolvers<R> = HashMap<Box<str>, ReturnValue<R>>;
 
 ///For each top level want, resolve each want & insert in AllResolvedWants
@@ -36,18 +46,18 @@ pub fn resolve_all_wants<C, R>(wants: Wants, resolver_map: &ResolverMap<C, R>,  
 ///         - Return the resolved fields    
 fn resolve_projection<C, R>(identifier: Box<str>, want: Want, context: &C, resolver_map: &ResolverMap<C, R>) -> Result<ReturnValue<R>, CastleError> {
     let resolved;
-    let resolver = resolver_map.get(&identifier).unwrap();
+    let resolver = resolver_map.resolvers.get(&identifier).unwrap();
     match want {
         Want::SingleField(arguments) => {
-            resolved = resolver(&None, &arguments, context);
+            resolved = resolver(None, &arguments, &ResolverMap::new(), context);
         },
         Want::ObjectProjection(fields, arguments  ) => {
-            resolved = resolver(&Some(fields), &arguments, context);
+            resolved = resolver(Some(&fields), &arguments, &ResolverMap::new(), context);
         },
         Want::Match(match_statement) => {
             let mut match_fields = HashMap::new();
             match_fields.insert(identifier, Want::Match(match_statement));
-            resolved = resolver(&Some(match_fields), &HashMap::new(), context);
+            resolved = resolver(Some(&match_fields), &HashMap::new(), &ResolverMap::new(), context);
         },
     };
     return Ok(resolved)

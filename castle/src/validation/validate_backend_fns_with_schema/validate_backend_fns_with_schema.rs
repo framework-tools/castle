@@ -40,9 +40,9 @@ pub fn validate_schema_with_resolvers_and_directives<C, T>(
     return Ok(())
 }
 
-fn get_resolvers_identifiers<C, T>(resolver: &ResolverMap<C, T>) -> HashSet<&Box<str>>{
+fn get_resolvers_identifiers<C, T>(resolver_map: &ResolverMap<C, T>) -> HashSet<&Box<str>>{
     let mut resolvers_identifiers = HashSet::new();
-    for (resolver_identifier, _) in resolver {
+    for (resolver_identifier, _) in &resolver_map.resolvers {
         resolvers_identifiers.insert(resolver_identifier);
     }
     return resolvers_identifiers
@@ -64,9 +64,9 @@ fn get_directives_identifiers<C, T>(directives: &DirectiveMap<C, T>) -> HashSet<
 ///     - Else, unwrap the resolver and continue
 ///     - For the resolver, check the fn definition in schema & fn definition in resolvers is identical
 ///     - Else throw error
-pub fn validate_schema_with_resolvers<C, R>(resolvers: &ResolverMap<C, R>, parsed_schema: &SchemaDefinition ) -> Result<(), CastleError> {
+pub fn validate_schema_with_resolvers<C, R>(resolver_map: &ResolverMap<C, R>, parsed_schema: &SchemaDefinition ) -> Result<(), CastleError> {
     for resolver_in_schema in parsed_schema.functions.values() {
-        let resolver = resolvers.get(&resolver_in_schema.name);
+        let resolver = resolver_map.resolvers.get(&resolver_in_schema.name);
         if resolver.is_none() {
             return Err(CastleError::UndefinedResolver(format!("Resolver not found for fn definition in schema: {}", resolver_in_schema.name).into()))
         }
