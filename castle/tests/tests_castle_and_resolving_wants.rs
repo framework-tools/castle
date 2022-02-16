@@ -17,9 +17,9 @@ fn testing_castle_builds_and_validates(){
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
-    let mut builder = Castle::builder();
+    let mut builder: CastleBuilder<(), ()> = Castle::builder();
     //test resolver
-    fn hello<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &()) -> ReturnValue {
+    fn hello<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> ReturnValue<R> {
         ReturnValue::String("world".to_string())
     }
 
@@ -446,7 +446,7 @@ fn testing_castle_can_resolve_object_projection_with_inner_object_projections() 
 
     fn organization<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> ReturnValue {
         //dummy data
-        let id = ("id".into(), ReturnValue::Int(123));
+        let id = ("id".into(), ReturnValue::Int(27));
         let name = ("name".into(), ReturnValue::String("FrameWork".to_string())); 
         let users = ("users".into(), ReturnValue::Vec(vec![
             ReturnValue::String("Romeo".to_string()), 
@@ -517,31 +517,30 @@ fn testing_castle_can_resolve_object_projection_with_inner_object_projections() 
     validate_query_with_schema(&parsed_query, &castle.parsed_schema)?;
     let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolvers, ())?;
     
+    let mut expected_wants_for_name = HashMap::new();
+    expected_wants_for_name.insert("first_name".into(), ReturnValue::String("John".to_string()));
+    expected_wants_for_name.insert("last_name".into(), ReturnValue::String("Doe".to_string()));
+
+    let mut expected_wants_for_organization = HashMap::new();
+    expected_wants_for_organization.insert("id".into(), ReturnValue::Int(27));
+    expected_wants_for_organization.insert("name".into(), ReturnValue::String("FrameWork".to_string()));
+    expected_wants_for_organization.insert("users".into(), ReturnValue::Vec(vec![
+        ReturnValue::String("Romeo".to_string()), 
+        ReturnValue::String("Lenard".to_string())
+    ]));
+
     let mut expected_wants_for_me = HashMap::new();
     expected_wants_for_me.insert("id".into(), ReturnValue::Int(123));
-    expected_wants_for_me.insert("first_name".into(), ReturnValue::String("John".to_string()));
-    expected_wants_for_me.insert("last_name".into(), ReturnValue::String("Doe".to_string()));
     expected_wants_for_me.insert("age".into(), ReturnValue::Int(41));
+    expected_wants_for_me.insert("name".into(), ReturnValue::Object(expected_wants_for_name));
     expected_wants_for_me.insert("roles".into(), ReturnValue::Vec(vec![
         ReturnValue::String("Engineer".to_string()), 
         ReturnValue::String("Developer".to_string())
     ]));
-    
-    let mut expected_wants_for_org_basic_info = HashMap::new();
-    expected_wants_for_org_basic_info.insert("id".into(), ReturnValue::Int(123));
-    expected_wants_for_org_basic_info.insert("name".into(), ReturnValue::String("FrameWork".to_string()));
-    expected_wants_for_org_basic_info.insert("users".into(), ReturnValue::Vec(vec![
-        ReturnValue::String("Romeo".to_string()), 
-        ReturnValue::String("Lenard".to_string())
-    ]));
-    expected_wants_for_org_basic_info.insert("company_type".into(), ReturnValue::Vec(vec![
-        ReturnValue::String("Software".to_string()), 
-        ReturnValue::String("Business".to_string())
-    ]));
+    expected_wants_for_me.insert("organization".into(), ReturnValue::Object(expected_wants_for_organization));
 
     let mut expected = HashMap::new();
     expected.insert("me".into(), ReturnValue::Object(expected_wants_for_me));
-    expected.insert("org_basic_info".into(), ReturnValue::Object(expected_wants_for_org_basic_info));
     assert_eq!(expected, resolved_wants);
     return Ok(());
 }

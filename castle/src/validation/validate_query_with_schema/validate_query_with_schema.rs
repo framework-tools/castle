@@ -45,23 +45,29 @@ use shared::CastleError;
 
 pub fn validate_query_with_schema(parsed_query: &ParsedQuery, schema_definition: &SchemaDefinition) -> Result<(), CastleError>{
     for (identifier, want) in &parsed_query.wants {
-        let resolver = schema_definition.functions.get(identifier);
-        //check resolver exists in schema
-        if resolver.is_none() {
-            return Err(CastleError::QueryResolverNotDefinedInSchema(format!("no matching resolver found in schema. Got: '{}' in query ", identifier).into()));
-        } 
-        else {
-            match want {
-                Want::SingleField(arguments) => {
-                    validate_resolver_and_assign_schema_type_for_fields_validation(resolver, identifier, &None, arguments, schema_definition, )?;
-                },
-                Want::ObjectProjection(fields, arguments) => {
-                    validate_resolver_and_assign_schema_type_for_fields_validation(resolver, identifier, &Some(&fields), arguments, schema_definition, )?;
-                },
-                Want::Match(match_statement) => {
-                    validate_enum_used_is_defined_in_schema(match_statement, schema_definition)?;
-                },  // need to implement
-            }
+        validate_resolver(schema_definition, &identifier, &want)?;
+    }
+    return Ok(())
+}
+
+fn validate_resolver(schema_definition: &SchemaDefinition, identifier: &Box<str>, want: &Want) -> Result<(), CastleError>{
+    let resolver = schema_definition.functions.get(identifier);
+    println!("resolver: {:?}", resolver);
+    //check resolver exists in schema
+    if resolver.is_none() {
+        return Err(CastleError::QueryResolverNotDefinedInSchema(format!("no matching resolver found in schema. Got: '{}' in query ", identifier).into()));
+    } 
+    else {
+        match want {
+            Want::SingleField(arguments) => {
+                validate_resolver_and_assign_schema_type_for_fields_validation(resolver, identifier, &None, arguments, schema_definition, )?;
+            },
+            Want::ObjectProjection(fields, arguments) => {
+                validate_resolver_and_assign_schema_type_for_fields_validation(resolver, identifier, &Some(&fields), arguments, schema_definition, )?;
+            },
+            Want::Match(match_statement) => {
+                validate_enum_used_is_defined_in_schema(match_statement, schema_definition)?;
+            }, 
         }
     }
     return Ok(())
@@ -111,9 +117,10 @@ fn validate_object_projection_want(resolver: &FnDefinition, schema_definition: &
             Want::Match(match_statement) => {
                 validate_enum_used_is_defined_in_schema(match_statement, schema_definition)?;
             },
-            _ => {
-                // do nothing
-            }
+            Want::ObjectProjection(fields, args) => {
+                validate_resolver(schema_definition, identifier, field)?;
+            },
+            Want::SingleField(_) => {}, //do nothing as we've already validated a field with the same identifier exists
         }
     }
     Ok(())
