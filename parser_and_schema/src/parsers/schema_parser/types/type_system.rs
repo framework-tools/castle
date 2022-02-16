@@ -11,6 +11,7 @@ pub enum Type {
     PrimitiveType(PrimitiveType),
     SchemaTypeOrEnum(Box<str>),
     VecType(VecType),
+    HashMapType(Box<Type>),
     OptionType(OptionType),
     Void //Needs to be removed
 }
@@ -37,19 +38,28 @@ pub fn parse_type(token: Token) -> Result<Type, CastleError> {
         TokenKind::Identifier(identifier) => return Ok(Type::SchemaTypeOrEnum(identifier.name)),
         TokenKind::VecType(vec_type) => return Ok(Type::VecType(vec_type)),
         TokenKind::OptionType(option_type) => return Ok(Type::OptionType(option_type)),
+        TokenKind::HashMapType(value_type) => return Ok(Type::HashMapType(value_type.into())),
         _ => Err(CastleError::Schema(format!("Expected type, found: {:?}", token.kind).into(), token.span))
     }
 }
 
 pub fn get_type_from_string(type_as_str: &str) -> Type {
-    if type_as_str.len() > 3 {
-        if &type_as_str[..3] == "Vec<" { 
+    if type_as_str.len() > 5 {
+        if &type_as_str[..4] == "Vec<" { 
+            println!("working");
             return VecType::new(&type_as_str)
         }
-    }
-    if type_as_str.len() > 6 {
-        if &type_as_str[..5] == "Option<" { 
-            return OptionType::new(&type_as_str)
+
+        if type_as_str.len() > 9 {
+            if &type_as_str[..7] == "Option<" { 
+                return OptionType::new(&type_as_str)
+            }
+        }
+
+        if type_as_str.len() > 10 {
+            if &type_as_str[..8] == "HashMap<" { 
+                return Type::HashMapType(Box::new(get_type_from_string(&type_as_str[8..type_as_str.len() - 1])))
+            }
         }
     }
     return Type::new_primitve_or_schema_or_enum_type(type_as_str.to_string()) 

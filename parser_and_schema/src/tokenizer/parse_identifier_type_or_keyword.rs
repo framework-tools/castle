@@ -5,15 +5,17 @@ use shared::CastleError;
 
 use crate::{token::{Token}, parsers::schema_parser::types::parse_directive::parse_directive_on_value};
 
-use super::{parse_keyword::{get_keyword_or_return_none}, parse_vec_type::get_vec_type_from_word, tokenizer::Tokenizer, parse_option_type::get_option_type_from_word, parse_enum_value::{parse_enum_value, peek_next_char_and_unwrap}, parse_identifier::parse_identifier_token, parse_primitive_type::get_primitive_type_or_return_none};
+use super::{parse_keyword::{get_keyword_or_return_none}, parse_vec_type::get_vec_type_from_word, tokenizer::Tokenizer, parse_option_type::get_option_type_from_word, parse_enum_value::{parse_enum_value, peek_next_char_and_unwrap}, parse_identifier::parse_identifier_token, parse_primitive_type::get_primitive_type_or_return_none, parse_hashmap_type::get_hashmap_type_from_word};
 
 pub fn parse_identifier_or_keyword_or_type<R>(tokenizer: &mut Tokenizer<R>, start: Position) -> Result<Token, CastleError> 
 where R: Read {
     let (word, field_has_arguments) = get_word_from_chars(&mut tokenizer.cursor)?;
     if word == "Vec" { return get_vec_type_from_word(&mut tokenizer.cursor, word, start) }
     else if word == "Option" { return get_option_type_from_word(&mut tokenizer.cursor, word, start) }
+    else if word == "HashMap" {return get_hashmap_type_from_word(&mut tokenizer.cursor, word, start)}
     else if word.contains("::") { return parse_enum_value(tokenizer, word, start)}
     else if word == "FIELD" || word == "ENUM_VARIANT" {return parse_directive_on_value(&mut tokenizer.cursor, &word, start)}
+
 
     //if field has arguments it must be an identifier (enums are already handled)
     if field_has_arguments { return parse_identifier_token(tokenizer, word, start, true) }

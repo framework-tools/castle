@@ -12,3 +12,4 @@ pub mod parse_vec_type;
 pub mod parse_option_type;
 pub mod parse_enum_value;
 pub mod tokenizer_utils;
+pub mod parse_hashmap_type;

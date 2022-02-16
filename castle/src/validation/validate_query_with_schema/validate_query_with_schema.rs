@@ -99,24 +99,24 @@ fn validate_single_field_want(resolver: &FnDefinition, identifier: &Box<str>) ->
 
 fn validate_object_projection_want(resolver: &FnDefinition, schema_definition: &SchemaDefinition, fields: &Option<&Wants>) -> Result<(), CastleError>{
     let return_type = check_return_type_is_schema_type_or_enum(&resolver.return_type)?;
-        let schema_type = schema_definition.schema_types.get(return_type);    // use resolver.return_type to get the schema_type from schema_definition.schema_types
-        let schema_type = schema_type.unwrap();
-        let schema_type_fields = &schema_type.fields;     // unwrap the type from the schema_type
-        let fields = fields.unwrap();
-        for (identifier, field) in fields{    // for each field in fields, check if the field is in schema_type_fields
-            if !schema_type_fields.contains_key(identifier) {
-                return Err(CastleError::FieldsInReturnTypeDoNotMatchQuery(format!("Field in want: {}, not found in schema type: {:?}", identifier, schema_type).into() ));
-            }
-            match field{
-                Want::Match(match_statement) => {
-                    validate_enum_used_is_defined_in_schema(match_statement, schema_definition)?;
-                },
-                _ => {
-                    // do nothing
-                }
+    let schema_type = schema_definition.schema_types.get(return_type);    // use resolver.return_type to get the schema_type from schema_definition.schema_types
+    let schema_type = schema_type.unwrap();
+    let schema_type_fields = &schema_type.fields;     // unwrap the type from the schema_type
+    let fields = fields.unwrap();
+    for (identifier, field) in fields{    // for each field in fields, check if the field is in schema_type_fields
+        if !schema_type_fields.contains_key(identifier) {
+            return Err(CastleError::FieldsInReturnTypeDoNotMatchQuery(format!("Field in want: {}, not found in schema type: {:?}", identifier, schema_type).into() ));
+        }
+        match field{
+            Want::Match(match_statement) => {
+                validate_enum_used_is_defined_in_schema(match_statement, schema_definition)?;
+            },
+            _ => {
+                // do nothing
             }
         }
-        Ok(())
+    }
+    Ok(())
 }
 
 fn validate_enum_used_is_defined_in_schema(match_statement: &Vec<MatchArm>, schema_definition: &SchemaDefinition) -> Result<(), CastleError>{

@@ -80,6 +80,7 @@ fn check_type_used_has_been_defined(schema: &SchemaDefinition, type_: &Type) -> 
         Type::SchemaTypeOrEnum(schema_type_or_enum_name) => check_type_or_enum_exists(&schema_type_or_enum_name, schema)?,
         Type::VecType(VecType { inner_type }) => check_type_used_has_been_defined(schema, inner_type)?,
         Type::OptionType(OptionType { inner_type }) => check_type_used_has_been_defined(schema, inner_type)?,
+        Type::HashMapType(value_type) => check_type_used_has_been_defined(schema, &value_type)?,
         _ => {}
     }
     return Ok(())

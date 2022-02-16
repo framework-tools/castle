@@ -29,6 +29,7 @@ pub enum CastleError {
     PrimitiveValue(Box<str>),
     MissingSchema(Box<str>),
     EnumInQueryNotDefinedInSchema(Box<str>),
+    ExpectedFields(Box<str>),
 }
 
 impl From<std::io::Error> for CastleError {
@@ -81,7 +82,7 @@ impl fmt::Display for CastleError {
             Self::PrimitiveValue(msg) => write!(f, "Primitive value: {}", msg),
             Self::MissingSchema(msg) => write!(f, "Missing schema: {}", msg),
             Self::EnumInQueryNotDefinedInSchema(msg) => write!(f, "Enum in query not defined in schema: {}", msg),
-            
+            Self::ExpectedFields(msg) => write!(f, "Expected fields: {}", msg),
         }
     }
 }
@@ -115,6 +116,7 @@ impl ExtendedErrorDisplay for CastleError {
             Self::PrimitiveValue(msg) => format!("Primitive value: {}", msg),
             Self::MissingSchema(msg) => format!("Missing schema: {}", msg),
             Self::EnumInQueryNotDefinedInSchema(msg) => format!("Enum in query not defined in schema: {}", msg),
+            Self::ExpectedFields(msg) => format!("Expected fields: {}", msg),
         }
     }
 }
