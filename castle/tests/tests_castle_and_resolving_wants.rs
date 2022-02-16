@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use castle::{validation::validate_query_with_schema::validate_query_with_schema::validate_query_with_schema, resolvers::resolvers::resolve_all_wants};
+use castle::{validation::validate_query_with_schema::validate_query_with_schema::validate_query_with_schema, resolvers::resolvers::resolve_all_wants, castle_struct::resolver_return_types::ReturnValue};
 use parser_and_schema::{ast::syntax_definitions::argument::IdentifierAndValueArgument, parsers::query_parser::parse_query::parse_query};
 use shared::CastleError;
 
@@ -15,14 +15,14 @@ use shared::CastleError;
 #[cfg(test)]
 #[test]
 fn testing_castle_builds_and_validates(){
-    use castle::{castle_struct::castle_struct::{CastleBuilder, Castle}, resolvers::resolvers::{ResolverMap, Wants, Args}, directives::directives::DirectiveMap};
+    use castle::{castle_struct::{castle_struct::{CastleBuilder, Castle}, resolver_return_types::ReturnValue}, resolvers::resolvers::{ResolverMap, Wants, Args}, directives::directives::DirectiveMap};
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
     let mut builder = Castle::builder();
     //test resolver
-    fn hello(wants: &Option<Wants>, args: &Args, context: &()) -> String {
-        "world".to_string()
+    fn hello(wants: &Option<Wants>, args: &Args, context: &()) -> ReturnValue {
+        ReturnValue::String("world".to_string())
     }
 
 
@@ -44,8 +44,8 @@ fn testing_castle_can_resolve_single_field_want() -> Result<(), CastleError> {
 
     let mut builder = Castle::builder();
     //test resolver
-    fn hello(wants: &Option<Wants>, args: &Args, context: &()) -> String {
-        "world".to_string()
+    fn hello(wants: &Option<Wants>, args: &Args, context: &()) -> ReturnValue {
+        ReturnValue::String("world".to_string())
     }
 
 
@@ -65,7 +65,7 @@ fn testing_castle_can_resolve_single_field_want() -> Result<(), CastleError> {
     validate_query_with_schema(&parsed_query, &castle.parsed_schema)?;
     let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolvers, ())?;
     let mut expected = HashMap::new();
-    expected.insert("hello".into(), "world".to_string());
+    expected.insert("hello".into(),  ReturnValue::String("world".to_string()));
     assert_eq!(expected, resolved_wants);
     return Ok(());
 }
@@ -78,7 +78,7 @@ fn testing_castle_can_resolve_object_projection_want_with_all_fields() -> Result
 
     let mut builder = Castle::builder();
     //test resolver
-    fn get_name(wants: &Option<Wants>, args: &Args, context: &()) -> HashMap<Box<str>, String> {
+    fn get_name(wants: &Option<Wants>, args: &Args, context: &()) -> ReturnValue {
         //dummy data
         let first_name = ("first_name".into(), "John".to_string()); 
         let middle_name = ("middle_name".into(), "Graham".to_string());
@@ -88,11 +88,12 @@ fn testing_castle_can_resolve_object_projection_want_with_all_fields() -> Result
         let wants = wants.as_ref().unwrap();
         let mut resolved_fields= HashMap::new();
         for (identifier, value) in possible_fields{
-            if wants.contains_key(&identifier){
-                resolved_fields.insert(identifier, value);
+            if wants.contains_key(identifier){
+                resolved_fields.insert(identifier.to_string(), ReturnValue::String(value));
             }
         }
-        return resolved_fields
+        let return_value = ReturnValue::Object(resolved_fields);
+        return return_value
     }
 
 
@@ -122,11 +123,11 @@ fn testing_castle_can_resolve_object_projection_want_with_all_fields() -> Result
     validate_query_with_schema(&parsed_query, &castle.parsed_schema)?;
     let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolvers, ())?;
     let mut expected_wants = HashMap::new();
-    expected_wants.insert("first_name".into(), "John".to_string());
-    expected_wants.insert("middle_name".into(), "Graham".to_string());
-    expected_wants.insert("last_name".into(), "Doe".to_string());
+    expected_wants.insert("first_name".into(), ReturnValue::String("John".to_string()));
+    expected_wants.insert("middle_name".into(), ReturnValue::String("Graham".to_string()));
+    expected_wants.insert("last_name".into(), ReturnValue::String("Doe".to_string()));
     let mut expected = HashMap::new();
-    expected.insert("get_name".into(), expected_wants);
+    expected.insert("get_name".into(), ReturnValue::Object(expected_wants));
     assert_eq!(expected, resolved_wants);
     return Ok(());
 }
@@ -139,7 +140,7 @@ fn testing_castle_can_resolve_object_projection_but_subset_of_fields() -> Result
 
     let mut builder = Castle::builder();
     //test resolver
-    fn get_name(wants: &Option<Wants>, args: &Args, context: &()) -> HashMap<Box<str>, String> {
+    fn get_name(wants: &Option<Wants>, args: &Args, context: &()) -> ReturnValue {
         //dummy data
         let first_name = ("first_name".into(), "John".to_string()); 
         let middle_name = ("middle_name".into(), "Graham".to_string());
@@ -149,11 +150,12 @@ fn testing_castle_can_resolve_object_projection_but_subset_of_fields() -> Result
         let wants = wants.as_ref().unwrap();
         let mut resolved_fields= HashMap::new();
         for (identifier, value) in possible_fields{
-            if wants.contains_key(&identifier){
-                resolved_fields.insert(identifier, value);
+            if wants.contains_key(identifier){
+                resolved_fields.insert(identifier.to_string(), ReturnValue::String(value));
             }
         }
-        return resolved_fields
+        let return_value = ReturnValue::Object(resolved_fields);
+        return return_value
     }
 
 
@@ -181,9 +183,9 @@ fn testing_castle_can_resolve_object_projection_but_subset_of_fields() -> Result
     validate_query_with_schema(&parsed_query, &castle.parsed_schema)?;
     let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolvers, ())?;
     let mut expected_wants = HashMap::new();
-    expected_wants.insert("first_name".into(), "John".to_string());
+    expected_wants.insert("first_name".into(), ReturnValue::String("John".to_string()));
     let mut expected = HashMap::new();
-    expected.insert("get_name".into(), expected_wants);
+    expected.insert("get_name".into(), ReturnValue::Object(expected_wants));
     assert_eq!(expected, resolved_wants);
     return Ok(());
 }
@@ -196,18 +198,19 @@ fn testing_castle_can_resolve_two_single_fields_different_return_types() -> Resu
 
     let mut builder = Castle::builder();
     //test resolver
-    fn hello(wants: &Option<Wants>, args: &Args, context: &()) -> String {
-        "world".to_string()
+    fn hello(wants: &Option<Wants>, args: &Args, context: &()) -> ReturnValue {
+        ReturnValue::String("world".to_string())
     }
 
-    fn get_number(wants: &Option<Wants>, args: &Args, context: &()) -> i32 {
-        42
+    fn get_number(wants: &Option<Wants>, args: &Args, context: &()) -> ReturnValue {
+        ReturnValue::Int(42)
     }
 
     builder.add_resolver("hello", hello);
     builder.add_resolver("get_number", get_number);
     let schema = "
         fn hello() -> String
+        fn get_number() -> Int
     ";
 
     let builder = builder.add_schema(schema);
@@ -215,14 +218,160 @@ fn testing_castle_can_resolve_two_single_fields_different_return_types() -> Resu
 
     let query = "
         hello()
+        get_number()
     ";
 
     let parsed_query = parse_query(query)?;
     validate_query_with_schema(&parsed_query, &castle.parsed_schema)?;
     let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolvers, ())?;
     let mut expected = HashMap::new();
-    expected.insert("hello".into(), "world".to_string());
+    expected.insert("hello".into(),  ReturnValue::String("world".to_string()));
+    expected.insert("get_number".into(), ReturnValue::Int(42));
     assert_eq!(expected, resolved_wants);
     return Ok(());
 }
+
+#[test]
+fn testing_castle_can_resolve_multiple_object_projections() -> Result<(), CastleError> {
+    use castle::{castle_struct::castle_struct::{CastleBuilder, Castle}, resolvers::resolvers::{ResolverMap, Wants, Args}, directives::directives::DirectiveMap};
+    use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
+    use shared::CastleError;
+
+    let mut builder = Castle::builder();
+    let schema = "
+        fn me() -> User
+        fn org_basic_info() -> Organization
+
+        type User {
+            id: Int,
+            first_name: String,
+            last_name: String,
+            age: Int,
+            roles: Vec<String>
+        }
+
+        type Name {
+            first_name: String
+            middle_name: Option<String>
+            last_name: String
+        }
+
+        type Organization {
+            id: Int,
+            name: String,
+            users: Vec<User>,
+            company_type: String
+        }
+    ";
+
+    //test resolver
+    fn me(wants: &Option<Wants>, args: &Args, context: &()) -> ReturnValue {
+        //dummy data
+        let id = ("id".into(), ReturnValue::Int(123));
+        let first_name = ("first_name".into(), ReturnValue::String("John".to_string())); 
+        let last_name = ("last_name".into(), ReturnValue::String("Doe".to_string()));
+        let age = ("age".into(), ReturnValue::Int(41));
+        let roles = ("roles".into(), ReturnValue::Vec(vec![
+            ReturnValue::String("Engineer".to_string()), 
+            ReturnValue::String("Developer".to_string())
+        ]));
+        let possible_fields = [id, first_name, last_name, age, roles];
+
+        let wants = wants.as_ref().unwrap();
+        let mut resolved_fields= HashMap::new();
+        for (identifier, value) in possible_fields{
+            if wants.contains_key(identifier){
+                resolved_fields.insert(identifier.to_string(), value);
+            }
+        }
+        let return_value = ReturnValue::Object(resolved_fields);
+        return return_value
+    }
+
+
+    builder.add_resolver("me", me);
+
+    //test resolver
+    fn org_basic_info(wants: &Option<Wants>, args: &Args, context: &()) -> ReturnValue {
+        //dummy data
+        let id = ("id".into(), ReturnValue::Int(123));
+        let name = ("name".into(), ReturnValue::String("FrameWork".to_string())); 
+        let users = ("users".into(), ReturnValue::Vec(vec![
+            ReturnValue::String("Romeo".to_string()), 
+            ReturnValue::String("Lenard".to_string())
+        ]));
+        let company_type = ("company_type".into(), ReturnValue::Vec(vec![
+            ReturnValue::String("Software".to_string()), 
+            ReturnValue::String("Business".to_string())
+        ]));
+        let possible_fields = [id, name, users, company_type];
+
+        let wants = wants.as_ref().unwrap();
+        let mut resolved_fields= HashMap::new();
+        for (identifier, value) in possible_fields{
+            if wants.contains_key(identifier){
+                resolved_fields.insert(identifier.to_string(), value);
+            }
+        }
+        let return_value = ReturnValue::Object(resolved_fields);
+        return return_value
+    }
+
+
+    builder.add_resolver("org_basic_info", org_basic_info);
+
+    let builder = builder.add_schema(schema);
+    let castle = builder.build_and_validate()?;
+
+    let query = "
+        me() {
+            id,
+            first_name,
+            last_name,
+            age,
+            roles
+        }
+        
+        org_basic_info(){
+            id,
+            name,
+            users,
+            company_type
+        }
+    ";
+
+    let parsed_query = parse_query(query)?;
+    validate_query_with_schema(&parsed_query, &castle.parsed_schema)?;
+    let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolvers, ())?;
+    
+    let mut expected_wants_for_me = HashMap::new();
+    expected_wants_for_me.insert("id".into(), ReturnValue::Int(123));
+    expected_wants_for_me.insert("first_name".into(), ReturnValue::String("John".to_string()));
+    expected_wants_for_me.insert("last_name".into(), ReturnValue::String("Doe".to_string()));
+    expected_wants_for_me.insert("age".into(), ReturnValue::Int(41));
+    expected_wants_for_me.insert("roles".into(), ReturnValue::Vec(vec![
+        ReturnValue::String("Engineer".to_string()), 
+        ReturnValue::String("Developer".to_string())
+    ]));
+    
+    let mut expected_wants_for_org_basic_info = HashMap::new();
+    expected_wants_for_org_basic_info.insert("id".into(), ReturnValue::Int(123));
+    expected_wants_for_org_basic_info.insert("name".into(), ReturnValue::String("FrameWork".to_string()));
+    expected_wants_for_org_basic_info.insert("users".into(), ReturnValue::Vec(vec![
+        ReturnValue::String("Romeo".to_string()), 
+        ReturnValue::String("Lenard".to_string())
+    ]));
+    expected_wants_for_org_basic_info.insert("company_type".into(), ReturnValue::Vec(vec![
+        ReturnValue::String("Software".to_string()), 
+        ReturnValue::String("Business".to_string())
+    ]));
+
+    let mut expected = HashMap::new();
+    expected.insert("me".into(), ReturnValue::Object(expected_wants_for_me));
+    expected.insert("org_basic_info".into(), ReturnValue::Object(expected_wants_for_org_basic_info));
+    assert_eq!(expected, resolved_wants);
+    return Ok(());
+}
+
+
 
