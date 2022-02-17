@@ -49,15 +49,15 @@ fn resolve_projection<C, R>(identifier: Box<str>, want: Want, context: &C, resol
     let resolver = resolver_map.resolvers.get(&identifier).unwrap();
     match want {
         Want::SingleField(arguments) => {
-            resolved = resolver(None, &arguments, &ResolverMap::new(), context);
+            resolved = resolver(None, &arguments, resolver_map, context);
         },
         Want::ObjectProjection(fields, arguments  ) => {
-            resolved = resolver(Some(&fields), &arguments, &ResolverMap::new(), context);
+            resolved = resolver(Some(&fields), &arguments, resolver_map, context);
         },
         Want::Match(match_statement) => {
             let mut match_fields = HashMap::new();
             match_fields.insert(identifier, Want::Match(match_statement));
-            resolved = resolver(Some(&match_fields), &HashMap::new(), &ResolverMap::new(), context);
+            resolved = resolver(Some(&match_fields), &HashMap::new(), resolver_map, context);
         },
     };
     return Ok(resolved)
