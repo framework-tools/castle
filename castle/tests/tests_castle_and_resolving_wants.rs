@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use castle::{validation::validate_query_with_schema::validate_query_with_schema::validate_query_with_schema, resolvers::resolvers::resolve_all_wants, castle_struct::resolver_return_types::Value};
+use castle::{validation::validate_query_with_schema::validate_query_with_schema::validate_query_with_schema, resolvers::{resolvers::resolve_all_wants, generic_resolver::generic_resolver}, castle_struct::resolver_return_types::Value};
 use parser_and_schema::{ast::syntax_definitions::{argument::IdentifierAndValueArgument, want::Want}, parsers::query_parser::parse_query::parse_query};
 use shared::CastleError;
 
@@ -273,16 +273,8 @@ fn testing_castle_can_resolve_multiple_object_projections() -> Result<(), Castle
             Value::String("Engineer".to_string()), 
             Value::String("Developer".to_string())
         ]));
-        let possible_fields = [id, first_name, last_name, age, roles];
-
-        let wants = wants.unwrap();
-        let mut resolved_fields= HashMap::new();
-        for (identifier, value) in possible_fields{
-            if wants.contains_key(identifier){
-                resolved_fields.insert(identifier.to_string(), value);
-            }
-        }
-        let return_value = Value::Object(resolved_fields);
+        
+        let return_value = generic_resolver(wants, args, resolver_map, context, identifier);
         return return_value
     }
 
@@ -607,7 +599,7 @@ fn should_pass_query_with_nested_inner_objects() -> Result<(), CastleError> {
 
 
     //test resolvers
-    fn name<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> ReturnValue {
+    fn name<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Value {
         //dummy data
         let first_name = ("first_name".into(), "John".to_string()); 
         let middle_name = ("middle_name".into(), "Graham".to_string());
@@ -618,18 +610,18 @@ fn should_pass_query_with_nested_inner_objects() -> Result<(), CastleError> {
         let mut resolved_fields= HashMap::new();
         for (identifier, value) in possible_fields{
             if wants.contains_key(identifier){
-                resolved_fields.insert(identifier.to_string(), ReturnValue::String(value));
+                resolved_fields.insert(identifier.to_string(), Value::String(value));
             }
         }
-        let return_value = ReturnValue::Object(resolved_fields);
+        let return_value = Value::Object(resolved_fields);
         return return_value
     }
     builder.add_resolver("name", name);
 
 
-    fn organization<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> ReturnValue<R> {
+    fn organization<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Value<R> {
         //dummy data
-        let name = ("name".into(), Some(ReturnValue::String("FrameWork".to_string())));
+        let name = ("name".into(), Some(Value::String("FrameWork".to_string())));
         let address = ("address".into() , None); 
         let possible_fields = [name, address];
 
@@ -658,12 +650,12 @@ fn should_pass_query_with_nested_inner_objects() -> Result<(), CastleError> {
                 }
             }
         }
-        let return_value = ReturnValue::Object(resolved_fields);
+        let return_value = Value::Object(resolved_fields);
         return return_value
     }
     builder.add_resolver("organization", organization);
 
-    fn address<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> ReturnValue {
+    fn address<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Value {
         //dummy data
         let street = ("street".into(), "madurta".to_string()); 
         let city = ("city".into(), "adelaide".to_string());
@@ -675,23 +667,23 @@ fn should_pass_query_with_nested_inner_objects() -> Result<(), CastleError> {
         let mut resolved_fields= HashMap::new();
         for (identifier, value) in possible_fields{
             if wants.contains_key(identifier){
-                resolved_fields.insert(identifier.to_string(), ReturnValue::String(value));
+                resolved_fields.insert(identifier.to_string(), Value::String(value));
             }
         }
-        let return_value = ReturnValue::Object(resolved_fields);
+        let return_value = Value::Object(resolved_fields);
         return return_value
     }
     builder.add_resolver("address", address);
 
     
-    fn me<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> ReturnValue<R> {
+    fn me<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Value<R> {
         //dummy data
-        let id = ("id".into(), Some(ReturnValue::Int(123)));
+        let id = ("id".into(), Some(Value::Int(123)));
         let name = ("name".into(), None);
-        let age = ("age".into(), Some(ReturnValue::Int(41)));
-        let roles = ("roles".into(), Some(ReturnValue::Vec(vec![
-            ReturnValue::String("Engineer".to_string()), 
-            ReturnValue::String("Developer".to_string())
+        let age = ("age".into(), Some(Value::Int(41)));
+        let roles = ("roles".into(), Some(Value::Vec(vec![
+            Value::String("Engineer".to_string()), 
+            Value::String("Developer".to_string())
         ])));
         let organization = ("organization".into(), None);
         let possible_fields = [id, name, age, roles, organization];
@@ -722,7 +714,7 @@ fn should_pass_query_with_nested_inner_objects() -> Result<(), CastleError> {
                 }
             }
         }
-        let return_value = ReturnValue::Object(resolved_fields);
+        let return_value = Value::Object(resolved_fields);
         return return_value
     }
 
@@ -736,27 +728,27 @@ fn should_pass_query_with_nested_inner_objects() -> Result<(), CastleError> {
     let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolvers, ())?;
     
     let mut expected_wants_for_name = HashMap::new();
-    expected_wants_for_name.insert("first_name".into(), ReturnValue::String("John".to_string()));
-    expected_wants_for_name.insert("last_name".into(), ReturnValue::String("Doe".to_string()));
+    expected_wants_for_name.insert("first_name".into(), Value::String("John".to_string()));
+    expected_wants_for_name.insert("last_name".into(), Value::String("Doe".to_string()));
 
     let mut expected_wants_for_address = HashMap::new();
-    expected_wants_for_address.insert("city".into(), ReturnValue::String("adelaide".to_string()));
-    expected_wants_for_address.insert("country".into(), ReturnValue::String("Australia".to_string()));
+    expected_wants_for_address.insert("city".into(), Value::String("adelaide".to_string()));
+    expected_wants_for_address.insert("country".into(), Value::String("Australia".to_string()));
 
     let mut expected_wants_for_organization = HashMap::new();
-    expected_wants_for_organization.insert("name".into(), ReturnValue::String("FrameWork".to_string()));
-    expected_wants_for_organization.insert("address".into(), ReturnValue::Object(expected_wants_for_address));
+    expected_wants_for_organization.insert("name".into(), Value::String("FrameWork".to_string()));
+    expected_wants_for_organization.insert("address".into(), Value::Object(expected_wants_for_address));
 
     let mut expected_wants_for_me = HashMap::new();
-    expected_wants_for_me.insert("name".into(), ReturnValue::Object(expected_wants_for_name));
-    expected_wants_for_me.insert("roles".into(), ReturnValue::Vec(vec![
-        ReturnValue::String("Engineer".to_string()), 
-        ReturnValue::String("Developer".to_string())
+    expected_wants_for_me.insert("name".into(), Value::Object(expected_wants_for_name));
+    expected_wants_for_me.insert("roles".into(), Value::Vec(vec![
+        Value::String("Engineer".to_string()), 
+        Value::String("Developer".to_string())
     ]));
-    expected_wants_for_me.insert("organization".into(), ReturnValue::Object(expected_wants_for_organization));
+    expected_wants_for_me.insert("organization".into(), Value::Object(expected_wants_for_organization));
 
     let mut expected = HashMap::new();
-    expected.insert("me".into(), ReturnValue::Object(expected_wants_for_me));
+    expected.insert("me".into(), Value::Object(expected_wants_for_me));
     assert_eq!(expected, resolved_wants);
     return Ok(());
 

@@ -30,6 +30,8 @@ pub enum CastleError {
     EnumInQueryNotDefinedInSchema(Box<str>),
     ExpectedFields(Box<str>),
     EnumFieldNotDefinedInSchema(Box<str>),
+    WantNotFoundInRealResolver(Box<str>),
+    ResolverDataShouldBeObject(Box<str>),
 }
 
 impl From<std::io::Error> for CastleError {
@@ -83,6 +85,8 @@ impl fmt::Display for CastleError {
             Self::EnumInQueryNotDefinedInSchema(msg) => write!(f, "Enum in query not defined in schema: {}", msg),
             Self::ExpectedFields(msg) => write!(f, "Expected fields: {}", msg),
             Self::EnumFieldNotDefinedInSchema(msg) => write!(f, "Enum field not defined in schema: {}", msg),
+            Self::WantNotFoundInRealResolver(msg) => write!(f, "Want not found in real resolver: {}", msg),
+            Self::ResolverDataShouldBeObject(msg) => write!(f, "Resolver data should be object: {}", msg),
         }
     }
 }
@@ -117,6 +121,8 @@ impl ExtendedErrorDisplay for CastleError {
             Self::EnumInQueryNotDefinedInSchema(msg) => format!("Enum in query not defined in schema: {}", msg),
             Self::ExpectedFields(msg) => format!("Expected fields: {}", msg),
             Self::EnumFieldNotDefinedInSchema(msg) => format!("Enum field not defined in schema: {}", msg),
+            Self::WantNotFoundInRealResolver(msg) => format!("Want not found in real resolver: {}", msg),
+            Self::ResolverDataShouldBeObject(msg) => format!("Resolver data should be object: {}", msg),
         }
     }
 }

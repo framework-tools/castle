@@ -12,6 +12,6 @@ pub enum Value<R = ()> {
     String(String),
     EnumValue(EnumValue),
     Vec(Vec<Value<R>>),
-    Object(HashMap<String, Value<R>>),
+    Object(HashMap<Box<str>, Value<R>>),
     Custom(Box<R>),
 }
