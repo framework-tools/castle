@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use castle::{validation::validate_query_with_schema::validate_query_with_schema::validate_query_with_schema, resolvers::{resolvers::resolve_all_wants, generic_resolver::generic_resolver}, castle_struct::resolver_return_types::Value};
-use parser_and_schema::{ast::syntax_definitions::{argument::IdentifierAndValueArgument, want::Want}, parsers::query_parser::parse_query::parse_query};
+use castle::{validation::validate_query_with_schema::validate_query_with_schema::validate_query_with_schema, resolvers::{resolvers::{resolve_all_wants, Args, ResolverMap}, generic_resolver::generic_resolver, dummy_data_for_tests::create_possible_fields_and_dummy_data}, castle_struct::{resolver_return_types::{Value, EnumResolverValue}, castle_struct::{CastleBuilder, Castle}}};
+use parser_and_schema::{ast::syntax_definitions::{argument::IdentifierAndValueArgument, want::{Want, Wants}, enum_definition::{EnumValue, EnumDataType}}, parsers::query_parser::parse_query::parse_query};
 use shared::CastleError;
 
 
@@ -19,8 +19,8 @@ fn testing_castle_builds_and_validates(){
 
     let mut builder: CastleBuilder<(), ()> = Castle::builder();
     //test resolver
-    fn hello<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Value<R> {
-        Value::String("world".to_string())
+    fn hello<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
+        Ok(Value::String("world".to_string()))
     }
 
 
@@ -40,10 +40,10 @@ fn testing_castle_can_resolve_single_field_want() -> Result<(), CastleError> {
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
-    let mut builder = Castle::builder();
+    let mut builder: CastleBuilder<(), ()> = Castle::builder();
     //test resolver
-    fn hello<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &()) -> Value {
-        Value::String("world".to_string())
+    fn hello<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &()) -> Result<Value<R>, CastleError> {
+        Ok(Value::String("world".to_string()))
     }
 
 
@@ -74,24 +74,18 @@ fn testing_castle_can_resolve_object_projection_want_with_all_fields() -> Result
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
-    let mut builder = Castle::builder();
+    let mut builder: CastleBuilder<(), ()> = Castle::builder();
     //test resolver
-    fn get_name<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &()) -> Value {
+    fn get_name<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
         //dummy data
-        let first_name = ("first_name".into(), "John".to_string()); 
-        let middle_name = ("middle_name".into(), "Graham".to_string());
-        let last_name = ("last_name".into(), "Doe".to_string());
-        let possible_fields = [first_name, middle_name, last_name];
+        let (possible_fields, dummy_data) = create_possible_fields_and_dummy_data(vec![
+            ("first_name".into(), Value::String("John".to_string())),
+            ("middle_name".into(), Value::String("Graham".to_string())),
+            ("last_name".into(), Value::String("Doe".to_string())),
+        ]);
 
-        let wants = wants.unwrap();
-        let mut resolved_fields= HashMap::new();
-        for (identifier, value) in possible_fields{
-            if wants.contains_key(identifier){
-                resolved_fields.insert(identifier.to_string(), Value::String(value));
-            }
-        }
-        let return_value = Value::Object(resolved_fields);
-        return return_value
+        let return_value = generic_resolver(wants, &possible_fields, args, resolver_map, context, dummy_data)?;
+        return Ok(return_value)
     }
 
 
@@ -120,12 +114,14 @@ fn testing_castle_can_resolve_object_projection_want_with_all_fields() -> Result
     let parsed_query = parse_query(query)?;
     validate_query_with_schema(&parsed_query, &castle.parsed_schema)?;
     let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolvers, ())?;
+
     let mut expected_wants = HashMap::new();
     expected_wants.insert("first_name".into(), Value::String("John".to_string()));
     expected_wants.insert("middle_name".into(), Value::String("Graham".to_string()));
     expected_wants.insert("last_name".into(), Value::String("Doe".to_string()));
     let mut expected = HashMap::new();
     expected.insert("get_name".into(), Value::Object(expected_wants));
+
     assert_eq!(expected, resolved_wants);
     return Ok(());
 }
@@ -136,24 +132,18 @@ fn testing_castle_can_resolve_object_projection_but_subset_of_fields() -> Result
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
-    let mut builder = Castle::builder();
+    let mut builder: CastleBuilder<(), ()> = Castle::builder();
     //test resolver
-    fn get_name<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &()) -> Value {
+    fn get_name<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
         //dummy data
-        let first_name = ("first_name".into(), "John".to_string()); 
-        let middle_name = ("middle_name".into(), "Graham".to_string());
-        let last_name = ("last_name".into(), "Doe".to_string());
-        let possible_fields = [first_name, middle_name, last_name];
+        let (possible_fields, dummy_data) = create_possible_fields_and_dummy_data(vec![
+            ("first_name".into(), Value::String("John".to_string())),
+            ("middle_name".into(), Value::String("Graham".to_string())),
+            ("last_name".into(), Value::String("Doe".to_string())),
+        ]);
 
-        let wants = wants.unwrap();
-        let mut resolved_fields= HashMap::new();
-        for (identifier, value) in possible_fields{
-            if wants.contains_key(identifier){
-                resolved_fields.insert(identifier.to_string(), Value::String(value));
-            }
-        }
-        let return_value = Value::Object(resolved_fields);
-        return return_value
+        let return_value = generic_resolver(wants, &possible_fields, args, resolver_map, context, dummy_data)?;
+        return Ok(return_value)
     }
 
 
@@ -194,14 +184,14 @@ fn testing_castle_can_resolve_two_single_fields_different_return_types() -> Resu
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
-    let mut builder = Castle::builder();
+    let mut builder: CastleBuilder<(), ()> = Castle::builder();
     //test resolver
-    fn hello<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &()) -> Value {
-        Value::String("world".to_string())
+    fn hello<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &()) -> Result<Value<R>, CastleError> {
+        Ok(Value::String("world".to_string()))
     }
 
-    fn get_number<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &()) -> Value {
-        Value::Int(42)
+    fn get_number<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &()) -> Result<Value<R>, CastleError> {
+        Ok(Value::Int(42))
     }
 
     builder.add_resolver("hello", hello);
@@ -235,7 +225,7 @@ fn testing_castle_can_resolve_multiple_object_projections() -> Result<(), Castle
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
-    let mut builder = Castle::builder();
+    let mut builder: CastleBuilder<(), ()> = Castle::builder();
     let schema = "
         fn me() -> User
         fn org_basic_info() -> Organization
@@ -263,48 +253,45 @@ fn testing_castle_can_resolve_multiple_object_projections() -> Result<(), Castle
     ";
 
     //test resolver
-    fn me<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &()) -> Value {
+    fn me<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
         //dummy data
-        let id = ("id".into(), Value::Int(123));
-        let first_name = ("first_name".into(), Value::String("John".to_string())); 
-        let last_name = ("last_name".into(), Value::String("Doe".to_string()));
-        let age = ("age".into(), Value::Int(41));
-        let roles = ("roles".into(), Value::Vec(vec![
-            Value::String("Engineer".to_string()), 
-            Value::String("Developer".to_string())
-        ]));
-        
-        let return_value = generic_resolver(wants, args, resolver_map, context, identifier);
-        return return_value
+        let (possible_fields, dummy_data) = create_possible_fields_and_dummy_data(vec![
+            ("id".into(), Value::Int(123)),
+            ("first_name".into(), Value::String("John".to_string())),
+            ("last_name".into(), Value::String("Doe".to_string())),
+            ("age".into(), Value::Int(41)),
+            ("roles".into(), Value::Vec(vec![
+                Value::String("Engineer".to_string()), 
+                Value::String("Developer".to_string())
+            ])),
+        ]);
+
+        let return_value = generic_resolver(wants, &possible_fields, args, resolver_map, context, dummy_data)?;
+        return Ok(return_value)
     }
+    
 
 
     builder.add_resolver("me", me);
 
     //test resolver
-    fn org_basic_info<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &()) -> Value {
+    fn org_basic_info<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
         //dummy data
-        let id = ("id".into(), Value::Int(123));
-        let name = ("name".into(), Value::String("FrameWork".to_string())); 
-        let users = ("users".into(), Value::Vec(vec![
-            Value::String("Romeo".to_string()), 
-            Value::String("Lenard".to_string())
-        ]));
-        let company_type = ("company_type".into(), Value::Vec(vec![
-            Value::String("Software".to_string()), 
-            Value::String("Business".to_string())
-        ]));
-        let possible_fields = [id, name, users, company_type];
+        let (possible_fields, dummy_data) = create_possible_fields_and_dummy_data(vec![
+            ("id".into(), Value::Int(123)),
+            ("name".into(), Value::String("FrameWork".to_string())), 
+            ("users".into(), Value::Vec(vec![
+                Value::String("Romeo".to_string()), 
+                Value::String("Lenard".to_string())
+            ])),
+            ("company_type".into(), Value::Vec(vec![
+                Value::String("Software".to_string()), 
+                Value::String("Business".to_string())
+            ])),
+        ]);
 
-        let wants = wants.unwrap();
-        let mut resolved_fields= HashMap::new();
-        for (identifier, value) in possible_fields{
-            if wants.contains_key(identifier){
-                resolved_fields.insert(identifier.to_string(), value);
-            }
-        }
-        let return_value = Value::Object(resolved_fields);
-        return return_value
+        let return_value = generic_resolver(wants, &possible_fields, args, resolver_map, context, dummy_data)?;
+        return Ok(return_value)
     }
 
 
@@ -370,7 +357,7 @@ fn testing_castle_can_resolve_object_projection_with_inner_object_projections() 
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
-    let mut builder = Castle::builder();
+    let mut builder: CastleBuilder<(), ()> = Castle::builder();
     let schema = "
         fn me() -> User
         fn name() -> Name
@@ -416,92 +403,57 @@ fn testing_castle_can_resolve_object_projection_with_inner_object_projections() 
     ";
 
     //test resolvers
-    fn name<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Value {
+    fn name<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
         //dummy data
-        let first_name = ("first_name".into(), "John".to_string()); 
-        let middle_name = ("middle_name".into(), "Graham".to_string());
-        let last_name = ("last_name".into(), "Doe".to_string());
-        let possible_fields = [first_name, middle_name, last_name];
+        let (possible_fields, dummy_data) = create_possible_fields_and_dummy_data(vec![
+            ("first_name".into(), Value::String("John".to_string())),
+            ("middle_name".into(), Value::String("Graham".to_string())),
+            ("last_name".into(), Value::String("Doe".to_string())),
+        ]);
 
-        let wants = wants.unwrap();
-        let mut resolved_fields= HashMap::new();
-        for (identifier, value) in possible_fields{
-            if wants.contains_key(identifier){
-                resolved_fields.insert(identifier.to_string(), Value::String(value));
-            }
-        }
-        let return_value = Value::Object(resolved_fields);
-        return return_value
+        let return_value = generic_resolver(wants, &possible_fields, args, resolver_map, context, dummy_data)?;
+        return Ok(return_value)
     }
+
     builder.add_resolver("name", name);
 
-
-    fn organization<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Value {
+    fn organization<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
         //dummy data
-        let id = ("id".into(), Value::Int(27));
-        let name = ("name".into(), Value::String("FrameWork".to_string())); 
-        let users = ("users".into(), Value::Vec(vec![
-            Value::String("Romeo".to_string()), 
-            Value::String("Lenard".to_string())
-        ]));
-        let company_type = ("company_type".into(), Value::Vec(vec![
-            Value::String("Software".to_string()), 
-            Value::String("Business".to_string())
-        ]));
-        let possible_fields = [id, name, users, company_type];
+        let (possible_fields, dummy_data) = create_possible_fields_and_dummy_data(vec![
+            ("id".into(), Value::Int(27)),
+            ("name".into(), Value::String("FrameWork".to_string())), 
+            ("users".into(), Value::Vec(vec![
+                Value::String("Romeo".to_string()), 
+                Value::String("Lenard".to_string())
+            ])),
+            ("company_type".into(), Value::Vec(vec![
+                Value::String("Software".to_string()), 
+                Value::String("Business".to_string())
+            ]))
+        ]);
 
-        let wants = wants.unwrap();
-        let mut resolved_fields= HashMap::new();
-        for (identifier, value) in possible_fields{
-            if wants.contains_key(identifier){
-                resolved_fields.insert(identifier.to_string(), value);
-            }
-        }
-        let return_value = Value::Object(resolved_fields);
-        return return_value
+        let return_value = generic_resolver(wants, &possible_fields, args, resolver_map, context, dummy_data)?;
+        return Ok(return_value)
     }
-    builder.add_resolver("organization", organization);
 
     
-    fn me<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Value<R> {
-        //dummy data
-        let id = ("id".into(), Some(Value::Int(123)));
-        let name = ("name".into(), None);
-        let age = ("age".into(), Some(Value::Int(41)));
-        let roles = ("roles".into(), Some(Value::Vec(vec![
-            Value::String("Engineer".to_string()), 
-            Value::String("Developer".to_string())
-        ])));
-        let organization = ("organization".into(), None);
-        let possible_fields = [id, name, age, roles, organization];
+    builder.add_resolver("organization", organization);
 
-        let wants = wants.unwrap();
-        let mut resolved_fields= HashMap::new();
-        for (identifier, value) in possible_fields{
-            if wants.contains_key(identifier){
-                let current_want = wants.get(identifier).unwrap();
-                match current_want {
-                    Want::SingleField(_) => { 
-                        resolved_fields.insert(identifier.to_string(), value.unwrap()); 
-                    },
-                    Want::ObjectProjection(fields, args) => {
-                        //needs to call resolver to resolve want
-                        let inner_resolver = resolver_map.resolvers.get(identifier);
-                        if inner_resolver.is_none(){
-                            panic!("resolver not found");
-                        } else {
-                            let inner_resolver = inner_resolver.unwrap();
-                            let context = context;
-                            let inner_return_value = inner_resolver(Some(fields), args, resolver_map, context);
-                            resolved_fields.insert(identifier.to_string(), inner_return_value);
-                        }
-                    },
-                    Want::Match(_) => {} //ignore match for now
-                }
-            }
-        }
-        let return_value = Value::Object(resolved_fields);
-        return return_value
+    fn me<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
+        //dummy data
+        let (possible_fields, dummy_data) = create_possible_fields_and_dummy_data(vec![
+            ("id".into(), Value::Int(123)),
+            ("name".into(), Value::String("John Doe".to_string())), 
+            ("age".into(), Value::Int(41)),
+            ("roles".into(), Value::Vec(vec![
+                Value::String("Engineer".to_string()), 
+                Value::String("Developer".to_string())
+            ])),
+            ("organization".into(), Value::Object(HashMap::new()))
+        ]);
+
+        let return_value = generic_resolver(wants, &possible_fields, args, resolver_map, context, dummy_data)?;
+        return Ok(return_value)
     }
 
     builder.add_resolver("me", me);
@@ -547,7 +499,7 @@ fn should_pass_query_with_nested_inner_objects() -> Result<(), CastleError> {
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
-    let mut builder = Castle::builder();
+    let mut builder: CastleBuilder<(), ()> = Castle::builder();
     let schema = "
         fn me() -> User
         fn name() -> Name
@@ -599,123 +551,62 @@ fn should_pass_query_with_nested_inner_objects() -> Result<(), CastleError> {
 
 
     //test resolvers
-    fn name<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Value {
+    fn name<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
         //dummy data
-        let first_name = ("first_name".into(), "John".to_string()); 
-        let middle_name = ("middle_name".into(), "Graham".to_string());
-        let last_name = ("last_name".into(), "Doe".to_string());
-        let possible_fields = [first_name, middle_name, last_name];
+        let (possible_fields, dummy_data) = create_possible_fields_and_dummy_data(vec![
+            ("first_name".into(), Value::String("John".to_string())),
+            ("middle_name".into(), Value::String("Graham".to_string())),
+            ("last_name".into(), Value::String("Doe".to_string())),
+        ]);
 
-        let wants = wants.unwrap();
-        let mut resolved_fields= HashMap::new();
-        for (identifier, value) in possible_fields{
-            if wants.contains_key(identifier){
-                resolved_fields.insert(identifier.to_string(), Value::String(value));
-            }
-        }
-        let return_value = Value::Object(resolved_fields);
-        return return_value
+        let return_value = generic_resolver(wants, &possible_fields, args, resolver_map, context, dummy_data)?;
+        return Ok(return_value)
     }
+
     builder.add_resolver("name", name);
 
-
-    fn organization<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Value<R> {
+    //test resolvers
+    fn address<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
         //dummy data
-        let name = ("name".into(), Some(Value::String("FrameWork".to_string())));
-        let address = ("address".into() , None); 
-        let possible_fields = [name, address];
+        let (possible_fields, dummy_data) = create_possible_fields_and_dummy_data(vec![
+            ("street".into(), Value::String("madurta".to_string())),
+            ("city".into(), Value::String("adelaide".to_string())),
+            ("state".into(), Value::String("SA".to_string())),
+            ("country".into(), Value::String("Australia".to_string())),
+        ]);
 
-        let wants = wants.unwrap();
-        let mut resolved_fields= HashMap::new();
-        for (identifier, value) in possible_fields{
-            if wants.contains_key(identifier){
-                let current_want = wants.get(identifier).unwrap();
-                match current_want {
-                    Want::SingleField(_) => { 
-                        resolved_fields.insert(identifier.to_string(), value.unwrap()); 
-                    },
-                    Want::ObjectProjection(fields, args) => {
-                        //needs to call resolver to resolve want
-                        let inner_resolver = resolver_map.resolvers.get(identifier);
-                        if inner_resolver.is_none(){
-                            panic!("resolver not found");
-                        } else {
-                            let inner_resolver = inner_resolver.unwrap();
-                            let context = context;
-                            let inner_return_value = inner_resolver(Some(fields), args, resolver_map, context);
-                            resolved_fields.insert(identifier.to_string(), inner_return_value);
-                        }
-                    },
-                    Want::Match(_) => {} //ignore match for now
-                }
-            }
-        }
-        let return_value = Value::Object(resolved_fields);
-        return return_value
-    }
-    builder.add_resolver("organization", organization);
-
-    fn address<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Value {
-        //dummy data
-        let street = ("street".into(), "madurta".to_string()); 
-        let city = ("city".into(), "adelaide".to_string());
-        let state = ("state".into(), "SA".to_string());
-        let country = ("country".into(), "Australia".to_string());
-        let possible_fields = [street, city, state, country];
-
-        let wants = wants.unwrap();
-        let mut resolved_fields= HashMap::new();
-        for (identifier, value) in possible_fields{
-            if wants.contains_key(identifier){
-                resolved_fields.insert(identifier.to_string(), Value::String(value));
-            }
-        }
-        let return_value = Value::Object(resolved_fields);
-        return return_value
+        let return_value = generic_resolver(wants, &possible_fields, args, resolver_map, context, dummy_data)?;
+        return Ok(return_value)
     }
     builder.add_resolver("address", address);
 
-    
-    fn me<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Value<R> {
+    fn organization<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
         //dummy data
-        let id = ("id".into(), Some(Value::Int(123)));
-        let name = ("name".into(), None);
-        let age = ("age".into(), Some(Value::Int(41)));
-        let roles = ("roles".into(), Some(Value::Vec(vec![
-            Value::String("Engineer".to_string()), 
-            Value::String("Developer".to_string())
-        ])));
-        let organization = ("organization".into(), None);
-        let possible_fields = [id, name, age, roles, organization];
+        let (possible_fields, dummy_data) = create_possible_fields_and_dummy_data(vec![
+            ("name".into(), Value::String("FrameWork".to_string())),
+        ]);
 
-        println!("wants: {:?}", wants);
-        let wants = wants.unwrap();
-        let mut resolved_fields= HashMap::new();
-        for (identifier, value) in possible_fields{
-            if wants.contains_key(identifier){
-                let current_want = wants.get(identifier).unwrap();
-                match current_want {
-                    Want::SingleField(_) => { 
-                        resolved_fields.insert(identifier.to_string(), value.unwrap()); 
-                    },
-                    Want::ObjectProjection(fields, args) => {
-                        //needs to call resolver to resolve want
-                        let inner_resolver = resolver_map.resolvers.get(identifier);
-                        if inner_resolver.is_none(){
-                            panic!("resolver not found");
-                        } else {
-                            let inner_resolver = inner_resolver.unwrap();
-                            let context = context;
-                            let inner_return_value = inner_resolver(Some(fields), args, resolver_map, context);
-                            resolved_fields.insert(identifier.to_string(), inner_return_value);
-                        }
-                    },
-                    Want::Match(_) => {} //ignore match for now
-                }
-            }
-        }
-        let return_value = Value::Object(resolved_fields);
-        return return_value
+        let return_value = generic_resolver(wants, &possible_fields, args, resolver_map, context, dummy_data)?;
+        return Ok(return_value)
+    }
+    builder.add_resolver("organization", organization);
+
+    //test resolvers
+    fn me<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
+        //dummy data
+        let (possible_fields, dummy_data) = create_possible_fields_and_dummy_data(vec![
+            ("id".into(), Value::Int(123)),
+            ("name".into(), Value::String("John".to_string())),
+            ("age".into(), Value::Int(41)),
+            ("roles".into(), Value::Vec(vec![
+                Value::String("Engineer".to_string()), 
+                Value::String("Developer".to_string())
+            ])),
+            ("organization".into(), Value::Object(HashMap::new())),
+        ]);
+
+        let return_value = generic_resolver(wants, &possible_fields, args, resolver_map, context, dummy_data)?;
+        return Ok(return_value)
     }
 
     builder.add_resolver("me", me);
@@ -750,21 +641,20 @@ fn should_pass_query_with_nested_inner_objects() -> Result<(), CastleError> {
     let mut expected = HashMap::new();
     expected.insert("me".into(), Value::Object(expected_wants_for_me));
     assert_eq!(expected, resolved_wants);
-    return Ok(());
-
-
+    return Ok(())
 }
 
+// All tests & related functionality except for the test below I am very happy with
+// This test passes but the functionality surrounding how we handle match definitely needs to be improved
 #[test]
 fn should_pass_query_with_match() -> Result<(), CastleError> {
     let schema = "
+    fn me() -> User
     fn name() -> Name
-    fn me(id: Int) -> User
     
     type User {
-        name: Name,
         age: Int,
-        role: String
+        name: Name
     }
 
     enum Name {
@@ -780,17 +670,73 @@ fn should_pass_query_with_match() -> Result<(), CastleError> {
     ";
 
     let query = "
-    me(id: 543) {
+    me() {
+        age,
         name() match {
             Name::StandardName => {
                 first_name,
                 last_name
             },
             Name::UserName => {
-                not_correct_field
+                username,
             }
         }
     }
     ";
-    Ok(())
+
+    let mut builder: CastleBuilder<(), ()> = Castle::builder();
+    //test resolvers
+    fn name<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
+        //dummy data
+        let (possible_fields, dummy_data) = create_possible_fields_and_dummy_data(vec![
+            ("username".into(), Value::String("@tim_dillon".to_string())),
+            ("first_name".into(), Value::String("Tim".to_string())),
+            ("last_name".into(), Value::String("Dillon".to_string()))
+        ]);
+
+        let return_value = generic_resolver(wants, &possible_fields, args, resolver_map, context, dummy_data)?;
+        return Ok(return_value)
+    }
+    builder.add_resolver("name", name);
+
+    fn me<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
+        //dummy data
+        let mut username_fields = HashMap::new();
+        username_fields.insert("username".into(), Value::String("@tim_dillon".to_string()));
+
+        let enum_value = EnumResolverValue {
+            identifier: "Name::UserName".into(),
+            enum_parent: "Name".into(),
+            variant: "UserName".into(),
+            fields: username_fields
+        };
+
+        let (possible_fields, dummy_data) = create_possible_fields_and_dummy_data(vec![
+            ("age".into(), Value::Int(41)),
+            ("name".into(), Value::EnumValue(enum_value)),
+        ]);
+
+        let return_value = generic_resolver(wants, &possible_fields, args, resolver_map, context, dummy_data)?;
+        return Ok(return_value)
+    }
+    builder.add_resolver("me".into(), me);
+
+    let builder = builder.add_schema(schema);
+    let castle = builder.build_and_validate()?;
+
+    let parsed_query = parse_query(query)?;
+    validate_query_with_schema(&parsed_query, &castle.parsed_schema)?;
+    let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolvers, ())?;
+    
+    let mut expected_wants_for_name = HashMap::new();
+    expected_wants_for_name.insert("username".into(), Value::String("@tim_dillon".to_string()));
+
+    let mut expected_wants_for_me = HashMap::new();
+    expected_wants_for_me.insert("name".into(), Value::Object(expected_wants_for_name));
+    expected_wants_for_me.insert("age".into(), Value::Int(41));
+
+    let mut expected = HashMap::new();
+    expected.insert("me".into(), Value::Object(expected_wants_for_me));
+    assert_eq!(expected, resolved_wants);
+    return Ok(())
 }
