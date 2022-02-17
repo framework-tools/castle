@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use castle::{validation::validate_backend_fns_with_schema::validate_backend_fns_with_schema::{validate_schema_with_resolvers, validate_schema_with_directives}, resolvers::resolvers::{Resolver, Args, ResolverMap}, directives::directives::{Wants}, castle_struct::{castle_struct::Castle, resolver_return_types::ReturnValue}};
+use castle::{validation::validate_backend_fns_with_schema::validate_backend_fns_with_schema::{validate_schema_with_resolvers, validate_schema_with_directives}, resolvers::resolvers::{Resolver, Args, ResolverMap}, directives::directives::{Wants}, castle_struct::{castle_struct::Castle, resolver_return_types::Value}};
 use parser_and_schema::{parsers::schema_parser::{parse_schema::parse_schema, types::{type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{fn_definition::FnDefinition, argument::{ArgumentOrTuple, IdentifierAndTypeArgument, IdentifierAndValueArgument}, directive_definition::{DirectiveDefinition, DirectiveOnValue, }}};
 use shared::CastleError;
 
@@ -22,8 +22,8 @@ fn test_resolver_defined_in_schema_that_does_not_exist_throws_error(){
     ";
 
     let parsed_schema = parse_schema(schema).unwrap();
-    fn random_resolver<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &()) -> ReturnValue  {
-        ReturnValue::String("hello".to_string())
+    fn random_resolver<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &()) -> Value  {
+        Value::String("hello".to_string())
     }
     let mut builder = Castle::builder();
     builder.add_resolver("random_resolver".into(), random_resolver);
@@ -50,8 +50,8 @@ fn test_directive_defined_in_schema_that_does_not_exist_throw_error(){
     
 
 
-    fn random_directive<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &()) -> ReturnValue {
-        ReturnValue::String("hello".to_string())
+    fn random_directive<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &()) -> Value {
+        Value::String("hello".to_string())
     }
 
     let parsed_schema = parse_schema(schema).unwrap();

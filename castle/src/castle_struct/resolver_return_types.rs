@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use parser_and_schema::ast::syntax_definitions::enum_definition::EnumValue;
 
 #[derive(Debug, PartialEq)]
-pub enum ReturnValue<R = ()> {
+pub enum Value<R = ()> {
     Null,
     Bool(bool),
     Int(i64),
@@ -11,7 +11,7 @@ pub enum ReturnValue<R = ()> {
     Float(f64),
     String(String),
     EnumValue(EnumValue),
-    Vec(Vec<ReturnValue<R>>),
-    Object(HashMap<String, ReturnValue<R>>),
+    Vec(Vec<Value<R>>),
+    Object(HashMap<String, Value<R>>),
     Custom(Box<R>),
 }
