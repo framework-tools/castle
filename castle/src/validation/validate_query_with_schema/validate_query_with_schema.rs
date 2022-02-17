@@ -1,6 +1,6 @@
 use std::{collections::HashMap};
 
-use parser_and_schema::{parsers::{query_parser::parse_query::ParsedQuery, schema_parser::types::{ type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{schema_definition::SchemaDefinition, want::{Want, Wants, WantArguments}, expressions::PrimitiveValue, fn_definition::FnDefinition, argument::{IdentifierAndTypeArgument, IdentifierAndValueArgument, self}, match_statement::{self, MatchArm}, enum_definition}};
+use parser_and_schema::{parsers::{query_parser::parse_query::ParsedQuery, schema_parser::types::{ type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{schema_definition::{SchemaDefinition, self}, want::{Want, Wants, WantArguments}, expressions::PrimitiveValue, fn_definition::FnDefinition, argument::{IdentifierAndTypeArgument, IdentifierAndValueArgument, self}, match_statement::{self, MatchArm, MatchStatement}, enum_definition::{self, EnumDataType}}};
 use shared::CastleError;
 
 /// Cross-Validation Between Query Parser & Schema Parser
@@ -52,7 +52,6 @@ pub fn validate_query_with_schema(parsed_query: &ParsedQuery, schema_definition:
 
 fn validate_resolver(schema_definition: &SchemaDefinition, identifier: &Box<str>, want: &Want) -> Result<(), CastleError>{
     let resolver = schema_definition.functions.get(identifier);
-    println!("resolver: {:?}", resolver);
     //check resolver exists in schema
     if resolver.is_none() {
         return Err(CastleError::QueryResolverNotDefinedInSchema(format!("no matching resolver found in schema. Got: '{}' in query ", identifier).into()));
@@ -66,7 +65,7 @@ fn validate_resolver(schema_definition: &SchemaDefinition, identifier: &Box<str>
                 validate_resolver_and_assign_schema_type_for_fields_validation(resolver, identifier, &Some(&fields), arguments, schema_definition, )?;
             },
             Want::Match(match_statement) => {
-                validate_enum_used_is_defined_in_schema(match_statement, schema_definition)?;
+                validate_all_match_arms(match_statement, schema_definition)?;
             }, 
         }
     }
@@ -114,10 +113,7 @@ fn validate_object_projection_want(resolver: &FnDefinition, schema_definition: &
             return Err(CastleError::FieldsInReturnTypeDoNotMatchQuery(format!("Field in want: {}, not found in schema type: {:?}", identifier, schema_type).into() ));
         }
         match field{
-            Want::Match(match_statement) => {
-                validate_enum_used_is_defined_in_schema(match_statement, schema_definition)?;
-            },
-            Want::ObjectProjection(fields, args) => {
+            Want::Match(_) | Want::ObjectProjection(_, _)=> {
                 validate_resolver(schema_definition, identifier, field)?;
             },
             Want::SingleField(_) => {}, //do nothing as we've already validated a field with the same identifier exists
@@ -126,19 +122,25 @@ fn validate_object_projection_want(resolver: &FnDefinition, schema_definition: &
     Ok(())
 }
 
-fn validate_enum_used_is_defined_in_schema(match_statement: &Vec<MatchArm>, schema_definition: &SchemaDefinition) -> Result<(), CastleError>{
+fn validate_all_match_arms(match_statement: &MatchStatement, schema_definition: &SchemaDefinition) -> Result<(), CastleError>{
     for match_arm in match_statement {
-        let condition = &match_arm.condition;
-        let condition_parent = &condition.enum_parent;
-        if !schema_definition.enums.contains_key(condition_parent) {
-            return Err(CastleError::EnumInQueryNotDefinedInSchema(format!("Enum: {} not defined in schema", condition_parent).into()));
-        } 
-        else {
-            let enum_definition = schema_definition.enums.get(condition_parent).unwrap();
-            let condition_variant = &condition.variant;
-            if !enum_definition.variants.contains_key(condition_variant){
-                return Err(CastleError::EnumInQueryNotDefinedInSchema(format!("Enum variant: {} not defined in schema", condition_variant).into()));
-            }
+        validate_enum_used_is_defined_in_schema(match_arm, schema_definition)?;
+        validate_match_arm_fields_are_valid_for_return_type(match_arm, schema_definition)?;
+    }
+    return Ok(())
+}
+fn validate_enum_used_is_defined_in_schema(match_arm: &MatchArm, schema_definition: &SchemaDefinition) -> Result<(), CastleError>{
+    
+    let condition = &match_arm.condition;
+    let condition_parent = &condition.enum_parent;
+    if !schema_definition.enums.contains_key(condition_parent) {
+        return Err(CastleError::EnumInQueryNotDefinedInSchema(format!("Enum: {} not defined in schema", condition_parent).into()));
+    } 
+    else {
+        let enum_definition = schema_definition.enums.get(condition_parent).unwrap();
+        let condition_variant = &condition.variant;
+        if !enum_definition.variants.contains_key(condition_variant){
+            return Err(CastleError::EnumInQueryNotDefinedInSchema(format!("Enum variant: {} not defined in schema", condition_variant).into()));
         }
     }
     return Ok(())
@@ -213,4 +215,26 @@ fn convert_value_to_corresponding_type(arg_value: &PrimitiveValue) -> Result<Typ
         PrimitiveValue::Boolean(_) => Ok(Type::PrimitiveType(PrimitiveType::Bool)),
     }
 }
-// need to add single field validation & match arm validation
+
+/// for match arm enum get enums fields
+/// for each field, check it exists in the enum's fields
+/// if not, return error
+fn validate_match_arm_fields_are_valid_for_return_type(match_arm: &MatchArm, schema_definition: &SchemaDefinition) -> Result<(), CastleError> {
+    let condition = &match_arm.condition;
+    let enum_definition = schema_definition.enums.get(&condition.enum_parent).unwrap();
+    let enum_variant = enum_definition.variants.get(&condition.variant).unwrap();
+    match &enum_variant.enum_data_type {
+        EnumDataType::EnumObject(enum_fields) => {
+            for field_name in match_arm.fields.keys() {
+                if !enum_fields.contains_key(field_name) {
+                    return Err(CastleError::EnumFieldNotDefinedInSchema(format!("Enum field: {} not defined in schema", field_name).into()));
+                }
+            }
+        },
+        _ => {
+            return Err(CastleError::EnumFieldNotDefinedInSchema(format!("Enum field: {:?} uses incorrect data type. expected enum object", enum_variant.enum_data_type).into()));
+        }
+    }
+    
+    Ok(())
+}

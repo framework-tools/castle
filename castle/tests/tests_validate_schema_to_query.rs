@@ -9,6 +9,7 @@ use shared::CastleError;
 /// - Breaks if enums used are invalid (Parent, or variant)
 /// - Should break if mismatched fields in return type of inner resolver/object projection
 /// - Should pass if inner projection match resolver return type
+/// - should break if match arm field does not exist in return type
 
 #[test]
 fn if_object_projection_identifier_is_not_defined_as_resolver_in_schema_should_throw_error() -> Result<(), CastleError>{
@@ -166,6 +167,7 @@ fn should_break_if_mismatched_fields_in_return_type() -> Result<(), CastleError>
 fn should_break_if_use_undefined_enum_parent_in_query() -> Result<(), CastleError>{
     let schema = "
     fn me(id: Int) -> User
+    fn name() -> Name
     
     type User {
         name: Name,
@@ -174,8 +176,13 @@ fn should_break_if_use_undefined_enum_parent_in_query() -> Result<(), CastleErro
     }
 
     enum Name {
-        StandardName,
-        UserName
+        StandardName{
+            first_name: String,
+            last_name: String
+        },
+        UserName {
+            username: String
+        }
     }
 
     ";
@@ -184,7 +191,7 @@ fn should_break_if_use_undefined_enum_parent_in_query() -> Result<(), CastleErro
     me(id: 543) {
         name() match {
             Name::UserName => {
-                name
+                username
             },
             DoesntExist::DoesntExist => {
                 first_name,
@@ -211,6 +218,7 @@ fn should_break_if_use_undefined_enum_parent_in_query() -> Result<(), CastleErro
 fn should_break_if_use_undefined_enum_variant_in_query() -> Result<(), CastleError>{
     let schema = "
     fn me(id: Int) -> User
+    fn name() -> Name
     
     type User {
         name: Name,
@@ -219,8 +227,13 @@ fn should_break_if_use_undefined_enum_variant_in_query() -> Result<(), CastleErr
     }
 
     enum Name {
-        StandardName,
-        UserName
+        StandardName{
+            first_name: String,
+            last_name: String
+        },
+        UserName{
+            username: String
+        }
     }
 
     ";
@@ -315,6 +328,7 @@ fn should_pass_if_inner_objects_have_correct_return_types_for_each_resolver() ->
 fn should_break_if_inner_objects_have_field_not_defined_in_type() -> Result<(), CastleError>{
     let schema = "
     fn me() -> User
+    fn name() -> Name
     fn organization() -> Organization
     fn address() -> Address
     
@@ -387,9 +401,14 @@ fn should_throw_err_if_inner_object_projection_does_not_have_a_defined_resolver(
         organization: Organization
     }
 
+    type ThisDoesNotExist {
+        planet: String,
+    }
+
     type Organization {
         name: String,
         address: Address,
+        this_does_not_exist: ThisDoesNotExist,
     }
 
     type Address {
@@ -427,4 +446,57 @@ fn should_throw_err_if_inner_object_projection_does_not_have_a_defined_resolver(
         panic!("should have thrown error");
     }
 }
+
+
+#[test]
+fn should_throw_error_if_match_arm_field_does_not_exist_in_return_type() -> Result<(), CastleError>{
+    let schema = "
+    fn name() -> Name
+    fn me(id: Int) -> User
+    
+    type User {
+        name: Name,
+        age: Int,
+        role: String
+    }
+
+    enum Name {
+        StandardName {
+            first_name: String,
+            last_name: String
+        },
+        UserName {
+            username: String,
+        }
+    }
+
+    ";
+
+    let query = "
+    me(id: 543) {
+        name() match {
+            Name::StandardName => {
+                first_name,
+                last_name
+            },
+            Name::UserName => {
+                not_correct_field
+            }
+        }
+    }
+    ";
+
+    let schema_definition = parse_schema(schema)?;
+    let parsed_query = parse_query(query)?;
+    let result = validate_query_with_schema(&parsed_query, &schema_definition);
+    if result.is_err() {
+        match result {
+            Err(CastleError::EnumFieldNotDefinedInSchema(_message)) => return Ok(()),
+            _ => panic!("threw wrong error expected EnumFieldNotDefinedInSchema, got: {:?}", result)
+        }
+    } else {
+        panic!("should have thrown error");
+    }
+}
+
 
