@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use parser_and_schema::ast::syntax_definitions::{want::{Want}, argument::{IdentifierAndValueArgument, self}, fn_definition::FnDefinition};
 use shared::CastleError;
 
-use crate::castle_struct::resolver_return_types::Value;
+use crate::castle_object::resolver_return_types::Value;
 
 //A HashMap containing all Resolvers
 pub struct ResolverMap<C, R> {

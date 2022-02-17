@@ -3,7 +3,7 @@ use std::collections::{HashMap, HashSet};
 use parser_and_schema::ast::syntax_definitions::{want::{Wants, Want}, match_statement::MatchStatement};
 use shared::CastleError;
 
-use crate::castle_struct::resolver_return_types::{Value, EnumResolverValue};
+use crate::castle_object::resolver_return_types::{Value, EnumResolverValue};
 
 use super::{resolvers::{Args, ResolverMap, Resolver}, dummy_data_for_tests::{get_requested_fields_from_db_dummy}};
 

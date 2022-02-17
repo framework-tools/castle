@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use castle::{validation::validate_backend_fns_with_schema::validate_backend_fns_with_schema::{validate_schema_with_resolvers, validate_schema_with_directives}, resolvers::resolvers::{Resolver, Args, ResolverMap}, directives::directives::{Wants}, castle_struct::{castle_struct::{Castle, CastleBuilder}, resolver_return_types::Value}};
+use castle::{validation::validate_backend_fns_with_schema::validate_backend_fns_with_schema::{validate_schema_with_resolvers, validate_schema_with_directives}, resolvers::resolvers::{Resolver, Args, ResolverMap}, directives::directives::{Wants}, castle_object::{castle_struct::{Castle, CastleBuilder}, resolver_return_types::Value}};
 use parser_and_schema::{parsers::schema_parser::{parse_schema::parse_schema, types::{type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{fn_definition::FnDefinition, argument::{ArgumentOrTuple, IdentifierAndTypeArgument, IdentifierAndValueArgument}, directive_definition::{DirectiveDefinition, DirectiveOnValue, }}};
 use shared::CastleError;
 
@@ -13,7 +13,7 @@ use shared::CastleError;
 fn test_resolver_defined_in_schema_that_does_not_exist_throws_error(){
     use std::collections::HashSet;
 
-    use castle::{resolvers::resolvers::{ResolverMap, Args}, castle_struct::castle_struct::{Castle, CastleBuilder}};
+    use castle::{resolvers::resolvers::{ResolverMap, Args}, castle_object::castle_struct::{Castle, CastleBuilder}};
     use parser_and_schema::ast::syntax_definitions::argument::IdentifierAndTypeArgument;
 
     let schema = "

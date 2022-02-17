@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use castle::{validation::validate_query_with_schema::validate_query_with_schema::validate_query_with_schema, resolvers::{resolvers::{resolve_all_wants, Args, ResolverMap}, generic_resolver::generic_resolver, dummy_data_for_tests::create_possible_fields_and_dummy_data}, castle_struct::{resolver_return_types::{Value, EnumResolverValue}, castle_struct::{CastleBuilder, Castle}}};
+use castle::{validation::validate_query_with_schema::validate_query_with_schema::validate_query_with_schema, resolvers::{resolvers::{resolve_all_wants, Args, ResolverMap}, generic_resolver::generic_resolver, dummy_data_for_tests::create_possible_fields_and_dummy_data}, castle_object::{resolver_return_types::{Value, EnumResolverValue}, castle_struct::{CastleBuilder, Castle}}};
 use parser_and_schema::{ast::syntax_definitions::{argument::IdentifierAndValueArgument, want::{Want, Wants}, enum_definition::{EnumValue, EnumDataType}}, parsers::query_parser::parse_query::parse_query};
 use shared::CastleError;
 
@@ -13,7 +13,7 @@ use shared::CastleError;
 #[cfg(test)]
 #[test]
 fn testing_castle_builds_and_validates(){
-    use castle::{castle_struct::{castle_struct::{CastleBuilder, Castle}, resolver_return_types::Value}, resolvers::resolvers::{ResolverMap, Wants, Args}, directives::directives::DirectiveMap};
+    use castle::{castle_object::{castle_struct::{CastleBuilder, Castle}, resolver_return_types::Value}, resolvers::resolvers::{ResolverMap, Wants, Args}, directives::directives::DirectiveMap};
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
@@ -36,7 +36,7 @@ fn testing_castle_builds_and_validates(){
 
 #[test]
 fn testing_castle_can_resolve_single_field_want() -> Result<(), CastleError> {
-    use castle::{castle_struct::castle_struct::{CastleBuilder, Castle}, resolvers::resolvers::{ResolverMap, Wants, Args}, directives::directives::DirectiveMap};
+    use castle::{castle_object::castle_struct::{CastleBuilder, Castle}, resolvers::resolvers::{ResolverMap, Wants, Args}, directives::directives::DirectiveMap};
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
@@ -70,7 +70,7 @@ fn testing_castle_can_resolve_single_field_want() -> Result<(), CastleError> {
 
 #[test]
 fn testing_castle_can_resolve_object_projection_want_with_all_fields() -> Result<(), CastleError> {
-    use castle::{castle_struct::castle_struct::{CastleBuilder, Castle}, resolvers::resolvers::{ResolverMap, Wants, Args}, directives::directives::DirectiveMap};
+    use castle::{castle_object::castle_struct::{CastleBuilder, Castle}, resolvers::resolvers::{ResolverMap, Wants, Args}, directives::directives::DirectiveMap};
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
@@ -128,7 +128,7 @@ fn testing_castle_can_resolve_object_projection_want_with_all_fields() -> Result
 
 #[test]
 fn testing_castle_can_resolve_object_projection_but_subset_of_fields() -> Result<(), CastleError> {
-    use castle::{castle_struct::castle_struct::{CastleBuilder, Castle}, resolvers::resolvers::{ResolverMap, Wants, Args}, directives::directives::DirectiveMap};
+    use castle::{castle_object::castle_struct::{CastleBuilder, Castle}, resolvers::resolvers::{ResolverMap, Wants, Args}, directives::directives::DirectiveMap};
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
@@ -180,7 +180,7 @@ fn testing_castle_can_resolve_object_projection_but_subset_of_fields() -> Result
 
 #[test]
 fn testing_castle_can_resolve_two_single_fields_different_return_types() -> Result<(), CastleError> {
-    use castle::{castle_struct::castle_struct::{CastleBuilder, Castle}, resolvers::resolvers::{ResolverMap, Wants, Args}, directives::directives::DirectiveMap};
+    use castle::{castle_object::castle_struct::{CastleBuilder, Castle}, resolvers::resolvers::{ResolverMap, Wants, Args}, directives::directives::DirectiveMap};
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
@@ -221,7 +221,7 @@ fn testing_castle_can_resolve_two_single_fields_different_return_types() -> Resu
 
 #[test]
 fn testing_castle_can_resolve_multiple_object_projections() -> Result<(), CastleError> {
-    use castle::{castle_struct::castle_struct::{CastleBuilder, Castle}, resolvers::resolvers::{ResolverMap, Wants, Args}, directives::directives::DirectiveMap};
+    use castle::{castle_object::castle_struct::{CastleBuilder, Castle}, resolvers::resolvers::{ResolverMap, Wants, Args}, directives::directives::DirectiveMap};
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
@@ -353,7 +353,7 @@ fn testing_castle_can_resolve_multiple_object_projections() -> Result<(), Castle
 
 #[test]
 fn testing_castle_can_resolve_object_projection_with_inner_object_projections() -> Result<(), CastleError> {
-    use castle::{castle_struct::castle_struct::{CastleBuilder, Castle}, resolvers::resolvers::{ResolverMap, Wants, Args}, directives::directives::DirectiveMap};
+    use castle::{castle_object::castle_struct::{CastleBuilder, Castle}, resolvers::resolvers::{ResolverMap, Wants, Args}, directives::directives::DirectiveMap};
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
@@ -495,7 +495,7 @@ fn testing_castle_can_resolve_object_projection_with_inner_object_projections() 
 
 #[test]
 fn should_pass_query_with_nested_inner_objects() -> Result<(), CastleError> {
-    use castle::{castle_struct::castle_struct::{CastleBuilder, Castle}, resolvers::resolvers::{ResolverMap, Wants, Args}, directives::directives::DirectiveMap};
+    use castle::{castle_object::castle_struct::{CastleBuilder, Castle}, resolvers::resolvers::{ResolverMap, Wants, Args}, directives::directives::DirectiveMap};
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
@@ -529,7 +529,6 @@ fn should_pass_query_with_nested_inner_objects() -> Result<(), CastleError> {
             state: String,
             country: String
         }
-
         ";
 
         let query = "
@@ -548,7 +547,6 @@ fn should_pass_query_with_nested_inner_objects() -> Result<(), CastleError> {
             }
         }
         ";
-
 
     //test resolvers
     fn name<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
