@@ -94,6 +94,6 @@ impl<'a, C, R> CastleBuilder<'a, C, R> {
     }
 
     pub fn add_all_resolvers(&mut self) {
-        self.resolver_map.resolvers = create_resolver_map_with_all_resolvers();
+        self.resolver_map = create_resolver_map_with_all_resolvers();
     }
 }
