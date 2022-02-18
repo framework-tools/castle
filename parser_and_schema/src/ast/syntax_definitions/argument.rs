@@ -24,7 +24,7 @@ impl ArgumentOrTuple {
         let argument = match token.kind {
             TokenKind::Identifier(Identifier { name, ..}) => parse_identifier_argument(name, tokenizer)?, //can be ident, type, enum or a combo
             //parse option argument
-            _ => parse_primitive_value_argument(token.kind)?
+            _ => parse_primitive_value_argument(token)?
         };
         return Ok(argument)
     }
@@ -97,8 +97,7 @@ where R: Read {
             let token = get_next_token_and_unwrap(tokenizer)?;
             let is_primitive_value = PrimitiveValue::check_if_primitive_value(&token.kind);
             if is_primitive_value {
-                let primitive_value = PrimitiveValue::new_from_token_kind(token.kind);
-                let primitive_value = primitive_value.unwrap();
+                let primitive_value = PrimitiveValue::new_from_token_kind(token)?;
                 let ident_and_type: IdentifierAndValueArgument = (name, primitive_value);
                 return Ok(ArgumentOrTuple::IdentifierAndValue(ident_and_type));
             } else {
@@ -111,11 +110,7 @@ where R: Read {
     }
 }
 
-
-fn parse_primitive_value_argument(token_kind: TokenKind) -> Result<ArgumentOrTuple, CastleError> {
-    let primitive_value = PrimitiveValue::new_from_token_kind(token_kind);
-    match primitive_value {
-        Some(primitive_value) => return Ok(ArgumentOrTuple::PrimitiveValue(primitive_value)),
-        None => Err(CastleError::PrimitiveValue(format!("Expected primitive value, found: maybe you should have typed it correctly you lazy fuck").into()))
-    }
+fn parse_primitive_value_argument(token: Token) -> Result<ArgumentOrTuple, CastleError> {
+    let primitive_value = PrimitiveValue::new_from_token_kind(token)?;
+    return Ok(ArgumentOrTuple::PrimitiveValue(primitive_value))
 }

@@ -3,7 +3,7 @@ use std::{collections::HashMap};
 use parser_and_schema::{ast::syntax_definitions::{schema_definition::{SchemaDefinition}, fn_definition::FnDefinition, directive_definition::{self, DirectiveDefinition}}, parsers::{schema_parser::parse_schema::parse_schema, query_parser::parse_query::parse_query}};
 use shared::CastleError;
 
-use crate::{resolvers::{resolver_map::{ResolverMap, self, create_resolver_map_with_all_resolvers}, resolve_query_wants::resolve_all_wants, resolver_type::{TopLevelResolvers, Resolver}, individual_resolvers::page_resolvers::basic_page_info::basic_page_info}, directives::directives::DirectiveMap, validation::{self_validation_schema::self_validate_schema::self_validate_schema, validate_backend_fns_with_schema::validate_backend_fns_with_schema::validate_schema_with_resolvers_and_directives, validate_query_with_schema::validate_query_with_schema::validate_query_with_schema}, castle_schema::castle_schema::SCHEMA};
+use crate::{resolvers::{resolver_map::{ResolverMap, self}, resolve_query_wants::resolve_all_wants, resolver_type::{TopLevelResolvers, Resolver}}, directives::directives::DirectiveMap, validation::{self_validation_schema::self_validate_schema::self_validate_schema, validate_backend_fns_with_schema::validate_backend_fns_with_schema::validate_schema_with_resolvers_and_directives, validate_query_with_schema::validate_query_with_schema::validate_query_with_schema}};
 
 pub struct Castle<C, R>{
     pub resolver_map: ResolverMap<C, R>,
@@ -16,9 +16,8 @@ impl<C, R> Castle<C, R> {
     pub fn build_and_validate(
         resolver_map: ResolverMap<C, R>,
         directives: DirectiveMap<C, R>,
-        schema: &str,
+        parsed_schema: SchemaDefinition,
     ) -> Result<Castle<C, R>, CastleError> {
-        let parsed_schema = parse_schema(&schema)?;
         let castle = Castle {
             resolver_map,
             parsed_schema,
@@ -27,7 +26,6 @@ impl<C, R> Castle<C, R> {
         castle.validate()?;
         Ok(castle)
     }
-
 
     ///This function runs self validation and cross validation with resolvers and schemas
     /// - Self validate schema 
@@ -50,37 +48,34 @@ impl<C, R> Castle<C, R> {
     }
 }
 
-pub struct CastleBuilder<'a, C, R> {
+pub struct CastleBuilder<C, R> {
     pub resolver_map: ResolverMap<C, R>,
     pub directives: DirectiveMap<C, R>,
-    schema: Option<&'a str>,
+    pub parsed_schema: Option<SchemaDefinition>,
 }
 
-impl<'a, C, R> CastleBuilder<'a, C, R> {
+impl<'a, C, R> CastleBuilder<C, R> {
     pub fn new() -> Self {
         Self {
             resolver_map: ResolverMap::new(),
-            schema: None,
+            parsed_schema: None,
             directives: HashMap::new(),
         }
     }
 
-    pub fn add_schema(mut self, schema: &'a str) -> Self {
-        self.schema = Some(schema);
-        self
-    }
-
-    pub fn apply_current_schema(&mut self) {
-        self.schema = Some(SCHEMA);
+    pub fn add_schema(&mut self, schema: &'a str) -> Result<(), CastleError> {
+        let parsed_schema  = parse_schema(schema)?;
+        self.parsed_schema = Some(parsed_schema);
+        Ok(())
     }
 
     pub fn build_and_validate(self) -> Result<Castle<C, R>, CastleError> {
         let schema;
-        if self.schema.is_none() {
+        if self.parsed_schema.is_none() {
             return Err(CastleError::MissingSchema("No schema provided".into()));
         }
         else {
-            schema = self.schema.unwrap();
+            schema = self.parsed_schema.unwrap();
         }
         Castle::build_and_validate(self.resolver_map, self.directives, schema)
     }
@@ -91,9 +86,5 @@ impl<'a, C, R> CastleBuilder<'a, C, R> {
 
     pub fn add_directive(&mut self, directive_name: &str, directive: Resolver<C, R>) {
         self.directives.insert(directive_name.into(), directive);
-    }
-
-    pub fn add_all_resolvers(&mut self) {
-        self.resolver_map = create_resolver_map_with_all_resolvers();
     }
 }

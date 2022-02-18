@@ -3,7 +3,7 @@
 use serde::{Deserialize, Serialize};
 use shared::CastleError;
 
-use crate::token::token::{TokenKind, Numeric, Identifier};
+use crate::token::{token::{TokenKind, Numeric, Identifier}, Token};
 
 use super::{keyword::Keyword, enum_definition::EnumValue};
 
@@ -62,17 +62,17 @@ impl PrimitiveValue {
         }
     }
     
-    pub fn new_from_token_kind(token_kind: TokenKind) -> Option<Self> {
-        match token_kind {
-            TokenKind::StringLiteral(s) => Some(PrimitiveValue::String(s)),
-            TokenKind::NumericLiteral(numeric) => match_numeric_token_to_primitive(numeric),
-            TokenKind::BooleanLiteral(b) => Some(PrimitiveValue::Boolean(b)),
+    pub fn new_from_token_kind(token: Token) -> Result<Self, CastleError> {
+        match token.kind {
+            TokenKind::StringLiteral(s) => Ok(PrimitiveValue::String(s)),
+            TokenKind::NumericLiteral(numeric) => Ok(match_numeric_token_to_primitive(numeric)?),
+            TokenKind::BooleanLiteral(b) => Ok(PrimitiveValue::Boolean(b)),
             TokenKind::Keyword(keyword) => match keyword {
-                Keyword::True => Some(PrimitiveValue::Boolean(true)),
-                Keyword::False => Some(PrimitiveValue::Boolean(false)),
-                _ => None,
+                Keyword::True => Ok(PrimitiveValue::Boolean(true)),
+                Keyword::False => Ok(PrimitiveValue::Boolean(false)),
+                _ => Err(CastleError::Schema(format!("Expected primitive value, found keyword: {:?}", &keyword).into(), token.span)),
             },
-            _ => None
+            _ => Err(CastleError::Schema(format!("Expected primitive value, found: {:?}", token.kind).into(), token.span))
         }
     }
 
@@ -90,10 +90,10 @@ impl PrimitiveValue {
         }
     }
 }
-fn match_numeric_token_to_primitive(numeric:Numeric) -> Option<PrimitiveValue> {
+fn match_numeric_token_to_primitive(numeric:Numeric) -> Result<PrimitiveValue, CastleError> {
     match numeric {
-        Numeric::Float(f) => Some(PrimitiveValue::Float(f)),
-        Numeric::Integer(i) => Some(PrimitiveValue::Int(i)),
-        Numeric::UnsignedInteger(u) => Some(PrimitiveValue::UInt(u)),
+        Numeric::Float(f) => Ok(PrimitiveValue::Float(f)),
+        Numeric::Integer(i) => Ok(PrimitiveValue::Int(i)),
+        Numeric::UnsignedInteger(u) => Ok(PrimitiveValue::UInt(u)),
     }
 }

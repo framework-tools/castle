@@ -12,7 +12,7 @@ use shared::CastleError;
 
 #[cfg(test)]
 #[test]
-fn testing_castle_builds_and_validates(){
+fn testing_castle_builds_and_validates() -> Result<(), CastleError> {
     use castle::{castle_object::{castle_struct::{CastleBuilder, Castle}, resolver_return_types::Value}, resolvers::{resolve_query_wants::{}, resolver_type::Args, resolver_map::ResolverMap}, directives::directives::DirectiveMap};
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
@@ -29,9 +29,10 @@ fn testing_castle_builds_and_validates(){
         fn hello() -> String
     ";
 
-    let builder = builder.add_schema(schema);
+    builder.add_schema(schema)?;
     let castle = builder.build_and_validate();
     assert!(castle.is_ok());
+    Ok(())
 }
 
 #[test]
@@ -52,7 +53,7 @@ fn testing_castle_can_resolve_single_field_want() -> Result<(), CastleError> {
         fn hello() -> String
     ";
 
-    let builder = builder.add_schema(schema);
+    builder.add_schema(schema)?;
     let castle = builder.build_and_validate()?;
 
     let query = "
@@ -100,7 +101,7 @@ fn testing_castle_can_resolve_object_projection_want_with_all_fields() -> Result
         }
     ";
 
-    let builder = builder.add_schema(schema);
+    builder.add_schema(schema)?;
     let castle = builder.build_and_validate()?;
 
     let query = "
@@ -158,7 +159,7 @@ fn testing_castle_can_resolve_object_projection_but_subset_of_fields() -> Result
         }
     ";
 
-    let builder = builder.add_schema(schema);
+    builder.add_schema(schema)?;
     let castle = builder.build_and_validate()?;
 
     let query = "
@@ -201,7 +202,7 @@ fn testing_castle_can_resolve_two_single_fields_different_return_types() -> Resu
         fn get_number() -> Int
     ";
 
-    let builder = builder.add_schema(schema);
+    builder.add_schema(schema)?;
     let castle = builder.build_and_validate()?;
 
     let query = "
@@ -297,7 +298,7 @@ fn testing_castle_can_resolve_multiple_object_projections() -> Result<(), Castle
 
     builder.add_resolver("org_basic_info", org_basic_info);
 
-    let builder = builder.add_schema(schema);
+    builder.add_schema(schema)?;
     let castle = builder.build_and_validate()?;
 
     let query = "
@@ -458,7 +459,7 @@ fn testing_castle_can_resolve_object_projection_with_inner_object_projections() 
 
     builder.add_resolver("me", me);
 
-    let builder = builder.add_schema(schema);
+    builder.add_schema(schema)?;
     let castle = builder.build_and_validate()?;
 
     let parsed_query = parse_query(query)?;
@@ -609,7 +610,7 @@ fn should_pass_query_with_nested_inner_objects() -> Result<(), CastleError> {
 
     builder.add_resolver("me", me);
 
-    let builder = builder.add_schema(schema);
+    builder.add_schema(schema)?;
     let castle = builder.build_and_validate()?;
 
     let parsed_query = parse_query(query)?;
@@ -719,7 +720,7 @@ fn should_pass_query_with_match() -> Result<(), CastleError> {
     }
     builder.add_resolver("me".into(), me);
 
-    let builder = builder.add_schema(schema);
+    builder.add_schema(schema)?;
     let castle = builder.build_and_validate()?;
 
     let parsed_query = parse_query(query)?;
