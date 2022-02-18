@@ -1,4 +1,5 @@
-use castle::castle_object::castle_struct::{Castle, CastleBuilder};
+use castle::{castle_object::castle_struct::{Castle, CastleBuilder}, validation::validate_query_with_schema::validate_query_with_schema::validate_query_with_schema};
+use parser_and_schema::parsers::query_parser::parse_query::parse_query;
 use shared::CastleError;
 
 
@@ -34,6 +35,9 @@ fn test_page_info_resolvers() -> Result<(), CastleError> {
             blocks
         }
     ";
+
+    let parsed_query = parse_query(query)?;
+    validate_query_with_schema(&parsed_query, &castle.parsed_schema)?;
 
     return Ok(())
 }
