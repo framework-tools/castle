@@ -28,6 +28,7 @@ dependencies = [
  "rmpv",
  "serde",
  "shared",
+ "uuid",
 ]
 
 [[package]]
