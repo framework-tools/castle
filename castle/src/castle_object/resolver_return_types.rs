@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 #[derive(Debug, PartialEq)]
 pub enum Value<R = ()> {
-    Null,
+    Empty,
     Bool(bool),
     Int(i64),
     UInt(u64),
@@ -12,9 +12,7 @@ pub enum Value<R = ()> {
     EnumValue(EnumResolverValue<R>),
     Vec(Vec<Value<R>>),
     Object(HashMap<Box<str>, Value<R>>),
-    Custom(Box<R>),
-    Uuid(Uuid),
-    Empty
+    Custom(Box<R>)
 }
 
 #[derive(Debug, PartialEq)]
