@@ -1,4 +1,4 @@
-use castle::{castle_object::castle_struct::{Castle, CastleBuilder}, validation::validate_query_with_schema::validate_query_with_schema::validate_query_with_schema};
+use castle::{castle_object::castle_struct::{Castle, CastleBuilder}, validation::validate_query_with_schema::validate_query_with_schema::validate_query_with_schema, resolvers::resolve_query_wants::resolve_all_wants};
 use parser_and_schema::parsers::query_parser::parse_query::parse_query;
 use shared::CastleError;
 
@@ -39,5 +39,8 @@ fn test_page_info_resolvers() -> Result<(), CastleError> {
     let parsed_query = parse_query(query)?;
     validate_query_with_schema(&parsed_query, &castle.parsed_schema)?;
 
+    let actual = resolve_all_wants(parsed_query.wants, &castle.resolver_map, ())?;
+    
+    let expected
     return Ok(())
 }
