@@ -10,8 +10,9 @@ use shared::CastleError;
 #[test]
 fn test_page_info_resolvers() -> Result<(), CastleError> {
     let mut builder: CastleBuilder<(), ()> = CastleBuilder::new();
-    //apply the current castle schema
     builder.apply_current_schema();
+    builder.add_all_resolvers();
+
     
 
     return Ok(())
