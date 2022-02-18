@@ -3,7 +3,7 @@ use std::collections::{HashSet};
 use parser_and_schema::ast::syntax_definitions::{schema_definition::SchemaDefinition};
 use shared::CastleError;
 
-use crate::{resolvers::resolve_query_wants::{ResolverMap}, directives::{directives::DirectiveMap, self}};
+use crate::{resolvers::{resolve_query_wants::{}, resolver_map::ResolverMap}, directives::{directives::DirectiveMap, self}};
 
 
 

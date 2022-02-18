@@ -12,6 +12,7 @@ pub enum Value<R = ()> {
     Vec(Vec<Value<R>>),
     Object(HashMap<Box<str>, Value<R>>),
     Custom(Box<R>),
+    Empty
 }
 
 #[derive(Debug, PartialEq)]

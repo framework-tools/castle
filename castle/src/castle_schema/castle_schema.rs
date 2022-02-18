@@ -17,7 +17,7 @@ type PageInfo {
     basic_page_info: BasicPageInfo,
     description: String,
     parent_id: uuid,
-    basic_parent_page_info: BasicPageInfo,
+    basic_parent_page_info: Option<BasicPageInfo>,
     blocks: Vec<Block>
 }
 

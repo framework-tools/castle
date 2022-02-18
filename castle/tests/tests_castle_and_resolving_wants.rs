@@ -13,7 +13,7 @@ use shared::CastleError;
 #[cfg(test)]
 #[test]
 fn testing_castle_builds_and_validates(){
-    use castle::{castle_object::{castle_struct::{CastleBuilder, Castle}, resolver_return_types::Value}, resolvers::resolve_query_wants::{ResolverMap, Wants, Args}, directives::directives::DirectiveMap};
+    use castle::{castle_object::{castle_struct::{CastleBuilder, Castle}, resolver_return_types::Value}, resolvers::resolve_query_wants::{}, directives::directives::DirectiveMap};
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 

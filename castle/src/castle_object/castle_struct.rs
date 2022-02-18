@@ -3,35 +3,31 @@ use std::{collections::HashMap};
 use parser_and_schema::{ast::syntax_definitions::{schema_definition::{SchemaDefinition}, fn_definition::FnDefinition, directive_definition::{self, DirectiveDefinition}}, parsers::{schema_parser::parse_schema::parse_schema, query_parser::parse_query::parse_query}};
 use shared::CastleError;
 
-use crate::{resolvers::resolvers::{ResolverMap, Resolver, resolve_all_wants, TopLevelResolvers}, directives::directives::{DirectiveMap}, validation::{self_validation_schema::self_validate_schema::self_validate_schema, validate_backend_fns_with_schema::validate_backend_fns_with_schema::validate_schema_with_resolvers_and_directives, validate_query_with_schema::validate_query_with_schema::validate_query_with_schema}, castle_schema::castle_schema::SCHEMA};
+use crate::{resolvers::{resolver_map::ResolverMap, resolve_query_wants::resolve_all_wants, resolver_type::{TopLevelResolvers, Resolver}}, directives::directives::DirectiveMap, validation::{self_validation_schema::self_validate_schema::self_validate_schema, validate_backend_fns_with_schema::validate_backend_fns_with_schema::validate_schema_with_resolvers_and_directives, validate_query_with_schema::validate_query_with_schema::validate_query_with_schema}, castle_schema::castle_schema::SCHEMA};
 
 pub struct Castle<C, R>{
     pub resolvers: ResolverMap<C, R>,
-    pub schema: String,
     pub parsed_schema: SchemaDefinition,
     pub directives: DirectiveMap<C, R>,
 }
 
 impl<C, R> Castle<C, R> {
-    pub fn builder() -> CastleBuilder<C, R> {
-        CastleBuilder::new()
-    }
 
     pub fn build_and_validate(
         resolvers: ResolverMap<C, R>,
         directives: DirectiveMap<C, R>,
-        schema: String
+        schema: &str,
     ) -> Result<Castle<C, R>, CastleError> {
         let parsed_schema = parse_schema(&schema)?;
         let castle = Castle {
             resolvers,
-            schema,
             parsed_schema,
             directives
         };
         castle.validate()?;
         Ok(castle)
     }
+
 
     ///This function runs self validation and cross validation with resolvers and schemas
     /// - Self validate schema 
@@ -69,14 +65,13 @@ impl<'a, C, R> CastleBuilder<'a, C, R> {
         }
     }
 
-    pub fn add_schema<Schema: Into<String>>(mut self, schema: Schema) -> Self {
-        self.schema = Some(schema.into());
+    pub fn add_schema(mut self, schema: &'a str) -> Self {
+        self.schema = Some(schema);
         self
     }
 
     pub fn apply_current_schema(&mut self) {
         self.schema = Some(SCHEMA);
-        self
     }
 
     pub fn build_and_validate(self) -> Result<Castle<C, R>, CastleError> {
