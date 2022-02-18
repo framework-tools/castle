@@ -61,7 +61,7 @@ fn testing_castle_can_resolve_single_field_want() -> Result<(), CastleError> {
 
     let parsed_query = parse_query(query)?;
     validate_query_with_schema(&parsed_query, &castle.parsed_schema)?;
-    let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolvers, ())?;
+    let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolver_map, ())?;
     let mut expected = HashMap::new();
     expected.insert("hello".into(),  Value::String("world".to_string()));
     assert_eq!(expected, resolved_wants);
@@ -113,7 +113,7 @@ fn testing_castle_can_resolve_object_projection_want_with_all_fields() -> Result
 
     let parsed_query = parse_query(query)?;
     validate_query_with_schema(&parsed_query, &castle.parsed_schema)?;
-    let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolvers, ())?;
+    let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolver_map, ())?;
 
     let mut expected_wants = HashMap::new();
     expected_wants.insert("first_name".into(), Value::String("John".to_string()));
@@ -169,7 +169,7 @@ fn testing_castle_can_resolve_object_projection_but_subset_of_fields() -> Result
 
     let parsed_query = parse_query(query)?;
     validate_query_with_schema(&parsed_query, &castle.parsed_schema)?;
-    let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolvers, ())?;
+    let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolver_map, ())?;
     let mut expected_wants = HashMap::new();
     expected_wants.insert("first_name".into(), Value::String("John".to_string()));
     let mut expected = HashMap::new();
@@ -211,7 +211,7 @@ fn testing_castle_can_resolve_two_single_fields_different_return_types() -> Resu
 
     let parsed_query = parse_query(query)?;
     validate_query_with_schema(&parsed_query, &castle.parsed_schema)?;
-    let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolvers, ())?;
+    let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolver_map, ())?;
     let mut expected = HashMap::new();
     expected.insert("hello".into(),  Value::String("world".to_string()));
     expected.insert("get_number".into(), Value::Int(42));
@@ -319,7 +319,7 @@ fn testing_castle_can_resolve_multiple_object_projections() -> Result<(), Castle
 
     let parsed_query = parse_query(query)?;
     validate_query_with_schema(&parsed_query, &castle.parsed_schema)?;
-    let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolvers, ())?;
+    let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolver_map, ())?;
     
     let mut expected_wants_for_me = HashMap::new();
     expected_wants_for_me.insert("id".into(), Value::Int(123));
@@ -463,7 +463,7 @@ fn testing_castle_can_resolve_object_projection_with_inner_object_projections() 
 
     let parsed_query = parse_query(query)?;
     validate_query_with_schema(&parsed_query, &castle.parsed_schema)?;
-    let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolvers, ())?;
+    let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolver_map, ())?;
     
     let mut expected_wants_for_name = HashMap::new();
     expected_wants_for_name.insert("first_name".into(), Value::String("John".to_string()));
@@ -614,7 +614,7 @@ fn should_pass_query_with_nested_inner_objects() -> Result<(), CastleError> {
 
     let parsed_query = parse_query(query)?;
     validate_query_with_schema(&parsed_query, &castle.parsed_schema)?;
-    let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolvers, ())?;
+    let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolver_map, ())?;
     
     let mut expected_wants_for_name = HashMap::new();
     expected_wants_for_name.insert("first_name".into(), Value::String("John".to_string()));
@@ -724,7 +724,7 @@ fn should_pass_query_with_match() -> Result<(), CastleError> {
 
     let parsed_query = parse_query(query)?;
     validate_query_with_schema(&parsed_query, &castle.parsed_schema)?;
-    let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolvers, ())?;
+    let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolver_map, ())?;
     
     let mut expected_wants_for_name = HashMap::new();
     expected_wants_for_name.insert("username".into(), Value::String("@tim_dillon".to_string()));
