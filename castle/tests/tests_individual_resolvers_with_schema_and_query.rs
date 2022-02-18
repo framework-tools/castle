@@ -11,7 +11,7 @@ use shared::CastleError;
 fn test_page_info_resolvers() -> Result<(), CastleError> {
     let mut builder: CastleBuilder<(), ()> = CastleBuilder::new();
     //apply the current castle schema
-    builder.add_current_schema();
+    builder.apply_current_schema();
     
     return Ok(())
 }
