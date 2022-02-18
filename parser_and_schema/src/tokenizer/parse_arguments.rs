@@ -1,6 +1,7 @@
 use std::io::Read;
 
-use shared::CastleError;
+
+use shared::castle_error::CastleError;
 
 use crate::{ast::syntax_definitions::argument::{ArgumentOrTuple, match_token_to_parse_argument}, token::{token::{Punctuator, TokenKind}}};
 

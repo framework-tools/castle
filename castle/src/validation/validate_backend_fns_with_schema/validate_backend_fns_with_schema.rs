@@ -1,7 +1,8 @@
 use std::collections::{HashSet};
 
 use parser_and_schema::ast::syntax_definitions::{schema_definition::SchemaDefinition};
-use shared::CastleError;
+use shared::castle_error::CastleError;
+
 
 use crate::{resolvers::{resolve_query_wants::{}, resolver_map::ResolverMap}, directives::{directives::DirectiveMap, self}};
 

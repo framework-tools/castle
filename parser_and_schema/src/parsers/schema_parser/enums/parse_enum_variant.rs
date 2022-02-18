@@ -1,6 +1,8 @@
 use std::{collections::HashMap, io::Read};
 
-use shared::CastleError;
+
+
+use shared::castle_error::CastleError;
 
 use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}}, ast::syntax_definitions::{enum_definition::{EnumVariant, EnumDataType}, argument::ArgumentOrTuple}, token::token::{TokenKind, Identifier, Punctuator}, parsers::schema_parser::{types::{schema_field::SchemaField, parse_directive::parse_directives}, parse_schema_type::check_token_and_parse_schema_field_or_break}};
 

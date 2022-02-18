@@ -1,6 +1,8 @@
 use std::io::Read;
 
-use shared::CastleError;
+
+
+use shared::castle_error::CastleError;
 
 use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}}, token::{token::{TokenKind, Punctuator}, Token}};
 

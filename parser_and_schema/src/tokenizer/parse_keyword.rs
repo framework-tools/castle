@@ -1,7 +1,7 @@
 use std::io::Read;
 
 use input_cursor::{Position, Span};
-use shared::CastleError;
+use shared::castle_error::CastleError;
 
 use crate::{ast::syntax_definitions::{keyword::Keyword}, token::{Token, token::TokenKind}};
 

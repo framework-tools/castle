@@ -1,6 +1,7 @@
 use std::{io::Read, collections::HashMap};
 
-use shared::CastleError;
+
+use shared::castle_error::CastleError;
 
 use crate::{token::{Token, token::{TokenKind, Identifier, Punctuator}}, parsers::schema_parser::types::type_system::{Type, parse_type}, tokenizer::{tokenizer::{Tokenizer}, tokenizer_utils::{get_next_token_and_unwrap}}};
 

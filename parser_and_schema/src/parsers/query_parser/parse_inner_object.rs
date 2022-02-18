@@ -1,6 +1,8 @@
 use std::{io::Read, collections::HashMap};
 
-use shared::CastleError;
+
+
+use shared::castle_error::CastleError;
 
 use crate::{tokenizer::tokenizer::Tokenizer, ast::syntax_definitions::want::Want, token::token::Identifier};
 

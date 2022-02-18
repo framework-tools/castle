@@ -1,6 +1,8 @@
 use std::{collections::HashMap, io::Read};
 
-use shared::CastleError;
+
+
+use shared::castle_error::CastleError;
 
 use crate::{tokenizer::tokenizer::{self, Tokenizer}, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant}}, parsers::schema_parser::parse_schema_type::get_identifier_skip_open_block};
 

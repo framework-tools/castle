@@ -1,7 +1,7 @@
 use std::{io::Read, char, collections::HashMap};
 
 use input_cursor::{Position, Cursor, Span};
-use shared::CastleError;
+use shared::castle_error::CastleError;
 
 use crate::{token::{Token, token::TokenKind}, ast::syntax_definitions::{enum_definition::{EnumValue, EnumDataType}}, parsers::schema_parser::parse_schema_type::check_token_and_parse_schema_field_or_break};
 
@@ -26,7 +26,6 @@ where R: Read {
     let enum_value = EnumValue { identifier, enum_parent, variant, data_type };
     return Ok(Token::new(TokenKind::EnumValue(enum_value), Span::new(start, tokenizer.cursor.pos())));
 }
-
 
 fn get_enum_parent_and_variant(word: String) -> Result<(Box<str>, Box<str>), CastleError> {
     let mut enum_parent = String::new();

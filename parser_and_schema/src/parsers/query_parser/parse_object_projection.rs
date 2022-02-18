@@ -1,7 +1,9 @@
 use std::{io::Read, collections::HashMap};
 
+use shared::castle_error::CastleError;
+
 use crate::{ast::syntax_definitions::{want::{Want, WantArguments, Wants}, keyword::{Keyword}}, token::{token::{TokenKind, Punctuator, Identifier}, Token}, tokenizer::{tokenizer::Tokenizer, tokenizer_utils::get_next_token_and_unwrap}};
-use shared::CastleError;
+
 
 use crate::ast::syntax_definitions::argument::ArgumentOrTuple;
 

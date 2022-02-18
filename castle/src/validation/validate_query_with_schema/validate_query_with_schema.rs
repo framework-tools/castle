@@ -1,7 +1,8 @@
 use std::{collections::HashMap};
 
 use parser_and_schema::{parsers::{query_parser::parse_query::ParsedQuery, schema_parser::types::{ type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{schema_definition::{SchemaDefinition, self}, want::{Want, Wants, WantArguments}, expressions::PrimitiveValue, fn_definition::FnDefinition, argument::{IdentifierAndTypeArgument, IdentifierAndValueArgument, self}, match_statement::{self, MatchArm, MatchStatement}, enum_definition::{self, EnumDataType}}};
-use shared::CastleError;
+use shared::castle_error::CastleError;
+
 
 /// Cross-Validation Between Query Parser & Schema Parser
 /// Needs to validate that the current schema and the query are compatible

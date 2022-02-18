@@ -1,7 +1,7 @@
 use std::{collections::{HashMap, hash_map}, vec, string, env::args};
-
+use shared::castle_error::CastleError;
 use parser_and_schema::{parsers::schema_parser::{schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}, types::{type_system::Type, primitive_type::PrimitiveType, schema_type::SchemaType, schema_field::SchemaField, vec_type::VecType, option_type::OptionType}, parse_schema::parse_schema}, ast::syntax_definitions::{enum_definition::{EnumVariant, EnumDataType, EnumDefinition}, schema_definition::SchemaDefinition, argument::{ArgumentOrTuple, IdentifierAndTypeArgument, IdentifierAndValueArgument}, fn_definition::FnDefinition, directive_definition::{Directive, self, DirectiveDefinition, DirectiveOnValue}}};
-use shared::CastleError;
+
 
 #[test]
 fn can_parse_empty_query() {

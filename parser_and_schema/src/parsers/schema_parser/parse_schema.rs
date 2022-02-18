@@ -1,6 +1,8 @@
 
 
-use shared::CastleError;
+
+
+use shared::castle_error::CastleError;
 
 use crate::{tokenizer::tokenizer::Tokenizer, ast::syntax_definitions::schema_definition::SchemaDefinition};
 

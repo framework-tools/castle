@@ -1,7 +1,8 @@
 use std::{fmt::{Formatter, self, Display}};
 
 use input_cursor::{Span, Position};
-use shared::CastleError;
+use shared::castle_error::CastleError;
+
 
 use crate::{ast::syntax_definitions::{keyword::Keyword, argument::ArgumentOrTuple, enum_definition::EnumValue, directive_definition::{DirectiveOnValue}}, parsers::schema_parser::types::{primitive_type::PrimitiveType, vec_type::VecType, option_type::OptionType, type_system::Type}};
 

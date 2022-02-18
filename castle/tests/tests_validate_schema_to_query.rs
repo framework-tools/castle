@@ -1,6 +1,6 @@
 use castle::validation::{validate_query_with_schema::validate_query_with_schema::validate_query_with_schema, self_validation_schema::self_validate_schema::self_validate_schema};
 use parser_and_schema::{parsers::{schema_parser::parse_schema::parse_schema, query_parser::parse_query::parse_query}};
-use shared::CastleError;
+use shared::castle_error::CastleError;
 
 /// Currently Testing:
 /// - Check top level want in query uses a defined resolver

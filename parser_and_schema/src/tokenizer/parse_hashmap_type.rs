@@ -1,7 +1,7 @@
 use std::io::Read;
 
 use input_cursor::{Cursor, Position, Span};
-use shared::CastleError;
+use shared::castle_error::CastleError;
 
 use crate::{parsers::schema_parser::types::type_system::{Type, get_type_from_string}, token::{Token, token::TokenKind}};
 

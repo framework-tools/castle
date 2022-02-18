@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
 use parser_and_schema::ast::syntax_definitions::{want::Want, argument::IdentifierAndValueArgument};
-use shared::CastleError;
+use shared::castle_error::CastleError;
+
 
 use crate::castle_object::resolver_return_types::Value;
 

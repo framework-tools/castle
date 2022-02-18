@@ -2,7 +2,7 @@
 use std::{io::Read, collections::VecDeque};
 
 use input_cursor::{Cursor, Position};
-use shared::CastleError;
+use shared::castle_error::CastleError;
 
 use crate::{token::{Token, token::{TokenKind, Punctuator, Numeric}}, ast::syntax_definitions::{expressions::{PrimitiveValue}, keyword::Keyword}, tokenizer::{parse_newline::parse_newline, parse_string::parse_string}};
 

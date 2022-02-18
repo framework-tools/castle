@@ -1,7 +1,8 @@
 use std::{collections::HashMap};
 
 use parser_and_schema::{ast::syntax_definitions::{schema_definition::{SchemaDefinition}, fn_definition::FnDefinition, directive_definition::{self, DirectiveDefinition}}, parsers::{schema_parser::parse_schema::parse_schema, query_parser::parse_query::parse_query}};
-use shared::CastleError;
+use shared::castle_error::CastleError;
+
 
 use crate::{resolvers::{resolver_map::{ResolverMap, self}, resolve_query_wants::resolve_all_wants, resolver_type::{TopLevelResolvers, Resolver}}, directives::directives::DirectiveMap, validation::{self_validation_schema::self_validate_schema::self_validate_schema, validate_backend_fns_with_schema::validate_backend_fns_with_schema::validate_schema_with_resolvers_and_directives, validate_query_with_schema::validate_query_with_schema::validate_query_with_schema}};
 

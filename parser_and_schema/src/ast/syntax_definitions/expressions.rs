@@ -1,7 +1,8 @@
 
 
 use serde::{Deserialize, Serialize};
-use shared::CastleError;
+use shared::castle_error::CastleError;
+
 
 use crate::token::{token::{TokenKind, Numeric, Identifier}, Token};
 

@@ -8,7 +8,8 @@ use parser_and_schema::ast::syntax_definitions::expressions::{PrimitiveValue, Ex
 use parser_and_schema::ast::syntax_definitions::match_statement::{MatchArm, MatchStatement};
 use parser_and_schema::ast::syntax_definitions::want::{Want};
 use parser_and_schema::parsers::query_parser::parse_query::parse_query;
-use shared::CastleError;
+use shared::castle_error::CastleError;
+
 
 pub fn insert_each_field_into_fields(vec_of_fields: Vec<(Box<str>, Want)>) -> HashMap<Box<str>, Want> {
     let mut fields = HashMap::new();

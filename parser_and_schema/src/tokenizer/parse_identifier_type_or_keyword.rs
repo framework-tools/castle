@@ -1,7 +1,7 @@
 use std::{io::Read};
 
 use input_cursor::{Cursor, Position};
-use shared::CastleError;
+use shared::castle_error::CastleError;
 
 use crate::{token::{Token}, parsers::schema_parser::types::parse_directive::parse_directive_on_value};
 
