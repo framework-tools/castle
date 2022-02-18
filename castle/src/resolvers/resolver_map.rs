@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use super::{resolver_type::Resolver, individual_resolvers::page_info_resolver::page_info};
+use super::{resolver_type::Resolver, individual_resolvers::page_resolvers::page_info_resolver::page_info};
 
 //A HashMap containing all Resolvers
 pub struct ResolverMap<C, R> {

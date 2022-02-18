@@ -1,1 +1,1 @@
-pub mod page_info_resolver;
+pub mod page_resolvers;
