@@ -10,3 +10,4 @@ parser_and_schema = { path = "../parser_and_schema" }
 serde = { version = "1.0.117", features = ["derive"] }
 rmpv = { version = "1.0.0" }
 shared = { path = "../shared" }
+uuid = "0.8"

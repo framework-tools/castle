@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use uuid::Uuid;
 
 #[derive(Debug, PartialEq)]
 pub enum Value<R = ()> {
@@ -12,6 +13,7 @@ pub enum Value<R = ()> {
     Vec(Vec<Value<R>>),
     Object(HashMap<Box<str>, Value<R>>),
     Custom(Box<R>),
+    Uuid(Uuid),
     Empty
 }
 
