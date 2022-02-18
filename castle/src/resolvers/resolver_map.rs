@@ -19,9 +19,10 @@ impl<C, R> ResolverMap<C, R> {
     }
 }
 
-pub fn create_resolver_map_with_all_resolvers() -> HashMap<Box<str>, Resolver<String, String>> {
-    let mut resolver_map = HashMap::new();
-    resolver_map.insert("page_info".into(), page_info);
-    resolver_map.insert("basic_page_info".into(), basic_page_info);
+pub fn create_resolver_map_with_all_resolvers<C, R>() -> ResolverMap<C, R> {
+    let mut resolver_map: ResolverMap<C, R> = ResolverMap::new();
+    resolver_map.resolvers.insert("page_info".into(), page_info);
+    resolver_map.resolvers.insert("basic_page_info".into(), basic_page_info);
+    resolver_map.resolvers.insert("basic_parent_page_info".into(), basic_page_info);
     return resolver_map
 }
