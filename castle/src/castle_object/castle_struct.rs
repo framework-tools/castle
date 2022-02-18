@@ -3,10 +3,10 @@ use std::{collections::HashMap};
 use parser_and_schema::{ast::syntax_definitions::{schema_definition::{SchemaDefinition}, fn_definition::FnDefinition, directive_definition::{self, DirectiveDefinition}}, parsers::{schema_parser::parse_schema::parse_schema, query_parser::parse_query::parse_query}};
 use shared::CastleError;
 
-use crate::{resolvers::{resolver_map::ResolverMap, resolve_query_wants::resolve_all_wants, resolver_type::{TopLevelResolvers, Resolver}}, directives::directives::DirectiveMap, validation::{self_validation_schema::self_validate_schema::self_validate_schema, validate_backend_fns_with_schema::validate_backend_fns_with_schema::validate_schema_with_resolvers_and_directives, validate_query_with_schema::validate_query_with_schema::validate_query_with_schema}, castle_schema::castle_schema::SCHEMA};
+use crate::{resolvers::{resolver_map::ResolverMap, resolve_query_wants::resolve_all_wants, resolver_type::{TopLevelResolvers, Resolver}, individual_resolvers::page_resolvers::basic_page_info::basic_page_info}, directives::directives::DirectiveMap, validation::{self_validation_schema::self_validate_schema::self_validate_schema, validate_backend_fns_with_schema::validate_backend_fns_with_schema::validate_schema_with_resolvers_and_directives, validate_query_with_schema::validate_query_with_schema::validate_query_with_schema}, castle_schema::castle_schema::SCHEMA};
 
 pub struct Castle<C, R>{
-    pub resolvers: ResolverMap<C, R>,
+    pub resolver_map: ResolverMap<C, R>,
     pub parsed_schema: SchemaDefinition,
     pub directives: DirectiveMap<C, R>,
 }
@@ -51,7 +51,7 @@ impl<C, R> Castle<C, R> {
 }
 
 pub struct CastleBuilder<'a, C, R> {
-    pub resolvers: ResolverMap<C, R>,
+    pub resolver_map: ResolverMap<C, R>,
     pub directives: DirectiveMap<C, R>,
     schema: Option<&'a str>,
 }
@@ -91,5 +91,9 @@ impl<'a, C, R> CastleBuilder<'a, C, R> {
 
     pub fn add_directive(&mut self, directive_name: &str, directive: Resolver<C, R>) {
         self.directives.insert(directive_name.into(), directive);
+    }
+
+    pub fn add_all_resolvers(&mut self) {
+        self.resolvers.resolvers = create_resolver_map_with_all_resolvers();
     }
 }

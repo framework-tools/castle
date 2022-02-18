@@ -17,8 +17,4 @@ impl<C, R> ResolverMap<C, R> {
     pub fn add_individual_resolver(&mut self, resolver_name: &str, resolver: Resolver<C, R>) {
         self.resolvers.insert(resolver_name.into(), resolver);
     }
-
-    pub fn add_all_resolvers(&mut self, mut resolvers: HashMap<Box<str>, Resolver<C, R>>) {
-        resolvers.insert("page_info".into(), page_info);
-    }
 }

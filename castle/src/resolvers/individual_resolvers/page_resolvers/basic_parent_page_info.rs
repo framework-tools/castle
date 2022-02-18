@@ -21,10 +21,6 @@ pub fn basic_parent_page_info<'a, C, R>(wants: Option<&Wants>, args: &Args, reso
     //this dummy data is strictly for the test & will be replaced with
     //two steps: sending the wants to the DB & then receiving their values
     let dummy_data = get_requested_fields_from_db_dummy(&mut possible_fields, wants, args, context, Value::Object(HashMap::new()))?;
-
-    let mut resolved_wants = Value::Empty;
-    if wants.is_some() {
-        resolved_wants = generic_resolver(wants, &possible_fields, args, resolver_map, context, Value::Object(dummy_data))?;
-    }
+    let resolved_wants = generic_resolver(wants, &possible_fields, args, resolver_map, context, Value::Object(dummy_data))?;
     return Ok(resolved_wants)
 }

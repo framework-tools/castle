@@ -13,5 +13,6 @@ fn test_page_info_resolvers() -> Result<(), CastleError> {
     //apply the current castle schema
     builder.apply_current_schema();
     
+
     return Ok(())
 }
