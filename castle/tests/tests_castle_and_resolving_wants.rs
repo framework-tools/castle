@@ -17,7 +17,7 @@ fn testing_castle_builds_and_validates(){
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
-    let mut builder: CastleBuilder<(), ()> = Castle::builder();
+    let mut builder: CastleBuilder<(), ()> = CastleBuilder::new();
     //test resolver
     fn hello<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
         Ok(Value::String("world".to_string()))
@@ -40,7 +40,7 @@ fn testing_castle_can_resolve_single_field_want() -> Result<(), CastleError> {
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
-    let mut builder: CastleBuilder<(), ()> = Castle::builder();
+    let mut builder: CastleBuilder<(), ()> = CastleBuilder::new();
     //test resolver
     fn hello<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &()) -> Result<Value<R>, CastleError> {
         Ok(Value::String("world".to_string()))
@@ -74,7 +74,7 @@ fn testing_castle_can_resolve_object_projection_want_with_all_fields() -> Result
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
-    let mut builder: CastleBuilder<(), ()> = Castle::builder();
+    let mut builder: CastleBuilder<(), ()> = CastleBuilder::new();
     //test resolver
     fn get_name<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
         //dummy data
@@ -132,7 +132,7 @@ fn testing_castle_can_resolve_object_projection_but_subset_of_fields() -> Result
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
-    let mut builder: CastleBuilder<(), ()> = Castle::builder();
+    let mut builder: CastleBuilder<(), ()> = CastleBuilder::new();
     //test resolver
     fn get_name<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
         //dummy data
@@ -184,7 +184,7 @@ fn testing_castle_can_resolve_two_single_fields_different_return_types() -> Resu
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
-    let mut builder: CastleBuilder<(), ()> = Castle::builder();
+    let mut builder: CastleBuilder<(), ()> = CastleBuilder::new();
     //test resolver
     fn hello<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &()) -> Result<Value<R>, CastleError> {
         Ok(Value::String("world".to_string()))
@@ -225,7 +225,7 @@ fn testing_castle_can_resolve_multiple_object_projections() -> Result<(), Castle
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
-    let mut builder: CastleBuilder<(), ()> = Castle::builder();
+    let mut builder: CastleBuilder<(), ()> = CastleBuilder::new();
     let schema = "
         fn me() -> User
         fn org_basic_info() -> Organization
@@ -357,7 +357,7 @@ fn testing_castle_can_resolve_object_projection_with_inner_object_projections() 
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
-    let mut builder: CastleBuilder<(), ()> = Castle::builder();
+    let mut builder: CastleBuilder<(), ()> = CastleBuilder::new();
     let schema = "
         fn me() -> User
         fn name() -> Name
@@ -499,7 +499,7 @@ fn should_pass_query_with_nested_inner_objects() -> Result<(), CastleError> {
     use parser_and_schema::{ast::syntax_definitions::fn_definition::FnDefinition, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
     use shared::CastleError;
 
-    let mut builder: CastleBuilder<(), ()> = Castle::builder();
+    let mut builder: CastleBuilder<(), ()> = CastleBuilder::new();
     let schema = "
         fn me() -> User
         fn name() -> Name
@@ -682,7 +682,7 @@ fn should_pass_query_with_match() -> Result<(), CastleError> {
     }
     ";
 
-    let mut builder: CastleBuilder<(), ()> = Castle::builder();
+    let mut builder: CastleBuilder<(), ()> = CastleBuilder::new();
     //test resolvers
     fn name<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
         //dummy data
