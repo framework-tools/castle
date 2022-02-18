@@ -44,3 +44,19 @@ fn test_page_info_resolvers() -> Result<(), CastleError> {
     let expected
     return Ok(())
 }
+
+let mut block = EnumResolverValue {
+    identifier: "Block::ContentBlock".into(),
+    enum_parent: "Block".into(),
+    variant: "ContentBlock".into(),
+    fields: HashMap::new(),
+};
+block.fields.insert("uuid".into(), Value::Uuid(Uuid::parse_str("936DA01F9ABD4d9d80C702AF85C822A8").unwrap()));
+
+let (_, dummy_data): (HashSet<Box<str>>, Value<R>) = create_possible_fields_and_dummy_data(vec![
+    ("id".into(), Value::Uuid(Uuid::parse_str("936DA01F9ABD4d9d80C702AF85C822A8").unwrap())),
+    ("description".into(), Value::String("this is a description".to_string())),
+    ("parent_id".into(), Value::Uuid(Uuid::parse_str("936DA01F9ABD4d9d80C702AF85C822A8").unwrap())),
+    ("blocks".into(), Value::Vec(vec![
+        Value::EnumValue(block)
+    ])),
