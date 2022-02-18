@@ -27,7 +27,7 @@ fn test_resolver_defined_in_schema_that_does_not_exist_throws_error(){
     }
     let mut builder: CastleBuilder<(), ()> = CastleBuilder::new();
     builder.add_resolver("random_resolver".into(), random_resolver);
-    let result = validate_schema_with_resolvers(&builder.resolvers, &parsed_schema);
+    let result = validate_schema_with_resolvers(&builder.resolver_map, &parsed_schema);
     if result.is_err() {
         match result {
             Err(CastleError::UndefinedResolver(_)) => {}, //passes
