@@ -1,16 +1,41 @@
-pub struct CastleSchema {
-    pub schema: String,
+
+
+pub const SCHEMA: &str = "
+fn basic_page_info() -> BasicPageInfo
+fn basic_parent_page_info() -> BasicPageInfo
+
+type BasicPageInfo {
+    title: String,
+    icon: Option<String>,
+    emoji: Option<String>
 }
 
-impl CastleSchema {
-    pub fn new() -> Self {
-        let schema = "
-            //This is the real schema
-            
-        ".to_string();
+fn page_info() -> PageInfo
 
-        Self {
-            schema,
-        }
-    }
+type PageInfo {
+    id: uuid,
+    basic_page_info: BasicPageInfo,
+    description: String,
+    parent_id: uuid,
+    basic_parent_page_info: BasicPageInfo,
+    blocks: Vec<Block>
 }
+
+enum Block {
+    ContentBlock(ContentBlock),
+    KanbanBlock(KanbanBlock),
+    CheckListBlock(CheckListBlock),
+}
+
+type ContentBlock {
+    id: uuid
+}
+
+type KanbanBlock {
+    id: uuid
+}
+
+type CheckListBlock {
+    id: uuid
+}
+";

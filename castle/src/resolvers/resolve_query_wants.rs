@@ -1,31 +1,11 @@
 use std::collections::HashMap;
 
-use parser_and_schema::ast::syntax_definitions::{want::{Want}, argument::{IdentifierAndValueArgument, self}, fn_definition::FnDefinition};
+use parser_and_schema::ast::syntax_definitions::{want::{Want, Wants}, argument::{IdentifierAndValueArgument, self}, fn_definition::FnDefinition};
 use shared::CastleError;
 
 use crate::castle_object::resolver_return_types::Value;
 
-//A HashMap containing all Resolvers
-pub struct ResolverMap<C, R> {
-    pub resolvers: HashMap<Box<str>, Resolver<C, R>>
-}
-
-impl<C, R> ResolverMap<C, R> {
-    pub fn new() -> Self {
-        ResolverMap {
-            resolvers: HashMap::new()
-        }
-    }
-}
-
-//A resolver takes in fields (inner wants), arguments and context and returns the resolved want
-pub type Resolver<C, R> = fn(Option<&Wants>, &Args, &ResolverMap<C, R>, &C) -> Result<Value<R>, CastleError>;
-//Fields that a query wants resolved
-pub type Wants = HashMap<Box<str>, Want>;
-//Arguments for a resolver
-pub type Args = HashMap<Box<str>, IdentifierAndValueArgument>;
-//A single resolved want on the top layer of a query
-pub type TopLevelResolvers<R> = HashMap<Box<str>, Value<R>>;
+use super::{resolver_map::ResolverMap, resolver_type::TopLevelResolvers};
 
 ///For each top level want, resolve each want & insert in AllResolvedWants
 pub fn resolve_all_wants<C, R>(wants: Wants, resolver_map: &ResolverMap<C, R>,  context: C) -> Result<TopLevelResolvers<R>, CastleError> {

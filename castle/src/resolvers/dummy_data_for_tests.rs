@@ -5,7 +5,7 @@ use shared::CastleError;
 
 use crate::castle_object::resolver_return_types::Value;
 
-use super::resolvers::Args;
+use super::resolver_type::Args;
 
 
 ///Need to implement this properly once API & DB integration is complete

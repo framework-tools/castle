@@ -3,7 +3,7 @@ use std::{collections::HashMap};
 use parser_and_schema::{ast::syntax_definitions::{schema_definition::{SchemaDefinition}, fn_definition::FnDefinition, directive_definition::{self, DirectiveDefinition}}, parsers::{schema_parser::parse_schema::parse_schema, query_parser::parse_query::parse_query}};
 use shared::CastleError;
 
-use crate::{resolvers::resolvers::{ResolverMap, Resolver, resolve_all_wants, TopLevelResolvers}, directives::directives::{DirectiveMap}, validation::{self_validation_schema::self_validate_schema::self_validate_schema, validate_backend_fns_with_schema::validate_backend_fns_with_schema::validate_schema_with_resolvers_and_directives, validate_query_with_schema::validate_query_with_schema::validate_query_with_schema}};
+use crate::{resolvers::resolvers::{ResolverMap, Resolver, resolve_all_wants, TopLevelResolvers}, directives::directives::{DirectiveMap}, validation::{self_validation_schema::self_validate_schema::self_validate_schema, validate_backend_fns_with_schema::validate_backend_fns_with_schema::validate_schema_with_resolvers_and_directives, validate_query_with_schema::validate_query_with_schema::validate_query_with_schema}, castle_schema::castle_schema::SCHEMA};
 
 pub struct Castle<C, R>{
     pub resolvers: ResolverMap<C, R>,
@@ -54,13 +54,13 @@ impl<C, R> Castle<C, R> {
     }
 }
 
-pub struct CastleBuilder<C, R> {
+pub struct CastleBuilder<'a, C, R> {
     pub resolvers: ResolverMap<C, R>,
     pub directives: DirectiveMap<C, R>,
-    schema: Option<String>,
+    schema: Option<&'a str>,
 }
 
-impl<C, R> CastleBuilder<C, R> {
+impl<'a, C, R> CastleBuilder<'a, C, R> {
     pub fn new() -> Self {
         Self {
             resolvers: ResolverMap::new(),
@@ -71,6 +71,11 @@ impl<C, R> CastleBuilder<C, R> {
 
     pub fn add_schema<Schema: Into<String>>(mut self, schema: Schema) -> Self {
         self.schema = Some(schema.into());
+        self
+    }
+
+    pub fn apply_current_schema(&mut self) {
+        self.schema = Some(SCHEMA);
         self
     }
 
