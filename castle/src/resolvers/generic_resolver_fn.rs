@@ -49,7 +49,12 @@ fn generic_resolve_wants<C, R> (
     let mut resolved_fields= HashMap::new();
     for (identifier, current_want) in wants {
         let current_value = fields_with_values_from_db.remove(identifier);
-        generic_resolve_current_want(current_want, &mut resolved_fields, identifier.clone(), current_value, args, resolver_map, context)?;
+        let match_statement_identifier = generic_resolve_current_want(current_want, &mut resolved_fields, identifier.clone(), current_value, args, resolver_map, context)?;
+        if match_statement_identifier.is_some() {
+            let identifier = match_statement_identifier.unwrap();
+            let (identifier, unwrapped_want) = unwrap_and_remove_want_from_top_level_match(identifier, &mut resolved_fields)?;
+            resolved_fields.insert(identifier, unwrapped_want);
+        }
     }
     let return_value = Value::Object(resolved_fields);
     return Ok(return_value)
@@ -63,13 +68,22 @@ fn generic_resolve_current_want<C, R> (
     args: &Args, 
     resolver_map: &ResolverMap<C, R>, 
     context: &C
-) -> Result<(), CastleError>{
+) -> Result<Option<Box<str>>, CastleError>{
     match current_want {
-        Want::SingleField(_) => insert_resolved_value_for_single_field(resolved_fields, identifier, value)?,
-        Want::ObjectProjection(fields, args) => resolve_inner_object_and_insert_fields(resolved_fields, identifier, fields, args, resolver_map, context)?,
-        Want::Match(match_statement) => resolve_match_and_insert_fields(match_statement, resolved_fields, identifier, value, args, resolver_map, context)?,
+        Want::SingleField(_) => {
+            insert_resolved_value_for_single_field(resolved_fields, identifier, value)?;
+            return Ok(None)
+        },
+        Want::ObjectProjection(fields, args) => {
+            resolve_inner_object_and_insert_fields(resolved_fields, identifier, fields, args, resolver_map, context)?;
+            return Ok(None)
+        },
+        Want::Match(match_statement) => {
+            let name = identifier.clone();
+            resolve_match_and_insert_fields(match_statement, resolved_fields, identifier, value, args, resolver_map, context)?;
+            return Ok(Some(name))
+        }
     }
-    Ok(())
 }
 
 fn insert_resolved_value_for_single_field<R> (
@@ -145,5 +159,24 @@ fn match_condition_insert_resolved_fields<C, R>(
             return Ok(())
         },
         _ => return Err(CastleError::DataForWantNotReturnedByDatabase(format!("3. No value found for Enum in database. identifier {:?}", identifier).into()))
+    }
+}
+
+fn unwrap_and_remove_want_from_top_level_match<R>(identifier: Box<str>, resolved_fields: &mut HashMap<Box<str>, Value<R>>) -> Result<(Box<str>, Value<R>), CastleError> {
+    let mut unwrapped_want = resolved_fields.remove(&identifier).unwrap();
+    return match unwrapped_want {
+        Value::Object(mut fields) => {
+            let unwrapped_want = fields.remove(&identifier).unwrap();
+            match &unwrapped_want {
+                Value::Object(fields) => {
+                    for key in fields.keys() {
+                        return Ok((key.clone(), unwrapped_want))
+                    }
+                },
+                _ => return Err(CastleError::InvalidMatchStatement(format!("4. Match statement should contain an object. identifier {:?}", identifier).into()))
+            }
+            Ok((identifier, unwrapped_want))
+        },
+        _ => Err(CastleError::InvalidMatchStatement(format!("4. Match statement should contain an object. identifier {:?}", identifier).into()))
     }
 }
