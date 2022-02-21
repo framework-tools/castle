@@ -77,7 +77,7 @@ fn insert_resolved_value_for_single_field<R> (
     value: Option<Value<R>>
 ) -> Result<(), CastleError> {
     if value.is_none() {
-        return Err(CastleError::DataForWantNotReturnedByDatabase("1. No value found for field in database".into()))
+        return Err(CastleError::DataForWantNotReturnedByDatabase(format!("1. No value found for field in database. identifier {:?}", identifier).into()))
     } else {
         resolved_fields.insert(identifier, value.unwrap());
         return Ok(())
@@ -110,7 +110,7 @@ fn resolve_match_and_insert_fields<C, R> (
 ) -> Result<(), CastleError>{
     let inner_resolver = resolver_map.resolvers.get(&identifier).unwrap();
     if value.is_none() {
-        return Err(CastleError::DataForWantNotReturnedByDatabase("2. No value found for field in database".into()))
+        return Err(CastleError::DataForWantNotReturnedByDatabase(format!("2. No value found for field in database. identifier {:?}", identifier).into()))
     } else {
         let value = value.unwrap();
         match_condition_insert_resolved_fields(value, match_statement, inner_resolver, resolved_fields, identifier, args, resolver_map, context)?;
@@ -139,7 +139,7 @@ fn match_condition_insert_resolved_fields<C, R>(
             }
             return Ok(())
         },
-        _ => return Err(CastleError::DataForWantNotReturnedByDatabase("Value is not an enum value".into()))
+        _ => return Err(CastleError::DataForWantNotReturnedByDatabase(format!("3. No value found for Enum in database. identifier {:?}", identifier).into()))
     }
 }
 
