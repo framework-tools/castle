@@ -764,6 +764,7 @@ fn should_pass_top_level_match() -> Result<(), CastleError> {
     let schema = "
     fn block() -> Block
     fn content_block() -> ContentBlock
+    fn checklist_block() -> ChecklistBlock
     
     enum Block {
         ContentBlock,
@@ -802,6 +803,17 @@ fn should_pass_top_level_match() -> Result<(), CastleError> {
         return Ok(return_value)
     }
     builder.add_resolver("content_block", content_block);
+
+    fn checklist_block<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
+        //dummy data
+        let (possible_fields, dummy_data) = create_possible_fields_and_dummy_data(vec![
+            ("items".into(), Value::String("Hello world!".to_string()))
+        ]);
+
+        let return_value = generic_resolver(wants, &possible_fields, args, resolver_map, context, dummy_data)?;
+        return Ok(return_value)
+    }
+    builder.add_resolver("checklist_block", checklist_block);
 
     fn block<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
         let mut possible_fields = HashSet::new();

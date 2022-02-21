@@ -60,7 +60,7 @@ where R: Read {
     let token = get_next_token_and_unwrap(tokenizer)?;
     let identifier = match token.kind {
         TokenKind::Identifier(identifier) => identifier,
-        _ => return Err(CastleError::Parser(format!("expected identifier got : {:#?}", token).into(), token.span))
+        _ => return Err(CastleError::Parser(format!("expected identifier got : {:?}", token.kind).into(), token.span))
     };
     let mut fields = HashMap::new();
     let name = identifier.name.clone();
@@ -94,7 +94,6 @@ where R: Read {
         TokenKind::Punctuator(Punctuator::Assign) => {
             tokenizer.next(true)?; // consume the equal
             tokenizer.next(true)?; // consume the chevron
-            tokenizer.next(true)?; // consume the open block
             Ok(())
         },
         _ => Err(CastleError::AbruptEOF("unexpected end of file in skip_arrow_syntax".into()))

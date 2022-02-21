@@ -353,11 +353,11 @@ fn can_parse_object_projection_with_match() {
             profile_picture(size: 48)
             icon() match {
                 Icon::Svg => icon() {
-                    url
+                    url,
                     size
                 },
                 Icon::Emoji => emoji() {
-                    emoji
+                    emoji,
                     size
                 }
             }
@@ -404,7 +404,6 @@ fn can_parse_object_projection_with_match() {
         ("me".into(), Want::new_object_projection(fields, HashMap::new())),
     ]);
     let actual = parse_query(query).unwrap();
-    
     assert_eq!(expected, actual.wants);
 }
 
@@ -413,19 +412,19 @@ fn can_parse_object_projection_with_match_inside_match() {
     let query = "
         me() {
             icon() match {
-                Icon::Svg => {
+                Icon::Svg => icon() {
                     url(size: 48)
                     size() match {
-                        Size::Rectangle => {
+                        Size::Rectangle => rectangle() {
                             width
                             height
                         },
-                        Size::Square => {
+                        Size::Square => square() {
                             side
                         }
                     }
                 },
-                Icon::Emoji => {
+                Icon::Emoji => emoji() {
                     emoji
                     lol
                 }
@@ -448,11 +447,13 @@ fn can_parse_object_projection_with_match_inside_match() {
     let size_match = vec![
         MatchArm::new(
             EnumValue { identifier: "Size::Rectangle".into(), enum_parent: "Size".into(), variant: "Rectangle".into(), data_type: EnumDataType::EnumUnit },
-            rectangle_fields,
+            "rectangle".into(),
+            Want::new_object_projection(rectangle_fields, HashMap::new())
         ),
         MatchArm::new(
             EnumValue { identifier: "Size::Square".into(), enum_parent: "Size".into(), variant: "Square".into(), data_type: EnumDataType::EnumUnit },
-            square_fields,
+            "square".into(),
+            Want::new_object_projection(square_fields, HashMap::new()),
         ),
     ];
 
@@ -469,11 +470,13 @@ fn can_parse_object_projection_with_match_inside_match() {
     let icon_match = vec![
         MatchArm::new(
             EnumValue { identifier: "Icon::Svg".into(), enum_parent: "Icon".into(), variant: "Svg".into(), data_type: EnumDataType::EnumUnit },
-            svg_fields,
+            "icon".into(),
+            Want::new_object_projection(svg_fields, HashMap::new()),
         ),
         MatchArm::new(
             EnumValue { identifier: "Icon::Emoji".into(), enum_parent: "Icon".into(), variant: "Emoji".into(), data_type: EnumDataType::EnumUnit },
-            emoji_fields,
+            "emoji".into(),
+            Want::new_object_projection(emoji_fields, HashMap::new()),
         ),
     ];
 
@@ -529,79 +532,6 @@ fn trying_to_break_test_v3() {
     
     let answer = parse_query(query).is_err();
     assert!(answer);
-}
-
-#[test]
-fn trying_to_break_test_v4() {
-    let query = "
-    me() {
-        first_name    
-        last_name 
-
-        email      
-        profile_picture(
-            size: 48
-        )
-        icon() match {
-            Icon::Svg => {     
-                url  
-                size    
-            },
-            Icon::Emoji =>
-            
-            
-            
-            
-            
-            
-            
-            {
-                
-                emoji
-
-                size     
-            }
-        }
-    }
-";
-
-    let mut profile_picture_args = HashMap::new();
-    profile_picture_args.insert("size".into(), ("size".into(), PrimitiveValue::UInt(48)));
-
-    let svg_fields = insert_each_field_into_fields(vec![
-        ("url".into(), Want::new_single_field(HashMap::new())),
-        ("size".into(), Want::new_single_field(HashMap::new())),
-    ]);
-
-    let emoji_fields = insert_each_field_into_fields(vec![
-        ("emoji".into(), Want::new_single_field(HashMap::new())),
-        ("size".into(), Want::new_single_field(HashMap::new())),
-    ]);
-
-    let icon_match = vec![
-        MatchArm::new(
-            EnumValue { identifier: "Icon::Svg".into(), enum_parent: "Icon".into(), variant: "Svg".into(), data_type: EnumDataType::EnumUnit },
-            svg_fields,
-        ),
-        MatchArm::new(
-            EnumValue { identifier: "Icon::Emoji".into(), enum_parent: "Icon".into(), variant: "Emoji".into(), data_type: EnumDataType::EnumUnit },
-            emoji_fields,
-        ),
-    ];
-
-    let fields = insert_each_field_into_fields(vec![
-        ("first_name".into(), Want::new_single_field(HashMap::new())),
-        ("last_name".into(), Want::new_single_field(HashMap::new())),
-        ("email".into(), Want::new_single_field(HashMap::new())),
-        ("profile_picture".into(), Want::new_single_field(profile_picture_args)),
-        ("icon".into(), Want::new_match(icon_match)),
-    ]);
-
-    let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
-        ("me".into(), Want::new_object_projection(fields, HashMap::new())),
-    ]);
-    let actual = parse_query(query).unwrap();
-    assert_eq!(expected, actual.wants);
 }
 
 #[test]

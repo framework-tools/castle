@@ -44,6 +44,7 @@ fn generic_resolve_wants<C, R> (
     resolver_map: &ResolverMap<C, R>, 
     context: &C
 ) -> Result<Value<R>, CastleError> {
+    if wants.is_none() { return Ok(Value::Empty) }
     let wants = wants.unwrap();
     let mut resolved_fields= HashMap::new();
     for (identifier, current_want) in wants {
@@ -93,6 +94,7 @@ fn resolve_inner_object_and_insert_fields<C, R> (
     context: &C
 ) -> Result<(), CastleError>{
     //needs to call resolver to resolve want
+    println!("identifier: {:?}", identifier);
     let inner_resolver = resolver_map.resolvers.get(&identifier).unwrap();
     let inner_return_value = inner_resolver(Some(fields), args, resolver_map, context)?;
     resolved_fields.insert(identifier.into(), inner_return_value);
@@ -108,12 +110,12 @@ fn resolve_match_and_insert_fields<C, R> (
     resolver_map: &ResolverMap<C, R>, 
     context: &C
 ) -> Result<(), CastleError>{
-    let inner_resolver = resolver_map.resolvers.get(&identifier).unwrap();
+    println!("identifier {:?}", identifier);
     if value.is_none() {
         return Err(CastleError::DataForWantNotReturnedByDatabase(format!("2. No value found for field in database. identifier {:?}", identifier).into()))
     } else {
         let value = value.unwrap();
-        match_condition_insert_resolved_fields(value, match_statement, inner_resolver, resolved_fields, identifier, args, resolver_map, context)?;
+        match_condition_insert_resolved_fields(value, match_statement, resolved_fields, identifier, args, resolver_map, context)?;
         return Ok(())
     }
 }
@@ -121,7 +123,6 @@ fn resolve_match_and_insert_fields<C, R> (
 fn match_condition_insert_resolved_fields<C, R>(
     value: Value<R>, 
     match_statement: &MatchStatement, 
-    inner_resolver: &Resolver<C, R>,
     resolved_fields: &mut HashMap<Box<str>, Value<R>>,
     identifier: Box<str>,
     args: &Args,
@@ -132,12 +133,12 @@ fn match_condition_insert_resolved_fields<C, R>(
         Value::EnumValue(enum_value_from_db) => {
             for arm in match_statement {
                 if arm.condition.identifier == enum_value_from_db.identifier {
+                    let match_obj_identifier = arm.object_identifier.clone();
                     let fields = match &arm.object {
                         Want::ObjectProjection(fields, .. ) => fields,
                         _ => return Err(CastleError::InvalidMatchStatement(format!("3. Match statement should contain an object. identifier {:?}", identifier).into()))
                     };
-                    let inner_return_value = inner_resolver(Some(&fields), args, resolver_map, context)?;
-                    resolved_fields.insert(identifier.into(), inner_return_value);
+                    resolve_inner_object_and_insert_fields(resolved_fields, match_obj_identifier, fields, args, resolver_map, context)?;
                     break;
                 }
             }
