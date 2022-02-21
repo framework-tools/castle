@@ -4,9 +4,9 @@ use std::{io::Read, collections::{HashMap}};
 
 use shared::castle_error::CastleError;
 
-use crate::{ast::syntax_definitions::{want::Want, argument::ArgumentOrTuple}, tokenizer::{tokenizer::Tokenizer}, token::{token::{TokenKind, Punctuator, Identifier}, Token}};
+use crate::{ast::syntax_definitions::{want::Want, argument::ArgumentOrTuple, keyword::Keyword}, tokenizer::{tokenizer::Tokenizer}, token::{token::{TokenKind, Punctuator, Identifier}, Token}};
 
-use super::{parse_object_projection::parse_object_projection};
+use super::{parse_object_projection::{parse_object_projection, parse_query_field, parse_match}};
 
 #[derive(Debug)]
 pub struct ParsedQuery {
@@ -62,7 +62,7 @@ where R: Read{
             let name = enum_value.identifier;
             Ok((name.clone(), match_peeked_token_to_want(Identifier { name, arguments: None }, tokenizer)?))
         }
-        _ => Err(CastleError::Parser( format!("2. unexpected token, expected identifier, got: {:?}", token.kind).into(), token.span))
+        _ => Err(CastleError::Parser( format!("2. unexpected token, expected identifier, enumvalue: {:?}", token.kind).into(), token.span))
     }
 }
 
@@ -75,6 +75,10 @@ where R: Read {
                 TokenKind::Punctuator(Punctuator::OpenBlock) => {
                     tokenizer.next(true)?;
                     parse_object_projection(identifier, tokenizer)
+                },
+                TokenKind::Keyword(Keyword::Match) => {
+                    let match_statement = parse_match(tokenizer, identifier)?;
+                    return Ok(Want::Match(match_statement))
                 },
                 _ => {
                     let arguments = ArgumentOrTuple::convert_arguments_to_identifier_and_value_arguments(identifier.arguments)?;

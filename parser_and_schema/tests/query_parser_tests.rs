@@ -352,11 +352,11 @@ fn can_parse_object_projection_with_match() {
             email
             profile_picture(size: 48)
             icon() match {
-                Icon::Svg => {
+                Icon::Svg => icon() {
                     url
                     size
                 },
-                Icon::Emoji => {
+                Icon::Emoji => emoji() {
                     emoji
                     size
                 }
@@ -374,7 +374,8 @@ fn can_parse_object_projection_with_match() {
 
     let svg_match_arm = MatchArm::new(
         EnumValue { identifier: "Icon::Svg".into(), enum_parent: "Icon".into(), variant: "Svg".into(), data_type: EnumDataType::EnumUnit },
-        svg_fields);
+    "icon".into(),
+        Want::new_object_projection(svg_fields, HashMap::new()));
 
     let emoji_fields = insert_each_field_into_fields(vec![
         ("emoji".into(), Want::new_single_field(HashMap::new())),
@@ -383,8 +384,8 @@ fn can_parse_object_projection_with_match() {
 
     let emoji_match_arms = MatchArm::new(
             EnumValue { identifier: "Icon::Emoji".into(), enum_parent: "Icon".into(), variant: "Emoji".into(), data_type: EnumDataType::EnumUnit },
-            emoji_fields
-    );
+            "emoji".into(),
+            Want::ObjectProjection(emoji_fields, HashMap::new()));
 
     let match_statement = vec![
         svg_match_arm,

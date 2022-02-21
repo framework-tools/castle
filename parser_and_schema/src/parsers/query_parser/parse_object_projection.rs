@@ -2,7 +2,7 @@ use std::{io::Read, collections::HashMap};
 
 use shared::castle_error::CastleError;
 
-use crate::{ast::syntax_definitions::{want::{Want, WantArguments, Wants}, keyword::{Keyword}}, token::{token::{TokenKind, Punctuator, Identifier}, Token}, tokenizer::{tokenizer::Tokenizer, tokenizer_utils::get_next_token_and_unwrap}};
+use crate::{ast::syntax_definitions::{want::{Want, WantArguments, Wants}, keyword::{Keyword}, match_statement::MatchArm}, token::{token::{TokenKind, Punctuator, Identifier}, Token}, tokenizer::{tokenizer::Tokenizer, tokenizer_utils::get_next_token_and_unwrap}};
 
 
 use crate::ast::syntax_definitions::argument::ArgumentOrTuple;
@@ -60,9 +60,9 @@ pub fn parse_query_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<B
     match peeked_token {
         Some(peeked_token) => match peeked_token.kind {
             TokenKind::Keyword(Keyword::Match) => {
-                tokenizer.next(true)?; // consume the match keyword
-                let match_statements = parse_match_statements(tokenizer)?;
-                fields.insert(identifier.name.clone(), Want::new_match(match_statements)); 
+                let name = identifier.name.clone();
+                let match_statements = parse_match(tokenizer, identifier)?;
+                fields.insert(name, Want::new_match(match_statements)); 
                 return Ok(false)
             },
             TokenKind::Punctuator(Punctuator::OpenBlock) => {
@@ -78,6 +78,13 @@ pub fn parse_query_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<B
         },
         None => { return Ok(false) }
     }
+}
+
+pub fn parse_match<R>(tokenizer: &mut Tokenizer<R>, identifier: Identifier, ) -> Result<Vec<MatchArm>, CastleError> 
+where R: Read {
+    tokenizer.next(true)?; // consume the match keyword
+    let match_statements = parse_match_statements(tokenizer)?;
+    return Ok(match_statements)
 }
 
 fn create_obj(identifier: Identifier, fields: HashMap<Box<str>, Want>) -> Result<Want, CastleError> {

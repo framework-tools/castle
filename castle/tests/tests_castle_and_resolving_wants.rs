@@ -642,6 +642,7 @@ fn should_pass_query_with_match() -> Result<(), CastleError> {
     fn me() -> User
     fn name() -> Name
     fn user_name() -> UserName
+    fn standard_name() -> StandardName
     
     type User {
         age: Int,
@@ -668,12 +669,12 @@ fn should_pass_query_with_match() -> Result<(), CastleError> {
     me() {
         age,
         name() match {
-            Name::StandardName => {
+            Name::StandardName => standard_name() {
                 first_name,
                 last_name
             },
-            Name::UserName => {
-                username,
+            Name::UserName => user_name() {
+                username
             }
         }
     }
@@ -691,9 +692,19 @@ fn should_pass_query_with_match() -> Result<(), CastleError> {
         return Ok(return_value)
     }
     builder.add_resolver("user_name", user_name);
-    let (possible_fields, dummy_data): (HashSet<Box<str>>, Value<()>) = create_possible_fields_and_dummy_data(vec![
-        ("username".into(), Value::String("@tim_dillon".to_string())),
-    ]);
+
+    fn standard_name<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
+        //dummy data
+        let (possible_fields, dummy_data) = create_possible_fields_and_dummy_data(vec![
+            ("first_name".into(), Value::String("Tim".to_string())),
+            ("last_name".into(), Value::String("Dillon".to_string()))
+        ]);
+
+        let return_value = generic_resolver(wants, &possible_fields, args, resolver_map, context, dummy_data)?;
+        return Ok(return_value)
+    }
+    builder.add_resolver("standard_name", standard_name);
+    
     fn name<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
         let (possible_fields, dummy_data): (HashSet<Box<str>>, Value<R>) = create_possible_fields_and_dummy_data(vec![
             ("username".into(), Value::String("@tim_dillon".to_string())),
@@ -744,6 +755,90 @@ fn should_pass_query_with_match() -> Result<(), CastleError> {
 
     let mut expected = HashMap::new();
     expected.insert("me".into(), Value::Object(expected_wants_for_me));
+    assert_eq!(expected, resolved_wants);
+    return Ok(())
+}
+
+#[test]
+fn should_pass_top_level_match() -> Result<(), CastleError> {
+    let schema = "
+    fn block() -> Block
+    fn content_block() -> ContentBlock
+    
+    enum Block {
+        ContentBlock,
+        ChecklistBlock
+    }
+
+    type ContentBlock {
+        content: String
+    }
+
+    type ChecklistBlock {
+        items: Vec<String>
+    }
+    ";
+
+    let query = "
+    block() match {
+        Block::ContentBlock => content_block() {
+            content
+        },
+        Block::ChecklistBlock => checklist_block() {
+            items
+        }
+    }
+    ";
+
+    let mut builder: CastleBuilder<(), ()> = CastleBuilder::new();
+    //test resolvers
+    fn content_block<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
+        //dummy data
+        let (possible_fields, dummy_data) = create_possible_fields_and_dummy_data(vec![
+            ("content".into(), Value::String("Hello world!".to_string()))
+        ]);
+
+        let return_value = generic_resolver(wants, &possible_fields, args, resolver_map, context, dummy_data)?;
+        return Ok(return_value)
+    }
+    builder.add_resolver("content_block", content_block);
+
+    fn block<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
+        let mut possible_fields = HashSet::new();
+        possible_fields.insert("content".into());
+        possible_fields.insert("items".into());
+
+        let enum_value = EnumValue {
+            identifier: "Block::ContentBlock".into(),
+            enum_parent: "Block".into(),
+            variant: "ContentBlock".into(),
+            data_type: EnumDataType::EnumUnit
+        };
+
+        let mut block_fields = HashMap::new();
+        block_fields.insert("block".into(), Value::EnumValue(enum_value));
+        let dummy_data = Value::Object(
+            block_fields
+        );
+
+        let return_value = generic_resolver(wants, &possible_fields, args, resolver_map, context, dummy_data)?;
+        return Ok(return_value)
+    }
+
+    builder.add_resolver("block".into(), block);
+
+    builder.add_schema(schema)?;
+    let castle = builder.build_and_validate()?;
+
+    let parsed_query = parse_query(query)?;
+    validate_query_with_schema(&parsed_query, &castle.parsed_schema)?;
+    let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolver_map, ())?;
+
+    let mut expected_wants_for_block = HashMap::new();
+    expected_wants_for_block.insert("content".into(), Value::String("Hello world!".to_string()));
+
+    let mut expected = HashMap::new();
+    expected.insert("block".into(), Value::Object(expected_wants_for_block));
     assert_eq!(expected, resolved_wants);
     return Ok(())
 }

@@ -1,11 +1,11 @@
-use std::{io::Read};
+use std::{io::Read, env::args, collections::HashMap};
 
 use shared::castle_error::CastleError;
 use token::Token;
 
 use crate::{tokenizer::{tokenizer::{Tokenizer}, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}}, ast::syntax_definitions::{match_statement::{MatchStatement, MatchArm}, expressions::{Expression, PrimitiveValue}, enum_definition::EnumValue, want::{}}, token::{token::{TokenKind, Punctuator, Numeric, self},}};
 
-use super::{ parse_object_projection::{loop_through_tokens_and_parse_fields}};
+use super::{ parse_object_projection::{loop_through_tokens_and_parse_fields}, parse_inner_object::parse_inner_object};
 
 pub fn parse_match_statements<R>(tokenizer: &mut Tokenizer<R>) -> Result<MatchStatement, CastleError> 
 where R: Read {
@@ -57,8 +57,21 @@ fn get_match_arm<R>(tokenizer: &mut Tokenizer<R>, token: Token) -> Result<MatchA
 where R: Read {
     let condition = get_condition(token)?;
     skip_arrow_syntax(tokenizer)?;
-    let match_arm_fields = loop_through_tokens_and_parse_fields(tokenizer)?;
-    return Ok(MatchArm::new(condition, match_arm_fields)); // empty used hashmap new here
+    let token = get_next_token_and_unwrap(tokenizer)?;
+    let identifier = match token.kind {
+        TokenKind::Identifier(identifier) => identifier,
+        _ => return Err(CastleError::Parser(format!("expected identifier got : {:#?}", token).into(), token.span))
+    };
+    let mut fields = HashMap::new();
+    let name = identifier.name.clone();
+    parse_inner_object(tokenizer, &mut fields, identifier)?;
+    let match_arm_object = fields.remove(&name);
+    if match_arm_object.is_some() {
+        let match_arm_object = match_arm_object.unwrap();
+        return Ok(MatchArm::new(condition, name, match_arm_object));
+    } else {
+        return Err(CastleError::Parser(format!("expected object projection found nothing for ident : {:#?}", name).into(), token.span))
+    }
 }
 
 fn get_condition(token: Token) -> Result<EnumValue, CastleError>{

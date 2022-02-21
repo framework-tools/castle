@@ -35,7 +35,8 @@ pub enum CastleError {
     WantNotFoundInRealResolver(Box<str>),
     ResolverDataShouldBeObject(Box<str>),
     DataForWantNotReturnedByDatabase(Box<str>),
-    
+    InvalidMatchStatement(Box<str>),
+    DirectiveRecievedWrongType(Box<str>),
 }
 
 impl From<std::io::Error> for CastleError {
@@ -94,6 +95,8 @@ impl fmt::Display for CastleError {
             Self::WantNotFoundInRealResolver(msg) => write!(f, "Want not found in real resolver: {}", msg),
             Self::ResolverDataShouldBeObject(msg) => write!(f, "Resolver data should be object: {}", msg),
             Self::DataForWantNotReturnedByDatabase(msg) => write!(f, "Data for want not returned by database: {}", msg),
+            Self::InvalidMatchStatement(msg) => write!(f, "Invalid match statement: {}", msg),
+            Self::DirectiveRecievedWrongType(msg) => write!(f, "Directive recieved wrong type: {}", msg),
         }
     }
 }
@@ -133,6 +136,8 @@ impl ExtendedErrorDisplay for CastleError {
             Self::WantNotFoundInRealResolver(msg) => format!("Want not found in real resolver: {}", msg),
             Self::ResolverDataShouldBeObject(msg) => format!("Resolver data should be object: {}", msg),
             Self::DataForWantNotReturnedByDatabase(msg) => format!("Data for want not returned by database: {}", msg),
+            Self::InvalidMatchStatement(msg) => format!("Invalid match statement: {}", msg),
+            Self::DirectiveRecievedWrongType(msg) => format!("Directive recieved wrong type: {}", msg),
         }
     }
 }

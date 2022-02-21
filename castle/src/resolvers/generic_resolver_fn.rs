@@ -132,7 +132,11 @@ fn match_condition_insert_resolved_fields<C, R>(
         Value::EnumValue(enum_value_from_db) => {
             for arm in match_statement {
                 if arm.condition.identifier == enum_value_from_db.identifier {
-                    let inner_return_value = inner_resolver(Some(&arm.fields), args, resolver_map, context)?;
+                    let fields = match &arm.object {
+                        Want::ObjectProjection(fields, .. ) => fields,
+                        _ => return Err(CastleError::InvalidMatchStatement(format!("3. Match statement should contain an object. identifier {:?}", identifier).into()))
+                    };
+                    let inner_return_value = inner_resolver(Some(&fields), args, resolver_map, context)?;
                     resolved_fields.insert(identifier.into(), inner_return_value);
                     break;
                 }
@@ -142,5 +146,3 @@ fn match_condition_insert_resolved_fields<C, R>(
         _ => return Err(CastleError::DataForWantNotReturnedByDatabase(format!("3. No value found for Enum in database. identifier {:?}", identifier).into()))
     }
 }
-
-
