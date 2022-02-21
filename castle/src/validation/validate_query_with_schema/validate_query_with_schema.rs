@@ -225,17 +225,14 @@ fn validate_match_arm_fields_are_valid_for_return_type(match_arm: &MatchArm, sch
     let enum_definition = schema_definition.enums.get(&condition.enum_parent).unwrap();
     let enum_variant = enum_definition.variants.get(&condition.variant).unwrap();
     match &enum_variant.enum_data_type {
-        EnumDataType::EnumObject(enum_fields) => {
-            for field_name in match_arm.fields.keys() {
-                if !enum_fields.contains_key(field_name) {
-                    return Err(CastleError::EnumFieldNotDefinedInSchema(format!("Enum field: {} not defined in schema", field_name).into()));
-                }
+        EnumDataType::EnumUnit => {
+            if !schema_definition.schema_types.contains_key(&enum_variant.name) {
+                return Err(CastleError::EnumVariantDoesNotHaveMatchingType(format!("Enum variant not defined as a type in schema: {}", enum_variant.name).into()));
             }
         },
         _ => {
-            return Err(CastleError::EnumFieldNotDefinedInSchema(format!("Enum field: {:?} uses incorrect data type. expected enum object", enum_variant.enum_data_type).into()));
+            return Err(CastleError::EnumVariantDoesNotHaveMatchingType(format!("Enum field: {:?} uses incorrect data type. expected enum unit", enum_variant.enum_data_type).into()));
         }
     }
-    
     Ok(())
 }

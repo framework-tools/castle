@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
-use castle::{validation::validate_query_with_schema::validate_query_with_schema::validate_query_with_schema, resolvers::{resolve_query_wants::{resolve_all_wants}, generic_resolver_fn::generic_resolver, dummy_data_for_tests::create_possible_fields_and_dummy_data, resolver_type::Args, resolver_map::ResolverMap}, castle_object::{resolver_return_types::{Value, EnumResolverValue}, castle_struct::{CastleBuilder, Castle}}};
+use castle::{validation::validate_query_with_schema::validate_query_with_schema::validate_query_with_schema, resolvers::{resolve_query_wants::{resolve_all_wants}, generic_resolver_fn::generic_resolver, dummy_data_for_tests::create_possible_fields_and_dummy_data, resolver_type::Args, resolver_map::ResolverMap}, castle_object::{resolver_return_types::{Value}, castle_struct::{CastleBuilder, Castle}}};
 use parser_and_schema::{ast::syntax_definitions::{argument::IdentifierAndValueArgument, want::{Want, Wants}, enum_definition::{EnumValue, EnumDataType}}, parsers::query_parser::parse_query::parse_query};
 use shared::castle_error::CastleError;
 
@@ -15,7 +15,6 @@ fn testing_castle_builds_and_validates() -> Result<(), CastleError> {
     fn hello<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
         Ok(Value::String("world".to_string()))
     }
-
 
     builder.add_resolver("hello", hello);
     let schema = "
@@ -636,13 +635,13 @@ fn should_pass_query_with_nested_inner_objects() -> Result<(), CastleError> {
     return Ok(())
 }
 
-// All tests & related functionality except for the test below I am very happy with
-// This test passes but the functionality surrounding how we handle match definitely needs to be improved
+
 #[test]
 fn should_pass_query_with_match() -> Result<(), CastleError> {
     let schema = "
     fn me() -> User
     fn name() -> Name
+    fn user_name() -> UserName
     
     type User {
         age: Int,
@@ -650,13 +649,17 @@ fn should_pass_query_with_match() -> Result<(), CastleError> {
     }
 
     enum Name {
-        StandardName {
-            first_name: String,
-            last_name: String
-        },
-        UserName {
-            username: String,
-        }
+        StandardName,
+        UserName
+    }
+
+    type StandardName {
+        first_name: String,
+        last_name: String
+    }
+
+    type UserName {
+        username: String,
     }
 
     ";
@@ -678,14 +681,25 @@ fn should_pass_query_with_match() -> Result<(), CastleError> {
 
     let mut builder: CastleBuilder<(), ()> = CastleBuilder::new();
     //test resolvers
-    fn name<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
+    fn user_name<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
         //dummy data
         let (possible_fields, dummy_data) = create_possible_fields_and_dummy_data(vec![
-            ("username".into(), Value::String("@tim_dillon".to_string())),
-            ("first_name".into(), Value::String("Tim".to_string())),
-            ("last_name".into(), Value::String("Dillon".to_string()))
+            ("username".into(), Value::String("@tim_dillon".to_string()))
         ]);
 
+        let return_value = generic_resolver(wants, &possible_fields, args, resolver_map, context, dummy_data)?;
+        return Ok(return_value)
+    }
+    builder.add_resolver("user_name", user_name);
+    let (possible_fields, dummy_data): (HashSet<Box<str>>, Value<()>) = create_possible_fields_and_dummy_data(vec![
+        ("username".into(), Value::String("@tim_dillon".to_string())),
+    ]);
+    fn name<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
+        let (possible_fields, dummy_data): (HashSet<Box<str>>, Value<R>) = create_possible_fields_and_dummy_data(vec![
+            ("username".into(), Value::String("@tim_dillon".to_string())),
+            ("first_name".into(), Value::String("John".to_string())),
+            ("last_name".into(), Value::String("Doe".to_string())),
+        ]);
         let return_value = generic_resolver(wants, &possible_fields, args, resolver_map, context, dummy_data)?;
         return Ok(return_value)
     }
@@ -693,14 +707,14 @@ fn should_pass_query_with_match() -> Result<(), CastleError> {
 
     fn me<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
         //dummy data
-        let mut username_fields = HashMap::new();
+        let mut username_fields: HashMap<Box<str>, Value> = HashMap::new();
         username_fields.insert("username".into(), Value::String("@tim_dillon".to_string()));
 
-        let enum_value = EnumResolverValue {
+        let enum_value = EnumValue {
             identifier: "Name::UserName".into(),
             enum_parent: "Name".into(),
             variant: "UserName".into(),
-            fields: username_fields
+            data_type: EnumDataType::EnumUnit
         };
 
         let (possible_fields, dummy_data) = create_possible_fields_and_dummy_data(vec![
@@ -711,6 +725,7 @@ fn should_pass_query_with_match() -> Result<(), CastleError> {
         let return_value = generic_resolver(wants, &possible_fields, args, resolver_map, context, dummy_data)?;
         return Ok(return_value)
     }
+
     builder.add_resolver("me".into(), me);
 
     builder.add_schema(schema)?;

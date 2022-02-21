@@ -1,6 +1,6 @@
 use std::{collections::HashMap};
 
-use parser_and_schema::{ast::syntax_definitions::{schema_definition::SchemaDefinition, enum_definition::EnumDataType, directive_definition::{Directive, DirectiveDefinition, DirectiveOnValue}, argument::{ArgumentOrTuple}}, parsers::schema_parser::types::{type_system::Type, vec_type::VecType, option_type::OptionType, schema_field::SchemaField}};
+use parser_and_schema::{ast::syntax_definitions::{schema_definition::{SchemaDefinition, self}, enum_definition::EnumDataType, directive_definition::{Directive, DirectiveDefinition, DirectiveOnValue}, argument::{ArgumentOrTuple}}, parsers::schema_parser::types::{type_system::Type, vec_type::VecType, option_type::OptionType, schema_field::SchemaField}};
 use shared::castle_error::CastleError;
 
 
@@ -50,8 +50,8 @@ fn for_each_schema_type_check_field_type_is_valid(schema: &SchemaDefinition) -> 
     for (_schema_type_name, schema_type) in &schema.schema_types {
         for (_field_name, field) in &schema_type.fields {
             check_type_used_has_been_defined(schema, &field.type_)?;
-            check_directives_use_valid_types(schema, &field.directives)?;
             check_directives_use_valid_directive_definitions(&schema.directives, &field.directives, schema)?;
+            check_directives_args_are_compatible(schema, &field.directives)?;
             check_directive_definition_on_value_is_compatible(schema, &field.directives, DirectiveOnValue::Field)?;
         }
     }
@@ -99,21 +99,22 @@ fn check_type_used_has_been_defined(schema: &SchemaDefinition, type_: &Type) -> 
 ///         - If the type is a SchemaOrEnumType => check this type is defined in the schema_types or enums
 ///             - If it's not, return Error
 ///     - If no error found return Ok(())
-fn for_each_enum_check_all_types_in_their_values_are_valid(schema: &SchemaDefinition) -> Result<(), CastleError> {
-    for (_enum_name, enum_definition) in &schema.enums {
+fn for_each_enum_check_all_types_in_their_values_are_valid(schema_definition: &SchemaDefinition) -> Result<(), CastleError> {
+    for (_enum_name, enum_definition) in &schema_definition.enums {
         for (_variant_name, variant) in &enum_definition.variants {
-            check_directives_use_valid_directive_definitions(&schema.directives, &variant.directives, schema)?;
-            check_directives_use_valid_types(schema, &variant.directives)?;
-            check_directive_definition_on_value_is_compatible(schema, &variant.directives, DirectiveOnValue::EnumVariant)?;
+            check_directives_use_valid_directive_definitions(&schema_definition.directives, &variant.directives, schema_definition)?;
+            check_directives_args_are_compatible(schema_definition, &variant.directives)?;
+            check_directive_definition_on_value_is_compatible(schema_definition, &variant.directives, DirectiveOnValue::EnumVariant)?;
             match &variant.enum_data_type {
-                EnumDataType::EnumTuple(tuple_types) => {
-                    check_arguments_or_tuples_are_defined(schema, tuple_types)?;
+                EnumDataType::EnumUnit => {
+                    if !schema_definition.schema_types.contains_key(&*variant.name){
+                        return Err(CastleError::EnumVariantTypeUndefinedInShema(format!("Enum variant type is undefined in schema: {}", variant.name).into()))
+                    }
                 },
-                EnumDataType::EnumObject(fields) => {
-                    check_enum_object_field_types_are_defined(schema, &fields)?;
+                _ => {
+                    return Err(CastleError::EnumDataTypeNotSupported(format!("Enum data type not supported: {}", variant.name).into()))
                 }
-                EnumDataType::EnumUnit => {}
-            };
+            }
         }
     }
     return Ok(())
@@ -148,11 +149,12 @@ fn check_enum_object_field_types_are_defined(schema: &SchemaDefinition, fields: 
 ///     - If Some:
 ///     - call check_arguments_or_tuples_are_defined
 ///    - Return Ok(()) at bottom outside loop
-fn check_directives_use_valid_types(schema: &SchemaDefinition, directives: &Vec<Directive>) -> Result<(), CastleError> {
+fn check_directives_args_are_compatible(schema: &SchemaDefinition, directives: &Vec<Directive>) -> Result<(), CastleError> {
     for directive in directives {
-        for (_ident,arg ) in directive.arguments.values() {
-            check_type_used_has_been_defined(schema, arg)?;
-            
+        println!("Checking directive: {:?}", directive.arguments);
+        println!("Checking direcive definition arguments: {:?}", schema.directives.get(&directive.name).unwrap().function.args);
+        if directive.arguments != schema.directives.get(&directive.name).unwrap().function.args {
+            return Err(CastleError::DirectiveDoesNotMatchSchemaDirective(format!("Directive arguments are not compatible. directive.arguments: {:?}  definition.args: {:?}", directive.arguments, schema.directives.get(&directive.name).unwrap().function.args).into()));
         }
     }
     return  Ok(())

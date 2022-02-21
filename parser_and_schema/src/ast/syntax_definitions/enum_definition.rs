@@ -58,6 +58,8 @@ impl EnumDataType {
     }
 }
 
+
+///currently only enum unit data type is supported for use in queries
 #[derive(Debug, PartialEq)]
 pub struct EnumValue {
     pub identifier: Box<str>,

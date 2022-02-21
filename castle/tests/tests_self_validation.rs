@@ -146,34 +146,16 @@ fn can_parse_defined_schema_enum_as_type_for_field() {
 }
 
 #[test]
-fn err_if_parses_enum_with_unknown_tuple_type() -> Result<(), CastleError> {
-    let schema = "
-        enum FrameworkTypes {
-            SomeOtherType(identifier: String, unknown_type: DoesntExist)
-        }
-    ";
-
-    let schema_definition = parse_schema(schema)?;
-    let actual = self_validate_schema(&schema_definition);
-    if actual.is_err() {
-        match actual {
-            Err(CastleError::UndefinedTypeOrEnumInSchema(_)) => { return Ok(()) }, //passes
-            _ => panic!("Expected error to be of type UndefinedTypeOrEnumInSchema, found: {:?}", actual),
-        }
-    } else {
-        panic!("No error thrown");
-    }
-}
-
-#[test]
 fn err_if_parses_enum_with_unknown_object_type() -> Result<(), CastleError> {
     let schema = "
         enum FrameworkTypes {
-            User {
-                id: uuid,
-                name: DoesntExist,
-                age: Int,
-            },
+            User
+        }
+
+        type User{
+            id: uuid,
+            name: DoesntExist,
+            age: Int,
         }
     ";
 
@@ -414,6 +396,7 @@ fn should_break_if_used_directive_is_not_defined( ) -> Result<(), CastleError> {
         type User {
             pets: String @authenticated(token: String) @doesnt_exist
         }
+
         directive @authenticated(token: String) on FIELD
     ";
 
@@ -436,6 +419,16 @@ fn should_break_if_used_directive_is_not_defined_enum( ) -> Result<(), CastleErr
             Red,
             Blue,
             Green @doesnt_exist
+        }
+
+        type Red {
+            name: String
+        }
+        type Blue {
+            name: String
+        }
+        type Green {
+            name: String
         }
         directive @authenticated(token: String) on ENUM_VARIANT
     ";
@@ -507,6 +500,18 @@ fn should_break_if_directive_and_directive_definition_have_same_arguments_with_d
             Green @authenticated (token: Int)
         }
         directive @authenticated(token: String) on ENUM_VARIANT
+
+        type Red {
+            info: String
+        }
+
+        type Blue {
+            info: String
+        }
+
+        type Green {
+            info: String
+        }
     ";
 
     let schema_definition = parse_schema(schema)?;
@@ -551,6 +556,18 @@ fn should_break_if_directive_on_value_not_compatible_with_its_usage_other_way( )
             Large @check_size(token: String)
         }
         directive @check_size(token: String) on FIELD
+
+        type Small {
+            name: String
+        }
+
+        type Medium {
+            name: String
+        }
+
+        type Large {
+            name: String
+        }
     ";
 
     let schema_definition = parse_schema(schema)?;
@@ -558,6 +575,36 @@ fn should_break_if_directive_on_value_not_compatible_with_its_usage_other_way( )
     if actual.is_err() {
         match actual {
             Err(CastleError::DirectiveOnValueNotCompatible(_)) => { return Ok(()) }, //passes
+            _ => panic!("Expected error to be of type DirectiveOnValueNotCompatible, found: {:?}", actual),
+        }
+    } else {
+        panic!("No error thrown");
+    }
+}
+
+#[test]
+fn should_throw_error_if_enum_are_reference_undefined_type() -> Result<(), CastleError> {
+    let schema = "
+        enum Size {
+            Small,
+            Medium,
+            Large
+        }
+
+        type Small {
+            field1: String
+        }
+
+        type Medium {
+            field2: String
+        }
+    ";
+
+    let schema_definition = parse_schema(schema)?;
+    let actual = self_validate_schema(&schema_definition);
+    if actual.is_err() {
+        match actual {
+            Err(CastleError::EnumVariantTypeUndefinedInShema(_)) => { return Ok(()) }, //passes
             _ => panic!("Expected error to be of type DirectiveOnValueNotCompatible, found: {:?}", actual),
         }
     } else {

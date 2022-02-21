@@ -3,7 +3,6 @@ use std::collections::{HashMap, HashSet};
 use parser_and_schema::ast::syntax_definitions::{want::{Wants, Want}, match_statement::MatchStatement};
 use shared::castle_error::CastleError;
 
-
 use crate::castle_object::resolver_return_types::{Value};
 
 use super::{dummy_data_for_tests::{get_requested_fields_from_db_dummy}, resolver_type::{Args, Resolver}, resolver_map::ResolverMap};
@@ -67,7 +66,7 @@ fn generic_resolve_current_want<C, R> (
     match current_want {
         Want::SingleField(_) => insert_resolved_value_for_single_field(resolved_fields, identifier, value)?,
         Want::ObjectProjection(fields, args) => resolve_inner_object_and_insert_fields(resolved_fields, identifier, fields, args, resolver_map, context)?,
-        Want::Match(match_statement) => resolve_match_and_insert_fields(match_statement, resolved_fields, identifier, value, args, resolver_map, context)?
+        Want::Match(match_statement) => resolve_match_and_insert_fields(match_statement, resolved_fields, identifier, value, args, resolver_map, context)?,
     }
     Ok(())
 }
@@ -76,7 +75,7 @@ fn insert_resolved_value_for_single_field<R> (
     resolved_fields: &mut HashMap<Box<str>, Value<R>>,
     identifier: Box<str>,
     value: Option<Value<R>>
-) -> Result<(), CastleError>{
+) -> Result<(), CastleError> {
     if value.is_none() {
         return Err(CastleError::DataForWantNotReturnedByDatabase("1. No value found for field in database".into()))
     } else {
@@ -100,9 +99,6 @@ fn resolve_inner_object_and_insert_fields<C, R> (
     Ok(())
 }
 
-/// This function works fine for now but will probably need to be improved or changed to suit our needs
-/// This function takes in a match statement and uses an enum value from the database to match the correct condition
-/// and then insert the correct inner object into the resolved fields
 fn resolve_match_and_insert_fields<C, R> (
     match_statement: &MatchStatement,
     resolved_fields: &mut HashMap<Box<str>, Value<R>>,

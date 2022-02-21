@@ -176,13 +176,17 @@ fn should_break_if_use_undefined_enum_parent_in_query() -> Result<(), CastleErro
     }
 
     enum Name {
-        StandardName{
-            first_name: String,
-            last_name: String
-        },
-        UserName {
-            username: String
-        }
+        StandardName,
+        UserName
+    }
+
+    type StandardName {
+        first_name: String,
+        last_name: String
+    }
+
+    type UserName {
+        username: String
     }
 
     ";
@@ -227,13 +231,17 @@ fn should_break_if_use_undefined_enum_variant_in_query() -> Result<(), CastleErr
     }
 
     enum Name {
-        StandardName{
-            first_name: String,
-            last_name: String
-        },
-        UserName{
-            username: String
-        }
+        StandardName,
+        UserName
+    }
+
+    type StandardName {
+        first_name: String,
+        last_name: String
+    }
+
+    type UserName {
+        username: String
     }
 
     ";
@@ -449,7 +457,7 @@ fn should_throw_err_if_inner_object_projection_does_not_have_a_defined_resolver(
 
 
 #[test]
-fn should_throw_error_if_match_arm_field_does_not_exist_in_return_type() -> Result<(), CastleError>{
+fn should_throw_error_if_match_arm_references_type_in_enum_with_wrong_field() -> Result<(), CastleError>{
     let schema = "
     fn name() -> Name
     fn me(id: Int) -> User
@@ -468,6 +476,15 @@ fn should_throw_error_if_match_arm_field_does_not_exist_in_return_type() -> Resu
         UserName {
             username: String,
         }
+    }
+
+    type StandardName {
+        first_name: String,
+        last_name: String
+    }
+
+    type UserName {
+        username: String,
     }
 
     ";
@@ -491,7 +508,7 @@ fn should_throw_error_if_match_arm_field_does_not_exist_in_return_type() -> Resu
     let result = validate_query_with_schema(&parsed_query, &schema_definition);
     if result.is_err() {
         match result {
-            Err(CastleError::EnumFieldNotDefinedInSchema(_message)) => return Ok(()),
+            Err(CastleError::EnumVariantDoesNotHaveMatchingType(_message)) => return Ok(()),
             _ => panic!("threw wrong error expected EnumFieldNotDefinedInSchema, got: {:?}", result)
         }
     } else {
