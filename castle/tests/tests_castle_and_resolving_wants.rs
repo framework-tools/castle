@@ -717,7 +717,6 @@ fn should_pass_query_with_match() -> Result<(), CastleError> {
             data_type: EnumDataType::EnumUnit
         };
 
-        println!("inside");
         let mut dummy_data = HashMap::new();
         dummy_data.insert("name".into(), Value::EnumValue(enum_value));
         let return_value = generic_resolver(wants, &possible_fields, args, resolver_map, context, Value::Object(dummy_data))?;
@@ -756,7 +755,6 @@ fn should_pass_query_with_match() -> Result<(), CastleError> {
     let castle = builder.build_and_validate()?;
 
     let parsed_query = parse_query(query)?;
-    println!("parsed_query: {:#?}", parsed_query);
     validate_query_with_schema(&parsed_query, &castle.parsed_schema)?;
     let resolved_wants = resolve_all_wants(parsed_query.wants, &castle.resolver_map, ())?;
     

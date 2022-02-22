@@ -121,7 +121,6 @@ fn resolve_match_and_insert_fields<C, R> (
     resolver_map: &ResolverMap<C, R>, 
     context: &C
 ) -> Result<(), CastleError>{
-    println!("identifier: {:?}", identifier);
     if fields_with_values_from_db.len() == 0 {
         Err(CastleError::DataForWantNotReturnedByDatabase(format!("3. No fields found for match statement. identifier {:?}", identifier).into()))
     } else {
@@ -152,7 +151,6 @@ fn match_condition_insert_resolved_fields<C, R>(
                         Want::ObjectProjection(fields, .. ) => fields,
                         _ => return Err(CastleError::InvalidMatchStatement(format!("3. Match statement should contain an object. identifier {:?}", identifier).into()))
                     };
-                    println!("arm.object_identifier: {:?}", arm.object_identifier);
                     let inner_resolver = resolver_map.resolvers.get(&arm.object_identifier);
                     let inner_return_value = inner_resolver.unwrap()(Some(fields), args, resolver_map, context)?;
                     resolved_fields.insert(identifier.clone(), inner_return_value);
