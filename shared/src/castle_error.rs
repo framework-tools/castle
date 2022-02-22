@@ -37,6 +37,7 @@ pub enum CastleError {
     DataForWantNotReturnedByDatabase(Box<str>),
     InvalidMatchStatement(Box<str>),
     DirectiveReceivedWrongType(Box<str>),
+    WrongValueType(Box<str>),
 }
 
 impl From<std::io::Error> for CastleError {
@@ -97,6 +98,7 @@ impl fmt::Display for CastleError {
             Self::DataForWantNotReturnedByDatabase(msg) => write!(f, "Data for want not returned by database: {}", msg),
             Self::InvalidMatchStatement(msg) => write!(f, "Invalid match statement: {}", msg),
             Self::DirectiveReceivedWrongType(msg) => write!(f, "Directive recieved wrong type: {}", msg),
+            Self::WrongValueType(msg) => write!(f, "Wrong value type: {}", msg),
         }
     }
 }
@@ -138,6 +140,7 @@ impl ExtendedErrorDisplay for CastleError {
             Self::DataForWantNotReturnedByDatabase(msg) => format!("Data for want not returned by database: {}", msg),
             Self::InvalidMatchStatement(msg) => format!("Invalid match statement: {}", msg),
             Self::DirectiveReceivedWrongType(msg) => format!("Directive recieved wrong type: {}", msg),
+            Self::WrongValueType(msg) => format!("Wrong value type: {}", msg),
         }
     }
 }
