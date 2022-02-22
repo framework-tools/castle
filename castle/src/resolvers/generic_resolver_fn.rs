@@ -74,8 +74,6 @@ fn generic_resolve_current_want<C, R> (
         },
         Want::Match(match_statement) => {
             resolve_match_and_insert_fields(match_statement, fields_with_values_from_db, resolved_fields, identifier, args, resolver_map, context)?;
-            // let (identifier, updated_value) = unwrap_outer_wrapper(resolved_fields, identifier_clone)?;
-            // resolved_fields.insert(identifier, updated_value);
         }
     }
     return Ok(())
@@ -87,11 +85,11 @@ fn insert_resolved_value_for_single_field<R> (
     value: Option<Value<R>>
 ) -> Result<(), CastleError> {
     if value.is_none() {
-        return Err(CastleError::DataForWantNotReturnedByDatabase(format!("1. No value found for field in database. identifier {:?}", identifier).into()))
+        resolved_fields.insert(identifier, Value::Empty);
     } else {
         resolved_fields.insert(identifier, value.unwrap());
-        return Ok(())
     }
+    return Ok(())
 }
 
 fn resolve_inner_object_and_insert_fields<C, R> (
@@ -123,6 +121,7 @@ fn resolve_match_and_insert_fields<C, R> (
     resolver_map: &ResolverMap<C, R>, 
     context: &C
 ) -> Result<(), CastleError>{
+    println!("identifier: {:?}", identifier);
     if fields_with_values_from_db.len() == 0 {
         Err(CastleError::DataForWantNotReturnedByDatabase(format!("3. No fields found for match statement. identifier {:?}", identifier).into()))
     } else {

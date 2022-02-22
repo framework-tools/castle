@@ -34,6 +34,7 @@ pub fn get_requested_fields_from_db_dummy<C, R>(
             //temporarily set the fields values to the entire possible dummy data (this is specific to this dummy data fn
             //will not need to do this when receiving data from database)
             Value::Object(dummy_data_as_object) => fields_with_values_from_db = dummy_data_as_object,
+            
             _ => err = Some(Err(CastleError::ResolverDataShouldBeObject("Resolver Data Should Be Object".into())))
         };
         for (identifier, want) in wants {
