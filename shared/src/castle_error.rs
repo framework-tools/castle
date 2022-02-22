@@ -29,14 +29,14 @@ pub enum CastleError {
     MissingSchema(Box<str>),
     EnumInQueryNotDefinedInSchema(Box<str>),
     ExpectedFields(Box<str>),
-    EnumVariantTypeUndefinedInShema(Box<str>),
+    EnumVariantTypeUndefinedInSchema(Box<str>),
     EnumVariantDoesNotHaveMatchingType(Box<str>),
     EnumDataTypeNotSupported(Box<str>),
     WantNotFoundInRealResolver(Box<str>),
     ResolverDataShouldBeObject(Box<str>),
     DataForWantNotReturnedByDatabase(Box<str>),
     InvalidMatchStatement(Box<str>),
-    DirectiveRecievedWrongType(Box<str>),
+    DirectiveReceivedWrongType(Box<str>),
 }
 
 impl From<std::io::Error> for CastleError {
@@ -90,13 +90,13 @@ impl fmt::Display for CastleError {
             Self::EnumInQueryNotDefinedInSchema(msg) => write!(f, "Enum in query not defined in schema: {}", msg),
             Self::ExpectedFields(msg) => write!(f, "Expected fields: {}", msg),
             Self::EnumVariantDoesNotHaveMatchingType(msg) => write!(f, "Enum variant not defined as a type in schema: {}", msg),
-            Self::EnumVariantTypeUndefinedInShema(msg) => write!(f, "Enum variant type undefined in schema: {}", msg),
+            Self::EnumVariantTypeUndefinedInSchema(msg) => write!(f, "Enum variant type undefined in schema: {}", msg),
             Self::EnumDataTypeNotSupported(msg) => write!(f, "Enum data type not supported: {}", msg),
             Self::WantNotFoundInRealResolver(msg) => write!(f, "Want not found in real resolver: {}", msg),
             Self::ResolverDataShouldBeObject(msg) => write!(f, "Resolver data should be object: {}", msg),
             Self::DataForWantNotReturnedByDatabase(msg) => write!(f, "Data for want not returned by database: {}", msg),
             Self::InvalidMatchStatement(msg) => write!(f, "Invalid match statement: {}", msg),
-            Self::DirectiveRecievedWrongType(msg) => write!(f, "Directive recieved wrong type: {}", msg),
+            Self::DirectiveReceivedWrongType(msg) => write!(f, "Directive recieved wrong type: {}", msg),
         }
     }
 }
@@ -131,13 +131,13 @@ impl ExtendedErrorDisplay for CastleError {
             Self::EnumInQueryNotDefinedInSchema(msg) => format!("Enum in query not defined in schema: {}", msg),
             Self::ExpectedFields(msg) => format!("Expected fields: {}", msg),
             Self::EnumVariantDoesNotHaveMatchingType(msg) => format!("Enum variant not defined as a type in schema: {}", msg),
-            Self::EnumVariantTypeUndefinedInShema(msg) => format!("Enum variant type undefined in schema: {}", msg),
+            Self::EnumVariantTypeUndefinedInSchema(msg) => format!("Enum variant type undefined in schema: {}", msg),
             Self::EnumDataTypeNotSupported(msg) => format!("Enum data type not supported: {}", msg),
             Self::WantNotFoundInRealResolver(msg) => format!("Want not found in real resolver: {}", msg),
             Self::ResolverDataShouldBeObject(msg) => format!("Resolver data should be object: {}", msg),
             Self::DataForWantNotReturnedByDatabase(msg) => format!("Data for want not returned by database: {}", msg),
             Self::InvalidMatchStatement(msg) => format!("Invalid match statement: {}", msg),
-            Self::DirectiveRecievedWrongType(msg) => format!("Directive recieved wrong type: {}", msg),
+            Self::DirectiveReceivedWrongType(msg) => format!("Directive recieved wrong type: {}", msg),
         }
     }
 }

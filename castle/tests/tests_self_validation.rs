@@ -604,7 +604,7 @@ fn should_throw_error_if_enum_are_reference_undefined_type() -> Result<(), Castl
     let actual = self_validate_schema(&schema_definition);
     if actual.is_err() {
         match actual {
-            Err(CastleError::EnumVariantTypeUndefinedInShema(_)) => { return Ok(()) }, //passes
+            Err(CastleError::EnumVariantTypeUndefinedInSchema(_)) => { return Ok(()) }, //passes
             _ => panic!("Expected error to be of type DirectiveOnValueNotCompatible, found: {:?}", actual),
         }
     } else {

@@ -108,7 +108,7 @@ fn for_each_enum_check_all_types_in_their_values_are_valid(schema_definition: &S
             match &variant.enum_data_type {
                 EnumDataType::EnumUnit => {
                     if !schema_definition.schema_types.contains_key(&*variant.name){
-                        return Err(CastleError::EnumVariantTypeUndefinedInShema(format!("Enum variant type is undefined in schema: {}", variant.name).into()))
+                        return Err(CastleError::EnumVariantTypeUndefinedInSchema(format!("Enum variant type is undefined in schema: {}", variant.name).into()))
                     }
                 },
                 _ => {
