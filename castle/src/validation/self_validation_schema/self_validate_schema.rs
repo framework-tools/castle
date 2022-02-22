@@ -151,8 +151,6 @@ fn check_enum_object_field_types_are_defined(schema: &SchemaDefinition, fields: 
 ///    - Return Ok(()) at bottom outside loop
 fn check_directives_args_are_compatible(schema: &SchemaDefinition, directives: &Vec<Directive>) -> Result<(), CastleError> {
     for directive in directives {
-        println!("Checking directive: {:?}", directive.arguments);
-        println!("Checking direcive definition arguments: {:?}", schema.directives.get(&directive.name).unwrap().function.args);
         if directive.arguments != schema.directives.get(&directive.name).unwrap().function.args {
             return Err(CastleError::DirectiveDoesNotMatchSchemaDirective(format!("Directive arguments are not compatible. directive.arguments: {:?}  definition.args: {:?}", directive.arguments, schema.directives.get(&directive.name).unwrap().function.args).into()));
         }

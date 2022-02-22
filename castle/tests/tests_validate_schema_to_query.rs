@@ -168,6 +168,8 @@ fn should_break_if_use_undefined_enum_parent_in_query() -> Result<(), CastleErro
     let schema = "
     fn me(id: Int) -> User
     fn name() -> Name
+    fn username() -> Username
+    fn standard_name() -> StandardName
     
     type User {
         name: Name,
@@ -194,10 +196,10 @@ fn should_break_if_use_undefined_enum_parent_in_query() -> Result<(), CastleErro
     let query = "
     me(id: 543) {
         name() match {
-            Name::UserName => {
+            Name::UserName => username() {
                 username
             },
-            DoesntExist::DoesntExist => {
+            DoesntExist::DoesntExist => standard_name {
                 first_name,
                 last_name
             },
@@ -223,6 +225,8 @@ fn should_break_if_use_undefined_enum_variant_in_query() -> Result<(), CastleErr
     let schema = "
     fn me(id: Int) -> User
     fn name() -> Name
+    fn username() -> Username
+    fn standard_name() -> StandardName
     
     type User {
         name: Name,
@@ -249,11 +253,11 @@ fn should_break_if_use_undefined_enum_variant_in_query() -> Result<(), CastleErr
     let query = "
     me(id: 543) {
         name() match {
-            Name::StandardName => {
+            Name::StandardName => standard_name() {
                 first_name,
                 last_name
             },
-            Name::DoesntExist => {
+            Name::DoesntExist => username() {
                 first_name,
                 last_name
             }
@@ -461,6 +465,8 @@ fn should_throw_error_if_match_arm_references_type_in_enum_with_wrong_field() ->
     let schema = "
     fn name() -> Name
     fn me(id: Int) -> User
+    fn username() -> UserName
+    fn standard_name() -> StandardName
     
     type User {
         name: Name,
@@ -469,13 +475,8 @@ fn should_throw_error_if_match_arm_references_type_in_enum_with_wrong_field() ->
     }
 
     enum Name {
-        StandardName {
-            first_name: String,
-            last_name: String
-        },
-        UserName {
-            username: String,
-        }
+        StandardName,
+        UserName
     }
 
     type StandardName {
@@ -492,11 +493,11 @@ fn should_throw_error_if_match_arm_references_type_in_enum_with_wrong_field() ->
     let query = "
     me(id: 543) {
         name() match {
-            Name::StandardName => {
+            Name::StandardName => standard_name() {
                 first_name,
                 last_name
             },
-            Name::UserName => {
+            Name::UserName => user_name() {
                 not_correct_field
             }
         }

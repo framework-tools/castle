@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use castle::{validation::validate_query_with_schema::validate_query_with_schema::validate_query_with_schema, resolvers::{resolve_query_wants::{resolve_all_wants}, generic_resolver_fn::generic_resolver, dummy_data_for_tests::create_possible_fields_and_dummy_data, resolver_type::Args, resolver_map::ResolverMap}, castle_object::{resolver_return_types::{Value}, castle_struct::{CastleBuilder, Castle}}};
+use castle::{validation::validate_query_with_schema::validate_query_with_schema::validate_query_with_schema, resolvers::{resolve_query_wants::{resolve_all_wants}, generic_resolver_fn::{generic_resolver, unwrap_outer_wrapper}, dummy_data_for_tests::create_possible_fields_and_dummy_data, resolver_type::Args, resolver_map::ResolverMap}, castle_object::{resolver_return_types::{Value}, castle_struct::{CastleBuilder, Castle}}};
 use parser_and_schema::{ast::syntax_definitions::{argument::IdentifierAndValueArgument, want::{Want, Wants}, enum_definition::{EnumValue, EnumDataType}}, parsers::query_parser::parse_query::parse_query};
 use shared::castle_error::CastleError;
 
@@ -643,7 +643,7 @@ fn should_pass_query_with_match() -> Result<(), CastleError> {
     fn name() -> Name
     fn user_name() -> UserName
     fn standard_name() -> StandardName
-    
+
     type User {
         age: Int,
         name: Name
@@ -795,10 +795,9 @@ fn should_pass_top_level_match() -> Result<(), CastleError> {
     //test resolvers
     fn content_block<C, R>(wants: Option<&Wants>, args: &Args, resolver_map: &ResolverMap<C, R>, context: &C) -> Result<Value<R>, CastleError> {
         //dummy data
-        let (possible_fields, dummy_data) = create_possible_fields_and_dummy_data(vec![
+        let (possible_fields, dummy_data): (HashSet<Box<str>>, Value<R>)= create_possible_fields_and_dummy_data(vec![
             ("content".into(), Value::String("Hello world!".to_string()))
         ]);
-
         let return_value = generic_resolver(wants, &possible_fields, args, resolver_map, context, dummy_data)?;
         return Ok(return_value)
     }
@@ -828,12 +827,13 @@ fn should_pass_top_level_match() -> Result<(), CastleError> {
         };
 
         let mut block_fields = HashMap::new();
-        block_fields.insert("block".into(), Value::EnumValue(enum_value));
+        block_fields.insert("content_block".into(), Value::EnumValue(enum_value));
         let dummy_data = Value::Object(
             block_fields
         );
 
         let return_value = generic_resolver(wants, &possible_fields, args, resolver_map, context, dummy_data)?;
+        let return_value = unwrap_outer_wrapper(return_value, "block".into())?;
         return Ok(return_value)
     }
 

@@ -48,13 +48,7 @@ fn generic_resolve_wants<C, R> (
     let wants = wants.unwrap();
     let mut resolved_fields= HashMap::new();
     for (identifier, current_want) in wants {
-        let current_value = fields_with_values_from_db.remove(identifier);
-        let match_statement_identifier = generic_resolve_current_want(current_want, &mut resolved_fields, identifier.clone(), current_value, args, resolver_map, context)?;
-        if match_statement_identifier.is_some() {
-            let identifier = match_statement_identifier.unwrap();
-            let (identifier, unwrapped_want) = unwrap_and_remove_want_from_top_level_match(identifier, &mut resolved_fields)?;
-            resolved_fields.insert(identifier, unwrapped_want);
-        }
+        generic_resolve_current_want(current_want, fields_with_values_from_db, &mut resolved_fields, identifier.clone(), args, resolver_map, context)?;
     }
     let return_value = Value::Object(resolved_fields);
     return Ok(return_value)
@@ -62,28 +56,29 @@ fn generic_resolve_wants<C, R> (
 
 fn generic_resolve_current_want<C, R> (
     current_want: &Want,
+    fields_with_values_from_db: &mut HashMap<Box<str>, Value<R>>,
     resolved_fields: &mut HashMap<Box<str>, Value<R>>,
     identifier: Box<str>,
-    value: Option<Value<R>>,
     args: &Args, 
     resolver_map: &ResolverMap<C, R>, 
     context: &C
-) -> Result<Option<Box<str>>, CastleError>{
+) -> Result<(), CastleError>{
+    let identifier_clone = identifier.clone();
     match current_want {
         Want::SingleField(_) => {
+            let value = fields_with_values_from_db.remove(&identifier);
             insert_resolved_value_for_single_field(resolved_fields, identifier, value)?;
-            return Ok(None)
         },
         Want::ObjectProjection(fields, args) => {
-            resolve_inner_object_and_insert_fields(resolved_fields, identifier, fields, args, resolver_map, context)?;
-            return Ok(None)
+            resolve_inner_object_and_insert_fields(resolved_fields, identifier.clone(), identifier, fields, args, resolver_map, context)?;
         },
         Want::Match(match_statement) => {
-            let name = identifier.clone();
-            resolve_match_and_insert_fields(match_statement, resolved_fields, identifier, value, args, resolver_map, context)?;
-            return Ok(Some(name))
+            resolve_match_and_insert_fields(match_statement, fields_with_values_from_db, resolved_fields, identifier, args, resolver_map, context)?;
+            // let (identifier, updated_value) = unwrap_outer_wrapper(resolved_fields, identifier_clone)?;
+            // resolved_fields.insert(identifier, updated_value);
         }
     }
+    return Ok(())
 }
 
 fn insert_resolved_value_for_single_field<R> (
@@ -101,35 +96,42 @@ fn insert_resolved_value_for_single_field<R> (
 
 fn resolve_inner_object_and_insert_fields<C, R> (
     resolved_fields: &mut HashMap<Box<str>, Value<R>>,
-    identifier: Box<str>,
+    identifier_obj: Box<str>,
+    resolver_ident: Box<str>,
     fields: &HashMap<Box<str>, Want>,
     args: &Args, 
     resolver_map: &ResolverMap<C, R>, 
     context: &C
 ) -> Result<(), CastleError>{
     //needs to call resolver to resolve want
-    println!("identifier: {:?}", identifier);
-    let inner_resolver = resolver_map.resolvers.get(&identifier).unwrap();
-    let inner_return_value = inner_resolver(Some(fields), args, resolver_map, context)?;
-    resolved_fields.insert(identifier.into(), inner_return_value);
-    Ok(())
+    let inner_resolver = resolver_map.resolvers.get(&resolver_ident);
+    if inner_resolver.is_none() {
+        return Err(CastleError::QueryResolverNotDefinedInSchema(format!("2. No resolver found for identifier: {:?}", resolver_ident).into()))
+    } else {
+        let inner_return_value = inner_resolver.unwrap()(Some(fields), args, resolver_map, context)?;
+        resolved_fields.insert(identifier_obj.into(), inner_return_value);
+        Ok(())
+    }
 }
 
 fn resolve_match_and_insert_fields<C, R> (
     match_statement: &MatchStatement,
+    fields_with_values_from_db: &mut HashMap<Box<str>, Value<R>>,
     resolved_fields: &mut HashMap<Box<str>, Value<R>>,
     identifier: Box<str>,
-    value: Option<Value<R>>,
     args: &Args, 
     resolver_map: &ResolverMap<C, R>, 
     context: &C
 ) -> Result<(), CastleError>{
-    println!("identifier {:?}", identifier);
-    if value.is_none() {
-        return Err(CastleError::DataForWantNotReturnedByDatabase(format!("2. No value found for field in database. identifier {:?}", identifier).into()))
+    if fields_with_values_from_db.len() == 0 {
+        Err(CastleError::DataForWantNotReturnedByDatabase(format!("3. No fields found for match statement. identifier {:?}", identifier).into()))
     } else {
-        let value = value.unwrap();
-        match_condition_insert_resolved_fields(value, match_statement, resolved_fields, identifier, args, resolver_map, context)?;
+        let mut enum_key: Box<str>= "".into();
+        for key in fields_with_values_from_db.keys() {
+            enum_key = key.clone();
+        }
+        let enum_value = fields_with_values_from_db.remove(&enum_key).unwrap();
+        match_condition_insert_resolved_fields(enum_value, match_statement, resolved_fields, identifier, args, resolver_map, context)?;
         return Ok(())
     }
 }
@@ -142,17 +144,18 @@ fn match_condition_insert_resolved_fields<C, R>(
     args: &Args,
     resolver_map: &ResolverMap<C, R>,
     context: &C
-) -> Result<(), CastleError>{
+) -> Result<(), CastleError> {
     match value {
         Value::EnumValue(enum_value_from_db) => {
             for arm in match_statement {
                 if arm.condition.identifier == enum_value_from_db.identifier {
-                    let match_obj_identifier = arm.object_identifier.clone();
                     let fields = match &arm.object {
                         Want::ObjectProjection(fields, .. ) => fields,
                         _ => return Err(CastleError::InvalidMatchStatement(format!("3. Match statement should contain an object. identifier {:?}", identifier).into()))
                     };
-                    resolve_inner_object_and_insert_fields(resolved_fields, match_obj_identifier, fields, args, resolver_map, context)?;
+                    let inner_resolver = resolver_map.resolvers.get(&arm.object_identifier);
+                    let inner_return_value = inner_resolver.unwrap()(Some(fields), args, resolver_map, context)?;
+                    resolved_fields.insert(identifier.clone(), inner_return_value);
                     break;
                 }
             }
@@ -162,21 +165,16 @@ fn match_condition_insert_resolved_fields<C, R>(
     }
 }
 
-fn unwrap_and_remove_want_from_top_level_match<R>(identifier: Box<str>, resolved_fields: &mut HashMap<Box<str>, Value<R>>) -> Result<(Box<str>, Value<R>), CastleError> {
-    let mut unwrapped_want = resolved_fields.remove(&identifier).unwrap();
-    return match unwrapped_want {
-        Value::Object(mut fields) => {
-            let unwrapped_want = fields.remove(&identifier).unwrap();
-            match &unwrapped_want {
-                Value::Object(fields) => {
-                    for key in fields.keys() {
-                        return Ok((key.clone(), unwrapped_want))
-                    }
-                },
-                _ => return Err(CastleError::InvalidMatchStatement(format!("4. Match statement should contain an object. identifier {:?}", identifier).into()))
-            }
-            Ok((identifier, unwrapped_want))
+//use identifier to find object in database
+//match want to object else throw error
+//return inner object
+pub fn unwrap_outer_wrapper<R>(resolved_fields: Value<R>, identifier: Box<str>) -> Result<Value<R>, CastleError> {
+    let inner_value;
+    match resolved_fields {
+        Value::Object(mut inner_obj) => {
+            inner_value = inner_obj.remove(&identifier).unwrap();
+            return Ok(inner_value)
         },
-        _ => Err(CastleError::InvalidMatchStatement(format!("4. Match statement should contain an object. identifier {:?}", identifier).into()))
+        _ => return Err(CastleError::InvalidMatchStatement(format!("3. Match statement should contain an object. identifier {:?}", identifier).into()))
     }
 }

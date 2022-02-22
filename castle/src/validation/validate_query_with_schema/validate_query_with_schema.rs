@@ -226,8 +226,22 @@ fn validate_match_arm_fields_are_valid_for_return_type(match_arm: &MatchArm, sch
     let enum_variant = enum_definition.variants.get(&condition.variant).unwrap();
     match &enum_variant.enum_data_type {
         EnumDataType::EnumUnit => {
-            if !schema_definition.schema_types.contains_key(&enum_variant.name) {
+            let variant_type = schema_definition.schema_types.get(&enum_variant.name);
+            if variant_type.is_none() {
                 return Err(CastleError::EnumVariantDoesNotHaveMatchingType(format!("Enum variant not defined as a type in schema: {}", enum_variant.name).into()));
+            } else {
+                let variant_type = variant_type.unwrap();
+                let obj = &match_arm.object;
+                match obj {
+                    Want::ObjectProjection(fields, _) => {
+                        for field in fields.keys() {
+                            if !variant_type.fields.contains_key(field) {
+                                return Err(CastleError::EnumVariantDoesNotHaveMatchingType(format!("Enum variant not defined as a type in schema: {}", enum_variant.name).into()));
+                            }
+                        }
+                    },
+                    _ => {}
+                }
             }
         },
         _ => {
