@@ -4,7 +4,7 @@ use parser_and_schema::{ast::syntax_definitions::{schema_definition::{SchemaDefi
 use shared::castle_error::CastleError;
 
 
-use crate::{resolvers::{resolver_map::{ResolverMap, self}, resolve_query_wants::resolve_all_wants, resolver_type::{TopLevelResolvers, Resolver}}, directives::directives::DirectiveMap, validation::{self_validation_schema::self_validate_schema::self_validate_schema, validate_backend_fns_with_schema::validate_backend_fns_with_schema::validate_schema_with_resolvers_and_directives, validate_query_with_schema::validate_query_with_schema::validate_query_with_schema}};
+use crate::{resolvers::{resolver_map::{ResolverMap, self}, resolver_type::{Resolver}}, directives::directives::DirectiveMap, validation::{validate_backend_fns_with_schema::validate_backend_fns_with_schema::validate_schema_with_resolvers_and_directives, validate_query_with_schema::validate_query_with_schema::validate_query_with_schema, self_validation_schema::self_validate_schema}};
 
 pub struct Castle<C, R>{
     pub resolver_map: ResolverMap<C, R>,
@@ -41,11 +41,10 @@ impl<C, R> Castle<C, R> {
     /// Parse query
     /// Cross validate query and schema
     /// resolve all wants
-    pub fn parse_query_resolve_wants(&self, query: &str, context: C) -> Result<TopLevelResolvers<R>, CastleError> {
+    pub fn parse_query_and_validate(&self, query: &str, context: C) -> Result<(), CastleError> {
         let parsed_query = parse_query(query)?;
         validate_query_with_schema(&parsed_query, &self.parsed_schema)?;
-        let resolved_wants = resolve_all_wants(parsed_query.wants, &self.resolver_map, context)?;
-        return Ok(resolved_wants)
+        return Ok(())
     }
 }
 

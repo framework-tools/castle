@@ -4,7 +4,7 @@ use parser_and_schema::ast::syntax_definitions::{schema_definition::SchemaDefini
 use shared::castle_error::CastleError;
 
 
-use crate::{resolvers::{resolve_query_wants::{}, resolver_map::ResolverMap}, directives::{directives::DirectiveMap, self}};
+use crate::{resolvers::{resolver_map::ResolverMap}, directives::{directives::DirectiveMap, self}};
 
 
 

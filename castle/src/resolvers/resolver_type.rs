@@ -38,4 +38,4 @@ pub type Wants = HashMap<Box<str>, Want>;
 //Arguments for a resolver
 pub type Args = HashMap<Box<str>, IdentifierAndValueArgument>;
 //A single resolved want on the top layer of a query
-pub type TopLevelResolvers<R> = HashMap<Box<str>, Value<R>>;
+pub type ResolvedValues<R> = HashMap<Box<str>, Value<R>>;
