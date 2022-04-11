@@ -1,7 +1,7 @@
 use parser_and_schema::ast::syntax_definitions::schema_definition::SchemaDefinition;
 use shared::castle_error::CastleError;
 
-use super::check_type::check_type_used_has_been_defined;
+use super::check_type::check_type_exists;
 
 /// Checks all functions arguments and return types have been defined
 /// Takes in parsed schema
@@ -15,9 +15,9 @@ pub(crate) fn for_each_fn_check_arguments_and_return_types_are_valid(schema: &Sc
     for (_fn_name, fn_definition) in &schema.functions {
         let arguments = &fn_definition.args;
         for (_name, type_) in arguments.values() {
-            check_type_used_has_been_defined(schema, type_)?;
+            check_type_exists(schema, type_)?;
         }
-        check_type_used_has_been_defined(schema, &fn_definition.return_type)?; //check return type
+        check_type_exists(schema, &fn_definition.return_type)?; //check return type
     }
     return Ok(())
 }

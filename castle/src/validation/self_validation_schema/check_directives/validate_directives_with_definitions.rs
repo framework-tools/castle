@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use parser_and_schema::ast::syntax_definitions::{schema_definition::SchemaDefinition, directive_definition::{Directive, DirectiveDefinition, DirectiveOnValue}};
 use shared::castle_error::CastleError;
-use crate::validation::self_validation_schema::check_type::check_type_used_has_been_defined;
+use crate::validation::self_validation_schema::check_type::check_type_exists;
 
 pub(crate) fn check_directives_are_valid(
     schema: &SchemaDefinition,
@@ -34,7 +34,7 @@ fn validate_directives_args(
     if_directives_args_lengths_are_not_equal_throw_error(directive, definition)?;
         
     for (_name, type_) in directive.arguments.values() {
-        check_type_used_has_been_defined(schema, type_)?;
+        check_type_exists(schema, type_)?;
     }
 
     let directive_definition_args = &definition.function.args;
