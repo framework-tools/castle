@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use parser_and_schema::ast::syntax_definitions::{schema_definition::SchemaDefinition, directive_definition::{Directive, DirectiveDefinition, DirectiveOnValue}};
 use shared::castle_error::CastleError;
-use crate::validation::self_validation_schema::check_type::check_type_exists;
+use crate::validation::self_validation_schema::{check_type::check_type_exists, check_args::{self, check_args_exist}};
 
 pub(crate) fn check_directives_are_valid(
     schema: &SchemaDefinition,
@@ -31,25 +31,19 @@ fn validate_directives_args(
     definition: &DirectiveDefinition, 
     schema: &SchemaDefinition
 ) -> Result<(), CastleError> {
-    if_directives_args_lengths_are_not_equal_throw_error(directive, definition)?;
-        
-    for (_name, type_) in directive.arguments.values() {
-        check_type_exists(schema, type_)?;
-    }
+    check_args_exist(schema, &directive.arguments)?;
+    return validate_directives_args_with_definition(directive, definition)
+}
 
-    let directive_definition_args = &definition.function.args;
-    let directive_args = &directive.arguments;
-    for arg in directive_definition_args.keys() {
-        if !directive_args.contains_key(arg) {
-            return Err(CastleError::DirectiveDoesNotMatchSchemaDirective(format!("Directive {} does not have argument {:?}", &directive.name, &arg).into()));
-        } else {
-            let arg_type = &directive_definition_args[arg];
-            let directive_arg_type = &directive_args[arg];
-            if arg_type != directive_arg_type {
-                return Err(CastleError::DirectiveDoesNotMatchSchemaDirective(format!("Directive {} does not have argument {:?} with type {:?}", &directive.name, &arg, &arg_type).into()));
-            }
-        }
-    }
+fn validate_directives_args_with_definition(
+    directive: &Directive, 
+    definition: &DirectiveDefinition
+) -> Result<(), CastleError> {
+    if_directives_args_lengths_are_not_equal_throw_error(directive, definition)?;
+    let result: Result<Vec<()>, CastleError> = definition.function.args.keys().into_iter()
+        .map(|arg| validate_arg_is_same(arg, directive, definition))
+        .collect();
+    result?;
     return Ok(())
 }
 
@@ -75,21 +69,16 @@ fn if_directives_args_lengths_are_not_equal_throw_error(
     }
 }
 
-
-
-/// Checks args on directives are valid
-/// - For directive in directives
-/// - Match Some and None case
-///     - IF None, continue
-///     - If Some:
-///     - call check_arguments_or_tuples_are_defined
-///    - Return Ok(()) at bottom outside loop
-fn check_directives_args_are_compatible(schema: &SchemaDefinition, directives: &Vec<Directive>) -> Result<(), CastleError> {
-    for directive in directives {
-        if directive.arguments != schema.directives.get(&directive.name).unwrap().function.args {
-            return Err(CastleError::DirectiveDoesNotMatchSchemaDirective(format!("Directive arguments are not compatible. directive.arguments: {:?}  definition.args: {:?}", directive.arguments, schema.directives.get(&directive.name).unwrap().function.args).into()));
-        }
+fn validate_arg_is_same(
+    arg: &Box<str>,
+    directive: &Directive,
+    definition: &DirectiveDefinition,
+) -> Result<(), CastleError> {
+    return match !directive.arguments.contains_key(arg) {
+        true => Err(CastleError::DirectiveDoesNotMatchSchemaDirective(format!("Directive {} does not have argument {:?}", &directive.name, &arg).into())),
+        false if directive.arguments.get(arg) != definition.function.args.get(arg) =>
+            Err(CastleError::DirectiveDoesNotMatchSchemaDirective(format!("Directive {} does not have argument {:?} with type {:?}", &directive.name, &arg, &directive.arguments.get(arg)).into())),
+        _ => Ok(())
     }
-    return  Ok(())
 }
 

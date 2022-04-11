@@ -5,16 +5,13 @@ use shared::castle_error::CastleError;
 
 use super::check_type::check_type_exists;
 
-pub(crate) fn check_args_are_defined(
+pub(crate) fn check_args_exist(
     schema: &SchemaDefinition, 
     args: &HashMap<Box<str>, IdentifierAndTypeArgument>
 ) -> Result<(), CastleError> {
     let result: Result<Vec<()>, CastleError> = args.into_iter()
         .map(|(_, (_, type_))| check_type_exists(schema, type_))
         .collect();
-
-    return match result {
-        Result::Ok(_) => Ok(()),
-        Result::Err(err) => Err(err)
-    }
+    result?;
+    return Ok(())
 }
