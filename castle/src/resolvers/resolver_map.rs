@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use super::resolver_type::Resolver;
 
 //A HashMap containing all Resolvers
+#[derive(Debug, PartialEq)]
 pub struct ResolverMap<C, R> {
     pub resolvers: HashMap<Box<str>, Resolver<C, R>>
 }
@@ -18,3 +19,4 @@ impl<C, R> ResolverMap<C, R> {
         self.resolvers.insert(resolver_name.into(), resolver);
     }
 }
+

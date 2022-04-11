@@ -25,20 +25,20 @@ pub fn resolve_all_wants<C, R>(wants: Wants, resolver_map: &ResolverMap<C, R>,  
 ///         - Use the want's identifier to get the corresponding resolver
 ///         - Pass in the want's fields, arguments, and context to get the resolved fields
 ///         - Return the resolved fields    
-fn resolve_projection<C, R>(identifier: Box<str>, want: Want, context: &C, resolver_map: &ResolverMap<C, R>) -> Result<Value<R>, CastleError> {
+fn resolve_projection<C, R>(identifier: Box<str>, want: Want, context: C, resolver_map: &ResolverMap<C, R>) -> Result<Value<R>, CastleError> {
     let resolved;
     let resolver = resolver_map.resolvers.get(&identifier).unwrap();
     match want {
         Want::SingleField(arguments) => {
-            resolved = resolver(None, &arguments, resolver_map, context)?;
+            resolved = resolver(None, arguments, context)?;
         },
         Want::ObjectProjection(fields, arguments  ) => {
-            resolved = resolver(Some(&fields), &arguments, resolver_map, context)?;
+            resolved = resolver(Some(fields), arguments, context)?;
         },
         Want::Match(match_statement) => {
             let mut match_fields = HashMap::new();
             match_fields.insert(identifier, Want::Match(match_statement));
-            resolved = resolver(Some(&match_fields), &HashMap::new(), resolver_map, context)?;
+            resolved = resolver(Some(&match_fields), &HashMap::new(), context)?;
         },
     };
     return Ok(resolved)

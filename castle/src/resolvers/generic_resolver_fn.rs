@@ -15,15 +15,11 @@ use super::{dummy_data_for_tests::{get_requested_fields_from_db_dummy}, resolver
 /// once data has been received, insert all data into the return_value
 /// if there is a inner object projection, this calls a new resolver (handled in fn generic_resolve_wants)
 pub fn generic_resolver<C, R>(
-    wants: Option<&Wants>, 
-    possible_fields: &HashSet<Box<str>>,
-    args: &Args, 
-    resolver_map: &ResolverMap<C, R>, 
-    context: &C,
+    wants: Option<Wants>, 
+    args: Args,
+    context: C,
     dummy_data: Value<R> // this is dummy data and will be changed
 ) -> Result<Value<R>, CastleError> {
-    //currently dummy data below
-    let mut fields_with_values_from_db: HashMap<Box<str>, Value<R>> = get_requested_fields_from_db_dummy(possible_fields, wants, args, context, dummy_data)?; 
     let return_value = generic_resolve_wants(wants, &mut fields_with_values_from_db, args, resolver_map, context);
     return return_value
 }

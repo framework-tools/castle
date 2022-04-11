@@ -32,7 +32,7 @@ impl<'a, C, R> ResolverArguments<'a, C, R> {
 }
 
 //A resolver takes in fields (inner wants), arguments and context and returns the resolved want
-pub type Resolver<C, R> = fn(Option<&Wants>, &Args, &ResolverMap<C, R>, &C) -> Result<Value<R>, CastleError>;
+pub type Resolver<C, R> = fn(Option<Wants>, Args, C) -> Result<Value<R>, CastleError>;
 //Fields that a query wants resolved
 pub type Wants = HashMap<Box<str>, Want>;
 //Arguments for a resolver
