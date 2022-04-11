@@ -1,7 +1,7 @@
 use parser_and_schema::ast::syntax_definitions::{schema_definition::SchemaDefinition, fn_definition::FnDefinition};
 use shared::castle_error::CastleError;
 
-use super::{check_type::check_type_exists, check_args::check_args_exist};
+use super::{check_type::check_type_is_valid, check_args::check_args_exist};
 
 /// Checks all functions arguments and return types have been defined
 /// Takes in parsed schema
@@ -25,6 +25,6 @@ fn validate_args_and_return_type(
     fn_def: &FnDefinition,
 ) -> Result<(), CastleError> {
     check_args_exist(schema, &fn_def.args)?;
-    check_type_exists(schema, &fn_def.return_type)?; //check return type
+    check_type_is_valid(schema, &fn_def.return_type)?; //check return type
     return Ok(())
 }
