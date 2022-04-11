@@ -3,6 +3,16 @@ use shared::castle_error::CastleError;
 
 use super::check_directives::{validate_directives_with_definitions::check_directives_are_valid};
 
+pub(crate) fn validate_types(schema: &SchemaDefinition) -> Result<(), CastleError> {
+    for (_schema_type_name, schema_type) in &schema.schema_types {
+        for (_field_name, field) in &schema_type.fields {
+            check_type_exists(schema, &field.type_)?;
+            check_directives_are_valid(&schema, &field.directives, &DirectiveOnValue::Field)?;
+        }
+    }
+    return Ok(())
+}
+
 /// If the schema_type_or_enum does not exist in enums or schema types throw error
 /// Else return Ok(())
 pub(crate) fn check_type_or_enum_exists(schema_type_or_enum_name: &Box<str>, schema: &SchemaDefinition) -> Result<(), CastleError> {
@@ -13,15 +23,6 @@ pub(crate) fn check_type_or_enum_exists(schema_type_or_enum_name: &Box<str>, sch
     return Ok(())
 }
 
-pub(crate) fn check_type_is_valid(schema: &SchemaDefinition) -> Result<(), CastleError> {
-    for (_schema_type_name, schema_type) in &schema.schema_types {
-        for (_field_name, field) in &schema_type.fields {
-            check_type_exists(schema, &field.type_)?;
-            check_directives_are_valid(&schema, &field.directives, &DirectiveOnValue::Field)?;
-        }
-    }
-    return Ok(())
-}
 
 /// Takes in parsed schema and checks each field for any undefined types
 ///     - For each Type loop
