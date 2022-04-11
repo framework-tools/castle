@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use parser_and_schema::ast::syntax_definitions::{schema_definition::SchemaDefinition, argument::{ArgumentOrTuple, IdentifierAndTypeArgument}};
+use parser_and_schema::ast::syntax_definitions::{schema_definition::SchemaDefinition, argument::{IdentifierAndTypeArgument}};
 use shared::castle_error::CastleError;
 
 use super::check_type::check_type_is_valid;

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use parser_and_schema::ast::syntax_definitions::{schema_definition::SchemaDefinition, directive_definition::{Directive, DirectiveDefinition, DirectiveOnValue}};
 use shared::castle_error::CastleError;
-use crate::validation::self_validation_schema::{check_type::check_type_is_valid, check_args::{self, check_args_exist}};
+use crate::validation::self_validation_schema::{check_args::{check_args_exist}};
 
 pub(crate) fn check_directives_are_valid(
     schema: &SchemaDefinition,
