@@ -4,7 +4,7 @@ use std::{io::Read, collections::HashMap};
 
 use shared::castle_error::CastleError;
 
-use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::{get_next_token_and_unwrap}}, ast::syntax_definitions::{fn_definition::{FnDefinition}, argument::{IdentifierAndTypeArgument, ArgumentOrTuple}, directive_definition::Directive}, parsers::schema_parser::{types::{type_system::{Type, parse_type}, parse_directive::parse_directives}}, token::token::{Identifier, TokenKind, Punctuator}};
+use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::{get_next_token_and_unwrap}}, ast::syntax_definitions::{fn_definition::{FnDefinition}, argument::{ArgumentOrTuple}, directive_definition::Directive}, parsers::schema_parser::{types::{type_system::{Type, parse_type}, parse_directive::parse_directives}}, token::token::{Identifier, TokenKind, Punctuator}};
 
 pub fn parse_function<R>(tokenizer: &mut Tokenizer<R>) -> Result<FnDefinition, CastleError>
 where R: Read {

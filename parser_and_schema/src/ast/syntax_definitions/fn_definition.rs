@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::parsers::schema_parser::types::type_system::Type;
 
-use super::{argument::{IdentifierAndTypeArgument}, directive_definition::Directive};
+use super::{directive_definition::Directive};
 
 
 

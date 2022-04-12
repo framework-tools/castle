@@ -14,7 +14,7 @@ pub struct EnumDefinition {
 }
 
 impl EnumDefinition {
-    pub fn new(name: Box<str>, variants: HashMap<Box<str>, EnumVariant>, directives: Vec<Directive>) -> Self {
+    pub fn new(name: Box<str>, variants: HashMap<Box<str>, EnumVariant>) -> Self {
         EnumDefinition {
             name,
             variants,

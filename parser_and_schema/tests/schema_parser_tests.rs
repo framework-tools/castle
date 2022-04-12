@@ -1,6 +1,6 @@
 use std::{collections::{HashMap}, vec};
 use shared::castle_error::CastleError;
-use parser_and_schema::{parsers::schema_parser::{schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}, types::{type_system::Type, primitive_type::PrimitiveType, schema_type::SchemaType, schema_field::SchemaField, vec_type::VecType, option_type::OptionType}, parse_schema::parse_schema}, ast::syntax_definitions::{enum_definition::{EnumVariant, EnumDataType, EnumDefinition}, schema_definition::SchemaDefinition, argument::{ArgumentOrTuple, IdentifierAndTypeArgument}, fn_definition::FnDefinition, directive_definition::{Directive, self, DirectiveDefinition, DirectiveOnValue}}};
+use parser_and_schema::{parsers::schema_parser::{schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}, types::{type_system::Type, primitive_type::PrimitiveType, schema_type::SchemaType, schema_field::SchemaField, vec_type::VecType, option_type::OptionType}, parse_schema::parse_schema}, ast::syntax_definitions::{enum_definition::{EnumVariant, EnumDataType, EnumDefinition}, schema_definition::SchemaDefinition, argument::{ArgumentOrTuple}, fn_definition::FnDefinition, directive_definition::{Directive, self, DirectiveDefinition, DirectiveOnValue}}};
 
 
 #[test]
@@ -559,7 +559,7 @@ fn can_parse_directives_on_enums(){
     is_admin_arguments.insert("role".into(), role_arg);
     let authenticated_directive = DirectiveDefinition::new("authenticated".into(), authenticated_arguments, DirectiveOnValue::EnumVariant);
     let is_admin_directive = DirectiveDefinition::new("is_admin".into(), is_admin_arguments, DirectiveOnValue::EnumVariant);
-    let mut enum_meow = EnumDefinition::new("Meow".into(), HashMap::new(), Vec::new());
+    let mut enum_meow = EnumDefinition::new("Meow".into(), HashMap::new());
     enum_meow.variants.insert("Red".into(), enum_variant);
 
     let mut expected = SchemaDefinition::new();
@@ -605,8 +605,6 @@ fn can_parse_directives_enums(){
 
     let mut args = HashMap::new();
     args.insert("ar".into(), ar_arg);
-
-    let return_type = Type::Void;
     let directive_definition = DirectiveDefinition::new("test".into(), args, directive_definition::DirectiveOnValue::EnumVariant);
 
     let mut expected = SchemaDefinition {
@@ -753,8 +751,13 @@ fn can_parse_directives_on_resolver_definitions() -> Result<(), CastleError> {
 #[test]
 fn can_parse_resolver_with_default_return_type() -> Result<(), CastleError> {    
     let schema = "
-        fn me()
+        fn me() -> String
     ";
-
+    let schema2 = "
+        fn me -> String
+    ";
+    let actual = parse_schema(schema)?;
+    let actual2 = parse_schema(schema2)?;
+    assert_eq!(actual, actual2);
     return Ok(())
 }
