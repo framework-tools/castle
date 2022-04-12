@@ -3,7 +3,7 @@ use std::{collections::HashMap};
 
 
 
-use super::{match_statement::{MatchStatement}, argument::IdentifierAndValueArgument};
+use super::{match_statement::{MatchStatement}, expressions::PrimitiveValue};
 
 
 #[derive(Debug, PartialEq)]
@@ -14,10 +14,10 @@ pub enum Want {
 }
 
 pub type Wants = HashMap<Box<str>, Want>;
-pub type WantArguments = HashMap<Box<str>, IdentifierAndValueArgument>;
+pub type WantArguments = HashMap<Box<str>, PrimitiveValue>;
 
 impl Want {
-    pub fn new_single_field(arguments: HashMap<Box<str>, IdentifierAndValueArgument>) -> Self {
+    pub fn new_single_field(arguments: HashMap<Box<str>, PrimitiveValue>) -> Self {
         Want::SingleField(arguments)
     }
 

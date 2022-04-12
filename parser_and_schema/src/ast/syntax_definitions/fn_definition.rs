@@ -10,13 +10,13 @@ use super::{argument::{IdentifierAndTypeArgument}, directive_definition::Directi
 #[derive(Debug, PartialEq)]
 pub struct FnDefinition {
     pub name: Box<str>,
-    pub args: HashMap<Box<str>, IdentifierAndTypeArgument>,
+    pub args: HashMap<Box<str>, Type>,
     pub return_type: Type,
     pub directives: Vec<Directive>
 }
 
 impl FnDefinition {
-    pub fn new(name: Box<str>, args: HashMap<Box<str>, IdentifierAndTypeArgument>, return_type: Type, directives: Vec<Directive>) -> Self {
+    pub fn new(name: Box<str>, args: HashMap<Box<str>, Type>, return_type: Type, directives: Vec<Directive>) -> Self {
         Self {
             name,
             args,

@@ -417,9 +417,9 @@ fn can_parse_function_with_args_and_return_type(){
         fn do_nothing (id: uuid, name: String) -> String
         fn get_user(id: uuid) -> User
     ";
-    let id_arg = ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid));
-    let name_arg = ("name".into(), Type::PrimitiveType(PrimitiveType::String));
-    let user_id_arg = ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid));
+    let id_arg = Type::PrimitiveType(PrimitiveType::Uuid);
+    let name_arg = Type::PrimitiveType(PrimitiveType::String);
+    let user_id_arg = Type::PrimitiveType(PrimitiveType::Uuid);
 
     let name = "do_nothing".into();
     let mut args = HashMap::new();
@@ -501,10 +501,10 @@ fn can_parse_directives_on_fields(){
         }
     ";
     
-    let token_arg = ("token".into(), Type::PrimitiveType(PrimitiveType::String));
+    let token_arg = Type::PrimitiveType(PrimitiveType::String);
     let mut authenicated_args = HashMap::new();
     authenicated_args.insert("token".into(), token_arg);
-    let role_arg = ("role".into(), Type::SchemaTypeOrEnum("DoesntExist".into()));
+    let role_arg = Type::SchemaTypeOrEnum("DoesntExist".into());
     let mut is_admin_args = HashMap::new();
     is_admin_args.insert("role".into(), role_arg);
 
@@ -535,10 +535,10 @@ fn can_parse_directives_on_enums(){
         directive @is_admin(role: DoesntExist) on ENUM_VARIANT
     ";
 
-    let token_arg: IdentifierAndTypeArgument = ("token".into(), Type::PrimitiveType(PrimitiveType::String));
-    let role_arg: (Box<str>, Type) = ("role".into(), Type::SchemaTypeOrEnum("DoesntExist".into()));
+    let token_arg = Type::PrimitiveType(PrimitiveType::String);
+    let role_arg = Type::SchemaTypeOrEnum("DoesntExist".into());
 
-    let mut authenticated_arguments: HashMap<Box<str>, (Box<str>, Type)> = HashMap::new();
+    let mut authenticated_arguments: HashMap<Box<str>, Type> = HashMap::new();
     authenticated_arguments.insert("token".into(), token_arg);
 
     let mut is_admin_arguments = HashMap::new();
@@ -550,12 +550,12 @@ fn can_parse_directives_on_enums(){
 
     let enum_variant = EnumVariant::new("Red".into(), EnumDataType::EnumUnit, directives);
 
-    let token_arg: IdentifierAndTypeArgument = ("token".into(), Type::PrimitiveType(PrimitiveType::String));
-    let mut authenticated_arguments: HashMap<Box<str>, (Box<str>, Type)> = HashMap::new();
+    let token_arg = Type::PrimitiveType(PrimitiveType::String);
+    let mut authenticated_arguments: HashMap<Box<str>, Type> = HashMap::new();
     authenticated_arguments.insert("token".into(), token_arg);
 
-    let mut is_admin_arguments: HashMap<Box<str>, (Box<str>, Type)> = HashMap::new();
-    let role_arg: (Box<str>, Type) = ("role".into(), Type::SchemaTypeOrEnum("DoesntExist".into()));
+    let mut is_admin_arguments = HashMap::new();
+    let role_arg = Type::SchemaTypeOrEnum("DoesntExist".into());
     is_admin_arguments.insert("role".into(), role_arg);
     let authenticated_directive = DirectiveDefinition::new("authenticated".into(), authenticated_arguments, DirectiveOnValue::EnumVariant);
     let is_admin_directive = DirectiveDefinition::new("is_admin".into(), is_admin_arguments, DirectiveOnValue::EnumVariant);
@@ -568,17 +568,16 @@ fn can_parse_directives_on_enums(){
     expected.directives.insert("is_admin".into(), is_admin_directive);
 
     let actual = parse_schema(schema).unwrap();
-    println!("{:#?}", actual);
     assert_eq!(expected, actual);
 }
 
 #[test]
-fn can_parse_directives_fields(){
+fn can_parse_directives_fields() {
     let schema = "
     directive @test(ar: String) on FIELD
     ";
 
-    let ar_arg = ("ar".into(), Type::PrimitiveType(PrimitiveType::String));
+    let ar_arg = Type::PrimitiveType(PrimitiveType::String);
 
     let mut args = HashMap::new();
     args.insert("ar".into(), ar_arg);
@@ -602,7 +601,7 @@ fn can_parse_directives_enums(){
     directive @test(ar: String) on ENUM_VARIANT
     ";
 
-    let ar_arg = ("ar".into(), Type::PrimitiveType(PrimitiveType::String));
+    let ar_arg = Type::PrimitiveType(PrimitiveType::String);
 
     let mut args = HashMap::new();
     args.insert("ar".into(), ar_arg);
@@ -720,8 +719,8 @@ fn can_parse_directives_on_resolver_definitions() -> Result<(), CastleError> {
     let args = HashMap::new();
 
     let mut upercase_argument = HashMap::new();
-    upercase_argument.insert("amount".into(), ("amount".into(), Type::PrimitiveType(PrimitiveType::Int)));
-    
+    upercase_argument.insert("amount".into(), Type::PrimitiveType(PrimitiveType::Int));
+
     let mut directives = Vec::new();
     directives.push(Directive::new("authenticated".into(), HashMap::new()));
     directives.push(Directive::new("uppercase".into(), upercase_argument));
