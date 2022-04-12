@@ -96,9 +96,9 @@ where R: Read {
     match token.kind {
         TokenKind::Punctuator(Punctuator::Colon) => { //Identifier and Type Argument
             let token = get_next_token_and_unwrap(tokenizer)?;
-            let is_primitive_value = PrimitiveValue::check_if_primitive_value(&token.kind);
+            let is_primitive_value = token.kind.check_if_primitive_value();
             if is_primitive_value {
-                let primitive_value = PrimitiveValue::new_from_token_kind(token)?;
+                let primitive_value = token.convert_token_to_primitive()?;
                 let ident_and_type: IdentifierAndValueArgument = (name, primitive_value);
                 return Ok(ArgumentOrTuple::IdentifierAndValue(ident_and_type));
             } else {
@@ -112,6 +112,6 @@ where R: Read {
 }
 
 fn parse_primitive_value_argument(token: Token) -> Result<ArgumentOrTuple, CastleError> {
-    let primitive_value = PrimitiveValue::new_from_token_kind(token)?;
+    let primitive_value = token.convert_token_to_primitive()?;
     return Ok(ArgumentOrTuple::PrimitiveValue(primitive_value))
 }

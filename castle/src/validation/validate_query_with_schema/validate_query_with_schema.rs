@@ -82,12 +82,8 @@ fn validate_resolver_and_assign_schema_type_for_fields_validation(
 ) -> Result<(), CastleError> {
     let resolver = resolver.unwrap();
     check_arguments_are_compatible(resolver, &arguments)?;
-    if fields.is_none() {
-        validate_single_field_want(resolver, &identifier)?;
-    }
-    else {
-        validate_object_projection_want(resolver, schema_definition, fields)?;
-    }
+    if fields.is_none() { validate_single_field_want(resolver, &identifier)?; }
+    else { validate_object_projection_want(resolver, schema_definition, fields)?; }
     return Ok(())
 }
 
@@ -162,15 +158,12 @@ fn check_arguments_are_compatible(resolver: &FnDefinition, arguments: &WantArgum
 
 fn check_if_arguments_in_query_have_different_lengths(resolver_args: &HashMap<Box<str>, IdentifierAndTypeArgument>, query_args: &HashMap<Box<str>, IdentifierAndValueArgument>)
 -> Result<(), CastleError> {
-    
     //check args are compatible
     if query_args.len() != resolver_args.len() {
         return Err(CastleError::ArgumentsInQueryDoNotMatchResolver(format!("arguments in query have different lengths. Query args length: {}, resolver args length: {}", 
         query_args.len(), resolver_args.len()).into()));
-    }
-    else {
-        Ok(())
-    }
+    } 
+    else { Ok(()) }
 }
 
 fn iterate_through_arguments_and_check_compatibility(resolver_args: &HashMap<Box<str>, IdentifierAndTypeArgument>, query_args: &HashMap<Box<str>, IdentifierAndValueArgument>)
@@ -227,12 +220,9 @@ fn validate_match_arm_fields_are_valid_for_return_type(match_arm: &MatchArm, sch
     match &enum_variant.enum_data_type {
         EnumDataType::EnumUnit => {
             let variant_type = schema_definition.schema_types.get(&enum_variant.name);
-            if variant_type.is_none() {
-                return Err(CastleError::EnumVariantDoesNotHaveMatchingType(format!("Enum variant not defined as a type in schema: {}", enum_variant.name).into()));
-            } else {
+            if variant_type.is_some() {
                 let variant_type = variant_type.unwrap();
-                let obj = &match_arm.object;
-                match obj {
+                match &match_arm.object {
                     Want::ObjectProjection(fields, _) => {
                         for field in fields.keys() {
                             if !variant_type.fields.contains_key(field) {
@@ -242,6 +232,8 @@ fn validate_match_arm_fields_are_valid_for_return_type(match_arm: &MatchArm, sch
                     },
                     _ => {}
                 }
+            } else {
+                return Err(CastleError::EnumVariantDoesNotHaveMatchingType(format!("Enum variant not defined as a type in schema: {}", enum_variant.name).into()));
             }
         },
         _ => {

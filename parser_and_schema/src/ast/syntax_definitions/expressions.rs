@@ -4,9 +4,10 @@ use serde::{Deserialize, Serialize};
 use shared::castle_error::CastleError;
 
 
-use crate::token::{token::{TokenKind, Numeric, Identifier}, Token};
 
-use super::{keyword::Keyword, enum_definition::EnumValue};
+use crate::token::token::Identifier;
+
+use super::{enum_definition::EnumValue};
 
 #[derive(Debug, PartialEq)]
 pub enum Expression {
@@ -30,7 +31,6 @@ impl Expression {
         }
     }
 }
-
 
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
 pub enum PrimitiveValue {
@@ -61,40 +61,5 @@ impl PrimitiveValue {
         else {
             return Ok(PrimitiveValue::UInt(value.parse().unwrap()))
         }
-    }
-    
-    pub fn new_from_token_kind(token: Token) -> Result<Self, CastleError> {
-        match token.kind {
-            TokenKind::StringLiteral(s) => Ok(PrimitiveValue::String(s)),
-            TokenKind::NumericLiteral(numeric) => Ok(match_numeric_token_to_primitive(numeric)?),
-            TokenKind::BooleanLiteral(b) => Ok(PrimitiveValue::Boolean(b)),
-            TokenKind::Keyword(keyword) => match keyword {
-                Keyword::True => Ok(PrimitiveValue::Boolean(true)),
-                Keyword::False => Ok(PrimitiveValue::Boolean(false)),
-                _ => Err(CastleError::Schema(format!("Expected primitive value, found keyword: {:?}", &keyword).into(), token.span)),
-            },
-            _ => Err(CastleError::Schema(format!("Expected primitive value, found: {:?}", token.kind).into(), token.span))
-        }
-    }
-
-    pub fn check_if_primitive_value(token_kind: &TokenKind) -> bool {
-        match token_kind {
-            TokenKind::StringLiteral(_s) => true,
-            TokenKind::NumericLiteral(_numeric) => true,
-            TokenKind::BooleanLiteral(_b) => true,
-            TokenKind::Keyword(keyword) => match keyword {
-                Keyword::True => true,
-                Keyword::False => true,
-                _ => false,
-            },
-            _ => false
-        }
-    }
-}
-fn match_numeric_token_to_primitive(numeric:Numeric) -> Result<PrimitiveValue, CastleError> {
-    match numeric {
-        Numeric::Float(f) => Ok(PrimitiveValue::Float(f)),
-        Numeric::Integer(i) => Ok(PrimitiveValue::Int(i)),
-        Numeric::UnsignedInteger(u) => Ok(PrimitiveValue::UInt(u)),
     }
 }

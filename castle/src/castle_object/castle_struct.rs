@@ -70,13 +70,10 @@ impl<'a, C, R> CastleBuilder<C, R> {
     }
 
     pub fn build_and_validate(self) -> Result<Castle<C, R>, CastleError> {
-        let schema;
-        if self.parsed_schema.is_none() {
-            return Err(CastleError::MissingSchema("No schema provided".into()));
-        }
-        else {
-            schema = self.parsed_schema.unwrap();
-        }
+        let schema = match self.parsed_schema{
+            Some(schema) => schema,
+            None => return Err(CastleError::MissingSchema("No schema provided".into()))
+        };
         Castle::build_and_validate(self.resolver_map, self.directives, schema)
     }
 
