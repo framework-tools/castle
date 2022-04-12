@@ -1,6 +1,6 @@
 use std::{collections::HashMap};
 
-use parser_and_schema::{parsers::{query_parser::parse_query::ParsedQuery, schema_parser::types::{ type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{schema_definition::{SchemaDefinition, self}, want::{Want, Wants, WantArguments}, expressions::PrimitiveValue, fn_definition::FnDefinition, argument::{IdentifierAndTypeArgument, IdentifierAndValueArgument}, match_statement::{MatchArm, MatchStatement}, enum_definition::{EnumDataType}}};
+use parser_and_schema::{parsers::{query_parser::parse_query::ParsedQuery, schema_parser::types::{ type_system::Type, primitive_type::PrimitiveType}}, ast::syntax_definitions::{schema_definition::{SchemaDefinition}, want::{Want, Wants, WantArguments}, expressions::PrimitiveValue, fn_definition::FnDefinition, argument::{IdentifierAndTypeArgument, IdentifierAndValueArgument}, match_statement::{MatchArm, MatchStatement}, enum_definition::{EnumDataType}}};
 use shared::castle_error::CastleError;
 
 
