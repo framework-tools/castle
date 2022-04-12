@@ -1,8 +1,5 @@
 use std::collections::HashMap;
 use parser_and_schema::ast::syntax_definitions::enum_definition::EnumValue;
-use uuid::Uuid;
-
-use crate::resolvers::resolver_type::Resolver;
 
 #[derive(Debug, PartialEq)]
 pub enum Value<R = ()> {

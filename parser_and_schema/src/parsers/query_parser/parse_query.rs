@@ -6,7 +6,7 @@ use shared::castle_error::CastleError;
 
 use crate::{ast::syntax_definitions::{want::Want, argument::ArgumentOrTuple, keyword::Keyword}, tokenizer::{tokenizer::Tokenizer}, token::{token::{TokenKind, Punctuator, Identifier}, Token}};
 
-use super::{parse_object_projection::{parse_object_projection, parse_query_field, parse_match}};
+use super::{parse_object_projection::{parse_object_projection, parse_match}};
 
 #[derive(Debug)]
 pub struct ParsedQuery {
@@ -77,7 +77,7 @@ where R: Read {
                     parse_object_projection(identifier, tokenizer)
                 },
                 TokenKind::Keyword(Keyword::Match) => {
-                    let match_statement = parse_match(tokenizer, identifier)?;
+                    let match_statement = parse_match(tokenizer)?;
                     return Ok(Want::Match(match_statement))
                 },
                 _ => {

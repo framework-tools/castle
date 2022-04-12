@@ -22,7 +22,7 @@ fn test_resolver_defined_in_schema_that_does_not_exist_throws_error(){
     ";
 
     let parsed_schema = parse_schema(schema).unwrap();
-    fn random_resolver<C, R>(wants: Option<HashMap<Box<str>, Want>>, args: Args, context: C) -> Result<Value<R>, CastleError> {
+    fn random_resolver<C, R>(_: Option<HashMap<Box<str>, Want>>, _: Args, _: C) -> Result<Value<R>, CastleError> {
         Ok(Value::String("hello".to_string()))
     }
     let mut builder: CastleBuilder<(), ()> = CastleBuilder::new();
@@ -48,7 +48,7 @@ fn test_directive_defined_in_schema_that_does_not_exist_throw_error(){
     directive @test(arg: String) on FIELD  
     ";
 
-    fn random_directive<C, R>(wants: Option<HashMap<Box<str>, Want>>, args: Args, context: C) -> Result<Value<R>, CastleError>  {
+    fn random_directive<C, R>(_: Option<HashMap<Box<str>, Want>>, _: Args, _: C) -> Result<Value<R>, CastleError>  {
         Ok(Value::String("hello".to_string()))
     }
 

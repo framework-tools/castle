@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use parser_and_schema::ast::syntax_definitions::{want::Want, argument::ArgumentOrTuple, directive_definition::DirectiveDefinition};
+use parser_and_schema::ast::syntax_definitions::{want::Want};
 
 use crate::resolvers::resolver_type::Resolver;
 
