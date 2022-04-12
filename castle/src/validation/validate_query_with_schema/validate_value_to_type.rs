@@ -9,11 +9,14 @@ pub(crate) fn check_type_and_value_are_compatible(arg_in_resolver: &Type, arg_in
     let schema_type = arg_in_resolver;
     let arg_value = arg_in_query;
     let query_type = convert_value_to_corresponding_type(&arg_value)?;
-    if &query_type == schema_type { return Ok(true) }
+    if &query_type == schema_type { 
+        return Ok(true) 
+    }
     else if query_type == Type::PrimitiveType(PrimitiveType::UInt) && schema_type == &Type::PrimitiveType(PrimitiveType::Int){
         return Ok(true)
+    } else { 
+        return Ok(false) 
     }
-    else { return Ok(false) }
 }
 
 pub(crate) fn convert_value_to_corresponding_type(arg_value: &PrimitiveValue) -> Result<Type, CastleError> {
