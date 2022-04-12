@@ -534,6 +534,31 @@ fn trying_to_break_test_v3() {
 }
 
 #[test]
+fn should_parse_object_with_assumed_args() -> Result<(), CastleError> {
+    let query = "
+    me {
+        first_name,
+        date_of_birth {
+            year
+            month
+            day
+        }
+    }";
+    let query2 = "
+    me() {
+        first_name,
+        date_of_birth() {
+            year
+            month
+            day
+        }
+    }";
+    let result1 = parse_query(query)?;
+    let result2 = parse_query(query2)?;
+    assert_eq!(result1, result2);
+    Ok(())
+}
+#[test]
 fn should_parse_object_with_no_fields_and_no_match() -> Result<(), CastleError> {
     let query = "
     me() {

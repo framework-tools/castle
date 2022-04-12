@@ -11,15 +11,13 @@ use super::{argument::ArgumentOrTuple};
 pub struct EnumDefinition {
     pub name: Box<str>,
     pub variants: HashMap<Box<str>, EnumVariant>,
-    pub directives: HashMap<Box<str>, Directive>
 }
 
 impl EnumDefinition {
-    pub fn new(name: Box<str>, variants: HashMap<Box<str>, EnumVariant>, directives: HashMap<Box<str>, Directive>) -> Self {
+    pub fn new(name: Box<str>, variants: HashMap<Box<str>, EnumVariant>, directives: Vec<Directive>) -> Self {
         EnumDefinition {
             name,
             variants,
-            directives
         }
     }
 }

@@ -41,7 +41,7 @@ impl ArgumentOrTuple {
                         let (identifier, primitive_value) = identifier_and_value;
                         arguments_for_query_object.insert(identifier.clone(), (identifier, primitive_value));
                     },
-                    _ => return Err(CastleError::IncorrectArgumentType(format!("Expected identifier and value got different argument type, found: {:?}", argument).into()))
+                    _ => return Err(CastleError::IncorrectArgumentType(format!("1. Expected identifier and value got different argument type, found: {:?}", argument).into()))
                 };
             }
         }
@@ -60,7 +60,7 @@ impl ArgumentOrTuple {
                         let (identifier, primitive_value) = identifier_and_type;
                         arguments_for_query_object.insert(identifier.clone(), (identifier, primitive_value));
                     },
-                    _ => return Err(CastleError::IncorrectArgumentType(format!("Expected identifier and value got different argument type, found: {:?}", argument).into()))
+                    _ => return Err(CastleError::IncorrectArgumentType(format!("2. Expected identifier and value got different argument type, found: {:?}", argument).into()))
                 };
             }
         }
@@ -75,7 +75,7 @@ impl ArgumentOrTuple {
                     let (identifier, primitive_value) = identifier_and_type;
                     arguments_for_query_object.insert(identifier.clone(), (identifier, primitive_value));
                 },
-                _ => return Err(CastleError::IncorrectArgumentType(format!("Expected identifier and value got different argument type, found: {:?}", argument).into()))
+                _ => return Err(CastleError::IncorrectArgumentType(format!("3. Expected identifier and value got different argument type, found: {:?}", argument).into()))
             };
         }
         return Ok(arguments_for_query_object)

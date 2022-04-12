@@ -19,7 +19,7 @@ pub fn parse_enum_definition<R>(tokenizer: &mut tokenizer::Tokenizer<R>) -> Resu
             if end_of_schema_type { break; }
         }
 
-        return Ok(EnumDefinition { name: identifier, variants, directives: HashMap::new() });
+        return Ok(EnumDefinition { name: identifier, variants });
 }
 
 

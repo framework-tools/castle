@@ -8,7 +8,7 @@ use crate::{ast::syntax_definitions::{want::Want, argument::ArgumentOrTuple, key
 
 use super::{parse_object_projection::{parse_object_projection, parse_match}};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct ParsedQuery {
     pub wants: HashMap<Box<str>, Want>
 }
@@ -21,7 +21,7 @@ pub struct ParsedQuery {
 pub fn parse_query(query: &str) -> Result<ParsedQuery, CastleError> {
     let bytes = query.as_bytes();
     let mut tokenizer = Tokenizer::new(bytes);
-    let wants = parse_query_tokens (&mut tokenizer)?;
+    let wants = parse_query_tokens(&mut tokenizer)?;
     // check_end_of_file(&mut tokenizer)?; - need to re-implement this correcly
     let parsed_query = ParsedQuery { wants };
     return Ok(parsed_query)
@@ -33,8 +33,7 @@ pub fn parse_query(query: &str) -> Result<ParsedQuery, CastleError> {
 ///     - if token is identifier & next token excluding /n is not open block -> add single field want to hashset
 ///     - if empty break
 /// - return hashset of wants
-fn parse_query_tokens<R>(tokenizer: &mut Tokenizer<R>) -> Result<HashMap<Box<str>, Want>, CastleError> 
-where R: Read {
+fn parse_query_tokens<R: Read>(tokenizer: &mut Tokenizer<R>) -> Result<HashMap<Box<str>, Want>, CastleError> {
     let mut wants = HashMap::new();
     let err = None;
     loop {

@@ -29,7 +29,7 @@ pub fn create_enum_from_vec(name: Box<str>, variants: Vec<(Box<str>, EnumVariant
     for (identifier, variant) in variants {
         enum_.insert(identifier, variant);
     }
-    return EnumDefinition::new(name, enum_, HashMap::new());
+    return EnumDefinition::new(name, enum_, Vec::new());
 }
 
 pub fn insert_enums_into_enum_definitions(enum_definitions: Vec<(Box<str>, EnumDefinition)>) -> HashMap<Box<str>, EnumDefinition> {

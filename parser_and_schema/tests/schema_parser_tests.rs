@@ -415,7 +415,7 @@ fn can_parse_enum_with_fields(){
 fn can_parse_function_with_args_and_return_type(){
     let schema = "
         fn do_nothing (id: uuid, name: String) -> String
-        fn get_user(id: uuid) -> User 
+        fn get_user(id: uuid) -> User
     ";
     let id_arg = ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid));
     let name_arg = ("name".into(), Type::PrimitiveType(PrimitiveType::String));
@@ -427,14 +427,14 @@ fn can_parse_function_with_args_and_return_type(){
     args.insert("id".into(), id_arg);
 
     let return_type = Type::PrimitiveType(PrimitiveType::String);
-    let fn_do_nothing = FnDefinition::new(name, args, return_type,);
+    let fn_do_nothing = FnDefinition::new(name, args, return_type, vec![]);
 
     let name = "get_user".into();
     let mut args = HashMap::new();
     args.insert("id".into(), user_id_arg);
 
     let return_type = Type::SchemaTypeOrEnum("User".into());
-    let fn_get_user = FnDefinition::new(name, args, return_type,);
+    let fn_get_user = FnDefinition::new(name, args, return_type, vec![]);
 
 
     let mut expected_functions: HashMap<Box<str>, FnDefinition> = HashMap::new();   
@@ -557,11 +557,9 @@ fn can_parse_directives_on_enums(){
     let mut is_admin_arguments: HashMap<Box<str>, (Box<str>, Type)> = HashMap::new();
     let role_arg: (Box<str>, Type) = ("role".into(), Type::SchemaTypeOrEnum("DoesntExist".into()));
     is_admin_arguments.insert("role".into(), role_arg);
-    let authenticated_directive = FnDefinition::new("authenticated".into(), authenticated_arguments, Type::Void);
-    let authenticated_directive = DirectiveDefinition::new(authenticated_directive, DirectiveOnValue::EnumVariant);
-    let is_admin_directive = FnDefinition::new("is_admin".into(), is_admin_arguments, Type::Void);
-    let is_admin_directive = DirectiveDefinition::new(is_admin_directive, DirectiveOnValue::EnumVariant);
-    let mut enum_meow = EnumDefinition::new("Meow".into(), HashMap::new(), HashMap::new());
+    let authenticated_directive = DirectiveDefinition::new("authenticated".into(), authenticated_arguments, DirectiveOnValue::EnumVariant);
+    let is_admin_directive = DirectiveDefinition::new("is_admin".into(), is_admin_arguments, DirectiveOnValue::EnumVariant);
+    let mut enum_meow = EnumDefinition::new("Meow".into(), HashMap::new(), Vec::new());
     enum_meow.variants.insert("Red".into(), enum_variant);
 
     let mut expected = SchemaDefinition::new();
@@ -570,6 +568,7 @@ fn can_parse_directives_on_enums(){
     expected.directives.insert("is_admin".into(), is_admin_directive);
 
     let actual = parse_schema(schema).unwrap();
+    println!("{:#?}", actual);
     assert_eq!(expected, actual);
 }
 
@@ -584,8 +583,7 @@ fn can_parse_directives_fields(){
     let mut args = HashMap::new();
     args.insert("ar".into(), ar_arg);
 
-    let function = FnDefinition::new("test".into(), args, Type::Void);
-    let directive_definition = DirectiveDefinition::new(function, directive_definition::DirectiveOnValue::Field);
+    let directive_definition = DirectiveDefinition::new("test".into(), args, directive_definition::DirectiveOnValue::Field);
 
     let mut expected = SchemaDefinition {
         schema_types: HashMap::new(),
@@ -610,8 +608,7 @@ fn can_parse_directives_enums(){
     args.insert("ar".into(), ar_arg);
 
     let return_type = Type::Void;
-    let function = FnDefinition::new("test".into(), args, return_type);
-    let directive_definition = DirectiveDefinition::new(function, directive_definition::DirectiveOnValue::EnumVariant);
+    let directive_definition = DirectiveDefinition::new("test".into(), args, directive_definition::DirectiveOnValue::EnumVariant);
 
     let mut expected = SchemaDefinition {
         schema_types: HashMap::new(),
@@ -705,5 +702,60 @@ fn test_option_inside_hashmap() -> Result<(), CastleError> {
     let mut expected_types: HashMap<Box<str>, SchemaType> = HashMap::new();
     expected_types.insert("User".into(), SchemaType::new("User".into(), fields));
     assert_eq!(expected_types, actual.schema_types);
+    return Ok(())
+}
+
+/// You'll need to:
+/// - Update FnDefinition to have a field with Vec<Directive>
+/// - Need to update OnDirectiveValue to also include resolver value
+#[test]
+fn can_parse_directives_on_resolver_definitions() -> Result<(), CastleError> {
+    
+    let schema = "
+        fn me() -> String @authenticated @uppercase(amount: Int)
+        directive @uppercase on FIELD
+    ";
+
+    let name = "me".into();
+    let args = HashMap::new();
+
+    let mut upercase_argument = HashMap::new();
+    upercase_argument.insert("amount".into(), ("amount".into(), Type::PrimitiveType(PrimitiveType::Int)));
+    
+    let mut directives = Vec::new();
+    directives.push(Directive::new("authenticated".into(), HashMap::new()));
+    directives.push(Directive::new("uppercase".into(), upercase_argument));
+
+    let return_type = Type::PrimitiveType(PrimitiveType::String);
+    let fn_me = FnDefinition::new(name, args, return_type, directives);
+
+    let mut expected_functions: HashMap<Box<str>, FnDefinition> = HashMap::new();
+    expected_functions.insert("me".into(), fn_me);
+
+    let on = DirectiveOnValue::Field;
+    let expected_directives = DirectiveDefinition::new("uppercase".into(), HashMap::new(), on);
+
+    let mut insert_directives = HashMap::new();
+    insert_directives.insert("uppercase".into(), expected_directives);
+
+    let expected = SchemaDefinition {
+        schema_types: HashMap::new(),
+        enums: HashMap::new(),
+        directives: insert_directives,
+        functions: expected_functions,
+    };
+
+    let actual = parse_schema(schema)?;
+    assert_eq!(actual, expected);
+    return Ok(())
+}
+
+/// This should pass the same as fn me() -> ()
+#[test]
+fn can_parse_resolver_with_default_return_type() -> Result<(), CastleError> {    
+    let schema = "
+        fn me()
+    ";
+
     return Ok(())
 }

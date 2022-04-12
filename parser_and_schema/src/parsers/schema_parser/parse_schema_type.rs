@@ -43,7 +43,7 @@ where R: Read {
         },
         TokenKind::Keyword(Keyword::Directive) => {
             let directive_definition = parse_directive_definition(tokenizer)?;
-            parsed_schema.directives.insert(directive_definition.function.name.clone(), directive_definition);
+            parsed_schema.directives.insert(directive_definition.name.clone(), directive_definition);
             return Ok(false)
         },
         _ => return Err(CastleError::Schema(format!("1. Unexpected token: {:?}", token.kind).into(), token.span))

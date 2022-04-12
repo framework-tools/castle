@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use crate::parsers::schema_parser::types::type_system::Type;
 
-use super::{argument::{IdentifierAndTypeArgument}, fn_definition::FnDefinition};
+use super::{argument::{IdentifierAndTypeArgument}};
 
 #[derive(Debug, PartialEq)]
 pub enum DirectiveOnValue {
@@ -14,14 +14,17 @@ pub enum DirectiveOnValue {
 
 #[derive(Debug, PartialEq)]
 pub struct DirectiveDefinition {
-    pub function: FnDefinition,
+    pub name: Box<str>,
+    pub args: HashMap<Box<str>, IdentifierAndTypeArgument>,
     pub on: DirectiveOnValue
 }
 
+
 impl DirectiveDefinition {
-    pub fn new(function: FnDefinition, on: DirectiveOnValue) -> Self {
+    pub fn new(name: Box<str>, args: HashMap<Box<str>, IdentifierAndTypeArgument>, on: DirectiveOnValue) -> Self {
         Self {
-            function,
+            name,
+            args,
             on
         }
     }

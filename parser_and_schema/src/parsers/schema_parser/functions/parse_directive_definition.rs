@@ -19,15 +19,13 @@ use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::get_next_token_an
 ///  - let token = get next token and unwrap
 ///  - match token.kind to On enum and insert into directive.on
 ///  - return directive_definition
-pub fn parse_directive_definition<R>(tokenizer: &mut Tokenizer<R>) -> Result<DirectiveDefinition, CastleError>
-where R: Read{
+pub fn parse_directive_definition<R: Read>(tokenizer: &mut Tokenizer<R>) -> Result<DirectiveDefinition, CastleError> {
     parse_token_and_consume_at_token(tokenizer)?;
     let (identifier, arguments) = parse_and_match_identifier_and_arguments(tokenizer)?;
     let arguments = ArgumentOrTuple::convert_arguments_to_identifier_and_type_arguments(arguments)?;
     parse_token_and_consume_on_token(tokenizer)?;
     let on = get_on_value(tokenizer)?;
-    let function = FnDefinition::new(identifier, arguments, Type::Void);
-    let directive_definition = DirectiveDefinition::new(function, on);
+    let directive_definition = DirectiveDefinition::new(identifier, arguments, on);
     Ok(directive_definition)
 }
 
