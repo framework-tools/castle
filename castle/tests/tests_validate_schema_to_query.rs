@@ -1,4 +1,4 @@
-use castle::validation::{self_validation_schema::self_validate_schema, validate_query_with_schema::validate_query_with_schema::validate_query_with_schema};
+use castle::validation::{self_validation_schema::self_validate_schema, validate_query_with_schema::validate_query_with_schema};
 use parser_and_schema::{parsers::{schema_parser::parse_schema::parse_schema, query_parser::parse_query::parse_query}};
 use shared::castle_error::CastleError;
 
