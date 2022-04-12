@@ -4,7 +4,7 @@ use parser_and_schema::{ast::syntax_definitions::{schema_definition::{SchemaDefi
 use shared::castle_error::CastleError;
 
 
-use crate::{resolvers::{resolver_map::{ResolverMap, self}, resolver_type::{Resolver}}, directives::directives::DirectiveMap, validation::{validate_backend_fns_with_schema::validate_backend_fns_with_schema::validate_schema_with_resolvers_and_directives, validate_query_with_schema::validate_query_with_schema::validate_query_with_schema, self_validation_schema::self_validate_schema}};
+use crate::{resolvers::{resolver_map::{ResolverMap, self}, resolver_type::{Resolver}}, directives::directives::DirectiveMap, validation::{validate_backend_fns_with_schema::validate_backend_fns_with_schema::validate_schema_with_resolvers_and_directives, self_validation_schema::self_validate_schema, validate_query_with_schema::validate_query_with_schema}};
 
 pub struct Castle<C, R>{
     pub resolver_map: ResolverMap<C, R>,
