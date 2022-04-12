@@ -52,10 +52,7 @@ fn check_enum_data_type(
         EnumDataType::EnumUnit => {
             if !schema.schema_types.contains_key(&*variant.name){
                 return Err(CastleError::EnumVariantTypeUndefinedInSchema(format!("Enum variant type is undefined in schema: {}", variant.name).into()))
-            } else {
-                return Ok(())
-
-            }
+            } else { return Ok(()) }
         },
         _ => {
             return Err(CastleError::EnumDataTypeNotSupported(format!("Enum data type not supported: {}", variant.name).into()))

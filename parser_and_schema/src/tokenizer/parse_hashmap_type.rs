@@ -3,12 +3,11 @@ use std::io::Read;
 use input_cursor::{Cursor, Position, Span};
 use shared::castle_error::CastleError;
 
-use crate::{parsers::schema_parser::types::type_system::{Type, get_type_from_string}, token::{Token, token::TokenKind}};
+use crate::{parsers::schema_parser::types::type_system::{get_type_from_string}, token::{Token, token::TokenKind}};
 
 use super::parse_identifier_type_or_keyword::get_next_char_and_unwrap;
 
-pub fn get_hashmap_type_from_word <R>(cursor: &mut Cursor<R>, word: String, start: Position) -> Result<Token, CastleError>
-where R: Read {
+pub fn get_hashmap_type_from_word <R: Read>(cursor: &mut Cursor<R>, word: String, start: Position) -> Result<Token, CastleError>{
     let mut hashmap_as_str = word;
     let mut i = 0;
     let mut inner_special_type_count = 0;

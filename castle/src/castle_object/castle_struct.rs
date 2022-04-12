@@ -1,6 +1,6 @@
 use std::{collections::HashMap};
 
-use parser_and_schema::{ast::syntax_definitions::{schema_definition::{SchemaDefinition}, fn_definition::FnDefinition, directive_definition::{self, DirectiveDefinition}}, parsers::{schema_parser::parse_schema::parse_schema, query_parser::parse_query::parse_query}};
+use parser_and_schema::{ast::syntax_definitions::{schema_definition::{SchemaDefinition}}, parsers::{schema_parser::parse_schema::parse_schema, query_parser::parse_query::parse_query}};
 use shared::castle_error::CastleError;
 
 
@@ -41,7 +41,7 @@ impl<C, R> Castle<C, R> {
     /// Parse query
     /// Cross validate query and schema
     /// resolve all wants
-    pub fn parse_query_and_validate(&self, query: &str, context: C) -> Result<(), CastleError> {
+    pub fn parse_query_and_validate(&self, query: &str) -> Result<(), CastleError> {
         let parsed_query = parse_query(query)?;
         validate_query_with_schema(&parsed_query, &self.parsed_schema)?;
         return Ok(())
@@ -70,13 +70,10 @@ impl<'a, C, R> CastleBuilder<C, R> {
     }
 
     pub fn build_and_validate(self) -> Result<Castle<C, R>, CastleError> {
-        let schema;
-        if self.parsed_schema.is_none() {
-            return Err(CastleError::MissingSchema("No schema provided".into()));
-        }
-        else {
-            schema = self.parsed_schema.unwrap();
-        }
+        let schema = match self.parsed_schema{
+            Some(schema) => schema,
+            None => return Err(CastleError::MissingSchema("No schema provided".into()))
+        };
         Castle::build_and_validate(self.resolver_map, self.directives, schema)
     }
 

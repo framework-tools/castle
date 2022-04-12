@@ -2,7 +2,7 @@ use std::{io::Read, collections::HashMap};
 
 use shared::castle_error::CastleError;
 
-use crate::{ast::syntax_definitions::{want::{Want, WantArguments, Wants}, keyword::{Keyword}, match_statement::MatchArm}, token::{token::{TokenKind, Punctuator, Identifier}, Token}, tokenizer::{tokenizer::Tokenizer, tokenizer_utils::get_next_token_and_unwrap}};
+use crate::{ast::syntax_definitions::{want::{Want}, keyword::{Keyword}, match_statement::MatchArm}, token::{token::{TokenKind, Punctuator, Identifier}, Token}, tokenizer::{tokenizer::Tokenizer, tokenizer_utils::get_next_token_and_unwrap}};
 
 
 use crate::ast::syntax_definitions::argument::ArgumentOrTuple;
@@ -61,7 +61,7 @@ pub fn parse_query_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<B
         Some(peeked_token) => match peeked_token.kind {
             TokenKind::Keyword(Keyword::Match) => {
                 let name = identifier.name.clone();
-                let match_statements = parse_match(tokenizer, identifier)?;
+                let match_statements = parse_match(tokenizer)?;
                 fields.insert(name, Want::new_match(match_statements)); 
                 return Ok(false)
             },
@@ -80,7 +80,7 @@ pub fn parse_query_field<R>(tokenizer: &mut Tokenizer<R>, fields: &mut HashMap<B
     }
 }
 
-pub fn parse_match<R>(tokenizer: &mut Tokenizer<R>, identifier: Identifier, ) -> Result<Vec<MatchArm>, CastleError> 
+pub fn parse_match<R>(tokenizer: &mut Tokenizer<R>) -> Result<Vec<MatchArm>, CastleError> 
 where R: Read {
     tokenizer.next(true)?; // consume the match keyword
     let match_statements = parse_match_statements(tokenizer)?;

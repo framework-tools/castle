@@ -1,6 +1,6 @@
-use std::{collections::{HashMap, hash_map}, vec, string, env::args};
+use std::{collections::{HashMap}, vec};
 use shared::castle_error::CastleError;
-use parser_and_schema::{parsers::schema_parser::{schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}, types::{type_system::Type, primitive_type::PrimitiveType, schema_type::SchemaType, schema_field::SchemaField, vec_type::VecType, option_type::OptionType}, parse_schema::parse_schema}, ast::syntax_definitions::{enum_definition::{EnumVariant, EnumDataType, EnumDefinition}, schema_definition::SchemaDefinition, argument::{ArgumentOrTuple, IdentifierAndTypeArgument, IdentifierAndValueArgument}, fn_definition::FnDefinition, directive_definition::{Directive, self, DirectiveDefinition, DirectiveOnValue}}};
+use parser_and_schema::{parsers::schema_parser::{schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}, types::{type_system::Type, primitive_type::PrimitiveType, schema_type::SchemaType, schema_field::SchemaField, vec_type::VecType, option_type::OptionType}, parse_schema::parse_schema}, ast::syntax_definitions::{enum_definition::{EnumVariant, EnumDataType, EnumDefinition}, schema_definition::SchemaDefinition, argument::{ArgumentOrTuple, IdentifierAndTypeArgument}, fn_definition::FnDefinition, directive_definition::{Directive, self, DirectiveDefinition, DirectiveOnValue}}};
 
 
 #[test]
@@ -33,7 +33,7 @@ fn can_parse_simple_type() {
 
     let user_type = SchemaType::new("User".into(), user_fields);
 
-    let mut expected = create_schema_types_for_test(vec![
+    let expected = create_schema_types_for_test(vec![
         ("User".into(), user_type),
     ]);
     
@@ -63,7 +63,7 @@ fn can_parse_simple_type_more_fields_and_no_commas() {
         ("log_in_count".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
     ]);
 
-    let mut expected = create_schema_types_for_test(vec![
+    let expected = create_schema_types_for_test(vec![
         ("User".into(), SchemaType::new("User".into(), user_fields)),
     ]);
     
@@ -106,7 +106,7 @@ fn can_parse_two_types() {
         ("industry".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
     ]);
 
-    let mut expected: HashMap<Box<str>, SchemaType> = create_schema_types_for_test(vec![
+    let expected: HashMap<Box<str>, SchemaType> = create_schema_types_for_test(vec![
         ("User".into(), SchemaType::new("User".into(), user_fields)),
         ("Organization".into(), SchemaType::new("Organization".into(), organization_fields)),
     ]);
@@ -434,7 +434,7 @@ fn can_parse_function_with_args_and_return_type(){
     args.insert("id".into(), user_id_arg);
 
     let return_type = Type::SchemaTypeOrEnum("User".into());
-    let mut fn_get_user = FnDefinition::new(name, args, return_type,);
+    let fn_get_user = FnDefinition::new(name, args, return_type,);
 
 
     let mut expected_functions: HashMap<Box<str>, FnDefinition> = HashMap::new();   

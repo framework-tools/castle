@@ -1,11 +1,10 @@
 
 use std::collections::HashMap;
-use std::hash::Hash;
 
-use parser_and_schema::ast::syntax_definitions::argument::{ArgumentOrTuple, IdentifierAndValueArgument};
+use parser_and_schema::ast::syntax_definitions::argument::{IdentifierAndValueArgument};
 use parser_and_schema::ast::syntax_definitions::enum_definition::{EnumValue, EnumDataType};
-use parser_and_schema::ast::syntax_definitions::expressions::{PrimitiveValue, Expression};
-use parser_and_schema::ast::syntax_definitions::match_statement::{MatchArm, MatchStatement};
+use parser_and_schema::ast::syntax_definitions::expressions::{PrimitiveValue};
+use parser_and_schema::ast::syntax_definitions::match_statement::{MatchArm};
 use parser_and_schema::ast::syntax_definitions::want::{Want};
 use parser_and_schema::parsers::query_parser::parse_query::parse_query;
 use shared::castle_error::CastleError;

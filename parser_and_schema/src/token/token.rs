@@ -4,7 +4,7 @@ use input_cursor::{Span, Position};
 use shared::castle_error::CastleError;
 
 
-use crate::{ast::syntax_definitions::{keyword::Keyword, argument::ArgumentOrTuple, enum_definition::EnumValue, directive_definition::{DirectiveOnValue}}, parsers::schema_parser::types::{primitive_type::PrimitiveType, vec_type::VecType, option_type::OptionType, type_system::Type}};
+use crate::{ast::syntax_definitions::{keyword::Keyword, argument::ArgumentOrTuple, enum_definition::EnumValue, directive_definition::{DirectiveOnValue}, expressions::PrimitiveValue}, parsers::schema_parser::types::{primitive_type::PrimitiveType, vec_type::VecType, option_type::OptionType, type_system::Type}};
 
 #[derive(Debug, PartialEq)]
 pub struct Token {
@@ -30,6 +30,23 @@ pub enum TokenKind {
     EnumValue(EnumValue),
     DirectiveOnValue(DirectiveOnValue)
 }
+
+impl TokenKind {
+    pub fn check_if_primitive_value(&self) -> bool {
+        match self {
+            TokenKind::StringLiteral(_s) => true,
+            TokenKind::NumericLiteral(_numeric) => true,
+            TokenKind::BooleanLiteral(_b) => true,
+            TokenKind::Keyword(keyword) => match keyword {
+                Keyword::True => true,
+                Keyword::False => true,
+                _ => false,
+            },
+            _ => false
+        }
+    }
+}
+
 
 #[derive(Debug, PartialEq)]
 pub struct Identifier {
@@ -87,6 +104,20 @@ impl Token {
     #[inline]
     pub fn span(&self) -> &Span {
         &self.span
+    }
+
+    pub fn convert_token_to_primitive(self) -> Result<PrimitiveValue, CastleError> {
+        match self.kind {
+            TokenKind::StringLiteral(s) => Ok(PrimitiveValue::String(s)),
+            TokenKind::NumericLiteral(numeric) => Ok(match_numeric_token_to_primitive(numeric)?),
+            TokenKind::BooleanLiteral(b) => Ok(PrimitiveValue::Boolean(b)),
+            TokenKind::Keyword(keyword) => match keyword {
+                Keyword::True => Ok(PrimitiveValue::Boolean(true)),
+                Keyword::False => Ok(PrimitiveValue::Boolean(false)),
+                _ => Err(CastleError::Schema(format!("Expected primitive value, found keyword: {:?}", &keyword).into(), self.span)),
+            },
+            _ => Err(CastleError::Schema(format!("Expected primitive value, found: {:?}", self.kind).into(), self.span))
+        }
     }
 }
 
@@ -174,5 +205,13 @@ impl From<Keyword> for TokenKind {
             Keyword::Directive => TokenKind::Keyword(Keyword::Directive),
             Keyword::On => TokenKind::Keyword(Keyword::On),
         }
+    }
+}
+
+fn match_numeric_token_to_primitive(numeric:Numeric) -> Result<PrimitiveValue, CastleError> {
+    match numeric {
+        Numeric::Float(f) => Ok(PrimitiveValue::Float(f)),
+        Numeric::Integer(i) => Ok(PrimitiveValue::Int(i)),
+        Numeric::UnsignedInteger(u) => Ok(PrimitiveValue::UInt(u)),
     }
 }
