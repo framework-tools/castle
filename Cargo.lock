@@ -38,6 +38,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
+name = "fast-float"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "95765f67b4b18863968b4a1bd5bb576f732b29a4a28c7cd84c09fa3e2875f33c"
+
+[[package]]
 name = "getrandom"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -89,6 +95,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "query_parser"
+version = "0.1.0"
+dependencies = [
+ "shared",
+ "tokenizer",
+]
+
+[[package]]
 name = "quote"
 version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -126,6 +140,14 @@ checksum = "de8813b3a2f95c5138fe5925bfb8784175d88d6bff059ba8ce090aa891319754"
 dependencies = [
  "num-traits",
  "rmp",
+]
+
+[[package]]
+name = "schema_parser"
+version = "0.1.0"
+dependencies = [
+ "shared",
+ "tokenizer",
 ]
 
 [[package]]
@@ -168,6 +190,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-xid",
+]
+
+[[package]]
+name = "tokenizer"
+version = "0.1.0"
+dependencies = [
+ "fast-float",
+ "input_cursor",
+ "shared",
 ]
 
 [[package]]

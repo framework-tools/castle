@@ -9,35 +9,11 @@ extern crate rmp_serde as rmps;
 pub enum CastleError {
     IO(Box<str>),
     AbruptEOF(Box<str>),
-    Lexer(Box<str>, Position),
+    Syntax(Box<str>, Position),
     Parser(Box<str>, Span),
-    Unimplemented(Box<str>),
+    Other(Box<str>),
     Schema(Box<str>, Span),
-    UndefinedTypeOrEnumInSchema(Box<str>),
-    UndefinedResolver(Box<str>),
-    ResolverDoesNotMatchSchemaFunction(Box<str>),
-    UndefinedDirective(Box<str>),
-    DirectiveDoesNotMatchSchemaDirective(Box<str>),
-    DirectiveOnValueNotCompatible(Box<str>),
-    MatchError(Box<str>),
-    NoIdentifierOnObjectProjection(Box<str>),
-    QueryResolverNotDefinedInSchema(Box<str>),
-    ArgumentsInQueryDoNotMatchResolver(Box<str>),
-    FieldsInReturnTypeDoNotMatchQuery(Box<str>),
-    IncorrectArgumentType(Box<str>),
-    PrimitiveValue(Box<str>),
-    MissingSchema(Box<str>),
-    EnumInQueryNotDefinedInSchema(Box<str>),
-    ExpectedFields(Box<str>),
-    EnumVariantTypeUndefinedInSchema(Box<str>),
-    EnumVariantDoesNotHaveMatchingType(Box<str>),
-    EnumDataTypeNotSupported(Box<str>),
-    WantNotFoundInRealResolver(Box<str>),
-    ResolverDataShouldBeObject(Box<str>),
-    DataForWantNotReturnedByDatabase(Box<str>),
-    InvalidMatchStatement(Box<str>),
-    DirectiveReceivedWrongType(Box<str>),
-    WrongValueType(Box<str>),
+    Query(Box<str>, Span),
 }
 
 impl From<std::io::Error> for CastleError {
@@ -48,12 +24,12 @@ impl From<std::io::Error> for CastleError {
 
 
 impl CastleError {
-    pub fn lex<Msg, Pos>(msg: Msg, pos: Pos) -> Self
+    pub fn syntax<Msg, Pos>(msg: Msg, pos: Pos) -> Self
     where
         Msg: Into<Box<str>>,
         Pos: Into<Position>,
     {
-        Self::Lexer(msg.into(), pos.into())
+        Self::Syntax(msg.into(), pos.into())
     }
 
     pub fn parse<Msg, S>(msg: Msg, span: S) -> Self
@@ -70,35 +46,11 @@ impl fmt::Display for CastleError {
         match self {
             Self::IO(msg) => write!(f, "IO error: {}", msg),
             Self::AbruptEOF(msg) => write!(f, "Unexpected EOF: {}", msg),
-            Self::Lexer(msg, pos) => write!(f, "Lexer error: {} at {}", msg, pos),
+            Self::Syntax(msg, pos) => write!(f, "Syntax error: {} at {}", msg, pos),
             Self::Parser(msg, span) => write!(f, "Parser error: {} at {}", msg, span),
-            Self::Unimplemented(msg) => write!(f, "Unimplemented: {}", msg),
+            Self::Other(msg) => write!(f, "Error: {}", msg),
             Self::Schema(msg, span) => write!(f, "Schema error: {} at {}", msg, span),
-            Self::UndefinedTypeOrEnumInSchema(msg) => write!(f, "Undefined type or enum in schema: {}", msg),
-            Self::MatchError(msg) => write!(f, "Match error: {}", msg),
-            Self::UndefinedResolver(msg) => write!(f, "Undefined resolver: {}", msg),
-            Self::UndefinedDirective(msg) => write!(f, "Undefined directive: {}", msg),
-            Self::ResolverDoesNotMatchSchemaFunction(msg) => write!(f, "Resolver does not match schema function: {}", msg),
-            Self::DirectiveDoesNotMatchSchemaDirective(msg) => write!(f, "Directive does not match schema directive: {}", msg),
-            Self::DirectiveOnValueNotCompatible(msg) => write!(f, "Directive on value not compatible: {}", msg),
-            Self::NoIdentifierOnObjectProjection(msg) => write!(f, "No identifier on object projection: {}", msg),
-            Self::QueryResolverNotDefinedInSchema(msg) => write!(f, "Query resolver not defined in schema: {}", msg),
-            Self::ArgumentsInQueryDoNotMatchResolver(msg) => write!(f, "Arguments in query do not match resolver: {}", msg),
-            Self::FieldsInReturnTypeDoNotMatchQuery(msg) => write!(f, "Fields in return type do not match query: {}", msg),
-            Self::IncorrectArgumentType(msg) => write!(f, "Incorrect argument type: {}", msg),
-            Self::PrimitiveValue(msg) => write!(f, "Primitive value: {}", msg),
-            Self::MissingSchema(msg) => write!(f, "Missing schema: {}", msg),
-            Self::EnumInQueryNotDefinedInSchema(msg) => write!(f, "Enum in query not defined in schema: {}", msg),
-            Self::ExpectedFields(msg) => write!(f, "Expected fields: {}", msg),
-            Self::EnumVariantDoesNotHaveMatchingType(msg) => write!(f, "Enum variant not defined as a type in schema: {}", msg),
-            Self::EnumVariantTypeUndefinedInSchema(msg) => write!(f, "Enum variant type undefined in schema: {}", msg),
-            Self::EnumDataTypeNotSupported(msg) => write!(f, "Enum data type not supported: {}", msg),
-            Self::WantNotFoundInRealResolver(msg) => write!(f, "Want not found in real resolver: {}", msg),
-            Self::ResolverDataShouldBeObject(msg) => write!(f, "Resolver data should be object: {}", msg),
-            Self::DataForWantNotReturnedByDatabase(msg) => write!(f, "Data for want not returned by database: {}", msg),
-            Self::InvalidMatchStatement(msg) => write!(f, "Invalid match statement: {}", msg),
-            Self::DirectiveReceivedWrongType(msg) => write!(f, "Directive recieved wrong type: {}", msg),
-            Self::WrongValueType(msg) => write!(f, "Wrong value type: {}", msg),
+            Self::Query(msg, span) => write!(f, "Query error: {} at {}", msg, span),
         }
     }
 }
@@ -110,37 +62,13 @@ trait ExtendedErrorDisplay {
 impl ExtendedErrorDisplay for CastleError {
     fn extended_error(&self, src: &str) -> String {
         match self {
-            Self::IO(msg) => format!("IO error: {}", msg),
-            Self::AbruptEOF(msg) => format!("Unexpected EOF {}", msg),
-            Self::Lexer(msg, pos) => pretty_print_lexer_error(msg, pos, src),
+            Self::IO(msg) => msg.to_string(),
+            Self::AbruptEOF(msg) =>  msg.to_string(),
+            Self::Other(msg) =>  msg.to_string(),
+            Self::Syntax(msg, pos) => pretty_print_lexer_error(msg, pos, src),
             Self::Parser(msg, span) => pretty_print_parser_error(msg, span, src),
-            Self::Unimplemented(msg) => format!("Unimplemented: {}", msg),
-            Self::Schema(msg, span) => format!("Schema error: {} at {}", msg, span),
-            Self::UndefinedTypeOrEnumInSchema (msg) => format!("Undefined type or enum in schema: {}", msg),
-            Self::MatchError(msg) => format!("Match error: {}", msg),
-            Self::UndefinedResolver(msg) => format!("Undefined resolver: {}", msg),
-            Self::UndefinedDirective(msg) => format!("Undefined directive: {}", msg),
-            Self::ResolverDoesNotMatchSchemaFunction(msg) => format!("Resolver does not match schema function: {}", msg),
-            Self::DirectiveDoesNotMatchSchemaDirective(msg) => format!("Directive does not match schema directive: {}", msg),
-            Self::DirectiveOnValueNotCompatible(msg) => format!("Directive on value not compatible: {}", msg),
-            Self::NoIdentifierOnObjectProjection(msg) => format!("No identifier on object projection: {}", msg),
-            Self::QueryResolverNotDefinedInSchema(msg) => format!("Query resolver not defined in schema: {}", msg),
-            Self::ArgumentsInQueryDoNotMatchResolver(msg) => format!("Arguments in query do not match resolver: {}", msg),
-            Self::FieldsInReturnTypeDoNotMatchQuery(msg) => format!("Fields in return type do not match query: {}", msg),
-            Self::IncorrectArgumentType(msg) => format!("Incorrect argument type: {}", msg),
-            Self::PrimitiveValue(msg) => format!("Primitive value: {}", msg),
-            Self::MissingSchema(msg) => format!("Missing schema: {}", msg),
-            Self::EnumInQueryNotDefinedInSchema(msg) => format!("Enum in query not defined in schema: {}", msg),
-            Self::ExpectedFields(msg) => format!("Expected fields: {}", msg),
-            Self::EnumVariantDoesNotHaveMatchingType(msg) => format!("Enum variant not defined as a type in schema: {}", msg),
-            Self::EnumVariantTypeUndefinedInSchema(msg) => format!("Enum variant type undefined in schema: {}", msg),
-            Self::EnumDataTypeNotSupported(msg) => format!("Enum data type not supported: {}", msg),
-            Self::WantNotFoundInRealResolver(msg) => format!("Want not found in real resolver: {}", msg),
-            Self::ResolverDataShouldBeObject(msg) => format!("Resolver data should be object: {}", msg),
-            Self::DataForWantNotReturnedByDatabase(msg) => format!("Data for want not returned by database: {}", msg),
-            Self::InvalidMatchStatement(msg) => format!("Invalid match statement: {}", msg),
-            Self::DirectiveReceivedWrongType(msg) => format!("Directive recieved wrong type: {}", msg),
-            Self::WrongValueType(msg) => format!("Wrong value type: {}", msg),
+            Self::Schema(msg, span) => pretty_print_parser_error(msg, span, src),
+            Self::Query(msg, span) => pretty_print_parser_error(msg, span, src),
         }
     }
 }
@@ -236,7 +164,7 @@ fn test_pretty_print_lexer_error() {
     }
 
     "#;
-    let err = CastleError::lex("got unexpected string", Position::new(2, 5));
+    let err = CastleError::syntax("got unexpected string", Position::new(2, 5));
 
     let result = err.extended_error(src);
     println!("{}", result);

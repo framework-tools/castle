@@ -4,5 +4,8 @@ members = [
     "castle",
     "input_cursor",
     "parser_and_schema",
+    "query_parser",
+    "schema_parser",
     "shared",
+    "tokenizer",
 ]

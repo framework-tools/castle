@@ -1,9 +1,0 @@
-{
-    "files.autoSave": "afterDelay",
-    "editor.renderWhitespace": "boundary",
-    "editor.bracketPairColorization.enabled": true,
-    "workbench.colorCustomizations": {
-        "gitDecoration.modifiedResourceForeground": "#00ffff",
-        "gitDecoration.untrackedResourceForeground": "#ff00ff",
-    }
-}
