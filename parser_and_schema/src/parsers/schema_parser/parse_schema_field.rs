@@ -4,9 +4,9 @@ use std::io::Read;
 
 use shared::castle_error::CastleError;
 
-use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}}, token::{token::{TokenKind, Punctuator}, Token}};
+use crate::{tokenizer::{tokenizer::Tokenizer, tokenizer_utils::{peek_next_token_and_unwrap, get_next_token_and_unwrap}, parse_identifier::parse_arguments}, token::{token::{TokenKind, Punctuator}, Token}, ast::syntax_definitions::field_definition::FieldDefinition};
 
-use super::types::{schema_field::{SchemaField}, type_system::parse_type, parse_directive::parse_directives};
+use super::types::{parse_type::parse_type, parse_directive::parse_directives};
 
 
 /// takes in tokenizer and returns parsed field
@@ -16,14 +16,14 @@ use super::types::{schema_field::{SchemaField}, type_system::parse_type, parse_d
 ///   - get next token and parse into type
 ///   - return parsed field
 
-pub fn parse_schema_field<R>(tokenizer: &mut Tokenizer<R>, token: Token) -> Result<SchemaField, CastleError> 
+pub fn parse_schema_field<R>(tokenizer: &mut Tokenizer<R>, token: Token) -> Result<FieldDefinition, CastleError> 
 where R: Read{
-    let identifier = get_identifier(token)?;
-    tokenizer.next(true)?; // skip colon
-    let token = get_next_token_and_unwrap(tokenizer)?;
-    let type_ = parse_type(token)?; // get fields type
-    let directives = parse_directives(tokenizer)?;
-    return Ok(SchemaField { name: identifier, type_, directives });
+    Ok(FieldDefinition {
+        name: tokenizer.expect_identifier(true)?,
+        args: parse_arguments_and_colon(tokenizer),
+        return_type: parse_type(tokenizer)?, // get fields type
+        directives: parse_directives(tokenizer)?;
+    })
 }
 
 pub fn get_identifier(token: Token) -> Result<Box<str>, CastleError> {

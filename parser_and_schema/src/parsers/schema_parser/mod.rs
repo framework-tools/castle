@@ -6,3 +6,4 @@ pub mod parse_schema_field;
 pub mod enums;
 pub mod schema_tests_utils;
 pub mod functions;
+pub mod parse_schema_arguments;

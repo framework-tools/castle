@@ -1,7 +1,6 @@
 use std::collections::{HashMap};
 
-use crate::parsers::schema_parser::types::schema_field::SchemaField;
-
+use super::field_definition::FieldDefinition;
 use super::{directive_definition::Directive};
 
 use super::{argument::ArgumentOrTuple};
@@ -43,11 +42,11 @@ impl EnumVariant {
 pub enum EnumDataType {
     EnumUnit,
     EnumTuple(Vec<ArgumentOrTuple>),
-    EnumObject(HashMap<Box<str>, SchemaField>)
+    EnumObject(HashMap<Box<str>, FieldDefinition>)
 }
 
 impl EnumDataType {
-    pub fn new_enum_object(fields_in_vec: Vec<(Box<str>, SchemaField)>) -> Self {
+    pub fn new_enum_object(fields_in_vec: Vec<(Box<str>, FieldDefinition)>) -> Self {
         let mut fields = HashMap::new();
         for (identifier, field) in fields_in_vec {
             fields.insert(identifier, field);

@@ -3,16 +3,11 @@ use std::io::Read;
 
 use shared::castle_error::CastleError;
 
-use crate::{ast::syntax_definitions::argument::{ArgumentOrTuple, match_token_to_parse_argument}, token::{token::{Punctuator, TokenKind}}};
+use crate::{ast::syntax_definitions::argument::{ArgumentOrTuple, match_token_to_parse_argument}, token::{token::{Punctuator, TokenKind}, Token}};
 
 use super::{tokenizer::{ Tokenizer}, tokenizer_utils::{ get_next_token_and_unwrap}};
 
-/// Takes in Cursor returns arguments token
-///  - The '(' is already consumed
-///  - if ')' return token
-///  - else if, ',' create token from argument, then push token to arguments
-///  - else push character to current argument
-pub fn get_arguments<R>(tokenizer: &mut Tokenizer<R>) -> Result<Vec<ArgumentOrTuple>, CastleError> 
+pub fn parse_arguments_with_colon<R>(tokenizer: &mut Tokenizer<R>) -> Result<Vec<ArgumentOrTuple>, CastleError> 
 where R: Read {
     let mut arguments = Vec::new();
     loop {
@@ -22,7 +17,19 @@ where R: Read {
     return Ok(arguments)
 }
 
-fn parse_argument<R>(arguments: &mut Vec<ArgumentOrTuple>, tokenizer: &mut Tokenizer<R>) -> Result<bool, CastleError>
+pub(crate) fn parse_arguments<R>(tokenizer: &mut Tokenizer<R>) -> Result<Vec<ArgumentOrTuple>, CastleError> 
+where R: Read {
+    let mut arguments = Vec::new();
+    loop {
+        if let Some(Token { kind: TokenKind::Punctuator(Punctuator::CloseParen), .. }) = tokenizer.peek(true)? {
+            break;
+        }
+        arguments.push(parse_argument(tokenizer)?);
+    }
+    return Ok(arguments)
+}
+
+fn parse_argument<R>(tokenizer: &mut Tokenizer<R>) -> Result<Ar, CastleError>
 where R: Read {
     let token = get_next_token_and_unwrap(tokenizer)?;
     match token.kind {

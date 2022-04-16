@@ -1,7 +1,7 @@
 
 use std::collections::HashMap;
 
-use crate::parsers::schema_parser::types::type_system::Type;
+use crate::parsers::schema_parser::types::parse_type::Type;
 
 
 #[derive(Debug, PartialEq)]

@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use parser_and_schema::{ast::syntax_definitions::{fn_definition::FnDefinition, schema_definition::SchemaDefinition, want::{Wants, Want}, expressions::PrimitiveValue}, parsers::schema_parser::types::schema_field::SchemaField};
+use parser_and_schema::{ast::syntax_definitions::{field_definition::FnDefinition, schema_definition::SchemaDefinition, want::{Wants, Want}, expressions::PrimitiveValue}, parsers::schema_parser::types::schema_field::SchemaField};
 use shared::castle_error::CastleError;
 
 use super::{query_resolver_is_valid::{get_resolver, check_arguments_are_compatible, get_resolvers_return_fields}, validate_wants};

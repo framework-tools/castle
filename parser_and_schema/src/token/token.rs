@@ -4,7 +4,7 @@ use input_cursor::{Span, Position};
 use shared::castle_error::CastleError;
 
 
-use crate::{ast::syntax_definitions::{keyword::Keyword, argument::ArgumentOrTuple, enum_definition::EnumValue, directive_definition::{DirectiveOnValue}, expressions::PrimitiveValue}, parsers::schema_parser::types::{primitive_type::PrimitiveType, vec_type::VecType, option_type::OptionType, type_system::Type}};
+use crate::{ast::{keyword::Keyword,expressions::PrimitiveValue}};
 
 #[derive(Debug, PartialEq)]
 pub struct Token {
@@ -15,52 +15,13 @@ pub struct Token {
 #[derive(Debug, PartialEq)]
 pub enum TokenKind {
     BooleanLiteral(bool),
-    Identifier(Identifier),
+    Identifier(Box<str>),
     NumericLiteral(Numeric),
     Punctuator(Punctuator),
     StringLiteral(Box<str>),
     LineTerminator,
     Comment,
     Keyword(Keyword),
-    Arguments(Vec<Box<Token>>),
-    PrimitiveType(PrimitiveType),
-    VecType(VecType),
-    OptionType(OptionType),
-    HashMapType(Type),
-    EnumValue(EnumValue),
-    DirectiveOnValue(DirectiveOnValue)
-}
-
-impl TokenKind {
-    pub fn check_if_primitive_value(&self) -> bool {
-        match self {
-            TokenKind::StringLiteral(_s) => true,
-            TokenKind::NumericLiteral(_numeric) => true,
-            TokenKind::BooleanLiteral(_b) => true,
-            TokenKind::Keyword(keyword) => match keyword {
-                Keyword::True => true,
-                Keyword::False => true,
-                _ => false,
-            },
-            _ => false
-        }
-    }
-}
-
-
-#[derive(Debug, PartialEq)]
-pub struct Identifier {
-    pub name: Box<str>,
-    pub arguments: Option<Vec<ArgumentOrTuple>>
-}
-
-impl Identifier {
-    pub fn new(name: Box<str>, arguments: Option<Vec<ArgumentOrTuple>>) -> Self {
-        Identifier {
-            name,
-            arguments
-        }
-    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -128,16 +89,6 @@ impl Display for Token {
     }
 }
 
-
-// impl Display for TokenKind {
-//     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-//         match *self {
-
-//         }
-//     }
-// }
-
-
 #[derive(PartialEq, Clone, Copy, Debug)]
 pub enum Punctuator {
     // Operator
@@ -194,14 +145,11 @@ impl From<Keyword> for TokenKind {
             Keyword::True => TokenKind::BooleanLiteral(true),
             Keyword::False => TokenKind::BooleanLiteral(false),
             Keyword::As => TokenKind::Keyword(Keyword::As),
-            Keyword::Some => TokenKind::Keyword(Keyword::Some),
-            Keyword::None => TokenKind::Keyword(Keyword::None),
             Keyword::Match => TokenKind::Keyword(Keyword::Match),
             Keyword::Type => TokenKind::Keyword(Keyword::Type),
             Keyword::Enum => TokenKind::Keyword(Keyword::Enum),
             Keyword::Fn => TokenKind::Keyword(Keyword::Fn),
             Keyword::Into => TokenKind::Keyword(Keyword::Into),
-            Keyword::Impl => TokenKind::Keyword(Keyword::Impl),
             Keyword::Directive => TokenKind::Keyword(Keyword::Directive),
             Keyword::On => TokenKind::Keyword(Keyword::On),
         }

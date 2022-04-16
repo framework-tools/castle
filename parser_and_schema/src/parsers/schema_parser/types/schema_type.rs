@@ -1,18 +1,12 @@
 use std::collections::HashMap;
 
-use super::schema_field::SchemaField;
+use crate::ast::syntax_definitions::field_definition::FieldDefinition;
+
 
 #[derive(Debug, PartialEq)]
 pub struct SchemaType {
     pub identifier: Box<str>,
-    pub fields: HashMap<Box<str>, SchemaField>,
+    pub fields: HashMap<Box<str>, FieldDefinition>,
 }
 
-impl SchemaType {
-    pub fn new(identifier: Box<str>, fields: HashMap<Box<str>, SchemaField>) -> Self {
-        SchemaType {
-            identifier,
-            fields,
-        }
-    }
-}
+

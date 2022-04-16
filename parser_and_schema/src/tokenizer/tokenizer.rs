@@ -4,9 +4,9 @@ use std::{io::Read, collections::VecDeque};
 use input_cursor::{Cursor, Position};
 use shared::castle_error::CastleError;
 
-use crate::{token::{Token, token::{TokenKind, Punctuator, Numeric}}, ast::syntax_definitions::{expressions::{PrimitiveValue}, keyword::Keyword}, tokenizer::{parse_newline::parse_newline, parse_string::parse_string}};
+use crate::{token::{Token, token::{TokenKind, Punctuator, Numeric}}, ast::{expressions::{PrimitiveValue}, keyword::Keyword}, tokenizer::{parse_newline::parse_newline, parse_string::parse_string}};
 
-use super::{parse_operator::parse_operator, parse_numbers::parse_number, parse_identifier_type_or_keyword::{parse_identifier_or_keyword_or_type}};
+use super::{parse_operator::parse_operator, parse_numbers::parse_number};
 pub struct Tokenizer<R> {
     pub cursor: Cursor<R>,
     pub peeked: VecDeque<Token>,
@@ -47,6 +47,14 @@ where
                 Ok(Some(token))
             }
             None => Ok(None),
+        }
+    }
+
+    pub fn expect_next(&mut self, skip_line_terminators: bool) -> Result<Token, CastleError> {
+        let token = self.next(skip_line_terminators)?;
+        match token {
+            Some(token) => Ok(token),
+            None => Err(CastleError::AbruptEOF("Expected token but got EOF".into())),
         }
     }
 
@@ -124,19 +132,19 @@ where
         Ok(())
     }
 
-    // pub fn expect_keyword(&mut self, keyword: &Keyword, skip_line_terminators: bool,) -> Result<(), CastleError> {
-    //     let keyword_token = self.next(skip_line_terminators)?.ok_or(CastleError::AbruptEOF)?;
-    //     if keyword_token.kind != TokenKind::Keyword(keyword) {
-    //         return Err(CastleError::parse(
-    //             format!(
-    //                 "Expected keyword '{:?}', but got '{:?}'",
-    //                 keyword, keyword_token.kind
-    //             ),
-    //             keyword_token.span,
-    //         ));
-    //     }
-    //     Ok(())
-    // }
+    pub fn expect_keyword(&mut self, keyword: &Keyword, skip_line_terminators: bool,) -> Result<(), CastleError> {
+        let keyword_token = self.expect_next(skip_line_terminators)?;
+        if keyword_token.kind != TokenKind::Keyword(*keyword) {
+            return Err(CastleError::parse(
+                format!(
+                    "Expected keyword '{:?}', but got '{:?}'",
+                    keyword, keyword_token.kind
+                ),
+                keyword_token.span,
+            ));
+        }
+        Ok(())
+    }
 
     pub fn peek_keyword(&mut self, skip_line_terminators: bool) -> Result<Option<&Keyword>, CastleError>
     where
@@ -158,7 +166,7 @@ where
         .ok_or(CastleError::AbruptEOF("Error found in 'expect_identifier'".into()))?;
 
         match identifier.kind {
-            TokenKind::Identifier(str) => Ok(str.name),
+            TokenKind::Identifier(str) => Ok(str),
             _ => Err(CastleError::parse(
                 format!("Expected identifier, got '{:?}'", identifier.kind),
                 identifier.span,

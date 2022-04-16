@@ -1,4 +1,4 @@
-use parser_and_schema::{ast::syntax_definitions::expressions::PrimitiveValue, parsers::schema_parser::types::{type_system::Type, primitive_type::PrimitiveType}};
+use parser_and_schema::{ast::syntax_definitions::expressions::PrimitiveValue, parsers::schema_parser::types::{parse_type::Type, primitive_type::PrimitiveType}};
 use shared::castle_error::CastleError;
 
 /// use match to unwrap the argument in schema so we can use the type

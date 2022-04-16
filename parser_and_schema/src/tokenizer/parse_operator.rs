@@ -5,13 +5,14 @@ use shared::castle_error::CastleError;
 
 use crate::token::{Token, token::TokenKind};
 
-use super::{tokenizer::get_character_with_peek, parse_identifier_type_or_keyword::get_next_char_and_unwrap};
+use super::{tokenizer::get_character_with_peek};
 
 
 pub fn parse_operator<R>( cursor: &mut Cursor<R>, start: Position ) -> Result<Token, CastleError> 
 where R: Read {
-    let ch = get_next_char_and_unwrap(cursor)?; // consume operator
+    let ch = cursor.next_char()?;
     let peeked_ch = cursor.peek_char()?;
+    match (ch, peeked_ch)
     if peeked_ch.is_some() {
         let peeked_ch = get_character_with_peek(cursor, start)?;
         if ch == '/' && peeked_ch == '/' {

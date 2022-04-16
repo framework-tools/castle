@@ -3,9 +3,15 @@ use std::{io::Read, collections::HashMap};
 
 use shared::castle_error::CastleError;
 
-use crate::{token::{Token, token::{TokenKind, Identifier, Punctuator}}, parsers::schema_parser::types::type_system::{Type, parse_type}, tokenizer::{tokenizer::{Tokenizer}, tokenizer_utils::{get_next_token_and_unwrap}}};
+use crate::{token::{Token, token::{TokenKind, Identifier, Punctuator}}, parsers::schema_parser::types::parse_type::{Type, parse_type}, tokenizer::{tokenizer::{Tokenizer}, tokenizer_utils::{get_next_token_and_unwrap}}};
 
-use super::expressions::PrimitiveValue;
+use super::{expressions::PrimitiveValue, directive_definition::Directive};
+
+struct SchemaArgument {
+    name: Box<str>,
+    value: Type,
+    directives: Vec<Directive>
+}
 
 //For Schema Resolvers/Functions
 pub type IdentifierAndTypeArgument = (Box<str>, Type);
@@ -102,7 +108,7 @@ where R: Read {
                 let ident_and_type: IdentifierAndValueArgument = (name, primitive_value);
                 return Ok(ArgumentOrTuple::IdentifierAndValue(ident_and_type));
             } else {
-                let type_ = parse_type(token)?;
+                let type_ = parse_type(tokenizer)?;
                 let ident_and_type: IdentifierAndTypeArgument = (name, type_);
                 return Ok(ArgumentOrTuple::IdentifierAndType(ident_and_type));
             }

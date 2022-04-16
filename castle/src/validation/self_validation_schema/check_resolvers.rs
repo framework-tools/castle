@@ -1,4 +1,4 @@
-use parser_and_schema::ast::syntax_definitions::{schema_definition::SchemaDefinition, fn_definition::FnDefinition};
+use parser_and_schema::ast::syntax_definitions::{schema_definition::SchemaDefinition, field_definition::FnDefinition};
 use shared::castle_error::CastleError;
 
 use super::{check_type::check_type_is_valid, check_args::check_args_exist};

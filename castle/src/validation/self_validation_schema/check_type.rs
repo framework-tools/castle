@@ -1,4 +1,4 @@
-use parser_and_schema::{ast::syntax_definitions::{schema_definition::SchemaDefinition, directive_definition::DirectiveOnValue}, parsers::schema_parser::types::{type_system::Type, vec_type::VecType, option_type::OptionType, schema_type::SchemaType, schema_field::SchemaField}};
+use parser_and_schema::{ast::syntax_definitions::{schema_definition::SchemaDefinition, directive_definition::DirectiveOnValue}, parsers::schema_parser::types::{parse_type::Type, vec_type::VecType, option_type::OptionType, schema_type::SchemaType, schema_field::SchemaField}};
 use shared::castle_error::CastleError;
 use super::check_directives::{validate_directives_with_definitions::check_directives_are_valid};
 

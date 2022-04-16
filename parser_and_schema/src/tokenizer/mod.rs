@@ -8,7 +8,6 @@ pub mod parse_keyword;
 pub mod parse_primitive_type;
 pub mod parse_identifier;
 pub mod parse_arguments;
-pub mod parse_vec_type;
 pub mod parse_option_type;
 pub mod parse_enum_value;
 pub mod tokenizer_utils;
