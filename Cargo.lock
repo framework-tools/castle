@@ -24,10 +24,21 @@ checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 name = "castle"
 version = "0.1.0"
 dependencies = [
+ "castle_error",
  "parser_and_schema",
  "rmpv",
  "serde",
- "shared",
+ "uuid",
+]
+
+[[package]]
+name = "castle_error"
+version = "0.1.0"
+dependencies = [
+ "byte",
+ "input_cursor",
+ "rmp-serde",
+ "serde",
  "uuid",
 ]
 
@@ -80,9 +91,9 @@ dependencies = [
 name = "parser_and_schema"
 version = "0.1.0"
 dependencies = [
+ "castle_error",
  "input_cursor",
  "serde",
- "shared",
 ]
 
 [[package]]
@@ -98,7 +109,7 @@ dependencies = [
 name = "query_parser"
 version = "0.1.0"
 dependencies = [
- "shared",
+ "castle_error",
  "tokenizer",
 ]
 
@@ -146,7 +157,8 @@ dependencies = [
 name = "schema_parser"
 version = "0.1.0"
 dependencies = [
- "shared",
+ "castle_error",
+ "shared_parser",
  "tokenizer",
 ]
 
@@ -171,14 +183,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "shared"
+name = "shared_parser"
 version = "0.1.0"
 dependencies = [
- "byte",
- "input_cursor",
- "rmp-serde",
- "serde",
- "uuid",
+ "castle_error",
+ "tokenizer",
 ]
 
 [[package]]
@@ -196,9 +205,9 @@ dependencies = [
 name = "tokenizer"
 version = "0.1.0"
 dependencies = [
+ "castle_error",
  "fast-float",
  "input_cursor",
- "shared",
 ]
 
 [[package]]

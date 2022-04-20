@@ -12,6 +12,7 @@ pub enum Keyword {
     Match, // match
     Type, // type
     Enum, // enum
+    Directive, // directive
 }
 
 impl FromStr for Keyword {
@@ -25,6 +26,7 @@ impl FromStr for Keyword {
             "match" => Ok(Keyword::Match),
             "type" => Ok(Keyword::Type),
             "enum" => Ok(Keyword::Enum),
+            "directive" => Ok(Keyword::Directive),
             _ => Err(format!("unexpected keyword: {}", s)),
         }
     }

@@ -1,13 +1,12 @@
-use std::{collections::{HashMap}, vec};
-use shared::castle_error::CastleError;
-use parser_and_schema::{parsers::schema_parser::{schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec, insert_enums_into_enum_definitions}, types::{parse_type::Type, primitive_type::PrimitiveType, schema_type::SchemaType, schema_field::SchemaField, vec_type::VecType, option_type::OptionType}, parse_schema::parse_schema}, ast::syntax_definitions::{enum_definition::{EnumVariant, EnumDataType, EnumDefinition}, schema_definition::SchemaDefinition, argument::{ArgumentOrTuple}, field_definition::FnDefinition, directive_definition::{Directive, self, DirectiveDefinition, DirectiveOnValue}}};
+use std::collections::HashMap;
+
+use schema_parser::types::{TypeDefinition, FieldDefinition, Kind};
 
 
 #[test]
 fn can_parse_empty_query() {
     use std::collections::HashMap;
 
-    use parser_and_schema::parsers::schema_parser::parse_schema::parse_schema;
 
     let query = "";
     let expected = HashMap::new();
@@ -25,18 +24,25 @@ fn can_parse_simple_type() {
             age: Int,
         }";
 
-    let user_fields = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
-        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
-    ]);
+//example from romeo
+    let types = HashMap::new(); 
+    types.insert("User".into(), type_definition);
 
-    let user_type = SchemaType::new("User".into(), user_fields);
+    let type_definition: TypeDefinition = TypeDefinition { identifier: "User".into(), fields, directives: vec![] };
 
-    let expected = create_schema_types_for_test(vec![
-        ("User".into(), user_type),
-    ]);
-    
+    let fields: HashMap<Box<str>, FieldDefinition> = HashMap.new();
+    fields.insert("id".into(), FieldDefinition { name: "id".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "uuid".into() , generics: vec![]}, directives: vec![] });
+    fields.insert("name".into(), FieldDefinition { name: "name".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
+    fields.insert("age".into(), FieldDefinition { name: "age".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Int".into() , generics: vec![]}, directives: vec![] });
+
+    let enums = HashMap::new();
+    let directives = HashMap::new();
+
+    let expected = SchemaDefinition::new(
+        types,
+        enums,
+        directives,
+    );
     let actual = parse_schema(query).unwrap();
     assert_eq!(expected, actual.schema_types);
 }
@@ -54,18 +60,27 @@ fn can_parse_simple_type_more_fields_and_no_commas() {
             log_in_count: Int
         }";
 
-    let user_fields = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
-        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
-        ("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), Vec::new()),
-        ("location".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
-        ("log_in_count".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
-    ]);
+    let types = HashMap::new();
+    types.insert("User".into(), type_definition);
 
-    let expected = create_schema_types_for_test(vec![
-        ("User".into(), SchemaType::new("User".into(), user_fields)),
-    ]);
+    let type_definition: TypeDefinition = TypeDefinition { identifier: "User".into(), fields, directives: vec![] };
+
+    let fields: HashMap<Box<str>, FieldDefinition> = HashMap.new();
+    fields.insert("id".into(), FieldDefinition { name: "id".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "uuid".into() , generics: vec![]}, directives: vec![] });
+    fields.insert("name".into(), FieldDefinition { name: "name".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
+    fields.insert("age".into(), FieldDefinition { name: "age".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Int".into() , generics: vec![]}, directives: vec![] });
+    fields.insert("is_admin".into(), FieldDefinition { name: "is_admin".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "bool".into() , generics: vec![]}, directives: vec![] });
+    fields.insert("location".into(), FieldDefinition { name: "location".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
+    fields.insert("log_in_count".into(), FieldDefinition { name: "log_in_count".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Int".into() , generics: vec![]}, directives: vec![] });
+
+    let enums = HashMap::new();
+    let directives = HashMap::new();
+
+    let expected = SchemaDefinition::new(
+        types,
+        enums,
+        directives,
+    ); 
     
     let actual = parse_schema(query).unwrap();
     assert_eq!(expected, actual.schema_types);
@@ -91,26 +106,35 @@ fn can_parse_two_types() {
             industry: String,
         }";
 
-    let user_fields = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
-        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
-        ("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), Vec::new()),
-        ("location".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
-        ("log_in_count".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
-    ]);
+    let types = HashMap::new();
+    types.insert("User".into(), user_type_definition);
+    types.insert("Organization".into(), organisation_type_definition);
 
-    let organization_fields: HashMap<Box<str>, SchemaField> = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
-        ("industry".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
-    ]);
+    let user_type_definition: TypeDefinition = TypeDefinition { identifier: "User", fields: user_fields, directives: vec![] };
+    let organization_type_definition: TypeDefinition = TypeDefinition { identifier: "Organization", fields: organization_fields, directives: vec![] };
 
-    let expected: HashMap<Box<str>, SchemaType> = create_schema_types_for_test(vec![
-        ("User".into(), SchemaType::new("User".into(), user_fields)),
-        ("Organization".into(), SchemaType::new("Organization".into(), organization_fields)),
-    ]);
-    
+    let user_fields: HashMap<Box<str>, FieldDefinition> = HashMap.new();
+    user_fields.insert("id".into(), FieldDefinition { name: "id".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "uuid".into() , generics: vec![]}, directives: vec![] });
+    user_fields.insert("name".into(), FieldDefinition { name: "name".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
+    user_fields.insert("age".into(), FieldDefinition { name: "age".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Int".into() , generics: vec![]}, directives: vec![] });
+    user_fields.insert("is_admin".into(), FieldDefinition { name: "is_admin".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "bool".into() , generics: vec![]}, directives: vec![] });
+    user_fields.insert("location".into(), FieldDefinition { name: "location".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
+    user_fields.insert("log_in_count".into(), FieldDefinition { name: "log_in_count".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Int".into() , generics: vec![]}, directives: vec![] });
+
+    let organization_fields: HashMap<Box<str>, FieldDefinition> = HashMap.new();
+    organization_fields.insert("id".into(), FieldDefinition { name: "id".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "uuid".into() , generics: vec![]}, directives: vec![] });
+    organization_fields.insert("name".into(), FieldDefinition { name: "name".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
+    organization_fields.insert("industry".into(), FieldDefinition { name: "industry".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
+
+    let enums = HashMap::new();
+    let directives = HashMap::new();
+
+    let expected = SchemaDefinition::new(
+        types,
+        enums,
+        directives,
+    );
+
     let actual = parse_schema(query).unwrap();
     assert_eq!(expected, actual.schema_types);
 }
@@ -137,25 +161,35 @@ fn can_parse_two_types_with_vec_type() {
             users: Vec<User>
         }";
 
-    let user_fields = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
-        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
-        ("is_admin".into(), Type::PrimitiveType(PrimitiveType::Bool), Vec::new()),
-        ("location".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
-        ("log_in_count".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
-    ]);
-    
-    let organization_fields: HashMap<Box<str>, SchemaField> = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
-        ("industries".into(), Type::VecType(VecType {inner_type: Type::PrimitiveType(PrimitiveType::String).into()}), Vec::new()),
-        ("users".into(), Type::VecType(VecType {inner_type: Type::SchemaTypeOrEnum("User".into()).into()}), Vec::new())
-    ]);
-    let expected = create_schema_types_for_test(vec![
-        ("User".into(), SchemaType::new("User".into(), user_fields)),
-        ("Organization".into(), SchemaType::new("Organization".into(), organization_fields)),
-    ]);
+    let types = HashMap::new();
+    types.insert("User".into(), type_definition);
+    types.insert("Organization".into(), type_definition);
+
+    let user_type_definition: TypeDefinition = TypeDefinition { identifier: "User", fields: user_fields, directives: vec![] };
+    let organization_type_definition: TypeDefinition = TypeDefinition { identifier: "Organization", fields: organization_fields, directives: vec![] };
+
+    let user_fields: HashMap<Box<str>, FieldDefinition> = HashMap.new();
+    user_fields.insert("id".into(), FieldDefinition { name: "id".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "uuid".into() , generics: vec![]}, directives: vec![] });
+    user_fields.insert("name".into(), FieldDefinition { name: "name".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
+    user_fields.insert("age".into(), FieldDefinition { name: "age".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Int".into() , generics: vec![]}, directives: vec![] });
+    user_fields.insert("is_admin".into(), FieldDefinition { name: "is_admin".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "bool".into() , generics: vec![]}, directives: vec![] });
+    user_fields.insert("location".into(), FieldDefinition { name: "location".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
+    user_fields.insert("log_in_count".into(), FieldDefinition { name: "log_in_count".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Int".into() , generics: vec![]}, directives: vec![] });
+
+    let organization_fields: HashMap<Box<str>, FieldDefinition> = HashMap.new();
+    organization_fields.insert("id".into(), FieldDefinition { name: "id".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "uuid".into() , generics: vec![]}, directives: vec![] });
+    organization_fields.insert("name".into(), FieldDefinition { name: "name".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
+    organization_fields.insert("industries".into(), FieldDefinition { name: "industries".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Vec".into() , generics: vec![Kind { name: "String".into(), generics: vec![] }]}, directives: vec![] });
+    organization_fields.insert("users".into(), FieldDefinition { name: "users".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Vec".into() , generics: vec!["User"]}, directives: vec![] });
+
+    let enums = HashMap::new();
+    let directives = HashMap::new();
+
+    let expected = SchemaDefinition::new(
+        types,
+        enums,
+        directives,
+    );
 
     let actual = parse_schema(query).unwrap();
     assert_eq!(expected, actual.schema_types);
@@ -545,8 +579,8 @@ fn can_parse_directives_on_enums(){
     is_admin_arguments.insert("role".into(), role_arg);
 
     let mut directives = Vec::new();
-    directives.push(Directive::new("authenticated".into(), authenticated_arguments));
-    directives.push(Directive::new("is_admin".into(), is_admin_arguments));
+    directives.insert(Directive::new("authenticated".into(), authenticated_arguments));
+    directives.insert(Directive::new("is_admin".into(), is_admin_arguments));
 
     let enum_variant = EnumVariant::new("Red".into(), EnumDataType::EnumUnit, directives);
 
@@ -720,8 +754,8 @@ fn can_parse_directives_on_resolver_definitions() -> Result<(), CastleError> {
     upercase_argument.insert("amount".into(), Type::PrimitiveType(PrimitiveType::Int));
 
     let mut directives = Vec::new();
-    directives.push(Directive::new("authenticated".into(), HashMap::new()));
-    directives.push(Directive::new("uppercase".into(), upercase_argument));
+    directives.insert(Directive::new("authenticated".into(), HashMap::new()));
+    directives.insert(Directive::new("uppercase".into(), upercase_argument));
 
     let return_type = Type::PrimitiveType(PrimitiveType::String);
     let fn_me = FnDefinition::new(name, args, return_type, directives);

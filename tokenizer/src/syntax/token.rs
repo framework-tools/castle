@@ -1,8 +1,8 @@
 use std::{fmt::{Formatter, self, Display}};
 
 use input_cursor::{Span};
-use shared::Primitive;
-use crate::{Keyword, Punctuator};
+
+use crate::{Keyword, Punctuator, Primitive};
 
 #[derive(Debug, PartialEq)]
 pub struct Token {

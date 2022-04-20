@@ -1,7 +1,9 @@
-use shared::args::Input;
+
+
+
+use shared_parser::Input;
 
 use super::{Kind, Directive};
-
 /// Argument Definition
 ///
 /// Not to be confused with input arguments which are for the actual provided
@@ -20,7 +22,7 @@ use super::{Kind, Directive};
 /// }
 /// ```
 #[derive(Debug)]
-pub struct ArgDefinition {
+pub struct InputDefinition {
     pub name: Box<str>,
     pub input_kind: Kind,
     pub default: Option<Input>,

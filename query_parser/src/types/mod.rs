@@ -2,10 +2,6 @@
 mod query;
 mod projection;
 
-/// shared
-// used for directive inputs in schema, but also for input args in query
-mod inputs;
-
 /// unknown
 /// match
 

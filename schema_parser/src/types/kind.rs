@@ -4,5 +4,5 @@
 #[derive(Debug)]
 pub struct Kind {
     pub name: Box<str>,
-    pub generics: Vec<Box<str>>,
+    pub generics: Vec<Kind>,
 }

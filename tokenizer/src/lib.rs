@@ -11,4 +11,5 @@ pub use syntax::{
     keyword::Keyword,
     punctuator::Punctuator,
     token::{Token, TokenKind},
+    primitive::Primitive,
 };

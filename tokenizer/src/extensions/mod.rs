@@ -1,6 +1,8 @@
-use shared::{castle_error::CastleError, Primitive};
 
-use crate::{Keyword, Tokenizable, TokenKind, Punctuator, Token};
+
+use castle_error::CastleError;
+
+use crate::{Keyword, Tokenizable, TokenKind, Punctuator, Token, Primitive};
 
 pub trait ExpectNext: Tokenizable {
     fn expect_next(&mut self, skip_line_terminators: bool) -> Result<Token, CastleError> {
@@ -15,7 +17,7 @@ pub trait ExpectNext: Tokenizable {
 pub trait ExpectPunctuator: Tokenizable + Sized {
     fn expect_punctuator(
         &mut self,
-        punctuator: &Punctuator,
+        punctuator: Punctuator,
         skip_line_terminators: bool,
     ) -> Result<(), CastleError>
     {
@@ -24,7 +26,7 @@ pub trait ExpectPunctuator: Tokenizable + Sized {
             .ok_or(CastleError::AbruptEOF(
                 "Error found in 'expect_punctuator'".into(),
             ))?;
-        if punctuator_token.kind != TokenKind::Punctuator(*punctuator) {
+        if punctuator_token.kind != TokenKind::Punctuator(punctuator) {
             return Err(CastleError::parse(
                 format!(
                     "Expected punctuator '{:?}', but got '{:?}'",
@@ -66,7 +68,7 @@ pub trait PeekKeyword: Tokenizable + Sized {
         let token = self.peek(skip_line_terminators)?;
         match token {
             Some(token) => match token.kind() {
-                TokenKind::Keyword(keyword) => Ok(Some(keyword)),
+                TokenKind::Keyword(keyword) => Ok(Some(&keyword)),
                 _ => Ok(None),
             },
             None => Ok(None),

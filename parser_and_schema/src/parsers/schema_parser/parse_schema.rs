@@ -2,6 +2,8 @@
 
 
 
+use std::collections::HashMap;
+
 use shared::castle_error::CastleError;
 
 use crate::{tokenizer::tokenizer::Tokenizer, ast::syntax_definitions::{schema_definition::SchemaDefinition, keyword::Keyword}, token::token::TokenKind};
@@ -18,7 +20,7 @@ use super::{parse_schema_type::parse_schema_type, enums::parse_enum::parse_enum_
 pub fn parse_schema(schema: &str) -> Result<SchemaDefinition, CastleError> {
     let bytes = schema.as_bytes();
     let mut tokenizer = Tokenizer::new(bytes);
-    let mut parsed_schema: SchemaDefinition = SchemaDefinition::new();
+    let mut parsed_schema: SchemaDefinition = HashMap::new();
 
     loop {
         let token = tokenizer.next(true)?;

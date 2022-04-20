@@ -1,9 +1,10 @@
 use std::io::Read;
 
+use castle_error::CastleError;
 use input_cursor::{Cursor, Position, Span};
-use shared::{castle_error::CastleError, Primitive};
 
-use crate::{Token, TokenKind, Keyword};
+
+use crate::{Token, TokenKind, Keyword, Primitive};
 
 
 pub(crate) fn parse_ident_or_keyword(cursor: &mut Cursor<impl Read>, start_pos: Position) -> Result<Token, CastleError> {

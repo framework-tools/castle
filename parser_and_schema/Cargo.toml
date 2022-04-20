@@ -8,4 +8,4 @@ edition = "2021"
 [dependencies]
 input_cursor = { path = "../input_cursor" }
 serde = { version = "1.0.117", features = ["derive"] }
-shared = { path = "../shared" }
+castle_error = { path = "../castle_error" }

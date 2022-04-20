@@ -6,6 +6,7 @@ members = [
     "parser_and_schema",
     "query_parser",
     "schema_parser",
-    "shared",
+    "castle_error",
     "tokenizer",
+    "shared_parser",
 ]
