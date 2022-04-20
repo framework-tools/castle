@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use super::{TypeDefinition, EnumDefinition, DirectiveDefinition};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct SchemaDefinition {
     pub types: HashMap<Box<str>, TypeDefinition>,
     pub enums: HashMap<Box<str>, EnumDefinition>,

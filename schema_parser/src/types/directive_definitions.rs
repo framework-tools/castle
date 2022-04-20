@@ -24,7 +24,7 @@ use super::InputDefinition;
 ///     reason: String = "No longer supported"
 /// )
 /// ```
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct DirectiveDefinition {
     pub name: Box<str>,
     pub input_definitions: HashMap<Box<str>, InputDefinition>,
@@ -59,7 +59,7 @@ pub enum DirectiveLocation {
 ///     this_is_a_field(arg: String): String @field_directive(an_arg: 123)
 /// }
 /// ```
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Directive {
     pub name: Box<str>,
     pub inputs: HashMap<Box<str>, Input>,

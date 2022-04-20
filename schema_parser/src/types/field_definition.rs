@@ -10,7 +10,7 @@ use super::{Kind, InputDefinition, Directive};
 ///     also_a_field: String @lowercase
 /// }
 /// ```
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct FieldDefinition {
     pub name: Box<str>,
     pub input_definitions: HashMap<Box<str>, InputDefinition>,

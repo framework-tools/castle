@@ -11,7 +11,7 @@ use super::{field_definition::FieldDefinition, directive_definitions::Directive}
 ///     email: String,
 /// }
 /// ```
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct TypeDefinition {
     pub identifier: Box<str>,
     pub fields: HashMap<Box<str>, FieldDefinition>,

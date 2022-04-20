@@ -21,7 +21,7 @@ use super::{Kind, Directive};
 ///     height(unit: Unit = METER): Float
 /// }
 /// ```
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct InputDefinition {
     pub name: Box<str>,
     pub input_kind: Kind,
