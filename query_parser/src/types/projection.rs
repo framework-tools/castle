@@ -37,7 +37,9 @@
 struct Projection {
     pub name: Box<str>,
     pub inputs: Vec<Input>,
-    pub rename: Option<Box<str>>, // original as renamed
+
+    /// `<original_field> as <renamed_field>`
+    pub rename: Option<Box<str>>,
     pub kind: ProjectionKind,
 }
 
