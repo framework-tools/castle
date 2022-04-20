@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use super::{Kind, ArgDefinition, DirectiveDefinition};
+use super::{Kind, InputDefinition, Directive};
 
 
 /// Definition of a field resolver, used in field types
@@ -13,7 +13,7 @@ use super::{Kind, ArgDefinition, DirectiveDefinition};
 #[derive(Debug)]
 pub struct FieldDefinition {
     pub name: Box<str>,
-    pub args: HashMap<Box<str>, ArgDefinition>,
+    pub input_definitions: HashMap<Box<str>, InputDefinition>,
     pub return_kind: Kind,
-    pub directives: Vec<DirectiveDefinition>,
+    pub directives: Vec<Directive>,
 }

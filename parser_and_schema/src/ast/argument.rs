@@ -1,11 +1,11 @@
 use std::{io::Read, collections::HashMap};
 
 
-use shared::castle_error::CastleError;
+use shared::{castle_error::CastleError, Primitive};
 
-use crate::{token::{Token, token::{TokenKind, Identifier, Punctuator}}, parsers::schema_parser::types::parse_type::{Type, parse_type}, tokenizer::{tokenizer::{Tokenizer}, tokenizer_utils::{get_next_token_and_unwrap}}};
+use crate::parsers::schema_parser::types::parse_type::Type;
 
-use super::{expressions::PrimitiveValue, directive_definition::Directive};
+use super::directive_definition::Directive;
 
 struct SchemaArgument {
     name: Box<str>,
@@ -16,11 +16,11 @@ struct SchemaArgument {
 //For Schema Resolvers/Functions
 pub type IdentifierAndTypeArgument = (Box<str>, Type);
 //For Query Object Projections/Resolvers
-pub type IdentifierAndValueArgument = (Box<str>, PrimitiveValue);
+pub type IdentifierAndValueArgument = (Box<str>, Primitive);
 
 #[derive(Debug, PartialEq)]
 pub enum ArgumentOrTuple {
-    PrimitiveValue(PrimitiveValue),
+    PrimitiveValue(Primitive),
     IdentifierAndType(IdentifierAndTypeArgument),
     IdentifierAndValue(IdentifierAndValueArgument),
 }

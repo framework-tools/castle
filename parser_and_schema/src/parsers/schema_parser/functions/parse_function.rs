@@ -30,13 +30,13 @@ fn get_fn_name_and_arguments(identifier: Identifier)
 
 fn get_fn_return_type<R>(tokenizer: &mut Tokenizer<R>)
 -> Result<Type, CastleError> where R: Read {
-    tokenizer.expect_punctuator(&Punctuator::Colon, true)?;
+    tokenizer.expect_punctuator(Punctuator::Colon, true)?;
     Ok(parse_function_return_type(tokenizer)?)
 }
 
 fn parse_function_return_type<R>(tokenizer: &mut Tokenizer<R>) -> Result<Type, CastleError>
 where R: Read {
-    tokenizer.expect_punctuator(&Punctuator::Colon, true)?;
+    tokenizer.expect_punctuator(Punctuator::Colon, true)?;
     let token = tokenizer.expect_next(true)?;
     let return_type = parse_type(tokenizer)?;
     return Ok(return_type)

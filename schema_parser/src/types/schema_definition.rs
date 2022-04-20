@@ -4,7 +4,17 @@ use super::{TypeDefinition, EnumDefinition, DirectiveDefinition};
 
 #[derive(Debug)]
 pub struct SchemaDefinition {
-    types: HashMap<String, TypeDefinition>,
-    enums: HashMap<String, EnumDefinition>,
-    directives: HashMap<String, DirectiveDefinition>,
+    pub types: HashMap<Box<str>, TypeDefinition>,
+    pub enums: HashMap<Box<str>, EnumDefinition>,
+    pub directives: HashMap<Box<str>, DirectiveDefinition>,
+}
+
+impl SchemaDefinition {
+    pub fn new() -> SchemaDefinition {
+        SchemaDefinition {
+            types: HashMap::new(),
+            enums: HashMap::new(),
+            directives: HashMap::new()
+        }
+    }
 }

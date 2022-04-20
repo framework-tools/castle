@@ -1,9 +1,13 @@
 
 use std::collections::{HashMap, HashSet};
 
-use shared::args::Input;
 
-use super::{arg_definition::ArgDefinition};
+
+use shared_parser::Input;
+
+use super::InputDefinition;
+
+
 
 /// ### Directive Definition
 ///
@@ -23,7 +27,7 @@ use super::{arg_definition::ArgDefinition};
 #[derive(Debug)]
 pub struct DirectiveDefinition {
     pub name: Box<str>,
-    pub arguments: HashMap<Box<str>, ArgDefinition>,
+    pub input_definitions: HashMap<Box<str>, InputDefinition>,
     pub locations: HashSet<DirectiveLocation>,
 }
 
@@ -50,9 +54,9 @@ pub enum DirectiveLocation {
 ///
 /// Named below for convenience.
 /// ```notrust
-/// @type_directive
+/// @type_directive(arg: 123)
 /// type Query {
-///     this_is_a_field(arg: String): String @field_directive
+///     this_is_a_field(arg: String): String @field_directive(an_arg: 123)
 /// }
 /// ```
 #[derive(Debug)]

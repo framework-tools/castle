@@ -1,9 +1,9 @@
 use std::io::Read;
 
+use castle_error::CastleError;
 use input_cursor::{Cursor, Position, Span};
-use shared::{castle_error::CastleError, Primitive};
 
-use crate::{TokenKind, Token};
+use crate::{TokenKind, Token, Primitive};
 
 pub fn parse_string(cursor: &mut Cursor<impl Read>, start_pos: Position) -> Result<Token, CastleError> {
     let mut string = String::new();

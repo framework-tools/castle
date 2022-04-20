@@ -24,11 +24,11 @@ fn parse_generics<R: Read>(tokenizer: &mut Tokenizer<R>) -> Result<Vec<Type>, Ca
     let mut generics = Vec::new();
     match tokenizer.peek(true)? {
         Some(Token { kind: TokenKind::Punctuator(Punctuator::LessThan), ..}) => {
-            tokenizer.expect_punctuator(&Punctuator::LessThan, true)?; // skip <
+            tokenizer.expect_punctuator(Punctuator::LessThan, true)?; // skip <
             loop {
                 generics.push(parse_type(tokenizer)?);
                 if let Some(Token { kind: TokenKind::Punctuator(Punctuator::GreaterThan), ..}) = tokenizer.peek(true)? {
-                    tokenizer.expect_punctuator(&Punctuator::GreaterThan, true)?; // skip >
+                    tokenizer.expect_punctuator(Punctuator::GreaterThan, true)?; // skip >
                     break Ok(generics);
                 }
             }

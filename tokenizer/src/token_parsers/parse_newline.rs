@@ -1,7 +1,8 @@
 use std::io::Read;
 
+use castle_error::CastleError;
 use input_cursor::{Cursor, Position, Span};
-use shared::castle_error::CastleError;
+
 
 use crate::{Token, TokenKind};
 

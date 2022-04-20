@@ -6,16 +6,16 @@ use super::{Directive, Kind};
 
 #[derive(Debug)]
 pub struct EnumDefinition {
-    pub directives: Vec<Directive>,
     pub name: Box<str>,
     pub variants: Vec<VariantDefinition>,
+    pub directives: Vec<Directive>,
 }
 
 #[derive(Debug)]
 pub struct VariantDefinition {
-    pub directives: Vec<Directive>,
     pub name: Box<str>,
     pub kind: VariantKindDefinition,
+    pub directives: Vec<Directive>,
 }
 
 #[derive(Debug)]
