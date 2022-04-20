@@ -1,7 +1,9 @@
-use castle_error::CastleError;
-use tokenizer::Tokenizable;
+use std::collections::HashSet;
 
-use crate::types::DirectiveDefinition;
+use castle_error::CastleError;
+use tokenizer::{Tokenizable, extensions::ExpectIdentifier};
+
+use crate::types::{DirectiveDefinition, DirectiveLocation};
 
 use super::parse_type_definition::parse_input_definitions;
 
@@ -16,14 +18,6 @@ pub fn parse_directive_definition(tokenizer: &mut impl Tokenizable) -> Result<Di
     })
 }
 
-pub fn parse_directive_locations(tokenizer: &mut impl Tokenizable) -> Result<Vec<String>, CastleError> {
-    let mut locations = Vec::new();
-    tokenizer.expect_punctuator(Punctuator::OpenParen, true)?;
-    loop {
-        if let Token { kind: TokenKind::Punctuator(Punctuator::CloseParen), ..} = tokenizer.peek_expect(true)?.kind {
-            tokenizer.expect_punctuator(Punctuator::CloseParen, true);
-            return Ok(locations);
-        }
-        locations.push(tokenizer.expect_identifier(true)?);
-    }
+pub fn parse_directive_locations(tokenizer: &mut impl Tokenizable) -> Result<HashSet<DirectiveLocation>, CastleError> {
+    unimplemented!()
 }
