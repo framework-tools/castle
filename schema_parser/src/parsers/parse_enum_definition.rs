@@ -27,7 +27,7 @@ fn parse_enum_variants(tokenizer: &mut impl Tokenizable) -> Result<Vec<VariantDe
             tokenizer.expect_punctuator(Punctuator::CloseBlock, true);
             return Ok(values);
         }
-        if has_more_fields(tokenizer) {
+        if has_more_fields(tokenizer)? {
         values.push(parse_variant_definition(tokenizer)?);
         }
     }
