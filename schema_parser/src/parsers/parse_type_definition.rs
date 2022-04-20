@@ -3,7 +3,7 @@ use std::{collections::HashMap};
 use castle_error::CastleError;
 use tokenizer::{extensions::{ExpectIdentifier, ExpectPunctuator}, Punctuator, Tokenizable, TokenKind, Token};
 
-use crate::types::{TypeDefinition, FieldDefinition, Directive, InputDefinition, Kind};
+use crate::types::{TypeDefinition, FieldDefinition, Directive, InputDefinition};
 
 use super::{parse_directives::parse_directives, parse_kind::parse_kind};
 

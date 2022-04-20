@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use castle_error::CastleError;
 use shared_parser::parse_inputs::has_more_fields;
-use tokenizer::{Tokenizable, Punctuator, Token, TokenKind};
+use tokenizer::{Tokenizable, Punctuator, Token, TokenKind, extensions::{ExpectPunctuator, ExpectIdentifier}};
 
 use crate::types::{Directive, EnumDefinition, VariantDefinition, VariantKindDefinition, Kind};
 
@@ -62,7 +62,7 @@ pub fn parse_map(
     tokenizer: &mut impl Tokenizable,
     opening: Punctuator,
     closing: Punctuator,
-) -> Result<VariantKindDefinition, CastleError> {
+) -> Result<HashMap<Box<str>, Kind>, CastleError> {
     tokenizer.expect_punctuator(opening, true)?;
     let mut inputs = HashMap::new();
     loop {
@@ -77,7 +77,7 @@ pub fn parse_map(
     }
 }
 
-fn expect_colon_and_kind(tokenizer: &mut impl Tokenizable) -> Result<VariantKindDefinition, CastleError> {
+fn expect_colon_and_kind(tokenizer: &mut impl Tokenizable) -> Result<Kind, CastleError> {
     tokenizer.expect_punctuator(Punctuator::Colon, true)?;
     parse_kind(tokenizer)
 }
@@ -86,7 +86,7 @@ pub fn parse_tuple(
     tokenizer: &mut impl Tokenizable,
     opening: Punctuator,
     closing: Punctuator,
-) -> Result<VariantKindDefinition, CastleError> {
+) -> Result<Vec<Kind>, CastleError> {
     let mut inputs_vec: Vec<Kind> = Vec::new();
     tokenizer.expect_punctuator(opening, true)?;
     loop {
@@ -95,6 +95,5 @@ pub fn parse_tuple(
             tokenizer.expect_punctuator(closing, true)?;
             return Ok(inputs_vec);
         }
-        tokenizer.expect_punctuator(Punctuator::Comma, true)?;
     }
 }

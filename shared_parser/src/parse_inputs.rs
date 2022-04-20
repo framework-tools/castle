@@ -92,7 +92,6 @@ pub fn parse_list(
             tokenizer.expect_punctuator(closing, true)?;
             return Ok(inputs_vec);
         }
-        tokenizer.expect_punctuator(Punctuator::Comma, true)?;
     }
 }
 
@@ -100,13 +99,13 @@ pub fn has_more_fields(tokenizer: &mut impl Tokenizable) -> Result<bool, CastleE
     let token = tokenizer.peek_expect(false)?;
     match token.kind {
         TokenKind::Punctuator(
-            Punctuator::CloseBlock | Punctuator::CloseBracket | Punctuator::CloseParen,
+            Punctuator::CloseBlock | Punctuator::CloseBracket | Punctuator::CloseParen | Punctuator::GenericClose,
         ) => return Ok(false),
         TokenKind::Punctuator(Punctuator::Comma) => {
             tokenizer.expect_punctuator(Punctuator::Comma, false)?; // consume the comma
             match tokenizer.peek_expect(true)?.kind() {
                 TokenKind::Punctuator(
-                    Punctuator::CloseBlock | Punctuator::CloseBracket | Punctuator::CloseParen,
+                    Punctuator::CloseBlock | Punctuator::CloseBracket | Punctuator::CloseParen | Punctuator::GenericClose,
                 ) => return Ok(false), // we don't care if the close is a block or bracket
                 _ => return Ok(true),
             }
