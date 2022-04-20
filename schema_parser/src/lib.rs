@@ -1,3 +1,3 @@
 
 pub mod types;
-pub(crate) mod parsers;
+pub mod parsers;
