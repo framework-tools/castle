@@ -1,5 +1,6 @@
-use std::{collections::{HashMap}, vec};
-use shared::castle_error::CastleError;
+use std::collections::HashMap;
+
+use schema_parser::types::{TypeDefinition, FieldDefinition, Kind};
 
 
 #[test]
@@ -23,18 +24,23 @@ fn can_parse_simple_type() {
             age: Int,
         }";
 
-    let user_fields = create_type_fields_for_tests(vec![
-        ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
-        ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
-        ("age".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
-    ]);
 
-    let user_type = SchemaType::new("User".into(), user_fields);
+    let types = HashMap::new(); 
+    types.insert(User, type_definition);
 
-    let expected = create_schema_types_for_test(vec![
-        ("User".into(), user_type),
-    ]);
-    
+    let type_definition: TypeDefinition = TypeDefinition { identifier: "User", fields, directives: vec![] };
+
+    let fields: HashMap<Box<str>, FieldDefinition> = HashMap.new();
+    fields.push("id".into(), FieldDefinition { name: "id".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "uuid".into() , generic: vec![]}, directives: vec![] });
+    fields.push("name".into(), FieldDefinition { name: "name".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generic: vec![]}, directives: vec![] });
+    fields.push("age".into(), FieldDefinition { name: "age".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Int".into() , generic: vec![]}, directives: vec![] });
+
+    let expected = SchemaDefinition::new() {
+        types,
+        enums: HashMap::new(),
+        directives: HashMap::new(),
+    }
+
     let actual = parse_schema(query).unwrap();
     assert_eq!(expected, actual.schema_types);
 }
