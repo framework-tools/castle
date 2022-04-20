@@ -28,12 +28,12 @@ fn can_parse_simple_type() {
     let types = HashMap::new(); 
     types.insert("User".into(), type_definition);
 
-    let type_definition: TypeDefinition = TypeDefinition { identifier: "User", fields, directives: vec![] };
+    let type_definition: TypeDefinition = TypeDefinition { identifier: "User".into(), fields, directives: vec![] };
 
     let fields: HashMap<Box<str>, FieldDefinition> = HashMap.new();
-    fields.push("id".into(), FieldDefinition { name: "id".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "uuid".into() , generics: vec![]}, directives: vec![] });
-    fields.push("name".into(), FieldDefinition { name: "name".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
-    fields.push("age".into(), FieldDefinition { name: "age".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Int".into() , generics: vec![]}, directives: vec![] });
+    fields.insert("id".into(), FieldDefinition { name: "id".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "uuid".into() , generics: vec![]}, directives: vec![] });
+    fields.insert("name".into(), FieldDefinition { name: "name".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
+    fields.insert("age".into(), FieldDefinition { name: "age".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Int".into() , generics: vec![]}, directives: vec![] });
 
     let enums = HashMap::new();
     let directives = HashMap::new();
@@ -63,15 +63,15 @@ fn can_parse_simple_type_more_fields_and_no_commas() {
     let types = HashMap::new();
     types.insert("User".into(), type_definition);
 
-    let type_definition: TypeDefinition = TypeDefinition { identifier: "User", fields, directives: vec![] };
+    let type_definition: TypeDefinition = TypeDefinition { identifier: "User".into(), fields, directives: vec![] };
 
     let fields: HashMap<Box<str>, FieldDefinition> = HashMap.new();
-    fields.push("id".into(), FieldDefinition { name: "id".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "uuid".into() , generics: vec![]}, directives: vec![] });
-    fields.push("name".into(), FieldDefinition { name: "name".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
-    fields.push("age".into(), FieldDefinition { name: "age".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Int".into() , generics: vec![]}, directives: vec![] });
-    fields.push("is_admin".into(), FieldDefinition { name: "is_admin".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "bool".into() , generics: vec![]}, directives: vec![] });
-    fields.push("location".into(), FieldDefinition { name: "location".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
-    fields.push("log_in_count".into(), FieldDefinition { name: "log_in_count".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Int".into() , generics: vec![]}, directives: vec![] });
+    fields.insert("id".into(), FieldDefinition { name: "id".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "uuid".into() , generics: vec![]}, directives: vec![] });
+    fields.insert("name".into(), FieldDefinition { name: "name".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
+    fields.insert("age".into(), FieldDefinition { name: "age".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Int".into() , generics: vec![]}, directives: vec![] });
+    fields.insert("is_admin".into(), FieldDefinition { name: "is_admin".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "bool".into() , generics: vec![]}, directives: vec![] });
+    fields.insert("location".into(), FieldDefinition { name: "location".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
+    fields.insert("log_in_count".into(), FieldDefinition { name: "log_in_count".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Int".into() , generics: vec![]}, directives: vec![] });
 
     let enums = HashMap::new();
     let directives = HashMap::new();
@@ -114,17 +114,17 @@ fn can_parse_two_types() {
     let organization_type_definition: TypeDefinition = TypeDefinition { identifier: "Organization", fields: organization_fields, directives: vec![] };
 
     let user_fields: HashMap<Box<str>, FieldDefinition> = HashMap.new();
-    user_fields.push("id".into(), FieldDefinition { name: "id".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "uuid".into() , generics: vec![]}, directives: vec![] });
-    user_fields.push("name".into(), FieldDefinition { name: "name".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
-    user_fields.push("age".into(), FieldDefinition { name: "age".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Int".into() , generics: vec![]}, directives: vec![] });
-    user_fields.push("is_admin".into(), FieldDefinition { name: "is_admin".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "bool".into() , generics: vec![]}, directives: vec![] });
-    user_fields.push("location".into(), FieldDefinition { name: "location".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
-    user_fields.push("log_in_count".into(), FieldDefinition { name: "log_in_count".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Int".into() , generics: vec![]}, directives: vec![] });
+    user_fields.insert("id".into(), FieldDefinition { name: "id".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "uuid".into() , generics: vec![]}, directives: vec![] });
+    user_fields.insert("name".into(), FieldDefinition { name: "name".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
+    user_fields.insert("age".into(), FieldDefinition { name: "age".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Int".into() , generics: vec![]}, directives: vec![] });
+    user_fields.insert("is_admin".into(), FieldDefinition { name: "is_admin".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "bool".into() , generics: vec![]}, directives: vec![] });
+    user_fields.insert("location".into(), FieldDefinition { name: "location".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
+    user_fields.insert("log_in_count".into(), FieldDefinition { name: "log_in_count".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Int".into() , generics: vec![]}, directives: vec![] });
 
     let organization_fields: HashMap<Box<str>, FieldDefinition> = HashMap.new();
-    organization_fields.push("id".into(), FieldDefinition { name: "id".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "uuid".into() , generics: vec![]}, directives: vec![] });
-    organization_fields.push("name".into(), FieldDefinition { name: "name".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
-    organization_fields.push("industry".into(), FieldDefinition { name: "industry".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
+    organization_fields.insert("id".into(), FieldDefinition { name: "id".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "uuid".into() , generics: vec![]}, directives: vec![] });
+    organization_fields.insert("name".into(), FieldDefinition { name: "name".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
+    organization_fields.insert("industry".into(), FieldDefinition { name: "industry".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
 
     let enums = HashMap::new();
     let directives = HashMap::new();
@@ -169,18 +169,18 @@ fn can_parse_two_types_with_vec_type() {
     let organization_type_definition: TypeDefinition = TypeDefinition { identifier: "Organization", fields: organization_fields, directives: vec![] };
 
     let user_fields: HashMap<Box<str>, FieldDefinition> = HashMap.new();
-    user_fields.push("id".into(), FieldDefinition { name: "id".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "uuid".into() , generics: vec![]}, directives: vec![] });
-    user_fields.push("name".into(), FieldDefinition { name: "name".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
-    user_fields.push("age".into(), FieldDefinition { name: "age".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Int".into() , generics: vec![]}, directives: vec![] });
-    user_fields.push("is_admin".into(), FieldDefinition { name: "is_admin".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "bool".into() , generics: vec![]}, directives: vec![] });
-    user_fields.push("location".into(), FieldDefinition { name: "location".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
-    user_fields.push("log_in_count".into(), FieldDefinition { name: "log_in_count".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Int".into() , generics: vec![]}, directives: vec![] });
+    user_fields.insert("id".into(), FieldDefinition { name: "id".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "uuid".into() , generics: vec![]}, directives: vec![] });
+    user_fields.insert("name".into(), FieldDefinition { name: "name".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
+    user_fields.insert("age".into(), FieldDefinition { name: "age".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Int".into() , generics: vec![]}, directives: vec![] });
+    user_fields.insert("is_admin".into(), FieldDefinition { name: "is_admin".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "bool".into() , generics: vec![]}, directives: vec![] });
+    user_fields.insert("location".into(), FieldDefinition { name: "location".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
+    user_fields.insert("log_in_count".into(), FieldDefinition { name: "log_in_count".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Int".into() , generics: vec![]}, directives: vec![] });
 
     let organization_fields: HashMap<Box<str>, FieldDefinition> = HashMap.new();
-    organization_fields.push("id".into(), FieldDefinition { name: "id".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "uuid".into() , generics: vec![]}, directives: vec![] });
-    organization_fields.push("name".into(), FieldDefinition { name: "name".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
-    organization_fields.push("industries".into(), FieldDefinition { name: "industries".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Vec".into() , generics: vec![Kind { name: "String".into(), generics: vec![] }]}, directives: vec![] });
-    organization_fields.push("users".into(), FieldDefinition { name: "users".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Vec".into() , generics: vec!["User"]}, directives: vec![] });
+    organization_fields.insert("id".into(), FieldDefinition { name: "id".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "uuid".into() , generics: vec![]}, directives: vec![] });
+    organization_fields.insert("name".into(), FieldDefinition { name: "name".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
+    organization_fields.insert("industries".into(), FieldDefinition { name: "industries".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Vec".into() , generics: vec![Kind { name: "String".into(), generics: vec![] }]}, directives: vec![] });
+    organization_fields.insert("users".into(), FieldDefinition { name: "users".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Vec".into() , generics: vec!["User"]}, directives: vec![] });
 
     let enums = HashMap::new();
     let directives = HashMap::new();
@@ -579,8 +579,8 @@ fn can_parse_directives_on_enums(){
     is_admin_arguments.insert("role".into(), role_arg);
 
     let mut directives = Vec::new();
-    directives.push(Directive::new("authenticated".into(), authenticated_arguments));
-    directives.push(Directive::new("is_admin".into(), is_admin_arguments));
+    directives.insert(Directive::new("authenticated".into(), authenticated_arguments));
+    directives.insert(Directive::new("is_admin".into(), is_admin_arguments));
 
     let enum_variant = EnumVariant::new("Red".into(), EnumDataType::EnumUnit, directives);
 
@@ -754,8 +754,8 @@ fn can_parse_directives_on_resolver_definitions() -> Result<(), CastleError> {
     upercase_argument.insert("amount".into(), Type::PrimitiveType(PrimitiveType::Int));
 
     let mut directives = Vec::new();
-    directives.push(Directive::new("authenticated".into(), HashMap::new()));
-    directives.push(Directive::new("uppercase".into(), upercase_argument));
+    directives.insert(Directive::new("authenticated".into(), HashMap::new()));
+    directives.insert(Directive::new("uppercase".into(), upercase_argument));
 
     let return_type = Type::PrimitiveType(PrimitiveType::String);
     let fn_me = FnDefinition::new(name, args, return_type, directives);
