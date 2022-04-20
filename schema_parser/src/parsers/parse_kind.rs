@@ -8,7 +8,7 @@ use crate::types::Kind;
 pub(crate) fn parse_kind(tokenizer: &mut impl Tokenizable) -> Result<Kind, CastleError> {
     let type_name = tokenizer.peek_expect(true)?;
     Ok(Kind {
-        name: tokenizer.expect_identifier(true).map_err(|_| CastleError::Schema("Expected type name".into(), type_name.span))?,
+        name: tokenizer.expect_identifier(true)?,
         generics: parse_generics(tokenizer)?
     })
 }
