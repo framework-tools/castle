@@ -1,9 +1,9 @@
 use castle_error::CastleError;
-use tokenizer::{Tokenizer, TokenKind, Keyword, Tokenizable};
+use tokenizer::{Tokenizer, TokenKind, Keyword, Tokenizable, Punctuator};
 
 use crate::types::SchemaDefinition;
 
-use super::{parse_directives::parse_directives, parse_type_definition::parse_type_definition, parse_enum_definition::parse_enum_definition, parse_directive_definition::parse_directive_definition};
+use super::{parse_directives::parse_directives, parse_type_definition::parse_type_definition, parse_enum_definition::parse_enum_definition, parse_directive_definition::parse_directive_definition, parse_comments::parse_comments};
 
 
 
@@ -20,9 +20,7 @@ pub fn parse_schema(schema: &str) -> Result<SchemaDefinition, CastleError> {
             // we're done
             return Ok(schema_definition)
         };
-
         let directives = parse_directives(&mut tokenizer)?;
-
         match kind {
             TokenKind::Keyword(Keyword::Type) => {
                 let type_ = parse_type_definition(&mut tokenizer, directives)?;

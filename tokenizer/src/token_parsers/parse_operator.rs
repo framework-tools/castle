@@ -28,6 +28,31 @@ pub fn parse_operator(cursor: &mut Cursor<impl Read>, start_pos: Position ) -> R
         b')' => Punctuator::CloseParen,
         b'[' => Punctuator::OpenBracket,
         b']' => Punctuator::CloseBracket,
+        b'/' => {
+            let next = cursor.peek()?.ok_or(CastleError::syntax(
+                "unexpected end of file",
+                start_pos,
+            ))?;
+
+            if next == b'/' {
+                cursor.next_byte()?;
+                loop {
+                    let peek = cursor.peek()?.ok_or(CastleError::syntax(
+                        "unexpected end of file",
+                        start_pos,
+                    ))?;
+                    if peek == b'\n' {
+                        cursor.next_byte()?;
+                        break;
+                    } else {
+                        cursor.next_byte()?;
+                    }
+                }
+                Punctuator::DoubleSlash
+            } else {
+                Punctuator::Slash
+            }
+        }
 
         b',' => Punctuator::Comma,
         b'@' => Punctuator::At,
