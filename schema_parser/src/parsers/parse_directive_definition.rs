@@ -11,9 +11,9 @@ use super::parse_type_definition::parse_input_definitions;
 
 
 pub fn parse_directive_definition(tokenizer: &mut impl Tokenizable) -> Result<DirectiveDefinition, CastleError> {
-    tokenizer.expect_keyword(&Keyword::Directive, true)?;
+    tokenizer.expect_keyword(Keyword::Directive, true)?;
     Ok(DirectiveDefinition{
-        name: tokenizer.expect_identifier(true)?, // 
+        name: tokenizer.expect_identifier(true)?, //
         input_definitions: parse_input_definitions(tokenizer)?,
         locations: parse_directive_locations(tokenizer)?,
     })

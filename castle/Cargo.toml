@@ -6,8 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-parser_and_schema = { path = "../parser_and_schema" }
 serde = { version = "1.0.117", features = ["derive"] }
 rmpv = { version = "1.0.0" }
 castle_error = { path = "../castle_error" }
-uuid = "0.8"
+uuid = "1.0.0"
+schema_parser = { path = "../schema_parser" }
+query_parser = { path = "../query_parser" }

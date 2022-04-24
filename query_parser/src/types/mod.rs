@@ -1,4 +1,4 @@
 
 mod projection;
 
-pub use projection::{Projection, ProjectionKind};
+pub use projection::{Field, FieldKind};

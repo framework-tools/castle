@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use castle_error::CastleError;
 use tokenizer::{
-    extensions::{ExpectIdentifier, ExpectPunctuator},
-    Punctuator, TokenKind, Tokenizable, Token,
+    extensions::{ExpectIdentifier, ExpectPunctuator, IsPunctuator},
+    Punctuator, TokenKind, Tokenizable,
 };
 use crate::{Input, Variant, VariantType};
 
@@ -67,15 +67,19 @@ pub fn parse_map(
     tokenizer.expect_punctuator(opening, true)?;
     let mut inputs = HashMap::new();
     loop {
+        if tokenizer.peek_is_punctuator(closing, true)? {
+            break
+        }
         inputs.insert(
             tokenizer.expect_identifier(true)?,
             expect_colon_and_value(tokenizer)?,
         );
-        if !has_more_fields(tokenizer)? {
-            tokenizer.expect_punctuator(closing, true)?;
-            return Ok(inputs);
+        if !has_separator(tokenizer)? {
+            break
         }
     }
+    tokenizer.expect_punctuator(closing, true)?;
+    Ok(inputs)
 }
 
 // array brackets OPENING value, value CLOSING
@@ -87,12 +91,16 @@ pub fn parse_list(
     let mut inputs_vec: Vec<Input> = Vec::new();
     tokenizer.expect_punctuator(opening, true)?;
     loop {
+        if tokenizer.peek_is_punctuator(closing, true)? {
+            break
+        }
         inputs_vec.push(parse_value(tokenizer)?);
-        if !has_more_fields(tokenizer)? {
-            tokenizer.expect_punctuator(closing, true)?;
-            return Ok(inputs_vec);
+        if !has_separator(tokenizer)? {
+            break
         }
     }
+    tokenizer.expect_punctuator(closing, true)?;
+    return Ok(inputs_vec);
 }
 
 /// has_separator checks and consumes for valid combination of seperators,
@@ -100,10 +108,8 @@ pub fn parse_list(
 ///     returns Ok(false) if there was no seperator
 ///
 /// We expect that multiple new-lines have been already coaleced into a single newline by the
-/// tokenizer.
-///
-/// The ,,
-fn has_separator(tokenizer: &mut impl Tokenizable) -> Result<bool, CastleError> {
+/// tokenizer, so we can just check for a newline.
+pub fn has_separator(tokenizer: &mut impl Tokenizable) -> Result<bool, CastleError> {
     match tokenizer.peek_token_kind(false)? {
         Some(TokenKind::Punctuator(Punctuator::Comma)) => {
             tokenizer.expect_punctuator(Punctuator::Comma, false)?;
@@ -122,34 +128,5 @@ fn has_separator(tokenizer: &mut impl Tokenizable) -> Result<bool, CastleError> 
             _ => return Ok(true),
         }
         _ => return Ok(false),
-    }
-}
-
-pub fn has_more_fields(tokenizer: &mut impl Tokenizable) -> Result<bool, CastleError> {
-    let token = tokenizer.peek_expect(false)?;
-    match token.kind {
-        TokenKind::Punctuator(
-            Punctuator::CloseBlock | Punctuator::CloseBracket | Punctuator::CloseParen | Punctuator::GenericClose,
-        ) => return Ok(false),
-        TokenKind::Punctuator(Punctuator::Comma) => {
-            tokenizer.expect_punctuator(Punctuator::Comma, false)?; // consume the comma
-            match tokenizer.peek_expect(true)?.kind() {
-                TokenKind::Punctuator(
-                    Punctuator::CloseBlock | Punctuator::CloseBracket | Punctuator::CloseParen | Punctuator::GenericClose,
-                ) => return Ok(false), // we don't care if the close is a block or bracket
-                _ => return Ok(true),
-            }
-        }
-        TokenKind::LineTerminator => {
-            tokenizer.next(false)?; // consume the line terminator
-            match tokenizer.peek_expect(true)?.kind() {
-                TokenKind::Punctuator(Punctuator::Comma) => return Ok(true),
-                _ => return Ok(false), // we don't care if the close is a block or bracket
-            }
-        },
-        _ => Err(CastleError::parse(
-            "Expected comma, line terminator or close block",
-            token.span,
-        ))?,
     }
 }

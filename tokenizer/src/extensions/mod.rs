@@ -43,12 +43,12 @@ pub trait ExpectPunctuator: Tokenizable + Sized {
 pub trait ExpectKeyword: Tokenizable + Sized {
     fn expect_keyword(
         &mut self,
-        keyword: &Keyword,
+        keyword: Keyword,
         skip_line_terminators: bool,
     ) -> Result<(), CastleError> {
         let keyword_token = self.expect_next(skip_line_terminators)?;
         match keyword_token.kind {
-            TokenKind::Keyword(ref actual) if actual == keyword => Ok(()),
+            TokenKind::Keyword(actual) if actual == keyword => Ok(()),
             _ => Err(CastleError::parse(
                 format!(
                     "Expected keyword '{:?}', but got '{:?}'",
@@ -109,9 +109,24 @@ pub trait ExpectPrimitive: Tokenizable + Sized {
     }
 }
 
+pub trait IsPunctuator: Tokenizable + Sized {
+    fn peek_is_punctuator(
+        &mut self,
+        expected: Punctuator,
+        skip_line_terminators: bool,
+    ) -> Result<bool, CastleError> {
+        let token = self.peek(skip_line_terminators)?;
+        match token {
+            Some(Token { kind: TokenKind::Punctuator(actual), .. }) if expected == *actual => Ok(true),
+            _ => Ok(false),
+        }
+    }
+}
+
 impl<T: Tokenizable> PeekKeyword for T {}
 impl<T: Tokenizable> ExpectNext for T {}
 impl<T: Tokenizable> ExpectPunctuator for T {}
 impl<T: Tokenizable> ExpectKeyword for T {}
 impl<T: Tokenizable> ExpectIdentifier for T {}
 impl<T: Tokenizable> ExpectPrimitive for T {}
+impl<T: Tokenizable> IsPunctuator for T {}

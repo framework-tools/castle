@@ -36,19 +36,19 @@ use shared_parser::Input;
 ///     }
 /// }
 /// ```
-pub struct Projection {
+pub struct Field {
     pub name: Box<str>,
-    pub inputs: Vec<Input>,
+    pub inputs: HashMap<Box<str>, Input>,
 
     /// Used to rename fields, eg:
     /// `<original_field> as <renamed_field>`
-    pub rename: Option<Box<str>>,
-    pub kind: ProjectionKind,
+    pub(crate) rename: Option<Box<str>>,
+    pub kind: FieldKind,
 }
 
 
-pub enum ProjectionKind {
-    Object(HashMap<Box<str>, Projection>),
-    List(HashMap<Box<str>, Projection>),
+pub enum FieldKind {
+    Object(HashMap<Box<str>, Field>),
+    List(HashMap<Box<str>, Field>),
     Field
 }
