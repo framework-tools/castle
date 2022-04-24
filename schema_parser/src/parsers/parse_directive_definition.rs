@@ -35,9 +35,8 @@ pub fn parse_directive_locations(tokenizer: &mut impl Tokenizable) -> Result<Has
         };
         if let TokenKind::Punctuator(Punctuator::Or) = tokenizer.peek_expect(true)?.kind {
             tokenizer.expect_punctuator(Punctuator::Or, true)?;
-        } else {
-            break;
-        }
+        } 
+        else { break; }
     }
     return Ok(directive_locations)
 }
