@@ -22,7 +22,7 @@ pub fn parse_projection_inner(tokenizer: &mut impl Tokenizable) -> Result<HashMa
 
     loop {
         // peek to check if there is an identifier (EOF is allowed since this can be used for top level projections)
-        if let Some(Token { kind: TokenKind::Identifier(name), .. }) = tokenizer.peek(false)? {
+        if let Some(Token { kind: TokenKind::Identifier(_), .. }) = tokenizer.peek(false)? {
             let field = parse_field(tokenizer)?;
             projections.insert(field.name.clone(), field);
             if !has_separator(tokenizer)? {

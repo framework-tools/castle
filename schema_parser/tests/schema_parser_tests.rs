@@ -1,17 +1,14 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, hash::Hash};
 
-use schema_parser::types::{TypeDefinition, FieldDefinition, Kind};
+use schema_parser::{types::{TypeDefinition, FieldDefinition, Kind, SchemaDefinition}, parsers::parse_schema::parse_schema};
 
 
 #[test]
 fn can_parse_empty_query() {
-    use std::collections::HashMap;
-
-
     let query = "";
-    let expected = HashMap::new();
+    let expected = SchemaDefinition::new();
     let actual = parse_schema(query).unwrap();
-    assert_eq!(expected, actual.schema_types);
+    assert_eq!(expected, actual);
 }
 
 #[test]
@@ -20,31 +17,30 @@ fn can_parse_simple_type() {
     let query = "
         type User {
             id: uuid,
-            name: String,
-            age: Int,
         }";
 
-//example from romeo
-    let types = HashMap::new();
-    types.insert("User".into(), type_definition);
+    let expected = SchemaDefinition {
+        directives: HashMap::new(),
+        enums: HashMap::new(),
+        types: [
+            ("User".into(), TypeDefinition {
+                identifier: "User".into(),
+                directives: vec![],
+                fields: [
+                    ("id".into(), FieldDefinition {
+                        directives: vec![],
+                        input_definitions: HashMap::new(),
+                        return_kind: Kind { name: "uuid".into(), generics: vec![] },
+                        name: "id".into(),
+                    }),
+                ].into(),
+            }),
+        ].into(),
+    };
 
-    let type_definition: TypeDefinition = TypeDefinition { identifier: "User".into(), fields, directives: vec![] };
-
-    let fields: HashMap<Box<str>, FieldDefinition> = HashMap.new();
-    fields.insert("id".into(), FieldDefinition { name: "id".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "uuid".into() , generics: vec![]}, directives: vec![] });
-    fields.insert("name".into(), FieldDefinition { name: "name".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "String".into() , generics: vec![]}, directives: vec![] });
-    fields.insert("age".into(), FieldDefinition { name: "age".into(), input_definitions: HashMap::new(), return_kind: Kind{name: "Int".into() , generics: vec![]}, directives: vec![] });
-
-    let enums = HashMap::new();
-    let directives = HashMap::new();
-
-    let expected = SchemaDefinition::new(
-        types,
-        enums,
-        directives,
-    );
     let actual = parse_schema(query).unwrap();
-    assert_eq!(expected, actual.schema_types);
+
+    assert_eq!(expected, actual);
 }
 
 #[test]
@@ -55,9 +51,6 @@ fn can_parse_simple_type_more_fields_and_no_commas() {
             id: uuid
             name: String
             age: Int
-            is_admin: bool
-            location: String
-            log_in_count: Int
         }";
 
     let types = HashMap::new();

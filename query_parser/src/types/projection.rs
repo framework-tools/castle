@@ -36,6 +36,7 @@ use shared_parser::Input;
 ///     }
 /// }
 /// ```
+#[derive(Debug, PartialEq)]
 pub struct Field {
     pub name: Box<str>,
     pub inputs: HashMap<Box<str>, Input>,
@@ -47,6 +48,7 @@ pub struct Field {
 }
 
 
+#[derive(Debug, PartialEq)]
 pub enum FieldKind {
     Object(HashMap<Box<str>, Field>),
     List(HashMap<Box<str>, Field>),

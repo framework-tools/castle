@@ -1,129 +1,221 @@
 
 use std::collections::HashMap;
 
-use shared::castle_error::CastleError;
-
-
-pub fn insert_each_field_into_fields(vec_of_fields: Vec<(Box<str>, Want)>) -> HashMap<Box<str>, Want> {
-    let mut fields = HashMap::new();
-    for (field_name, field) in vec_of_fields {
-        fields.insert(field_name.clone(), field);
-    }
-    return fields
-}
+use castle_error::CastleError;
+use query_parser::{Field, FieldKind, parse_query};
 
 #[test]
 fn can_parse_empty_query() {
-    use parser_and_schema::parsers::query_parser::parse_query::parse_query;
-
     let query = "";
     let expected = HashMap::new();
     let actual = parse_query(query).unwrap();
-assert_eq!(expected, actual.wants);
+    assert_eq!(expected, actual);
 }
+
+type Query = HashMap<Box<str>, Field>;
 
 #[test]
 fn can_parse_single_field() -> Result<(), CastleError> {
     let query = "first_name";
 
-    let mut expected: HashMap<Box<str>, Want> = HashMap::new();
-    expected.insert("first_name".into(), Want::new_single_field(HashMap::new()));
+    let expected = [
+        ("first_name".into(), Field {
+            name: "first_name".into(),
+            inputs: HashMap::new(),
+            rename: None,
+            kind: FieldKind::Field,
+        }),
+    ].into_iter().collect::<Query>();
 
     let actual = parse_query(query)?;
-assert_eq!(expected, actual.wants);
-    return Ok(())
-}
+    assert_eq!(expected, actual);
 
-#[test]
-fn can_parse_two_fields() -> Result<(), CastleError> {
-    let query = "first_name() last_name()";
-
-    let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
-        ("first_name".into(), Want::new_single_field(HashMap::new())),
-        ("last_name".into(), Want::new_single_field(HashMap::new())),
-    ]);
-
-    let actual = parse_query(query)?;
-assert_eq!(expected, actual.wants);
-    return Ok(())
-}
-
-#[test]
-fn can_parse_two_fields_different_lines() -> Result<(), CastleError> {
-    let query = "
-    first_name()
-    last_name()
-    ";
-
-    let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
-        ("first_name".into(), Want::new_single_field(HashMap::new())),
-        ("last_name".into(), Want::new_single_field(HashMap::new())),
-    ]);
-
-    let actual = parse_query(query)?;
-    assert_eq!(expected, actual.wants);
-    return Ok(())
-}
-
-#[test]
-fn can_parse_four_fields_different_lines() -> Result<(), CastleError> {
-    let query = "
-    first_name()
-    last_name()
-    time()
-    email()
-    ";
-
-    let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
-        ("first_name".into(), Want::new_single_field(HashMap::new())),
-        ("last_name".into(), Want::new_single_field(HashMap::new())),
-        ("time".into(), Want::new_single_field(HashMap::new())),
-        ("email".into(), Want::new_single_field(HashMap::new())),
-    ]);
-
-    let actual = parse_query(query)?;
-    assert_eq!(expected, actual.wants);
     Ok(())
 }
 
 #[test]
-fn can_parse_object_projection_with_single_field() -> Result<(), CastleError> {
-    let query = "me() {
+fn can_parse_two_fields_with_empty_args() -> Result<(), CastleError> {
+    let query = "
+    first_name()
+    last_name
+    email()
+    ";
+
+    let expected = [
+        ("first_name".into(), Field {
+            name: "first_name".into(),
+            inputs: HashMap::new(),
+            rename: None,
+            kind: FieldKind::Field,
+        }),
+        ("last_name".into(), Field {
+            name: "last_name".into(),
+            inputs: HashMap::new(),
+            rename: None,
+            kind: FieldKind::Field,
+        }),
+        ("email".into(), Field {
+            name: "email".into(),
+            inputs: HashMap::new(),
+            rename: None,
+            kind: FieldKind::Field,
+        }),
+    ].into_iter().collect::<Query>();
+
+    let actual = parse_query(query)?;
+    assert_eq!(expected, actual);
+
+    Ok(())
+}
+
+#[test]
+fn can_parse_object_projection() -> Result<(), CastleError> {
+    let query = "me {
         first_name
     }";
-    
-    let fields = insert_each_field_into_fields(vec![
-        ("first_name".into(), Want::new_single_field(HashMap::new())),
-    ]);
 
-    let expected = insert_each_field_into_fields(vec![
-        ("me".into(), Want::new_object_projection(fields, HashMap::new())),
-    ]);
-    
+    let expected = [
+        ("me".into(), Field {
+            name: "me".into(),
+            inputs: HashMap::new(),
+            rename: None,
+            kind: FieldKind::Object([
+                ("first_name".into(), Field {
+                    name: "first_name".into(),
+                    inputs: HashMap::new(),
+                    rename: None,
+                    kind: FieldKind::Field,
+                }),
+            ].into_iter().collect::<Query>()),
+        }),
+    ].into_iter().collect::<Query>();
     let actual = parse_query(query)?;
-
-    assert_eq!(expected, actual.wants);
+    assert_eq!(expected, actual);
     return Ok(())
 }
 
 #[test]
-fn can_parse_complex_object_projection_with_two_fields() {
+fn can_parse_object_projection_with_two_fields() -> Result<(), CastleError> {
     let query = "me() {
         first_name,
         last_name
     }";
 
-        let fields = insert_each_field_into_fields(vec![
-            ("first_name".into(), Want::new_single_field(HashMap::new())),
-            ("last_name".into(), Want::new_single_field(HashMap::new())),
-        ]);
+    let expected = [
+        ("me".into(), Field {
+            name: "me".into(),
+            inputs: HashMap::new(),
+            rename: None,
+            kind: FieldKind::Object([
+                ("first_name".into(), Field {
+                    name: "first_name".into(),
+                    inputs: HashMap::new(),
+                    rename: None,
+                    kind: FieldKind::Field,
+                }),
+                ("last_name".into(), Field {
+                    name: "last_name".into(),
+                    inputs: HashMap::new(),
+                    rename: None,
+                    kind: FieldKind::Field,
+                }),
+            ].into_iter().collect::<Query>()),
+        }),
+    ].into_iter().collect::<Query>();
 
-        let expected = insert_each_field_into_fields(vec![
-            ("me".into(), Want::new_object_projection(fields, HashMap::new())),
-        ]);
+    let actual = parse_query(query)?;
+    assert_eq!(expected, actual);
 
-        let actual = parse_query(query).unwrap();
-        assert_eq!(expected, actual.wants);
+    Ok(())
+}
+
+fn query_with_two_separators_fails() -> Result<(), CastleError> {
+    let query = "me() {
+        first_name,,
+        last_name
+    }";
+
+    let actual = parse_query(query).expect_err("Expected error");
+
+    Ok(())
+}
+
+fn query_with_trailing_comma_succeeds() -> Result<(), CastleError> {
+    let query = "me() {
+        first_name,
+        last_name,
+    }";
+
+    let expected = [
+        ("me".into(), Field {
+            name: "me".into(),
+            inputs: HashMap::new(),
+            rename: None,
+            kind: FieldKind::Object([
+                ("first_name".into(), Field {
+                    name: "first_name".into(),
+                    inputs: HashMap::new(),
+                    rename: None,
+                    kind: FieldKind::Field,
+                }),
+                ("last_name".into(), Field {
+                    name: "last_name".into(),
+                    inputs: HashMap::new(),
+                    rename: None,
+                    kind: FieldKind::Field,
+                }),
+            ].into_iter().collect::<Query>()),
+        }),
+    ].into_iter().collect::<Query>();
+
+    let actual = parse_query(query)?;
+    assert_eq!(expected, actual);
+
+    Ok(())
+}
+
+fn query_without_trailing_comma_succeeds() -> Result<(), CastleError> {
+    let query = "me() {
+        first_name
+        last_name
+    }";
+
+    let expected = [
+        ("me".into(), Field {
+            name: "me".into(),
+            inputs: HashMap::new(),
+            rename: None,
+            kind: FieldKind::Object([
+                ("first_name".into(), Field {
+                    name: "first_name".into(),
+                    inputs: HashMap::new(),
+                    rename: None,
+                    kind: FieldKind::Field,
+                }),
+                ("last_name".into(), Field {
+                    name: "last_name".into(),
+                    inputs: HashMap::new(),
+                    rename: None,
+                    kind: FieldKind::Field,
+                }),
+            ].into_iter().collect::<Query>()),
+        }),
+    ].into_iter().collect::<Query>();
+
+    let actual = parse_query(query)?;
+    assert_eq!(expected, actual);
+
+    Ok(())
+}
+
+fn query_with_missing_closing_bracket_fails() -> Result<(), CastleError> {
+    let query = "me() {
+        first_name
+    ";
+
+    let actual = parse_query(query).expect_err("Expected error");
+
+    Ok(())
 }
 
 #[test]
@@ -133,13 +225,13 @@ fn can_parse_complex_object_projection_with_three_fields() {
         last_name
         role
     }";
-    
+
         let fields = insert_each_field_into_fields(vec![
             ("first_name".into(), Want::new_single_field(HashMap::new())),
             ("last_name".into(), Want::new_single_field(HashMap::new())),
             ("role".into(), Want::new_single_field(HashMap::new())),
         ]);
-    
+
         let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
             ("me".into(), Want::new_object_projection(fields, HashMap::new())),
         ]);
@@ -156,7 +248,7 @@ fn can_parse_object_and_single_field() {
         }
         lets_gooo()
         ";
-    
+
         let fields = insert_each_field_into_fields(vec![
             ("lol".into(), Want::new_single_field(HashMap::new())),
         ]);
@@ -182,7 +274,7 @@ fn can_parse_two_objects_and_two_fields() {
         }
         location
         device";
-    
+
         let me_fields = insert_each_field_into_fields(vec![
             ("first_name".into(), Want::new_single_field(HashMap::new())),
         ]);
@@ -191,7 +283,7 @@ fn can_parse_two_objects_and_two_fields() {
             ("username".into(), Want::new_single_field(HashMap::new())),
             ("log_in_count".into(), Want::new_single_field(HashMap::new())),
         ]);
-        
+
         let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
             ("me".into(), Want::new_object_projection(me_fields, HashMap::new())),
             ("user".into(), Want::new_object_projection(user_fields, HashMap::new())),
@@ -355,10 +447,10 @@ fn can_parse_object_projection_with_match() {
             }
         }
     ";
-    
+
     let mut profile_picture_argument = HashMap::new();
     profile_picture_argument.insert("size".into(), PrimitiveValue::UInt(48));
-    
+
     let svg_fields = insert_each_field_into_fields(vec![
         ("url".into(), Want::new_single_field(HashMap::new())),
         ("size".into(), Want::new_single_field(HashMap::new())),
@@ -435,7 +527,7 @@ fn can_parse_object_projection_with_match_inside_match() {
     let square_fields = insert_each_field_into_fields(vec![
         ("side".into(), Want::new_single_field(HashMap::new())),
     ]);
-    
+
     let size_match = vec![
         MatchArm::new(
             EnumValue { identifier: "Size::Rectangle".into(), enum_parent: "Size".into(), variant: "Rectangle".into(), data_type: EnumDataType::EnumUnit },
@@ -490,7 +582,7 @@ fn trying_to_break_test_v1() {
         (
     }
     ";
-    
+
     let answer = parse_query(query).is_err();
     assert!(answer);
 }
@@ -504,7 +596,7 @@ fn trying_to_break_test_v2() {
         }
     }
     ";
-    
+
     let answer = parse_query(query).is_err();
     assert!(answer);
 }
@@ -521,7 +613,7 @@ fn trying_to_break_test_v3() {
         }
     }
     ";
-    
+
     let answer = parse_query(query).is_err();
     assert!(answer);
 }
