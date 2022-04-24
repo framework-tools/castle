@@ -1,4 +1,6 @@
+use std::collections::HashMap;
 
+use shared_parser::Input;
 
 /// The query
 ///
@@ -15,7 +17,7 @@
 /// }
 /// ```
 ///
-/// The returned json
+/// The returned json in theory should look like this:
 ///
 /// ```json
 /// {
@@ -34,17 +36,18 @@
 ///     }
 /// }
 /// ```
-struct Projection {
+pub struct Projection {
     pub name: Box<str>,
     pub inputs: Vec<Input>,
 
+    /// Used to rename fields, eg:
     /// `<original_field> as <renamed_field>`
     pub rename: Option<Box<str>>,
     pub kind: ProjectionKind,
 }
 
 
-enum ProjectionKind {
+pub enum ProjectionKind {
     Object(HashMap<Box<str>, Projection>),
     List(HashMap<Box<str>, Projection>),
     Field

@@ -1,7 +1,5 @@
 #[derive(PartialEq, Clone, Copy, Debug)]
 pub enum Punctuator {
-
-
     Default, // = - may be used for default value
     Or, // |
     Neg, // -
@@ -18,8 +16,6 @@ pub enum Punctuator {
     Spread, // ...
     At, // @ - Used for directives
     DoubleColon, // ::
-    Slash, // "/"
-    DoubleSlash, // '//'
 
     // Brackets, Parenthesis, Blocks
     OpenBlock, // {
@@ -47,8 +43,6 @@ impl Punctuator {
             "..." => Some(Punctuator::Spread),
             "@" => Some(Punctuator::At),
             "::" => Some(Punctuator::DoubleColon),
-            "//" => Some(Punctuator::DoubleSlash),
-            "/" => Some(Punctuator::Slash),
 
             "{" => Some(Punctuator::OpenBlock),
             "}" => Some(Punctuator::CloseBlock),

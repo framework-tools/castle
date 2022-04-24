@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 castle_error = { path = "../castle_error" }
 tokenizer = { path = "../tokenizer" }
+shared_parser = { path = "../shared_parser" }
