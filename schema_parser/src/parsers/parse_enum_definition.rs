@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use castle_error::CastleError;
-use shared_parser::parse_inputs::has_more_fields;
-use tokenizer::{Tokenizable, Punctuator, Token, TokenKind, extensions::{ExpectPunctuator, ExpectIdentifier}};
+use shared_parser::parse_inputs::has_separator;
+use tokenizer::{Tokenizable, Punctuator, TokenKind, extensions::{ExpectPunctuator, ExpectIdentifier, IsPunctuator}};
 
 use crate::types::{Directive, EnumDefinition, VariantDefinition, VariantKindDefinition, Kind};
 
@@ -23,14 +23,16 @@ fn parse_enum_variants(tokenizer: &mut impl Tokenizable) -> Result<Vec<VariantDe
     let mut values = Vec::new();
     tokenizer.expect_punctuator(Punctuator::OpenBlock, true)?;
     loop {
-        if let Token { kind: TokenKind::Punctuator(Punctuator::CloseBlock), ..} = tokenizer.peek_expect(true)? {
-            tokenizer.expect_punctuator(Punctuator::CloseBlock, true)?;
-            return Ok(values);
+        if tokenizer.peek_is_punctuator(Punctuator::CloseBlock, true)? {
+            break
         }
-        if has_more_fields(tokenizer)? {
         values.push(parse_variant_definition(tokenizer)?);
+        if !has_separator(tokenizer)? {
+            break
         }
     }
+    tokenizer.expect_punctuator(Punctuator::CloseBlock, true)?;
+    Ok(values)
 }
 
 fn parse_variant_definition(tokenizer: &mut impl Tokenizable) -> Result<VariantDefinition, CastleError> {
@@ -66,15 +68,19 @@ pub fn parse_map(
     tokenizer.expect_punctuator(opening, true)?;
     let mut inputs = HashMap::new();
     loop {
+        if tokenizer.peek_is_punctuator(closing, true)? {
+            break
+        }
         inputs.insert(
             tokenizer.expect_identifier(true)?,
             expect_colon_and_kind(tokenizer)?,
         );
-        if !has_more_fields(tokenizer)? {
-            tokenizer.expect_punctuator(closing, true)?;
-            return Ok(inputs);
+        if !has_separator(tokenizer)? {
+            break
         }
     }
+    tokenizer.expect_punctuator(closing, true)?;
+    Ok(inputs)
 }
 
 fn expect_colon_and_kind(tokenizer: &mut impl Tokenizable) -> Result<Kind, CastleError> {
@@ -90,10 +96,14 @@ pub fn parse_tuple(
     let mut inputs_vec: Vec<Kind> = Vec::new();
     tokenizer.expect_punctuator(opening, true)?;
     loop {
+        if tokenizer.peek_is_punctuator(closing, true)? {
+            break
+        }
         inputs_vec.push(parse_kind(tokenizer)?);
-        if !has_more_fields(tokenizer)? {
-            tokenizer.expect_punctuator(closing, true)?;
-            return Ok(inputs_vec);
+        if !has_separator(tokenizer)? {
+            break
         }
     }
+    tokenizer.expect_punctuator(closing, true)?;
+    Ok(inputs_vec)
 }

@@ -1,6 +1,6 @@
 use castle_error::CastleError;
-use shared_parser::parse_inputs::has_more_fields;
-use tokenizer::{Tokenizable, TokenKind, extensions::{ExpectIdentifier, ExpectPunctuator}, Punctuator};
+use shared_parser::parse_inputs::has_separator;
+use tokenizer::{Tokenizable, TokenKind, extensions::{ExpectIdentifier, ExpectPunctuator, IsPunctuator}, Punctuator, Token};
 
 use crate::types::Kind;
 
@@ -17,21 +17,27 @@ pub(crate) fn parse_kind(tokenizer: &mut impl Tokenizable) -> Result<Kind, Castl
 /// we have to check if it is a punctuator
 pub(crate) fn parse_generics(tokenizer: &mut impl Tokenizable) -> Result<Vec<Kind>, CastleError> {
     let mut generics = Vec::new();
-    let token = tokenizer.peek_expect(true)?;
-    match token.kind {
+    let Token { kind, span } = tokenizer.peek_expect(true)?;
+    let span = span.clone();
+    match kind {
         TokenKind::Punctuator(Punctuator::GenericOpen) => {
             tokenizer.expect_punctuator(Punctuator::GenericOpen, true)?;
             loop {
-                if !has_more_fields(tokenizer)? {
-                    let token = tokenizer.peek_expect(true)?;
-                    if generics.is_empty() {
-                        return Err(CastleError::Schema("provided type with empty generics".into(), token.span));
-                    }
-                    tokenizer.expect_punctuator(Punctuator::GenericClose, true)?;
-                    break Ok(generics);
+                if tokenizer.peek_is_punctuator(Punctuator::GenericClose, true)? {
+                    break
                 }
                 generics.push(parse_kind(tokenizer)?);
+                if !has_separator(tokenizer)? {
+                    break
+                }
             }
+
+            if generics.is_empty() {
+                return Err(CastleError::Schema("Generics <T> need at least one type argument".into(), span));
+            }
+
+            tokenizer.expect_punctuator(Punctuator::GenericClose, true)?;
+            Ok(generics)
         },
         _ => Ok(generics),
     }

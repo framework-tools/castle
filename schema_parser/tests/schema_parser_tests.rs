@@ -25,6 +25,8 @@ fn can_parse_simple_type() {
         }";
 
 //example from romeo
+    let types = HashMap::new();
+    types.insert("User".into(), type_definition);
 
 
     let fields: HashMap<Box<str>, FieldDefinition> = HashMap::new();
@@ -100,7 +102,7 @@ fn can_parse_two_types() {
             location: String,
             log_in_count: Int
         }
-        
+
         type Organization {
             id: uuid,
             name: String,
@@ -156,7 +158,7 @@ fn can_parse_two_types_with_vec_type() {
             location: String,
             log_in_count: Int
         }
-        
+
         type Organization {
             id: uuid,
             name: String,
@@ -321,14 +323,14 @@ fn can_parse_enum_schema_with_values() {
             location: String,
             log_in_count: Int
         }
-        
+
         type Organization {
             id: uuid,
             name: String,
             industries: Vec<String>,
             users: Vec<User>
         }
-        
+
         enum FrameworkTypes {
             ProfilePic(url: String),
             User(user_type: User),
@@ -344,7 +346,7 @@ fn can_parse_enum_schema_with_values() {
         ("location".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
         ("log_in_count".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
     ]);
-    
+
     let organization_fields: HashMap<Box<str>, SchemaField> = create_type_fields_for_tests(vec![
         ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
         ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
@@ -362,13 +364,13 @@ fn can_parse_enum_schema_with_values() {
 
     let framework_types_enum = create_enum_from_vec("FrameworkTypes".into(), vec![
         ("ProfilePic".into(), EnumVariant::new("ProfilePic".into(), EnumDataType::EnumTuple(vec![
-            ArgumentOrTuple::IdentifierAndType(profile_pic_args) 
+            ArgumentOrTuple::IdentifierAndType(profile_pic_args)
         ]), Vec::new())),
         ("User".into(), EnumVariant::new("User".into(), EnumDataType::EnumTuple(vec![
-            ArgumentOrTuple::IdentifierAndType(user_args) 
+            ArgumentOrTuple::IdentifierAndType(user_args)
         ]), Vec::new())),
         ("Organization".into(), EnumVariant::new("Organization".into(), EnumDataType::EnumTuple(vec![
-            ArgumentOrTuple::IdentifierAndType(organization_args) 
+            ArgumentOrTuple::IdentifierAndType(organization_args)
         ]), Vec::new())),
     ]);
 
@@ -381,7 +383,7 @@ fn can_parse_enum_schema_with_values() {
         enums,
         directives: HashMap::new(),
         functions: HashMap::new(),
-        
+
     };
 
     let actual = parse_schema(query).unwrap();
@@ -490,7 +492,7 @@ fn can_parse_function_with_args_and_return_type(){
     let fn_get_user = FnDefinition::new(name, args, return_type, vec![]);
 
 
-    let mut expected_functions: HashMap<Box<str>, FnDefinition> = HashMap::new();   
+    let mut expected_functions: HashMap<Box<str>, FnDefinition> = HashMap::new();
     expected_functions.insert("do_nothing".into(), fn_do_nothing);
     expected_functions.insert("get_user".into(), fn_get_user);
 
@@ -553,7 +555,7 @@ fn can_parse_directives_on_fields(){
             is_admin: bool @authenticated(token: String) @is_admin(role: DoesntExist),
         }
     ";
-    
+
     let token_arg = Type::PrimitiveType(PrimitiveType::String);
     let mut authenicated_args = HashMap::new();
     authenicated_args.insert("token".into(), token_arg);
@@ -705,8 +707,8 @@ fn test_vec_inside_option_type_works() -> Result<(), CastleError> {
 
     let actual = parse_schema(schema)?;
     let mut fields: HashMap<Box<str>, SchemaField> = HashMap::new();
-    fields.insert("pets".into(), SchemaField::new("pets".into(), 
-    Type::OptionType(OptionType { inner_type: Type::VecType(VecType { inner_type: Type::PrimitiveType(PrimitiveType::String).into() }).into()}).into(), 
+    fields.insert("pets".into(), SchemaField::new("pets".into(),
+    Type::OptionType(OptionType { inner_type: Type::VecType(VecType { inner_type: Type::PrimitiveType(PrimitiveType::String).into() }).into()}).into(),
     Vec::new()));
 
     let mut expected_types: HashMap<Box<str>, SchemaType> = HashMap::new();
@@ -725,8 +727,8 @@ fn test_option_inside_vec_inside() -> Result<(), CastleError> {
 
     let actual = parse_schema(schema)?;
     let mut fields: HashMap<Box<str>, SchemaField> = HashMap::new();
-    fields.insert("pets".into(), SchemaField::new("pets".into(), 
-    Type::VecType(VecType { inner_type: Type::OptionType(OptionType { inner_type: Type::PrimitiveType(PrimitiveType::String).into() }).into()}).into(), 
+    fields.insert("pets".into(), SchemaField::new("pets".into(),
+    Type::VecType(VecType { inner_type: Type::OptionType(OptionType { inner_type: Type::PrimitiveType(PrimitiveType::String).into() }).into()}).into(),
     Vec::new()));
 
     let mut expected_types: HashMap<Box<str>, SchemaType> = HashMap::new();
@@ -745,8 +747,8 @@ fn test_option_inside_hashmap() -> Result<(), CastleError> {
 
     let actual = parse_schema(schema)?;
     let mut fields: HashMap<Box<str>, SchemaField> = HashMap::new();
-    fields.insert("pets".into(), SchemaField::new("pets".into(), 
-    Type::HashMapType(Type::OptionType(OptionType { inner_type: Type::PrimitiveType(PrimitiveType::String).into() }).into()).into(), 
+    fields.insert("pets".into(), SchemaField::new("pets".into(),
+    Type::HashMapType(Type::OptionType(OptionType { inner_type: Type::PrimitiveType(PrimitiveType::String).into() }).into()).into(),
     Vec::new()));
 
     let mut expected_types: HashMap<Box<str>, SchemaType> = HashMap::new();
@@ -760,7 +762,7 @@ fn test_option_inside_hashmap() -> Result<(), CastleError> {
 /// - Need to update OnDirectiveValue to also include resolver value
 #[test]
 fn can_parse_directives_on_resolver_definitions() -> Result<(), CastleError> {
-    
+
     let schema = "
         fn me() -> String @authenticated @uppercase(amount: Int)
         directive @uppercase on FIELD
@@ -802,7 +804,7 @@ fn can_parse_directives_on_resolver_definitions() -> Result<(), CastleError> {
 
 /// This should pass the same as fn me() -> ()
 #[test]
-fn can_parse_resolver_with_default_return_type() -> Result<(), CastleError> {    
+fn can_parse_resolver_with_default_return_type() -> Result<(), CastleError> {
     let schema = "
         fn me() -> String
     ";
