@@ -21,10 +21,10 @@ pub(crate) fn parse_enum_definition(tokenizer: &mut impl Tokenizable, directives
 
 fn parse_enum_variants(tokenizer: &mut impl Tokenizable) -> Result<Vec<VariantDefinition>, CastleError> {
     let mut values = Vec::new();
-    tokenizer.expect_punctuator(Punctuator::OpenBlock, true);
+    tokenizer.expect_punctuator(Punctuator::OpenBlock, true)?;
     loop {
         if let Token { kind: TokenKind::Punctuator(Punctuator::CloseBlock), ..} = tokenizer.peek_expect(true)? {
-            tokenizer.expect_punctuator(Punctuator::CloseBlock, true);
+            tokenizer.expect_punctuator(Punctuator::CloseBlock, true)?;
             return Ok(values);
         }
         if has_more_fields(tokenizer)? {

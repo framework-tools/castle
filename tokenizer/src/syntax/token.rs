@@ -16,7 +16,6 @@ pub enum TokenKind {
     Identifier(Box<str>),
     Punctuator(Punctuator),
     LineTerminator,
-    Comment,
     Keyword(Keyword),
 }
 

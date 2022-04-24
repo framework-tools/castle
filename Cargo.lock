@@ -110,6 +110,7 @@ name = "query_parser"
 version = "0.1.0"
 dependencies = [
  "castle_error",
+ "shared_parser",
  "tokenizer",
 ]
 

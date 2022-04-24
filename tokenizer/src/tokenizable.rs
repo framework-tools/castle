@@ -2,7 +2,7 @@
 
 use castle_error::CastleError;
 
-use crate::Token;
+use crate::{Token, TokenKind};
 pub trait Tokenizable {
     fn next(&mut self, skip_line_terminators: bool) -> Result<Option<Token>, CastleError>;
     fn peek_n(
@@ -18,6 +18,13 @@ pub trait Tokenizable {
         match self.peek(skip_line_terminators)? {
             Some(token) => Ok(token),
             None => Err(CastleError::AbruptEOF("Expected token but got EOF".into())),
+        }
+    }
+
+    fn peek_token_kind(&mut self, skip_line_terminators: bool) -> Result<Option<&TokenKind>, CastleError> {
+        match self.peek(skip_line_terminators)? {
+            Some(token) => Ok(Some(&token.kind)),
+            None => Ok(None),
         }
     }
 }
