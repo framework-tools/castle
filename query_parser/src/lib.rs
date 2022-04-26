@@ -11,5 +11,6 @@ pub use types::{Field, FieldKind};
 pub fn parse_query(query: &str) -> Result<HashMap<Box<str>, Field>, CastleError> {
     let bytes = query.as_bytes();
     let mut tokenizer = Tokenizer::new(bytes);
-    parse_projection_inner(&mut tokenizer)
+    let map = parse_projection_inner(&mut tokenizer)?;
+    Ok(map)
 }

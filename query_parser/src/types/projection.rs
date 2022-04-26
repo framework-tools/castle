@@ -43,7 +43,7 @@ pub struct Field {
 
     /// Used to rename fields, eg:
     /// `<original_field> as <renamed_field>`
-    pub(crate) rename: Option<Box<str>>,
+    pub rename: Option<Box<str>>,
     pub kind: FieldKind,
 }
 

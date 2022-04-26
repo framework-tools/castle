@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use castle_error::CastleError;
 use tokenizer::{
-    extensions::{ExpectIdentifier, ExpectPunctuator, IsPunctuator},
+    extensions::{ExpectIdentifier, ExpectPunctuator, IsPunctuator, ExpectPrimitive},
     Punctuator, TokenKind, Tokenizable,
 };
 use crate::{Input, Variant, VariantType};
@@ -17,7 +17,7 @@ fn parse_value(tokenizer: &mut impl Tokenizable) -> Result<Input, CastleError> {
     let value = tokenizer.peek_expect(true)?;
     Ok(match &value.kind {
         TokenKind::Identifier(_) => Input::Variant(parse_variant(tokenizer)?), // ident // this is for tuples
-        TokenKind::Primitive(value) => Input::Primitive(value.clone()),
+        TokenKind::Primitive(_) => Input::Primitive(tokenizer.expect_primitive(true)?),
         TokenKind::Punctuator(Punctuator::OpenBlock) => Input::Map(parse_map(
             tokenizer,
             Punctuator::OpenBlock,
@@ -116,7 +116,7 @@ pub fn has_separator(tokenizer: &mut impl Tokenizable) -> Result<bool, CastleErr
             tokenizer.peek(true)?; // peek and skip any line terminators
             return Ok(true);
         },
-        Some(TokenKind::LineTerminator) => match tokenizer.peek_token_kind(false)? {
+        Some(TokenKind::LineTerminator) => match tokenizer.peek_token_kind(true)? {
             // handle the case where there is a newline followed by a comma
             Some(TokenKind::Punctuator(Punctuator::Comma)) => {
                 tokenizer.expect_punctuator(Punctuator::Comma, true)?;
