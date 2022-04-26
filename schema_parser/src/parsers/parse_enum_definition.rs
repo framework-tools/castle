@@ -13,29 +13,30 @@ use super::{parse_directives::parse_directives, parse_kind::parse_kind};
 
 pub(crate) fn parse_enum_definition(tokenizer: &mut impl Tokenizable, directives: Vec<Directive>) -> Result<EnumDefinition, CastleError> {
     Ok(EnumDefinition{
-        name: tokenizer.expect_identifier(true)?,
+        ident: tokenizer.expect_identifier(true)?,
         variants: parse_enum_variants(tokenizer)?,
         directives,
     })
 }
 
-fn parse_enum_variants(tokenizer: &mut impl Tokenizable) -> Result<Vec<VariantDefinition>, CastleError> {
-    let mut values = Vec::new();
+fn parse_enum_variants(tokenizer: &mut impl Tokenizable) -> Result<HashMap<Box<str>, VariantDefinition>, CastleError> {
+    let mut map = HashMap::new();
     tokenizer.expect_punctuator(Punctuator::OpenBlock, true)?;
     loop {
         if tokenizer.peek_is_punctuator(Punctuator::CloseBlock, true)? {
             break
         }
-        values.push(parse_variant_definition(tokenizer)?);
+        let variant_def = parse_variant_definition(tokenizer)?;
+        map.insert(variant_def.ident.clone(), variant_def);
         consume_optional_separator(tokenizer)?;
     }
     tokenizer.expect_punctuator(Punctuator::CloseBlock, true)?;
-    Ok(values)
+    Ok(map)
 }
 
 fn parse_variant_definition(tokenizer: &mut impl Tokenizable) -> Result<VariantDefinition, CastleError> {
     Ok(VariantDefinition{
-        name: tokenizer.expect_identifier(true)?,
+        ident: tokenizer.expect_identifier(true)?,
         kind: parse_variant_kind_definition(tokenizer)?,
         directives: parse_directives(tokenizer)?,
     })

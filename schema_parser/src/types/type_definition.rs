@@ -13,7 +13,7 @@ use super::{field_definition::FieldDefinition, directive_definitions::Directive}
 /// ```
 #[derive(Debug, PartialEq)]
 pub struct TypeDefinition {
-    pub identifier: Box<str>,
+    pub ident: Box<str>,
     pub fields: HashMap<Box<str>, FieldDefinition>,
     pub directives: Vec<Directive>,
 }

@@ -1,3 +1,13 @@
-pub mod self_validation_schema;
-pub mod validate_query_with_schema;
-pub mod validate_backend_fns_with_schema;
+pub(crate) mod validate_schema;
+pub(crate) mod validate_query;
+
+fn join_paths(path: &[&str]) -> String {
+    let mut joined = String::new();
+    for (i, path) in path.iter().enumerate() {
+        if i > 0 {
+            joined.push('.');
+        }
+        joined.push_str(path);
+    }
+    joined
+}

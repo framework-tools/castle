@@ -27,11 +27,11 @@ pub fn parse_schema(schema: &str) -> Result<SchemaDefinition, CastleError> {
                 let type_ = parse_type_definition(&mut tokenizer, directives)?;
                 schema_definition
                     .types
-                    .insert(type_.identifier.clone(), type_);
+                    .insert(type_.ident.clone(), type_);
             }
             TokenKind::Keyword(Keyword::Enum) => {
                 let enum_ = parse_enum_definition(&mut tokenizer, directives)?;
-                schema_definition.enums.insert(enum_.name.clone(), enum_);
+                schema_definition.enums.insert(enum_.ident.clone(), enum_);
             }
             TokenKind::Keyword(Keyword::Directive) => {
                 if directives.len() != 0 {

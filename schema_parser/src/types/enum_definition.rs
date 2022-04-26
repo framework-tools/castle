@@ -6,14 +6,14 @@ use super::{Directive, Kind};
 
 #[derive(Debug, PartialEq)]
 pub struct EnumDefinition {
-    pub name: Box<str>,
-    pub variants: Vec<VariantDefinition>,
+    pub ident: Box<str>,
+    pub variants: HashMap<Box<str>, VariantDefinition>,
     pub directives: Vec<Directive>,
 }
 
 #[derive(Debug, PartialEq)]
 pub struct VariantDefinition {
-    pub name: Box<str>,
+    pub ident: Box<str>,
     pub kind: VariantKindDefinition,
     pub directives: Vec<Directive>,
 }

@@ -11,7 +11,7 @@ use super::{parse_directives::parse_directives, parse_kind::parse_kind};
 
 pub(crate) fn parse_type_definition(tokenizer: &mut impl Tokenizable, directives: Vec<Directive>) -> Result<TypeDefinition, CastleError> {
     Ok(TypeDefinition{
-        identifier: tokenizer.expect_identifier(true)?,
+        ident: tokenizer.expect_identifier(true)?,
         fields: parse_fields(tokenizer)?,
         directives,
     })

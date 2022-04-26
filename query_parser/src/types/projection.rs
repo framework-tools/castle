@@ -2,6 +2,9 @@ use std::collections::HashMap;
 
 use shared_parser::Input;
 
+pub type Inputs = HashMap<Box<str>, Input>;
+pub type Projection = HashMap<Box<str>, Field>;
+
 /// The query
 ///
 /// ```gql
@@ -39,7 +42,7 @@ use shared_parser::Input;
 #[derive(Debug, PartialEq)]
 pub struct Field {
     pub name: Box<str>,
-    pub inputs: HashMap<Box<str>, Input>,
+    pub inputs: Inputs,
 
     /// Used to rename fields, eg:
     /// `<original_field> as <renamed_field>`
@@ -48,9 +51,10 @@ pub struct Field {
 }
 
 
+
 #[derive(Debug, PartialEq)]
 pub enum FieldKind {
-    Object(HashMap<Box<str>, Field>),
-    List(HashMap<Box<str>, Field>),
+    Object(Projection),
+    List(Projection),
     Field
 }
