@@ -1,9 +1,9 @@
-use castle::validation::self_validation_schema::self_validate_schema;
+use castle::validation::validate_schema::self_validate_schema;
 use parser_and_schema::{parsers::schema_parser::{parse_schema::parse_schema, schema_tests_utils::{create_type_fields_for_tests, create_schema_types_for_test, create_enum_from_vec}, types::{parse_type::Type, primitive_type::PrimitiveType, schema_field::SchemaField, schema_type::SchemaType}}, ast::syntax_definitions::{enum_definition::{EnumDefinition, EnumVariant, EnumDataType}, schema_definition::SchemaDefinition}};
 use shared::castle_error::CastleError;
 
 /// It needs to check every type, enum etc that’s used is defined in the schema.
-/// 
+///
 /// Currently Testing:
 /// Breaks if unknown type or enum used in a type’s field
 /// Breaks if enum tuple uses an unknown type
@@ -41,7 +41,7 @@ fn parser_breaks_if_unknown_schema_type_or_enum() -> Result<(), CastleError> {
             name: String,
             industry: String,
         }";
-    
+
     let schema_definition = parse_schema(schema)?;
     let actual = self_validate_schema(&schema_definition);
     if actual.is_err() {
@@ -84,7 +84,7 @@ fn can_parse_defined_schema_type_as_type() {
         ("log_in_count".into(), Type::PrimitiveType(PrimitiveType::Int), Vec::new()),
         ("organization".into(), Type::SchemaTypeOrEnum("Organization".into()), Vec::new()),
     ]);
-    
+
     let organization_fields: HashMap<Box<str>, SchemaField> = create_type_fields_for_tests(vec![
         ("id".into(), Type::PrimitiveType(PrimitiveType::Uuid), Vec::new()),
         ("name".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
@@ -96,7 +96,7 @@ fn can_parse_defined_schema_type_as_type() {
         ("Organization".into(), SchemaType::new("Organization".into(), organization_fields)),
     ]);
 
-    
+
     let actual = parse_schema(schema).unwrap();
     assert_eq!(expected, actual.schema_types);
 }
@@ -111,7 +111,7 @@ fn can_parse_defined_schema_enum_as_type_for_field() {
             role: String,
             organization_type: OrganizationType
         }
-        
+
         enum OrganizationType {
             Company,
             School,
@@ -122,8 +122,8 @@ fn can_parse_defined_schema_enum_as_type_for_field() {
         ("role".into(), Type::PrimitiveType(PrimitiveType::String), Vec::new()),
         ("organization_type".into(), Type::SchemaTypeOrEnum("OrganizationType".into()), Vec::new()),
     ]);
-    
-    let organization_type_enums: EnumDefinition = create_enum_from_vec("OrganizationType".into(), 
+
+    let organization_type_enums: EnumDefinition = create_enum_from_vec("OrganizationType".into(),
     vec![
         ("Company".into(), EnumVariant::new("Company".into(), EnumDataType::EnumUnit, Vec::new())),
         ("School".into(), EnumVariant::new("School".into(), EnumDataType::EnumUnit, Vec::new())),
@@ -140,7 +140,7 @@ fn can_parse_defined_schema_enum_as_type_for_field() {
     let mut expected_schema_definition = SchemaDefinition::new();
     expected_schema_definition.schema_types = schema_types;
     expected_schema_definition.enums = enums;
-    
+
     let actual = parse_schema(schema).unwrap();
     assert_eq!(expected_schema_definition, actual);
 }

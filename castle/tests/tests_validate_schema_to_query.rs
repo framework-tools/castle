@@ -1,4 +1,4 @@
-use castle::validation::{self_validation_schema::self_validate_schema, validate_query_with_schema::validate_query_with_schema};
+use castle::validation::{validate_schema::self_validate_schema, validate_query::validate_query_with_schema};
 use parser_and_schema::{parsers::{schema_parser::parse_schema::parse_schema, query_parser::parse_query::parse_query}};
 use shared::castle_error::CastleError;
 
@@ -134,7 +134,7 @@ fn should_break_if_same_arguments_but_mismatching_types() -> Result<(), CastleEr
 fn should_break_if_mismatched_fields_in_return_type() -> Result<(), CastleError>{
     let schema = "
     fn me(id: Int) -> User
-    
+
     type User {
         first_name: String,
         age: Int,
@@ -170,7 +170,7 @@ fn should_break_if_use_undefined_enum_parent_in_query() -> Result<(), CastleErro
     fn name() -> Name
     fn username() -> Username
     fn standard_name() -> StandardName
-    
+
     type User {
         name: Name,
         age: Int,
@@ -227,7 +227,7 @@ fn should_break_if_use_undefined_enum_variant_in_query() -> Result<(), CastleErr
     fn name() -> Name
     fn username() -> Username
     fn standard_name() -> StandardName
-    
+
     type User {
         name: Name,
         age: Int,
@@ -285,7 +285,7 @@ fn should_pass_if_inner_objects_have_correct_return_types_for_each_resolver() ->
     fn name() -> Name
     fn organization() -> Organization
     fn address() -> Address
-    
+
     type User {
         name: Name,
         age: Int,
@@ -343,7 +343,7 @@ fn should_break_if_inner_objects_have_field_not_defined_in_type() -> Result<(), 
     fn name() -> Name
     fn organization() -> Organization
     fn address() -> Address
-    
+
     type User {
         name: Name,
         age: Int,
@@ -381,7 +381,7 @@ fn should_break_if_inner_objects_have_field_not_defined_in_type() -> Result<(), 
             name,
             address() {
                 city,
-                planet 
+                planet
             }
         }
     }
@@ -406,7 +406,7 @@ fn should_throw_err_if_inner_object_projection_does_not_have_a_defined_resolver(
     let schema = "
     fn me() -> User
     fn organization() -> Organization
-    
+
     type User {
         age: Int,
         role: String,
@@ -439,7 +439,7 @@ fn should_throw_err_if_inner_object_projection_does_not_have_a_defined_resolver(
         organization() {
             name,
             this_does_not_exist() {
-                planet 
+                planet
             }
         }
     }
@@ -467,7 +467,7 @@ fn should_throw_error_if_match_arm_references_type_in_enum_with_wrong_field() ->
     fn me(id: Int) -> User
     fn username() -> UserName
     fn standard_name() -> StandardName
-    
+
     type User {
         name: Name,
         age: Int,
