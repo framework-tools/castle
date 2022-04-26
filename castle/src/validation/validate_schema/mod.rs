@@ -39,11 +39,11 @@ pub(crate) fn type_exists(schema: &SchemaDefinition, kind: &Kind) -> Result<(), 
         "String" if kind.generics.len() == 0 => (),
         "Boolean" if kind.generics.len() == 0 => (),
         "Uuid" if kind.generics.len() == 0 => (),
-        "Vec" => match kind.generics {
+        "Vec" => match &kind.generics {
             generics if generics.len() == 1 => type_exists(schema, &generics[0])?,
             _ => Err("Vec type must have 1 generic type")?,
         },
-        "Option" => match kind.generics {
+        "Option" => match &kind.generics {
             generics if generics.len() == 1 => type_exists(schema, &generics[0])?,
             _ => Err("Option type must have 1 generic type")?,
         },

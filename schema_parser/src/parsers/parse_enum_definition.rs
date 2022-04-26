@@ -2,29 +2,34 @@ use std::collections::HashMap;
 
 use castle_error::CastleError;
 use shared_parser::parse_inputs::consume_optional_separator;
-use tokenizer::{Tokenizable, Punctuator, TokenKind, extensions::{ExpectPunctuator, ExpectIdentifier, IsPunctuator}};
+use tokenizer::{
+    extensions::{ExpectIdentifier, ExpectPunctuator, IsPunctuator},
+    Punctuator, TokenKind, Tokenizable,
+};
 
-use crate::types::{Directive, EnumDefinition, VariantDefinition, VariantKindDefinition, Kind};
+use crate::types::{Directive, EnumDefinition, Kind, VariantDefinition, VariantKindDefinition};
 
 use super::{parse_directives::parse_directives, parse_kind::parse_kind};
 
-
-
-
-pub(crate) fn parse_enum_definition(tokenizer: &mut impl Tokenizable, directives: Vec<Directive>) -> Result<EnumDefinition, CastleError> {
-    Ok(EnumDefinition{
+pub(crate) fn parse_enum_definition(
+    tokenizer: &mut impl Tokenizable,
+    directives: Vec<Directive>,
+) -> Result<EnumDefinition, CastleError> {
+    Ok(EnumDefinition {
         ident: tokenizer.expect_identifier(true)?,
         variants: parse_enum_variants(tokenizer)?,
         directives,
     })
 }
 
-fn parse_enum_variants(tokenizer: &mut impl Tokenizable) -> Result<HashMap<Box<str>, VariantDefinition>, CastleError> {
+fn parse_enum_variants(
+    tokenizer: &mut impl Tokenizable,
+) -> Result<HashMap<Box<str>, VariantDefinition>, CastleError> {
     let mut map = HashMap::new();
     tokenizer.expect_punctuator(Punctuator::OpenBlock, true)?;
     loop {
         if tokenizer.peek_is_punctuator(Punctuator::CloseBlock, true)? {
-            break
+            break;
         }
         let variant_def = parse_variant_definition(tokenizer)?;
         map.insert(variant_def.ident.clone(), variant_def);
@@ -34,29 +39,30 @@ fn parse_enum_variants(tokenizer: &mut impl Tokenizable) -> Result<HashMap<Box<s
     Ok(map)
 }
 
-fn parse_variant_definition(tokenizer: &mut impl Tokenizable) -> Result<VariantDefinition, CastleError> {
-    Ok(VariantDefinition{
+fn parse_variant_definition(
+    tokenizer: &mut impl Tokenizable,
+) -> Result<VariantDefinition, CastleError> {
+    Ok(VariantDefinition {
         ident: tokenizer.expect_identifier(true)?,
         kind: parse_variant_kind_definition(tokenizer)?,
         directives: parse_directives(tokenizer)?,
     })
 }
 
-
-fn parse_variant_kind_definition(tokenizer: &mut impl Tokenizable) -> Result<VariantKindDefinition, CastleError> {
+fn parse_variant_kind_definition(
+    tokenizer: &mut impl Tokenizable,
+) -> Result<VariantKindDefinition, CastleError> {
     return match tokenizer.peek_expect(true)?.kind {
         TokenKind::Punctuator(Punctuator::OpenBlock) => Ok(VariantKindDefinition::Map(parse_map(
             tokenizer,
             Punctuator::OpenBlock,
             Punctuator::CloseBlock,
         )?)),
-        TokenKind::Punctuator(Punctuator::OpenParen) => Ok(VariantKindDefinition::Tuple(parse_tuple(
-            tokenizer,
-            Punctuator::OpenParen,
-            Punctuator::CloseParen,
-        )?)),
+        TokenKind::Punctuator(Punctuator::OpenParen) => Ok(VariantKindDefinition::Tuple(
+            parse_tuple(tokenizer, Punctuator::OpenParen, Punctuator::CloseParen)?,
+        )),
         _ => Ok(VariantKindDefinition::Unit),
-        };
+    };
 }
 
 pub fn parse_map(
@@ -68,7 +74,7 @@ pub fn parse_map(
     let mut inputs = HashMap::new();
     loop {
         if tokenizer.peek_is_punctuator(closing, true)? {
-            break
+            break;
         }
         inputs.insert(
             tokenizer.expect_identifier(true)?,
@@ -94,7 +100,7 @@ pub fn parse_tuple(
     tokenizer.expect_punctuator(opening, true)?;
     loop {
         if tokenizer.peek_is_punctuator(closing, true)? {
-            break
+            break;
         }
         inputs_vec.push(parse_kind(tokenizer)?);
         consume_optional_separator(tokenizer)?;

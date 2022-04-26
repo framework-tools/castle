@@ -1,3 +1,0 @@
-pub mod tests_self_validation;
-pub mod tests_validate_backend_to_schema;
-pub mod tests_validate_schema_to_query;

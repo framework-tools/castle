@@ -13,7 +13,7 @@ pub(super) fn validate_enums(schema: &SchemaDefinition) -> Result<(), CastleErro
 
 fn validate_enum(schema: &SchemaDefinition, enum_def: &EnumDefinition) -> Result<(), CastleError> {
     for directive in enum_def.directives.iter() {
-        validate_directive(schema, &[&enum_def.ident], directive, DirectiveLocation::EnumDirective)?;
+        validate_directive(schema, &[&enum_def.ident], directive, DirectiveLocation::EnumDefinition)?;
     }
 
     for variant in enum_def.variants.values() {
@@ -24,7 +24,7 @@ fn validate_enum(schema: &SchemaDefinition, enum_def: &EnumDefinition) -> Result
 
 fn validate_variant(schema: &SchemaDefinition, enum_name: &str, variant: &VariantDefinition) -> Result<(), CastleError> {
     for directive in variant.directives.iter() {
-        validate_directive(schema, &[&enum_name, &variant.ident], directive, DirectiveLocation::VariantDirective)?;
+        validate_directive(schema, &[&enum_name, &variant.ident], directive, DirectiveLocation::VariantDefinition)?;
     }
 
     // TODO: validate each enum variant type (map, unit, tuple) and check that each type is defined in the schema

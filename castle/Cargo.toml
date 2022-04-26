@@ -13,3 +13,5 @@ uuid = "1.0.0"
 schema_parser = { path = "../schema_parser" }
 query_parser = { path = "../query_parser" }
 async-trait = "0.1.53"
+[dev-dependencies]
+tokio = { version = "1.17.0", features = ["macros", "rt"]}

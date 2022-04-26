@@ -23,11 +23,17 @@ pub enum Value<C, R = ()> {
 pub type Resolver<C, R> = fn(Field, C) -> Result<Value<R>, CastleError>;
 
 #[async_trait::async_trait]
-trait Directive<C, R> {
-    // async fn input_visitor(&self, directive_args: &Inputs, field: &Field, context: C) -> Result<Value<R>, CastleError>;
-    // async fn
+pub trait Directive<C: Send + 'static, R: 'static>: Send + Sync {
     async fn field_visitor(&self, field: &Field, directive_args: &Inputs, value: Resolver<C, R>, context: C) -> Result<Value<R>, CastleError> {
-        // value().await
+        unimplemented!()
+    }
+}
+
+struct A;
+
+#[async_trait::async_trait]
+impl<C: Send + 'static, R: 'static> Directive<C, R> for A {
+    async fn field_visitor(&self, field: &Field, directive_args: &Inputs, value: Resolver<C, R>, context: C) -> Result<Value<R>, CastleError> {
         unimplemented!()
     }
 }

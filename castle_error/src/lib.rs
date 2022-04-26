@@ -15,6 +15,8 @@ pub enum CastleError {
     Other(Box<str>),
     Schema(Box<str>, Span),
     SchemaValidation(Box<str>),
+    MissingDirective(Box<str>),
+    MissingResolver(Box<str>),
     Query(Box<str>, Span),
     QueryValidation(Box<str>),
 }
@@ -56,11 +58,13 @@ impl fmt::Display for CastleError {
             Self::SchemaValidation(msg) => write!(f, "Schema validation error: {}", msg),
             Self::Query(msg, span) => write!(f, "Query error: {} at {}", msg, span),
             Self::QueryValidation(msg) => write!(f, "Query validation error: {}", msg),
+            Self::MissingDirective(msg) => write!(f, "Missing directive: {}", msg),
+            Self::MissingResolver(msg) => write!(f, "Missing resolver: {}", msg),
         }
     }
 }
 
-trait ExtendedErrorDisplay {
+pub trait ExtendedErrorDisplay {
     fn extended_error(&self, src: &str) -> String;
 }
 
@@ -76,6 +80,8 @@ impl ExtendedErrorDisplay for CastleError {
             Self::Query(msg, span) => pretty_print_parser_error(msg, span, src),
             Self::SchemaValidation(msg) => msg.to_string(),
             Self::QueryValidation(msg) => msg.to_string(),
+            Self::MissingDirective(msg) => msg.to_string(),
+            Self::MissingResolver(msg) => msg.to_string(),
         }
     }
 }

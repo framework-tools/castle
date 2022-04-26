@@ -15,19 +15,24 @@ pub fn parse_schema(schema: &str) -> Result<SchemaDefinition, CastleError> {
     let mut schema_definition = SchemaDefinition::new();
     loop {
         // directive implementations for types and enums come before the type.
-        let (kind, span) = if let Some(token) = tokenizer.next(true)? {
-            (token.kind, token.span)
+        let directives = parse_directives(&mut tokenizer)?;
+
+        let token = if let Some(token) = tokenizer.next(true)? {
+            token
         } else {
             // we're done
+            if directives.len() != 0 {
+                Err(CastleError::SchemaValidation(
+                    "Cannot have directives at the end of the schema".into(),
+                ))?
+            }
             return Ok(schema_definition);
         };
-        let directives = parse_directives(&mut tokenizer)?;
-        match kind {
+
+        match token.kind {
             TokenKind::Keyword(Keyword::Type) => {
                 let type_ = parse_type_definition(&mut tokenizer, directives)?;
-                schema_definition
-                    .types
-                    .insert(type_.ident.clone(), type_);
+                schema_definition.types.insert(type_.ident.clone(), type_);
             }
             TokenKind::Keyword(Keyword::Enum) => {
                 let enum_ = parse_enum_definition(&mut tokenizer, directives)?;
@@ -35,21 +40,17 @@ pub fn parse_schema(schema: &str) -> Result<SchemaDefinition, CastleError> {
             }
             TokenKind::Keyword(Keyword::Directive) => {
                 if directives.len() != 0 {
-                    return Err(CastleError::Other(
+                    Err(CastleError::Other(
                         "Directive definitions cannot have directives.".into(),
-                    ));
+                    ))?
                 }
-                let directives = parse_directive_definition(&mut tokenizer)?;
-                schema_definition
-                    .directives
-                    .insert(directives.name.clone(), directives);
+                let directive_definition = parse_directive_definition(&mut tokenizer)?;
+                schema_definition.directives.insert(directive_definition.name.clone(), directive_definition);
             }
-            _ => {
-                return Err(CastleError::Schema(
-                    format!("Expected item, found: {:?}", kind).into(),
-                    span,
-                ))
-            }
+            _ => Err(CastleError::Schema(
+                format!("Expected item, found: {:?}", token.kind).into(),
+                token.span,
+            ))?
         }
     }
 }

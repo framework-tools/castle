@@ -7,6 +7,15 @@ use tokenizer::{
 use crate::{Input, Variant, VariantType};
 
 
+pub fn parse_optional_inputs(
+    tokenizer: &mut impl Tokenizable,
+) -> Result<HashMap<Box<str>, Input>, CastleError> {
+    if !tokenizer.peek_is_punctuator(Punctuator::OpenParen, true)? {
+        return Ok(HashMap::new());
+    };
+    parse_inputs(tokenizer)
+}
+
 pub fn parse_inputs(
     tokenizer: &mut impl Tokenizable,
 ) -> Result<HashMap<Box<str>, Input>, CastleError> {

@@ -16,7 +16,7 @@ pub(super) fn validate_types(schema: &SchemaDefinition) -> Result<(), CastleErro
 /// - validates each directive applied on the type
 fn validate_type(schema: &SchemaDefinition, type_def: &TypeDefinition) -> Result<(), CastleError> {
     for directive in type_def.directives.iter() {
-        validate_directive(schema, &[&type_def.ident], directive, DirectiveLocation::EnumDirective)?;
+        validate_directive(schema, &[&type_def.ident], directive, DirectiveLocation::EnumDefinition)?;
     }
 
     for field in type_def.fields.values() {
@@ -35,7 +35,7 @@ fn validate_field(schema: &SchemaDefinition, type_name: &str, field: &FieldDefin
     };
 
     for directive in field.directives.iter() {
-        validate_directive(schema, &[&type_name, &field.name], directive, DirectiveLocation::FieldDirective)?;
+        validate_directive(schema, &[&type_name, &field.name], directive, DirectiveLocation::FieldDefinition)?;
     }
     return Ok(());
 }

@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use castle_error::CastleError;
-use tokenizer::{Tokenizable, extensions::{ExpectIdentifier, ExpectKeyword, ExpectPunctuator}, Keyword, TokenKind, Punctuator};
+use tokenizer::{Tokenizable, extensions::{ExpectIdentifier, ExpectPunctuator, IsPunctuator}, Punctuator};
 
 use crate::types::{DirectiveDefinition, DirectiveLocation};
 
@@ -11,9 +11,9 @@ use super::parse_type_definition::parse_input_definitions;
 
 
 pub fn parse_directive_definition(tokenizer: &mut impl Tokenizable) -> Result<DirectiveDefinition, CastleError> {
-    tokenizer.expect_keyword(Keyword::Directive, true)?;
+    tokenizer.expect_punctuator(Punctuator::At, true)?;
     Ok(DirectiveDefinition{
-        name: tokenizer.expect_identifier(true)?, //
+        name: tokenizer.expect_identifier(false)?,
         input_definitions: parse_input_definitions(tokenizer)?,
         locations: parse_directive_locations(tokenizer)?,
     })
@@ -26,17 +26,18 @@ pub fn parse_directive_locations(tokenizer: &mut impl Tokenizable) -> Result<Has
         let err_location = tokenizer.peek(true)?.unwrap().span;
         let token = tokenizer.expect_identifier(true)?;
         match &token[..] {
-            "FieldDirective" => directive_locations.insert(DirectiveLocation::FieldDirective),
-            "EnumDirective" => directive_locations.insert(DirectiveLocation::EnumDirective),
-            "VariantDirective" => directive_locations.insert(DirectiveLocation::VariantDirective),
-            "InputDirective" => directive_locations.insert(DirectiveLocation::InputDirective),
-            "TypeDirective" => directive_locations.insert(DirectiveLocation::TypeDirective),
+            "FieldDefinition" => directive_locations.insert(DirectiveLocation::FieldDefinition),
+            "EnumDefinition" => directive_locations.insert(DirectiveLocation::EnumDefinition),
+            "VariantDefinition" => directive_locations.insert(DirectiveLocation::VariantDefinition),
+            "InputDefinition" => directive_locations.insert(DirectiveLocation::InputDefinition),
+            "TypeDefinition" => directive_locations.insert(DirectiveLocation::TypeDefinition),
             str => return Err(CastleError::Schema(format!("Expected directive location, found: {:?}", str).into(), err_location))
         };
-        if let TokenKind::Punctuator(Punctuator::Or) = tokenizer.peek_expect(true)?.kind {
+        if tokenizer.peek_is_punctuator(Punctuator::Or, true)? {
             tokenizer.expect_punctuator(Punctuator::Or, true)?;
-        } 
-        else { break; }
+        } else {
+            break
+        }
     }
     return Ok(directive_locations)
 }

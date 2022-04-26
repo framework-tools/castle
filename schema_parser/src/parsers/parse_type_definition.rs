@@ -1,38 +1,50 @@
-use std::{collections::HashMap};
+use std::collections::HashMap;
 
 use castle_error::CastleError;
-use tokenizer::{extensions::{ExpectIdentifier, ExpectPunctuator}, Punctuator, Tokenizable, TokenKind, Token};
+use shared_parser::parse_inputs::consume_optional_separator;
+use tokenizer::{
+    extensions::{ExpectIdentifier, ExpectPunctuator, IsPunctuator},
+    Punctuator, Tokenizable,
+};
 
-use crate::types::{TypeDefinition, FieldDefinition, Directive, InputDefinition};
+use crate::types::{Directive, FieldDefinition, InputDefinition, TypeDefinition};
 
 use super::{parse_directives::parse_directives, parse_kind::parse_kind};
 
-
-
-pub(crate) fn parse_type_definition(tokenizer: &mut impl Tokenizable, directives: Vec<Directive>) -> Result<TypeDefinition, CastleError> {
-    Ok(TypeDefinition{
+pub(crate) fn parse_type_definition(
+    tokenizer: &mut impl Tokenizable,
+    directives: Vec<Directive>,
+) -> Result<TypeDefinition, CastleError> {
+    Ok(TypeDefinition {
         ident: tokenizer.expect_identifier(true)?,
         fields: parse_fields(tokenizer)?,
         directives,
     })
 }
 
-fn parse_fields(tokenizer: &mut impl Tokenizable) -> Result<HashMap<Box<str>, FieldDefinition>, CastleError> {
+fn parse_fields(
+    tokenizer: &mut impl Tokenizable,
+) -> Result<HashMap<Box<str>, FieldDefinition>, CastleError> {
     let mut fields = HashMap::new();
     tokenizer.expect_punctuator(Punctuator::OpenBlock, true)?;
     loop {
-        if let Token { kind: TokenKind::Punctuator(Punctuator::CloseBlock), ..} = tokenizer.peek_expect(true)? {
-            tokenizer.expect_punctuator(Punctuator::CloseBlock, true)?;
-            return Ok(fields);
+        if tokenizer.peek_is_punctuator(Punctuator::CloseBlock, true)? {
+            break;
         }
         let name = tokenizer.expect_identifier(true)?;
         tokenizer.expect_punctuator(Punctuator::Colon, true)?;
         fields.insert(name.clone(), parse_field_definition(tokenizer, name)?);
+        consume_optional_separator(tokenizer)?;
     }
+    tokenizer.expect_punctuator(Punctuator::CloseBlock, true)?;
+    return Ok(fields);
 }
 
-fn parse_field_definition(tokenizer: &mut impl Tokenizable, name: Box<str>) -> Result<FieldDefinition, CastleError> {
-    Ok(FieldDefinition{
+fn parse_field_definition(
+    tokenizer: &mut impl Tokenizable,
+    name: Box<str>,
+) -> Result<FieldDefinition, CastleError> {
+    Ok(FieldDefinition {
         name,
         input_definitions: parse_input_definitions(tokenizer)?,
         return_kind: parse_kind(tokenizer)?,
@@ -40,20 +52,21 @@ fn parse_field_definition(tokenizer: &mut impl Tokenizable, name: Box<str>) -> R
     })
 }
 
-pub fn parse_input_definitions(tokenizer: &mut impl Tokenizable) -> Result<HashMap<Box<str>, InputDefinition>, CastleError> {
+pub fn parse_input_definitions(
+    tokenizer: &mut impl Tokenizable,
+) -> Result<HashMap<Box<str>, InputDefinition>, CastleError> {
     let mut inputs = HashMap::new();
-    if TokenKind::Punctuator(Punctuator::OpenBlock) != tokenizer.peek_expect(true)?.kind {
-        return Ok(inputs)
+    if !tokenizer.peek_is_punctuator(Punctuator::OpenParen, true)? {
+        return Ok(inputs);
     };
     tokenizer.expect_punctuator(Punctuator::OpenParen, true)?;
     loop {
-        if let Token { kind: TokenKind::Punctuator(Punctuator::CloseParen), ..} = tokenizer.peek_expect(true)? {
-            tokenizer.expect_punctuator(Punctuator::CloseParen, true)?;
-            return Ok(inputs);
+        if tokenizer.peek_is_punctuator(Punctuator::CloseParen, true)? {
+            break;
         }
         let name = tokenizer.expect_identifier(true)?;
         tokenizer.expect_punctuator(Punctuator::Colon, true)?;
-        let input_value = InputDefinition{
+        let input_value = InputDefinition {
             name: name.clone(),
             input_kind: parse_kind(tokenizer)?,
             default: None,
@@ -61,5 +74,6 @@ pub fn parse_input_definitions(tokenizer: &mut impl Tokenizable) -> Result<HashM
         };
         inputs.insert(name, input_value);
     }
+    tokenizer.expect_punctuator(Punctuator::CloseParen, true)?;
+    Ok(inputs)
 }
-

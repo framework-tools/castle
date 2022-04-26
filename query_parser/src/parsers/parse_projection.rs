@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use castle_error::CastleError;
 use shared_parser::parse_inputs::{parse_inputs, consume_optional_separator};
 use tokenizer::{
-    extensions::{ExpectIdentifier, ExpectKeyword, ExpectPunctuator, PeekKeyword},
+    extensions::{ExpectIdentifier, ExpectKeyword, ExpectPunctuator, PeekKeyword, IsPunctuator},
     Keyword, Punctuator, TokenKind, Tokenizable,
 };
 
@@ -42,9 +42,7 @@ pub fn parse_projection_inner(
 fn parse_field(tokenizer: &mut impl Tokenizable) -> Result<Field, CastleError> {
     Ok(Field {
         name: tokenizer.expect_identifier(true)?,
-        inputs: if let Some(TokenKind::Punctuator(Punctuator::OpenParen)) =
-            tokenizer.peek_token_kind(true)?
-        {
+        inputs: if tokenizer.peek_is_punctuator(Punctuator::OpenParen, true)? {
             parse_inputs(tokenizer)?
         } else {
             HashMap::new()

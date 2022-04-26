@@ -33,20 +33,20 @@ pub struct DirectiveDefinition {
 
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub enum DirectiveLocation {
-    /// FIELD_DIRECTIVE
-    FieldDirective,
+    /// FieldDefinition
+    FieldDefinition,
 
-    /// ENUM_DIRECTIVE
-    EnumDirective,
+    /// EnumDefinition
+    EnumDefinition,
 
-    /// VARIANT_DIRECTIVE
-    VariantDirective,
+    /// VariantDefinition
+    VariantDefinition,
 
-    /// INPUT_DIRECTIVE
-    InputDirective,
+    /// InputDefinition
+    InputDefinition,
 
-    /// TYPE_DIRECTIVE
-    TypeDirective,
+    /// TypeDefinition
+    TypeDefinition,
 }
 
 /// ### Directive
@@ -56,7 +56,7 @@ pub enum DirectiveLocation {
 /// ```notrust
 /// @type_directive(arg: 123)
 /// type Query {
-///     this_is_a_field(arg: String): String @field_directive(an_arg: 123)
+///     this_is_a_field(arg: String): String @FieldDefinition(an_arg: 123)
 /// }
 /// ```
 #[derive(Debug, PartialEq)]

@@ -430,7 +430,7 @@ fn should_break_if_used_directive_is_not_defined_enum( ) -> Result<(), CastleErr
         type Green {
             name: String
         }
-        directive @authenticated(token: String) on ENUM_VARIANT
+        directive @authenticated(token: String) on EnumVariant
     ";
 
     let schema_definition = parse_schema(schema)?;
@@ -499,7 +499,7 @@ fn should_break_if_directive_and_directive_definition_have_same_arguments_with_d
             Blue,
             Green @authenticated (token: Int)
         }
-        directive @authenticated(token: String) on ENUM_VARIANT
+        directive @authenticated(token: String) on EnumVariant
 
         type Red {
             info: String
@@ -532,7 +532,7 @@ fn should_break_if_directive_on_value_not_compatible_with_its_usage( ) -> Result
         type User {
             name: String @authenticated(token: String)
         }
-        directive @authenticated(token: String) on ENUM_VARIANT
+        directive @authenticated(token: String) on EnumVariant
     ";
 
     let schema_definition = parse_schema(schema)?;
