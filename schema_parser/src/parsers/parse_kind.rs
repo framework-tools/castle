@@ -1,5 +1,5 @@
 use castle_error::CastleError;
-use shared_parser::parse_inputs::has_separator;
+use shared_parser::parse_inputs::consume_optional_separator;
 use tokenizer::{Tokenizable, TokenKind, extensions::{ExpectIdentifier, ExpectPunctuator, IsPunctuator}, Punctuator, Token};
 
 use crate::types::Kind;
@@ -27,9 +27,7 @@ pub(crate) fn parse_generics(tokenizer: &mut impl Tokenizable) -> Result<Vec<Kin
                     break
                 }
                 generics.push(parse_kind(tokenizer)?);
-                if !has_separator(tokenizer)? {
-                    break
-                }
+                consume_optional_separator(tokenizer)?;
             }
 
             if generics.is_empty() {

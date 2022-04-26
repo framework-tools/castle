@@ -74,9 +74,7 @@ pub fn parse_map(
             tokenizer.expect_identifier(true)?,
             expect_colon_and_value(tokenizer)?,
         );
-        if !has_separator(tokenizer)? {
-            break
-        }
+        consume_optional_separator(tokenizer)?;
     }
     tokenizer.expect_punctuator(closing, true)?;
     Ok(inputs)
@@ -95,26 +93,23 @@ pub fn parse_list(
             break
         }
         inputs_vec.push(parse_value(tokenizer)?);
-        if !has_separator(tokenizer)? {
-            break
-        }
+        consume_optional_separator(tokenizer)?;
     }
     tokenizer.expect_punctuator(closing, true)?;
     return Ok(inputs_vec);
 }
 
-/// has_separator checks and consumes for valid combination of seperators,
-///     returns Ok(true) if there was a valid seperator
-///     returns Ok(false) if there was no seperator
+/// consume_optional_separator consumes a single valid set combination of seperators,
+///
+/// No separator is needed.
 ///
 /// We expect that multiple new-lines have been already coaleced into a single newline by the
 /// tokenizer, so we can just check for a newline.
-pub fn has_separator(tokenizer: &mut impl Tokenizable) -> Result<bool, CastleError> {
+pub fn consume_optional_separator(tokenizer: &mut impl Tokenizable) -> Result<(), CastleError> {
     match tokenizer.peek_token_kind(false)? {
         Some(TokenKind::Punctuator(Punctuator::Comma)) => {
             tokenizer.expect_punctuator(Punctuator::Comma, false)?;
             tokenizer.peek(true)?; // peek and skip any line terminators
-            return Ok(true);
         },
         Some(TokenKind::LineTerminator) => match tokenizer.peek_token_kind(true)? {
             // handle the case where there is a newline followed by a comma
@@ -122,11 +117,12 @@ pub fn has_separator(tokenizer: &mut impl Tokenizable) -> Result<bool, CastleErr
                 tokenizer.expect_punctuator(Punctuator::Comma, true)?;
                 // peek and skip any additional line terminators
                 tokenizer.peek(true)?;
-                return Ok(true);
             },
             // newlines alone are considered valid separators
-            _ => return Ok(true),
+            _ => {}
         }
-        _ => return Ok(false),
+        _ => {}
     }
+
+    Ok(())
 }

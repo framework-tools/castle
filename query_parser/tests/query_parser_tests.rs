@@ -123,7 +123,6 @@ fn can_parse_object_projection_with_two_fields() {
     assert_eq!(expected, actual);
 }
 
-#[should_panic]
 #[test]
 fn query_with_two_separators_fails() {
     let query = "me() {
@@ -200,7 +199,6 @@ fn query_without_trailing_comma_succeeds() {
     assert_eq!(expected, actual);
 }
 
-#[should_panic]
 #[test]
 fn query_with_missing_closing_bracket_fails() {
     let query = "me() {
@@ -229,7 +227,7 @@ fn can_parse_object_and_single_field() {
                 ("bar".into(), Field {
                     name: "bar".into(),
                     inputs: HashMap::new(),
-                    rename: None,
+                    rename: Some("sdsd".into()),
                     kind: FieldKind::Field,
                 }),
                 ("baz".into(), Field {
@@ -457,7 +455,6 @@ fn can_parse_array_arguments() {
 
 
 #[test]
-#[should_panic]
 fn arg_with_no_ident_fails() {
     let query = "
     ()

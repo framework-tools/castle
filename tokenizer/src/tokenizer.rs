@@ -43,6 +43,13 @@ impl<R: Read> Tokenizable for Tokenizer<R> {
     ) -> Result<Option<&Token>, CastleError> {
         // if the number of tokens to skip is greater than or equal to the number of peeked tokens,
         // we need to read more tokens
+        // firstly filter out self.peeked tokens that are line terminators
+        if skip_line_terminators {
+            self.peeked.retain(|token| match token.kind {
+                TokenKind::LineTerminator => false,
+                _ => true,
+            });
+        }
         while skip_n >= self.peeked.len() {
             match self.advance()? {
                 Some(Token {

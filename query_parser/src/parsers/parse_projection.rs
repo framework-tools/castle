@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use castle_error::CastleError;
-use shared_parser::parse_inputs::{has_separator, parse_inputs};
+use shared_parser::parse_inputs::{parse_inputs, consume_optional_separator};
 use tokenizer::{
     extensions::{ExpectIdentifier, ExpectKeyword, ExpectPunctuator, PeekKeyword},
     Keyword, Punctuator, TokenKind, Tokenizable,
@@ -26,16 +26,13 @@ pub fn parse_projection_inner(
 
     loop {
         // peek to check if there is an identifier (EOF is allowed since this can be used for top level projections)
-        if let Some(TokenKind::Identifier(_)) = tokenizer.peek_token_kind(true)? {
-            let field = parse_field(tokenizer)?;
-            dbg!(&field.name);
-            projections.insert(field.name.clone(), field);
-            if !has_separator(tokenizer)? {
-                dbg!("test");
-                break;
-            }
-        } else {
-            break;
+        match tokenizer.peek(true)?.map(|t| (&t.kind, &t.span)) {
+            Some((TokenKind::Identifier(_), ..)) => {
+                let field = parse_field(tokenizer)?;
+                projections.insert(field.name.clone(), field);
+                consume_optional_separator(tokenizer)?;
+            },
+            _ => break, // EOF or something else
         }
     }
 

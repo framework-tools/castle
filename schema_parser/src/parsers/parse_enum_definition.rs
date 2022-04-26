@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use castle_error::CastleError;
-use shared_parser::parse_inputs::has_separator;
+use shared_parser::parse_inputs::consume_optional_separator;
 use tokenizer::{Tokenizable, Punctuator, TokenKind, extensions::{ExpectPunctuator, ExpectIdentifier, IsPunctuator}};
 
 use crate::types::{Directive, EnumDefinition, VariantDefinition, VariantKindDefinition, Kind};
@@ -27,9 +27,7 @@ fn parse_enum_variants(tokenizer: &mut impl Tokenizable) -> Result<Vec<VariantDe
             break
         }
         values.push(parse_variant_definition(tokenizer)?);
-        if !has_separator(tokenizer)? {
-            break
-        }
+        consume_optional_separator(tokenizer)?;
     }
     tokenizer.expect_punctuator(Punctuator::CloseBlock, true)?;
     Ok(values)
@@ -75,9 +73,7 @@ pub fn parse_map(
             tokenizer.expect_identifier(true)?,
             expect_colon_and_kind(tokenizer)?,
         );
-        if !has_separator(tokenizer)? {
-            break
-        }
+        consume_optional_separator(tokenizer)?;
     }
     tokenizer.expect_punctuator(closing, true)?;
     Ok(inputs)
@@ -100,9 +96,7 @@ pub fn parse_tuple(
             break
         }
         inputs_vec.push(parse_kind(tokenizer)?);
-        if !has_separator(tokenizer)? {
-            break
-        }
+        consume_optional_separator(tokenizer)?;
     }
     tokenizer.expect_punctuator(closing, true)?;
     Ok(inputs_vec)
