@@ -1,7 +1,5 @@
 
-use std::collections::{HashMap, HashSet};
-
-
+use std::{collections::{HashMap, HashSet}, fmt::Display};
 
 use shared_parser::Input;
 
@@ -19,14 +17,14 @@ use super::InputDefinition;
 /// They can also have arguments, which can also be optional by setting a default.
 ///
 /// ```notrust
-/// directive @lowercase on FIELD_DEFINITION
+/// directive @lowercase on FieldDefinition
 /// directive @deprecated(
 ///     reason: String = "No longer supported"
 /// )
 /// ```
 #[derive(Debug, PartialEq)]
 pub struct DirectiveDefinition {
-    pub name: Box<str>,
+    pub ident: Box<str>,
     pub input_definitions: HashMap<Box<str>, InputDefinition>,
     pub locations: HashSet<DirectiveLocation>,
 }
@@ -49,6 +47,18 @@ pub enum DirectiveLocation {
     TypeDefinition,
 }
 
+impl Display for DirectiveLocation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            DirectiveLocation::FieldDefinition => write!(f, "FieldDefinition"),
+            DirectiveLocation::EnumDefinition => write!(f, "EnumDefinition"),
+            DirectiveLocation::VariantDefinition => write!(f, "VariantDefinition"),
+            DirectiveLocation::InputDefinition => write!(f, "InputDefinition"),
+            DirectiveLocation::TypeDefinition => write!(f, "TypeDefinition"),
+        }
+    }
+}
+
 /// ### Directive
 /// A directive being used on a field, type, enum, enum value, or input arg.
 ///
@@ -61,6 +71,6 @@ pub enum DirectiveLocation {
 /// ```
 #[derive(Debug, PartialEq)]
 pub struct Directive {
-    pub name: Box<str>,
+    pub ident: Box<str>,
     pub inputs: HashMap<Box<str>, Input>,
 }

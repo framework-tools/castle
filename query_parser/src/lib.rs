@@ -4,7 +4,7 @@ pub(crate) mod types;
 use castle_error::CastleError;
 use parsers::parse_projection::parse_projection_inner;
 use tokenizer::{Tokenizer, Tokenizable};
-pub use types::{Field, FieldKind, Projection, Inputs};
+pub use types::{Field, FieldKind, Projection, Inputs, Input};
 
 pub fn parse_query(query: &str) -> Result<Projection, CastleError> {
     let bytes = query.as_bytes();

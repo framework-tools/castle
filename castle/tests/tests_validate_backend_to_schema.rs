@@ -18,18 +18,18 @@ fn test_resolver_defined_in_schema_that_does_not_exist_throws_error(){
 
     let schema = "
     fn foo(id: Int) -> Int
-    fn me (name: String) -> String 
+    fn me (name: String) -> String
     ";
 
     let parsed_schema = parse_schema(schema).unwrap();
-    fn random_resolver<C, R>(_: Option<HashMap<Box<str>, Want>>, _: Args, _: C) -> Result<Value<R>, CastleError> {
+    fn random_resolver<Ctx>(_: Option<HashMap<Box<str>, Want>>, _: Args, _: C) -> Result<Value<Ctx>, CastleError> {
         Ok(Value::String("hello".to_string()))
     }
-    let mut builder: CastleBuilder<(), ()> = CastleBuilder::new();
+    let mut builder: CastleBuilder<()> = CastleBuilder::new();
     builder.add_resolver("random_resolver".into(), random_resolver);
     let result = validate_functions_are_defined_in_schema(
         &parsed_schema.functions,
-        &builder.resolver_map.resolvers, 
+        &builder.resolver_map.resolvers,
         true
     );
     if result.is_err() {
@@ -45,24 +45,24 @@ fn test_resolver_defined_in_schema_that_does_not_exist_throws_error(){
 #[test]
 fn test_directive_defined_in_schema_that_does_not_exist_throw_error(){
     let schema = "
-    directive @test(arg: String) on FIELD  
+    directive @test(arg: String) on FIELD
     ";
 
-    fn random_directive<C, R>(_: Option<HashMap<Box<str>, Want>>, _: Args, _: C) -> Result<Value<R>, CastleError>  {
+    fn random_directive<Ctx>(_: Option<HashMap<Box<str>, Want>>, _: Args, _: Ctx) -> Result<Value<Ctx>, CastleError>  {
         Ok(Value::String("hello".to_string()))
     }
 
     let parsed_schema = parse_schema(schema).unwrap();
 
-    let mut builder: CastleBuilder<(), ()> = CastleBuilder::new();
+    let mut builder: CastleBuilder<()> = CastleBuilder::new();
     builder.add_directive("random_directive".into(), random_directive);
 
     let result = validate_functions_are_defined_in_schema(
         &parsed_schema.directives,
-        &builder.directives, 
+        &builder.directives,
         false
     );
-    
+
     if result.is_err() {
         match result {
             Err(CastleError::UndefinedDirective(_)) => {}, //passes

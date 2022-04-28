@@ -12,6 +12,8 @@ castle_error = { path = "../castle_error" }
 uuid = "1.0.0"
 schema_parser = { path = "../schema_parser" }
 query_parser = { path = "../query_parser" }
+shared_parser = { path = "../shared_parser" }
 async-trait = "0.1.53"
+derivative = "2.2.0"
 [dev-dependencies]
 tokio = { version = "1.17.0", features = ["macros", "rt"]}

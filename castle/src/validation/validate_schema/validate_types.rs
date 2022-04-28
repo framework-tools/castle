@@ -1,7 +1,7 @@
 use castle_error::CastleError;
 use schema_parser::types::{SchemaDefinition, TypeDefinition, FieldDefinition, DirectiveLocation};
 
-use super::{type_exists, validate_directives::validate_directive};
+use super::{validate_directives::validate_directive, return_type_exists, input_type_exists};
 
 pub(super) fn validate_types(schema: &SchemaDefinition) -> Result<(), CastleError> {
     for type_def in schema.types.values() {
@@ -27,15 +27,24 @@ fn validate_type(schema: &SchemaDefinition, type_def: &TypeDefinition) -> Result
 
 // Validates a field definition.
 // - validates each directive applied on the field
+// - validates each input on the field
 // - validates field return kind
 fn validate_field(schema: &SchemaDefinition, type_name: &str, field: &FieldDefinition) -> Result<(), CastleError> {
-    match type_exists(schema, &field.return_kind) {
+    match return_type_exists(schema, &field.return_kind) {
         Ok(()) => {}
-        Err(e) => Err(CastleError::SchemaValidation(format!("{}.{} has invalid return type: {}", type_name, field.name, e).into()))?,
+        Err(e) => Err(CastleError::Validation(format!("{}.{} has invalid return type: {}", type_name, field.ident, e).into()))?,
     };
 
-    for directive in field.directives.iter() {
-        validate_directive(schema, &[&type_name, &field.name], directive, DirectiveLocation::FieldDefinition)?;
+    for input_def in field.input_definitions.values() {
+        match input_type_exists(schema, &input_def.input_kind) {
+            Ok(()) => {}
+            Err(e) => Err(CastleError::Validation(format!("{}.{} input {} with type {} does not exist in schema: {}", type_name, field.ident, input_def.ident, input_def.input_kind, e).into()))?,
+        }
     }
+
+    for directive in field.directives.iter() {
+        validate_directive(schema, &[&type_name, &field.ident], directive, DirectiveLocation::FieldDefinition)?;
+    }
+
     return Ok(());
 }

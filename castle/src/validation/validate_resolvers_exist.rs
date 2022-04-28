@@ -5,14 +5,21 @@ use schema_parser::types::SchemaDefinition;
 
 use crate::Resolver;
 
-pub(crate) fn validate_resolvers_exist<C, R>(
+pub(crate) fn validate_resolvers_exist<Ctx>(
     parsed_schema: &SchemaDefinition,
-    field_resolvers: &HashMap<Box<str>, Resolver<C, R>>,
+    field_resolvers: &HashMap<Box<str>, Resolver<Ctx>>,
 ) -> Result<(), CastleError> {
-    for name in parsed_schema.types.keys() {
-        if !field_resolvers.contains_key(name) {
-            return Err(CastleError::MissingResolver(name.clone()));
-        }
+    match parsed_schema.types.get("Query") {
+        Some(query_type) => {
+            for field_name in query_type.fields.keys() {
+                if !field_resolvers.contains_key(field_name) {
+                    Err(CastleError::MissingResolver(
+                        format!("Missing resolver for Query.{}", field_name).into(),
+                    ))?;
+                }
+            }
+            Ok(())
+        },
+        None => Err(CastleError::MissingResolver("Missing `type Query` root type".into()))?,
     }
-    Ok(())
 }

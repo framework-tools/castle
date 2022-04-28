@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use shared_parser::Input;
+pub use shared_parser::Input;
 
 pub type Inputs = HashMap<Box<str>, Input>;
 pub type Projection = HashMap<Box<str>, Field>;
@@ -58,3 +58,4 @@ pub enum FieldKind {
     List(Projection),
     Field
 }
+

@@ -1,16 +1,23 @@
-// use castle_error::CastleError;
-// use schema_parser::types::{SchemaDefinition, Directive};
+use castle_error::CastleError;
+use schema_parser::types::SchemaDefinition;
+
+use super::input_type_exists;
 
 
-// pub(super) fn validate_directive_definitions(schema: &SchemaDefinition) -> Result<(), CastleError> {
-//     for directive in schema.directives.values() {
-//         validate_directive_definition(schema, directive)?;
-//     }
-//     return Ok(());
-// }
+pub(crate) fn validate_directive_definitions(schema: &SchemaDefinition) -> Result<(), CastleError> {
+    for directive_definition in schema.directives.values() {
+        validate_directive_definition(schema, directive_definition)?;
+    }
+    return Ok(());
+}
 
-// fn validate_directive_definition(schema: &SchemaDefinition, directive: &Directive) -> Result<(), CastleError> {
-//     // I don't think there's anything that needs to get validated here
-
-//     return Ok(());
-// }
+fn validate_directive_definition(schema: &SchemaDefinition, directive_definition: &schema_parser::types::DirectiveDefinition) -> Result<(), CastleError> {
+    // for each input on directive we will validate the input_type_exists
+    for input in directive_definition.input_definitions.values() {
+        match input_type_exists(schema, &input.input_kind) {
+            Ok(()) => {}
+            Err(e) => Err(CastleError::Validation(format!("directive @{} with {}'s input with type {} does not exist in schema: {}", directive_definition.ident, input.ident, input.input_kind, e).into()))?,
+        }
+    }
+    return Ok(());
+}

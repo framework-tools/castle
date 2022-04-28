@@ -1,6 +1,8 @@
 
 
 
+use std::collections::HashMap;
+
 use shared_parser::Input;
 
 use super::{Kind, Directive};
@@ -12,7 +14,7 @@ use super::{Kind, Directive};
 /// Args can be either comma separated or newline separated.
 ///
 /// Eg:
-/// ```notrust
+/// ```text
 /// type Query {
 ///     hello(
 ///         this_is_an_arg: String @lowercase
@@ -23,8 +25,18 @@ use super::{Kind, Directive};
 /// ```
 #[derive(Debug, PartialEq)]
 pub struct InputDefinition {
-    pub name: Box<str>,
+    pub ident: Box<str>,
     pub input_kind: Kind,
     pub default: Option<Input>,
+    pub directives: Vec<Directive>,
+}
+
+pub type InputDefinitions = HashMap<Box<str>, InputDefinition>;
+
+
+#[derive(Debug, PartialEq)]
+pub struct InputTypeDefinition {
+    pub ident: Box<str>,
+    pub input_definitions: InputDefinitions,
     pub directives: Vec<Directive>,
 }

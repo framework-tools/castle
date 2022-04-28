@@ -1,7 +1,4 @@
-use std::collections::HashMap;
-
-use super::{Kind, InputDefinition, Directive};
-
+use super::{Kind, Directive, InputDefinitions};
 
 /// Definition of a field resolver, used in field types
 /// ```notrust
@@ -12,8 +9,8 @@ use super::{Kind, InputDefinition, Directive};
 /// ```
 #[derive(Debug, PartialEq)]
 pub struct FieldDefinition {
-    pub name: Box<str>,
-    pub input_definitions: HashMap<Box<str>, InputDefinition>,
+    pub ident: Box<str>,
+    pub input_definitions: InputDefinitions,
     pub return_kind: Kind,
     pub directives: Vec<Directive>,
 }

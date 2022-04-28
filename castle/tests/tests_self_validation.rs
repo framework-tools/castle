@@ -28,7 +28,7 @@ fn parser_breaks_if_unknown_schema_type_or_enum() -> Result<(), CastleError> {
     let schema = "
         type User {
             organization: Company,
-            id: uuid,
+            id: Uuid,
             name: String,
             age: Int,
             is_admin: bool,
@@ -37,7 +37,7 @@ fn parser_breaks_if_unknown_schema_type_or_enum() -> Result<(), CastleError> {
         }
 
         type Organization {
-            id: uuid,
+            id: Uuid,
             name: String,
             industry: String,
         }";
@@ -60,7 +60,7 @@ fn can_parse_defined_schema_type_as_type() {
 
     let schema = "
         type User {
-            id: uuid,
+            id: Uuid,
             name: String,
             age: Int,
             is_admin: bool,
@@ -70,7 +70,7 @@ fn can_parse_defined_schema_type_as_type() {
         }
 
         type Organization {
-            id: uuid,
+            id: Uuid,
             name: String,
             industry: String,
         }";
@@ -153,7 +153,7 @@ fn err_if_parses_enum_with_unknown_object_type() -> Result<(), CastleError> {
         }
 
         type User{
-            id: uuid,
+            id: Uuid,
             name: DoesntExist,
             age: Int,
         }
@@ -176,7 +176,7 @@ fn breaks_if_function_has_argument_undefined() -> Result<(), CastleError> {
     let schema = "
         fn do_nothing(name: String, id: DoesntExist) -> User
         type User {
-            id: uuid
+            id: Uuid
         }
     ";
 

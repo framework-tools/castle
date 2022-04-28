@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 
-use super::{TypeDefinition, EnumDefinition, DirectiveDefinition};
+use super::{TypeDefinition, EnumDefinition, DirectiveDefinition, InputTypeDefinition};
 
 #[derive(Debug, PartialEq)]
 pub struct SchemaDefinition {
     pub types: HashMap<Box<str>, TypeDefinition>,
     pub enums: HashMap<Box<str>, EnumDefinition>,
+    pub input_types: HashMap<Box<str>, InputTypeDefinition>,
     pub directives: HashMap<Box<str>, DirectiveDefinition>,
 }
 
@@ -14,6 +15,7 @@ impl SchemaDefinition {
         SchemaDefinition {
             types: HashMap::new(),
             enums: HashMap::new(),
+            input_types: HashMap::new(),
             directives: HashMap::new()
         }
     }

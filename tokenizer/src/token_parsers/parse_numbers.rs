@@ -64,16 +64,16 @@ pub fn parse_number(cursor: &mut Cursor<impl Read>, start_pos: Position) -> Resu
             let int_val = val as i64;
 
             if (int_val as f64) == val {
-                Primitive::Int(int_val)
+                Primitive::Number(int_val.into())
             } else {
-                Primitive::Float(val)
+                Primitive::Number(val.into())
             }
         },
         NumericKind::UnsignedInteger => {
-            Primitive::UInt(u64::from_str_radix(num_str, 10).expect("Failed to parse unsigned integer"))
+            Primitive::Number(u64::from_str_radix(num_str, 10).expect("Failed to parse unsigned integer").into())
         }
         NumericKind::Integer => {
-            Primitive::Int(i64::from_str_radix(num_str, 10).expect("Failed to parse integer"))
+            Primitive::Number(i64::from_str_radix(num_str, 10).expect("Failed to parse integer").into())
         }
     };
 

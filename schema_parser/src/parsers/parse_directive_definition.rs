@@ -5,16 +5,13 @@ use tokenizer::{Tokenizable, extensions::{ExpectIdentifier, ExpectPunctuator, Is
 
 use crate::types::{DirectiveDefinition, DirectiveLocation};
 
-use super::parse_type_definition::parse_input_definitions;
-
-
-
+use super::parse_input_type_definition::parse_optional_input_definitions;
 
 pub fn parse_directive_definition(tokenizer: &mut impl Tokenizable) -> Result<DirectiveDefinition, CastleError> {
     tokenizer.expect_punctuator(Punctuator::At, true)?;
     Ok(DirectiveDefinition{
-        name: tokenizer.expect_identifier(false)?,
-        input_definitions: parse_input_definitions(tokenizer)?,
+        ident: tokenizer.expect_identifier(false)?,
+        input_definitions: parse_optional_input_definitions(tokenizer, Punctuator::OpenParen, Punctuator::CloseParen)?,
         locations: parse_directive_locations(tokenizer)?,
     })
 }

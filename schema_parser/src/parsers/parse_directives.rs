@@ -31,7 +31,7 @@ pub fn parse_directives(tokenizer: &mut impl Tokenizable) -> Result<Vec<Directiv
 pub fn expect_directive(tokenizer: &mut impl Tokenizable) -> Result<Directive, CastleError> {
     tokenizer.expect_punctuator(Punctuator::At, true)?;
     Ok(Directive {
-        name: tokenizer.expect_identifier(false)?,
+        ident: tokenizer.expect_identifier(false)?,
         inputs: parse_optional_inputs(tokenizer)?,
     })
 }

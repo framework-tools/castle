@@ -7,9 +7,12 @@ use tokenizer::{
     Punctuator, Tokenizable,
 };
 
-use crate::types::{Directive, FieldDefinition, InputDefinition, TypeDefinition};
+use crate::types::{Directive, FieldDefinition, TypeDefinition};
 
-use super::{parse_directives::parse_directives, parse_kind::parse_kind};
+use super::{
+    parse_directives::parse_directives,
+    parse_input_type_definition::parse_optional_input_definitions, parse_kind::parse_kind,
+};
 
 pub(crate) fn parse_type_definition(
     tokenizer: &mut impl Tokenizable,
@@ -42,38 +45,16 @@ fn parse_fields(
 
 fn parse_field_definition(
     tokenizer: &mut impl Tokenizable,
-    name: Box<str>,
+    ident: Box<str>,
 ) -> Result<FieldDefinition, CastleError> {
     Ok(FieldDefinition {
-        name,
-        input_definitions: parse_input_definitions(tokenizer)?,
+        ident,
+        input_definitions: parse_optional_input_definitions(
+            tokenizer,
+            Punctuator::OpenParen,
+            Punctuator::CloseParen,
+        )?,
         return_kind: parse_kind(tokenizer)?,
         directives: parse_directives(tokenizer)?,
     })
-}
-
-pub fn parse_input_definitions(
-    tokenizer: &mut impl Tokenizable,
-) -> Result<HashMap<Box<str>, InputDefinition>, CastleError> {
-    let mut inputs = HashMap::new();
-    if !tokenizer.peek_is_punctuator(Punctuator::OpenParen, true)? {
-        return Ok(inputs);
-    };
-    tokenizer.expect_punctuator(Punctuator::OpenParen, true)?;
-    loop {
-        if tokenizer.peek_is_punctuator(Punctuator::CloseParen, true)? {
-            break;
-        }
-        let name = tokenizer.expect_identifier(true)?;
-        tokenizer.expect_punctuator(Punctuator::Colon, true)?;
-        let input_value = InputDefinition {
-            name: name.clone(),
-            input_kind: parse_kind(tokenizer)?,
-            default: None,
-            directives: parse_directives(tokenizer)?,
-        };
-        inputs.insert(name, input_value);
-    }
-    tokenizer.expect_punctuator(Punctuator::CloseParen, true)?;
-    Ok(inputs)
 }

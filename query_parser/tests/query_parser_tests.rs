@@ -259,7 +259,7 @@ fn can_parse_numeric_argument() {
     let expected: Query = [
         ("profile_picture".into(), Field {
             name: "profile_picture".into(),
-            inputs: [("size".into(), Input::Primitive(Primitive::UInt(48)))].into(),
+            inputs: [("size".into(), Input::Primitive(Primitive::Number(48.into())))].into(),
             rename: None,
             kind: FieldKind::Field,
         }),
@@ -279,8 +279,8 @@ fn can_parse_multiple_numeric_arguments() {
         ("profile_picture".into(), Field {
             name: "profile_picture".into(),
             inputs: [
-                ("size".into(), Input::Primitive(Primitive::UInt(48))),
-                ("width".into(), Input::Primitive(Primitive::UInt(100))),
+                ("size".into(), Input::Primitive(Primitive::Number(48.into()))),
+                ("width".into(), Input::Primitive(Primitive::Number(100.into()))),
             ].into(),
             rename: None,
             kind: FieldKind::Field,
@@ -364,7 +364,7 @@ fn can_parse_deeply_nested_query() {
                 }),
                 ("profile_picture".into(), Field {
                     name: "profile_picture".into(),
-                    inputs: [("size".into(), Input::Primitive(Primitive::UInt(48)))].into(),
+                    inputs: [("size".into(), Input::Primitive(Primitive::Number(48.into())))].into(),
                     rename: None,
                     kind: FieldKind::Object([
                         ("url".into(), Field {

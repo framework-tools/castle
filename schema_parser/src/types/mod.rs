@@ -11,7 +11,7 @@ pub use enum_definition::EnumDefinition;
 pub use enum_definition::VariantDefinition;
 pub use enum_definition::VariantKindDefinition;
 pub use field_definition::FieldDefinition;
-pub use input_definition::InputDefinition;
+pub use input_definition::{InputDefinition, InputTypeDefinition, InputDefinitions};
 pub use kind::Kind;
 pub use schema_definition::SchemaDefinition;
 pub use type_definition::TypeDefinition;

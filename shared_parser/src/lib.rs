@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use tokenizer::Primitive;
+pub use tokenizer::Primitive;
 
 pub mod parse_inputs;
 

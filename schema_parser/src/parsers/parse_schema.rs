@@ -6,7 +6,7 @@ use crate::types::SchemaDefinition;
 use super::{
     parse_directive_definition::parse_directive_definition,
     parse_directives::parse_directives, parse_enum_definition::parse_enum_definition,
-    parse_type_definition::parse_type_definition,
+    parse_type_definition::parse_type_definition, parse_input_type_definition::parse_input_type_definition,
 };
 
 pub fn parse_schema(schema: &str) -> Result<SchemaDefinition, CastleError> {
@@ -22,7 +22,7 @@ pub fn parse_schema(schema: &str) -> Result<SchemaDefinition, CastleError> {
         } else {
             // we're done
             if directives.len() != 0 {
-                Err(CastleError::SchemaValidation(
+                Err(CastleError::Validation(
                     "Cannot have directives at the end of the schema".into(),
                 ))?
             }
@@ -45,8 +45,12 @@ pub fn parse_schema(schema: &str) -> Result<SchemaDefinition, CastleError> {
                     ))?
                 }
                 let directive_definition = parse_directive_definition(&mut tokenizer)?;
-                schema_definition.directives.insert(directive_definition.name.clone(), directive_definition);
-            }
+                schema_definition.directives.insert(directive_definition.ident.clone(), directive_definition);
+            },
+            TokenKind::Keyword(Keyword::Input) => {
+                let input_type_definition = parse_input_type_definition(&mut tokenizer, directives)?;
+                schema_definition.input_types.insert(input_type_definition.ident.clone(), input_type_definition);
+            },
             _ => Err(CastleError::Schema(
                 format!("Expected item, found: {:?}", token.kind).into(),
                 token.span,

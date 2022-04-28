@@ -2,6 +2,7 @@ pub(crate) mod validate_schema;
 pub(crate) mod validate_query;
 pub(crate) mod validate_directives_exist;
 pub(crate) mod validate_resolvers_exist;
+pub(crate) mod validate_inputs;
 
 fn join_paths(path: &[&str]) -> String {
     let mut joined = String::new();
