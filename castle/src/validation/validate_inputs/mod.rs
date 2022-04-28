@@ -1,8 +1,8 @@
-use std::collections::HashMap;
+
 
 use castle_error::CastleError;
 use query_parser::{Input, Inputs};
-use schema_parser::types::{SchemaDefinition, InputDefinition, Kind, InputTypeDefinition, InputDefinitions};
+use schema_parser::types::{SchemaDefinition, InputDefinition, Kind, InputDefinitions};
 use shared_parser::Primitive;
 
 use crate::{Projection};
@@ -39,7 +39,14 @@ pub(crate) fn type_check_input_against_input_definition(
                 input_value
             ).into()))
         }
-        // TODO: bool
+        Kind { ident, .. } if &**ident == "bool" =>  match input_value {
+            Input::Primitive(Primitive::Boolean(..)) => Ok(()),
+            _ => Err(CastleError::Validation(format!(
+                "{} expected input of type Boolean but got {:#?}",
+                join_paths(path),
+                input_value
+            ).into()))
+        }
         // TODO: custom types
         // TODO: Uuid
         // TODO: Option
@@ -58,7 +65,7 @@ pub(crate) fn type_check_input_against_input_definition(
         Kind { ident, .. } => match schema.input_types.get(ident) {
             Some(input_def) => match input_value {
                 Input::Map(map) => {
-                    type_check_input_against_input_type_definition(
+                    type_check_inputs_against_input_definitions(
                         schema,
                         path,
                         &input_def.input_definitions,
@@ -80,7 +87,11 @@ pub(crate) fn type_check_input_against_input_definition(
 
 /// We want to validate that the user provided all of the required inputs and no
 /// additional inputs were provided.
-pub(crate) fn type_check_input_against_input_type_definition(
+/// - check for missing inputs
+/// - for each input
+///     - check for extra inputs that were not specified
+///     - [type_check_input_against_input_definition]
+pub(crate) fn type_check_inputs_against_input_definitions(
     schema: &SchemaDefinition,
     path: &[&str],
     input_defs: &InputDefinitions,
