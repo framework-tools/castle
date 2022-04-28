@@ -1,5 +1,5 @@
 use castle_error::CastleError;
-use schema_parser::types::{SchemaDefinition, Kind, InputTypeDefinition};
+use schema_parser::types::{SchemaDefinition, Kind};
 use validate_types::validate_types;
 use validate_enums::validate_enums;
 use validate_directive_definitions::validate_directive_definitions;

@@ -75,8 +75,6 @@ pub(crate) fn type_check_input_against_input_definition(
             // This case should not happen if we properly validate the schema.
             None => unreachable!("InputTypeDefinition for kind {} not found in schema", input_def.input_kind)
         }
-
-        _ => Err(CastleError::Unimplemented)
     }
 }
 
