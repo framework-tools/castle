@@ -73,7 +73,7 @@ pub(crate) fn type_check_input_against_input_definition(
                 ).into()))
             },
             // This case should not happen if we properly validate the schema.
-            None => unreachable!("InputTypeDefinition for kind {} not found in schema", input_def.input_kind)
+            None => Err(CastleError::Validation(format!("InputTypeDefinition for kind {} not found in schema", input_def.input_kind).into()))
         }
     }
 }
@@ -87,49 +87,6 @@ pub(crate) fn type_check_input_against_input_type_definition(
     map: &Inputs,
 ) -> Result<(), CastleError> {
 
-    "
-
-    type Query {
-        create_user(user: CreateUser): User
-    }
-
-    input CreateUser {
-        middlename: Option<String>,
-        occupations: Vec<String>,
-    }
-
-    //
-
-    create_user(user: {
-        middlename: Some(${middlename})
-    })
-
-    let user = {
-        first_name: 'John',
-        middlename: Some('Albert'),
-        block_kind: paragraph_block,
-        occupations: ['Software Engineer', 'Software Engineer']
-    }
-
-    enum BlockKind {
-
-    }
-
-    interface Enum {
-        serialise_into_enum(): string {
-            `Paragraph
-        }
-    }
-    class Block {
-        kind: BlockKind
-
-        serialise_into_enum() {
-            switch this.kind {
-
-            }
-        }
-    }
-    ";
 
     unimplemented!()
 
