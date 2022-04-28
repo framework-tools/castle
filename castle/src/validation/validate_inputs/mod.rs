@@ -1,8 +1,6 @@
-use std::collections::HashMap;
-
 use castle_error::CastleError;
 use query_parser::{Input, Inputs};
-use schema_parser::types::{SchemaDefinition, InputDefinition, Kind, InputTypeDefinition, InputDefinitions};
+use schema_parser::types::{SchemaDefinition, InputDefinition, Kind, InputDefinitions};
 use shared_parser::Primitive;
 
 use crate::{Projection};
