@@ -1,5 +1,3 @@
-
-
 use castle_error::CastleError;
 use query_parser::{Input, Inputs};
 use schema_parser::types::{SchemaDefinition, InputDefinition, Kind, InputDefinitions};
