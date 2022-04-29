@@ -100,7 +100,7 @@ pub(crate) fn type_check_inputs_against_input_definitions(
             Some(input_value) => {
                 type_check_input_against_input_definition(
                     schema,
-                    path,
+                    &[path, &[&*def.ident]].concat(),
                     def,
                     input_value,
                 )?;
@@ -113,11 +113,14 @@ pub(crate) fn type_check_inputs_against_input_definitions(
     }
 
     // check for extra inputs
-    for value in map.values() {
-        match input_defs.get(&value.ident) {
+    for (ident, _input) in map.iter() {
+        // check that the input definition actually has an input definition for this user-provided input
+        match input_defs.get(&*ident) {
             Some(_) => (),
-            None
-
+            None => Err(CastleError::Validation(format!("{} found unrecognised input {:#?}",
+                join_paths(&[path, &[&*ident]].concat()),
+                ident
+            ).into()))?
         }
     }
 
