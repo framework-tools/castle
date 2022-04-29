@@ -95,8 +95,32 @@ pub(crate) fn type_check_inputs_against_input_definitions(
     input_defs: &InputDefinitions,
     map: &Inputs,
 ) -> Result<(), CastleError> {
+    for def in input_defs.values() {
+        match map.get(&def.ident) {
+            Some(input_value) => {
+                type_check_input_against_input_definition(
+                    schema,
+                    path,
+                    def,
+                    input_value,
+                )?;
+            }
+            None => Err(CastleError::Validation(format!("{} expected input of type {:#?} but got nothing",
+                join_paths(path),
+                def
+            ).into()))?
+        }
+    }
+
+    // check for extra inputs
+    for value in map.values() {
+        match input_defs.get(&value.ident) {
+            Some(_) => (),
+            None
+
+        }
+    }
 
 
-    unimplemented!()
-
+    Ok(())
 }
