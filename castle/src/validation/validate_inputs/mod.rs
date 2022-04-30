@@ -45,6 +45,22 @@ pub(crate) fn type_check_input_against_input_definition(
                 input_value
             ).into()))
         }
+        Kind { ident, generics } if &**ident == "Option" =>  match input_value {
+            Input::Primitive(Primitive::String(..)) => Ok(()),
+            _ => Err(CastleError::Validation(format!(
+                "{} expected input of type Option but got {:#?}",
+                join_paths(path),
+                input_value
+            ).into()))
+        }
+        Kind { ident, generics } if &**ident == "Vec" =>  match input_value {
+            Input::Primitive(Primitive::String(..)) => Ok(()),
+            _ => Err(CastleError::Validation(format!(
+                "{} expected input of type Option but got {:#?}",
+                join_paths(path),
+                input_value
+            ).into()))
+        }
         // TODO: custom types
         // TODO: Uuid
         // TODO: Option
@@ -113,7 +129,7 @@ pub(crate) fn type_check_inputs_against_input_definitions(
     }
 
     // check for extra inputs
-    for (ident, _input) in map.iter() {
+    for (ident, ..) in map.iter() {
         // check that the input definition actually has an input definition for this user-provided input
         match input_defs.get(&*ident) {
             Some(_) => (),

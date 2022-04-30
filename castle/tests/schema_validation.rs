@@ -3,7 +3,7 @@
 // error if directive definition argument with no default is missing in the directive
 // error if the directive is allowed on the given directive location
 
-use castle::{castle::CastleBuilder, Directive};
+use castle::{castle::CastleBuilder, Directive, Value};
 
 struct MockDirective;
 
@@ -286,6 +286,25 @@ fn directive_with_custom_type_succeeds() {
         .unwrap();
 }
 
+
+#[test]
+fn directive_with_boolean_type_succeeds() {
+    let schema = "
+    directive @bar(arg: bool) on FieldDefinition
+
+    type Query {
+        foo: String @bar(arg: true)
+    }
+    ";
+
+    CastleBuilder::<()>::new(schema)
+        .add_resolver(&"foo", |_, _| unreachable!())
+        .add_directive(&"bar", MockDirective)
+        .build()
+        .unwrap();
+}
+
+
 // #[test]
 // fn directive_with_missing_arg_fails() {
 //     let schema = "
@@ -297,7 +316,7 @@ fn directive_with_custom_type_succeeds() {
 //     ";
 
 //     CastleBuilder::<()>::new(schema)
-//         .add_resolver(&"foo", |_, _| Ok(Value::String("bar".numbero())))
+//         .add_resolver(&"foo", |_, _| Ok(Value::String("bar".number())))
 //         .add_directive(&"foo", MockDirective)
 //         .build()
 //         .expect_err("schema should fail but didn't");
