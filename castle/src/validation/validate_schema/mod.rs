@@ -5,7 +5,7 @@ use validate_enums::validate_enums;
 use validate_directive_definitions::validate_directive_definitions;
 
 mod validate_types;
-mod validate_directives;
+pub(crate) mod validate_directives;
 mod validate_enums;
 mod validate_directive_definitions;
 

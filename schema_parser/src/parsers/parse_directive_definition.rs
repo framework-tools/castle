@@ -28,6 +28,7 @@ pub fn parse_directive_locations(tokenizer: &mut impl Tokenizable) -> Result<Has
             "VariantDefinition" => directive_locations.insert(DirectiveLocation::VariantDefinition),
             "InputDefinition" => directive_locations.insert(DirectiveLocation::InputDefinition),
             "TypeDefinition" => directive_locations.insert(DirectiveLocation::TypeDefinition),
+            "InputFieldDefinition" => directive_locations.insert(DirectiveLocation::InputFieldDefinition),
             str => return Err(CastleError::Schema(format!("Expected directive location, found: {:?}", str).into(), err_location))
         };
         if tokenizer.peek_is_punctuator(Punctuator::Or, true)? {

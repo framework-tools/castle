@@ -304,22 +304,75 @@ fn directive_with_boolean_type_succeeds() {
         .unwrap();
 }
 
+#[test]
+fn directive_with_array_type_succeeds() {
+    let schema = "
+    directive @bar(arg: Vec<String>) on FieldDefinition
 
-// #[test]
-// fn directive_with_missing_arg_fails() {
-//     let schema = "
-//     directive @foo(arg: String) on FieldDefinition
+    type Query {
+        foo: String @bar(arg: [\"string\"])
+    }
+    ";
 
-//     type Query {
-//         foo: String @foo
-//     }
-//     ";
+    CastleBuilder::<()>::new(schema)
+        .add_resolver(&"foo", |_, _| unreachable!())
+        .add_directive(&"bar", MockDirective)
+        .build()
+        .unwrap();
+}
 
-//     CastleBuilder::<()>::new(schema)
-//         .add_resolver(&"foo", |_, _| Ok(Value::String("bar".number())))
-//         .add_directive(&"foo", MockDirective)
-//         .build()
-//         .expect_err("schema should fail but didn't");
-// }
+#[test]
+fn directive_with_array_type_mismatch_fails() {
+    let schema = "
+    directive @bar(arg: Vec<String>) on FieldDefinition
+
+    type Query {
+        foo: String @bar(arg: [123])
+    }
+    ";
+
+    CastleBuilder::<()>::new(schema)
+        .add_resolver(&"foo", |_, _| unreachable!())
+        .add_directive(&"bar", MockDirective)
+        .build()
+        .expect_err("schema should fail but didn't");
+}
+
+#[test]
+fn directive_with_too_many_generic_params_fails() {
+    let schema = "
+    directive @bar(arg: Vec<String, String>) on FieldDefinition
+
+    type Query {
+        foo: String @bar(arg: [\"string\"])
+    }
+    ";
+
+    CastleBuilder::<()>::new(schema)
+        .add_resolver(&"foo", |_, _| unreachable!())
+        .add_directive(&"bar", MockDirective)
+        .build()
+        .expect_err("schema should fail but didn't");
+}
+
+
+#[test]
+fn directive_with_missing_arg_fails() {
+    let schema = "
+    directive @foo(arg: String) on FieldDefinition
+
+    type Query {
+        foo: String @foo
+    }
+    ";
+
+    CastleBuilder::<()>::new(schema)
+        .add_resolver(&"foo", |_, _| Ok(Value::String("bar".into())))
+        .add_directive(&"foo", MockDirective)
+        .build()
+        .expect_err("schema should fail but didn't");
+}
 
 // todo: test generic types
+// todo: enum types
+// todo: option type

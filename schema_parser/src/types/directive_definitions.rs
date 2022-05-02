@@ -45,6 +45,9 @@ pub enum DirectiveLocation {
 
     /// TypeDefinition
     TypeDefinition,
+
+    /// InputFieldDefinition
+    InputFieldDefinition,
 }
 
 impl Display for DirectiveLocation {
@@ -55,6 +58,7 @@ impl Display for DirectiveLocation {
             DirectiveLocation::VariantDefinition => write!(f, "VariantDefinition"),
             DirectiveLocation::InputDefinition => write!(f, "InputDefinition"),
             DirectiveLocation::TypeDefinition => write!(f, "TypeDefinition"),
+            DirectiveLocation::InputFieldDefinition => write!(f, "InputFieldDefinition"),
         }
     }
 }

@@ -43,7 +43,7 @@ fn validate_field(schema: &SchemaDefinition, type_name: &str, field: &FieldDefin
     }
 
     for directive in field.directives.iter() {
-        validate_directive(schema, &[&type_name, &field.ident], directive, DirectiveLocation::FieldDefinition)?;
+        validate_directive(schema, &[&type_name, &format!("{} @{}", field.ident, directive.ident)], directive, DirectiveLocation::FieldDefinition)?;
     }
 
     return Ok(());

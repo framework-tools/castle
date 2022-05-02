@@ -104,3 +104,22 @@ enum NumberKind {
     UInt(u64),
 }
 
+impl std::fmt::Display for Primitive {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Primitive::String(s) => write!(f, "\"{}\"", s),
+            Primitive::Number(n) => write!(f, "{}", n),
+            Primitive::Boolean(b) => write!(f, "{}", b),
+        }
+    }
+}
+
+impl std::fmt::Display for Number {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self.n {
+            NumberKind::Float(f) => write!(fmt, "{}", f),
+            NumberKind::Int(i) => write!(fmt, "{}", i),
+            NumberKind::UInt(u) => write!(fmt, "{}", u),
+        }
+    }
+}

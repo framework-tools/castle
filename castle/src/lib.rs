@@ -1,3 +1,4 @@
+#![feature(if_let_guard)]
 use std::collections::HashMap;
 use castle_error::CastleError;
 use query_parser::{Field, Inputs, Projection};

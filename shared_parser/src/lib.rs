@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Display};
 
 pub use tokenizer::Primitive;
 
@@ -33,4 +33,26 @@ pub enum VariantType {
     Unit,
     Tuple(Vec<Input>),
     Map(HashMap<Box<str>, Input>),
+}
+
+impl Display for Input {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Input::Primitive(primitive) => write!(f, "{}", primitive),
+            Input::Variant(variant) => write!(f, "{:#?}", variant),
+            Input::Map(map) => write!(f, "{:#?}", map),
+            Input::List(list) => write!(f, "{:#?}", list),
+        }
+    }
+}
+
+impl Display for Variant {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.ident)?;
+        match &self.value {
+            VariantType::Unit => write!(f, "()"),
+            VariantType::Tuple(tuple) => write!(f, "({})", tuple.iter().map(|val| format!("{}", val)).collect::<Vec<String>>().join(", ")),
+            VariantType::Map(map) => write!(f, "{:#?}", map),
+        }
+    }
 }
