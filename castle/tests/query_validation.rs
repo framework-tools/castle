@@ -1,20 +1,17 @@
 use castle::castle::Castle;
 
-
-static schema: &'static str = r#"
+static SCHEMA: &str = "
 type Query {
     hello: String
 }
-"#;
+";
 
 fn create_castle() -> Castle<()> {
-    castle::castle::CastleBuilder::new(schema)
-        .add_resolver("hello", |_, _|unimplemented!())
+    castle::castle::CastleBuilder::new(SCHEMA)
+        .add_resolver(&"hello", |_, _|unimplemented!())
         .build()
         .unwrap()
 }
-
-
 
 #[test]
 fn basic_projection_validates() {
