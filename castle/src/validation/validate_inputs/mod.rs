@@ -33,6 +33,7 @@ pub(crate) fn type_check_input_against_input_definition(
 
     Ok(())
 }
+
 pub(crate) fn type_check_input_against_expected_type(
     schema: &SchemaDefinition,
     path: &[&str], // used to build error message
@@ -47,8 +48,8 @@ pub(crate) fn type_check_input_against_expected_type(
         Input::Primitive(Primitive::String(..)) if &*expected_kind.ident == "String" => {}
         Input::Primitive(Primitive::Number(..)) if &*expected_kind.ident == "number" => {}
         Input::Primitive(Primitive::Boolean(..)) if &*expected_kind.ident == "bool" => {}
-        Input::List(list) if &*expected_kind.ident == "bool" => for (index, input) in list.iter().enumerate() {
-            type_check_input_against_expected_type(schema, &[path, &[&format!("{}", index)]].concat(), &expected_kind.generics[0], input)?;
+        Input::List(list) if &*expected_kind.ident == "Vec" => for (index, item) in list.iter().enumerate() {
+            type_check_input_against_expected_type(schema, &[&format!("{}[{}]", join_paths(path), index)], &expected_kind.generics[0], item)?;
         },
         Input::Map(map) if let Some(input_def) = schema.input_types.get(&expected_kind.ident) =>
             type_check_inputs_against_input_definitions(
@@ -58,7 +59,7 @@ pub(crate) fn type_check_input_against_expected_type(
                 map,
             )?,
         input_value => Err(CastleError::Validation(format!(
-            "{} expected input of type {:#?} but got {}",
+            "{} expected input of type {} but got {}",
             join_paths(path),
             expected_kind,
             input_value

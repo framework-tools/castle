@@ -13,7 +13,7 @@ use shared_parser::Input;
 use tokenizer::{Primitive, Number};
 
 #[test]
-fn can_parse_empty_query() {
+fn can_parse_empty_message() {
     let query = "";
     let expected = SchemaDefinition::new();
     let actual = parse_schema(query).unwrap();

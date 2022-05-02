@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 
 use castle_error::CastleError;
-use query_parser::parse_query;
+use query_parser::{parse_message, Message};
 use schema_parser::{parsers::parse_schema::parse_schema, types::SchemaDefinition};
 
 use crate::{
     validation::{
-        validate_directives_exist::validate_directives_exist, validate_query::validate_query,
+        validate_directives_exist::validate_directives_exist, validate_projection::{validate_projection},
         validate_resolvers_exist::validate_resolvers_exist, validate_schema::validate_schema,
     },
     Directive, Resolver, Value,
@@ -47,14 +47,21 @@ impl<Ctx> Castle<Ctx> {
         return Ok(());
     }
 
+    pub fn validate_message(&self, query: &str) -> Result<Message, CastleError> {
+        let parsed_message = parse_message(query)?;
+        for projection in &parsed_message.projections {
+            validate_projection(&self.parsed_schema, projection)?;
+        }
+        Ok(parsed_message)
+    }
+
     /// Runs a query
     /// - Validates query against the schema for validity and type correctness
     /// - Runs the query using the resolvers
     /// - Returns the result
-    pub fn run_query(&self, query: &str) -> Result<Value<Ctx>, CastleError> {
-        let parsed_query = parse_query(query)?;
-        validate_query(&self.parsed_schema, parsed_query)?;
-        // execute_query(parsed_query, &self.field_resolvers, &self.directive_resolvers)
+    pub fn run_message(&self, query: &str) -> Result<Value<Ctx>, CastleError> {
+        let parsed_message = self.validate_message(query)?;
+        // execute_message(parsed_message, &self.field_resolvers, &self.directive_resolvers)
         unimplemented!()
     }
 }

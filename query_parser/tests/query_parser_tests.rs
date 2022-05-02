@@ -1,23 +1,23 @@
 
 use std::collections::HashMap;
 
-use query_parser::{Field, FieldKind, parse_query};
+use query_parser::{Field, FieldKind, parse_message, Projection};
 use shared_parser::Input;
 use tokenizer::Primitive;
 
 #[test]
-fn can_parse_empty_query() {
+fn can_parse_empty_message() {
     let query = "";
-    let expected = HashMap::new();
-    let actual = parse_query(query).expect("Failed to parse query");
-    assert_eq!(expected, actual);
+    let expected: Vec<Projection> = Vec::new();
+    let actual = &parse_message(query).expect("Failed to parse query").projections;
+    assert_eq!(&expected, actual);
 }
 
 type Query = HashMap<Box<str>, Field>;
 
 #[test]
 fn can_parse_single_field() {
-    let query = "first_name";
+    let query = "message { first_name }";
 
     let expected = [
         ("first_name".into(), Field {
@@ -28,17 +28,17 @@ fn can_parse_single_field() {
         }),
     ].into_iter().collect::<Query>();
 
-    let actual = parse_query(query).expect("Failed to parse query");
-    assert_eq!(expected, actual);
+    let actual = &parse_message(query).expect("Failed to parse query").projections[0];
+    assert_eq!(&expected, actual);
 }
 
 #[test]
 fn can_parse_two_fields_with_empty_args() {
-    let query = "
-    first_name()
-    last_name
-    email()
-    ";
+    let query = "message {
+        first_name()
+        last_name
+        email()
+    }";
 
     let expected = [
         ("first_name".into(), Field {
@@ -61,14 +61,16 @@ fn can_parse_two_fields_with_empty_args() {
         }),
     ].into_iter().collect::<Query>();
 
-    let actual = parse_query(query).expect("Failed to parse query");
-    assert_eq!(expected, actual);
+    let actual = &parse_message(query).expect("Failed to parse query").projections[0];
+    assert_eq!(&expected, actual);
 }
 
 #[test]
 fn can_parse_object_projection() {
-    let query = "me {
-        first_name
+    let query = "message {
+        me {
+            first_name
+        }
     }";
 
     let expected: Query = [
@@ -86,15 +88,17 @@ fn can_parse_object_projection() {
             ].into()),
         }),
     ].into();
-    let actual = parse_query(query).expect("Failed to parse query");
-    assert_eq!(expected, actual);
+    let actual = &parse_message(query).expect("Failed to parse query").projections[0];
+    assert_eq!(&expected, actual);
 }
 
 #[test]
 fn can_parse_object_projection_with_two_fields() {
-    let query = "me() {
-        first_name,
-        last_name
+    let query = "message {
+        me() {
+            first_name,
+            last_name
+        }
     }";
 
     let expected = [
@@ -119,25 +123,29 @@ fn can_parse_object_projection_with_two_fields() {
         }),
     ].into_iter().collect::<Query>();
 
-    let actual = parse_query(query).expect("Failed to parse query");
-    assert_eq!(expected, actual);
+    let actual = &parse_message(query).expect("Failed to parse query").projections[0];
+    assert_eq!(&expected, actual);
 }
 
 #[test]
 fn query_with_two_separators_fails() {
-    let query = "me() {
-        first_name,,
-        last_name
+    let query = "message {
+        me() {
+            first_name,,
+            last_name
+        }
     }";
 
-    parse_query(query).expect_err("Expected error");
+    parse_message(query).expect_err("Expected error");
 }
 
 #[test]
 fn query_with_trailing_comma_succeeds() {
-    let query = "me() {
-        first_name,
-        last_name,
+    let query = "message {
+        me() {
+            first_name,
+            last_name,
+        }
     }";
 
     let expected: Query = [
@@ -162,15 +170,17 @@ fn query_with_trailing_comma_succeeds() {
         }),
     ].into();
 
-    let actual = parse_query(query).expect("Expected success");
-    assert_eq!(expected, actual);
+    let actual = &parse_message(query).expect("Expected success").projections[0];
+    assert_eq!(&expected, actual);
 }
 
 #[test]
 fn query_without_trailing_comma_succeeds() {
-    let query = "me() {
-        first_name
-        last_name
+    let query = "message {
+        me() {
+            first_name
+            last_name
+        }
     }";
 
     let expected: Query = [
@@ -195,28 +205,29 @@ fn query_without_trailing_comma_succeeds() {
         }),
     ].into();
 
-    let actual = parse_query(query).expect("Expected success");
-    assert_eq!(expected, actual);
+    let actual = &parse_message(query).expect("Expected success").projections[0];
+    assert_eq!(&expected, actual);
 }
 
 #[test]
 fn query_with_missing_closing_bracket_fails() {
-    let query = "me() {
-        first_name
-    ";
+    let query = "message {
+        me() {
+            first_name
+        }";
 
-    parse_query(query).expect_err("Expected error");
+    parse_message(query).expect_err("Expected error");
 }
 
 #[test]
 fn can_parse_object_and_single_field() {
-    let query = "
+    let query = "message {
         foo {
             bar as sdsd
             baz
         }
         xyz
-    ";
+    }";
 
     let expected: Query = [
         ("foo".into(), Field {
@@ -246,15 +257,15 @@ fn can_parse_object_and_single_field() {
         }),
     ].into();
 
-    let actual = parse_query(query).expect("Failed to parse query");
-    assert_eq!(expected, actual);
+    let actual = &parse_message(query).expect("Failed to parse query").projections[0];
+    assert_eq!(&expected, actual);
 }
 
 #[test]
 fn can_parse_numeric_argument() {
-    let query = "
+    let query = "message {
         profile_picture(size: 48)
-    ";
+    }";
 
     let expected: Query = [
         ("profile_picture".into(), Field {
@@ -265,15 +276,15 @@ fn can_parse_numeric_argument() {
         }),
     ].into();
 
-    let actual = parse_query(query).expect("Expected query to parse");
-    assert_eq!(expected, actual);
+    let actual = &parse_message(query).expect("Expected query to parse").projections[0];
+    assert_eq!(&expected, actual);
 }
 
 #[test]
 fn can_parse_multiple_numeric_arguments() {
-    let query = "
+    let query = "message {
         profile_picture(size: 48, width: 100)
-    ";
+    }";
 
     let expected: Query = [
         ("profile_picture".into(), Field {
@@ -287,15 +298,15 @@ fn can_parse_multiple_numeric_arguments() {
         }),
     ].into();
 
-    let actual = parse_query(query).expect("Expected query to parse");
-    assert_eq!(expected, actual);
+    let actual = &parse_message(query).expect("Expected query to parse").projections[0];
+    assert_eq!(&expected, actual);
 }
 
 #[test]
 fn can_parse_string_arguments() {
-    let query = "
+    let query = "message {
         profile_picture(size: \"48\")
-    ";
+    }";
 
     let expected: Query = [
         ("profile_picture".into(), Field {
@@ -306,19 +317,19 @@ fn can_parse_string_arguments() {
         }),
     ].into();
 
-    let actual = parse_query(query).expect("Expected query to parse");
-    assert_eq!(expected, actual);
+    let actual = &parse_message(query).expect("Expected query to parse").projections[0];
+    assert_eq!(&expected, actual);
 }
 
 #[test]
 fn can_parse_boolean_arguments() {
-    let query = "
-        foi(a: true, b: false)
-    ";
+    let query = "message {
+        foo(a: true, b: false)
+    }";
 
     let expected: Query = [
-        ("foi".into(), Field {
-            name: "foi".into(),
+        ("foo".into(), Field {
+            name: "foo".into(),
             inputs: [
                 ("a".into(), Input::Primitive(Primitive::Boolean(true))),
                 ("b".into(), Input::Primitive(Primitive::Boolean(false))),
@@ -328,13 +339,13 @@ fn can_parse_boolean_arguments() {
         }),
     ].into();
 
-    let actual = parse_query(query).expect("Expected query to parse");
-    assert_eq!(expected, actual);
+    let actual = &parse_message(query).expect("Expected query to parse").projections[0];
+    assert_eq!(&expected, actual);
 }
 
 #[test]
-fn can_parse_deeply_nested_query() {
-    let query = "
+fn can_parse_deeply_nested_message() {
+    let query = "message {
         me() {
             first_name
             last_name
@@ -342,7 +353,7 @@ fn can_parse_deeply_nested_query() {
                 url
             }
         }
-    ";
+    }";
 
     let expected: Query = [
         ("me".into(), Field {
@@ -379,17 +390,18 @@ fn can_parse_deeply_nested_query() {
         }),
     ].into();
 
-    let actual = parse_query(query).expect("Expected query to parse");
-    assert_eq!(expected, actual);
+    let actual = &parse_message(query).expect("Expected query to parse").projections[0];
+    assert_eq!(&expected, actual);
 }
 
 #[test]
 fn can_parse_object_argument() {
-    let query = "
+    let query = "message {
         create_user(user: {
             first_name: \"John\"
             last_name: \"Doe\"
         })
+    }
     ";
 
     let expected: Query = [
@@ -406,13 +418,13 @@ fn can_parse_object_argument() {
         }),
     ].into();
 
-    let actual = parse_query(query).expect("Expected query to parse");
-    assert_eq!(expected, actual);
+    let actual = &parse_message(query).expect("Expected query to parse").projections[0];
+    assert_eq!(&expected, actual);
 }
 
 #[test]
 fn can_parse_array_arguments() {
-    let query = "
+    let query = "message {
         create_user(user: [
             {
                 first_name: \"John\"
@@ -423,6 +435,7 @@ fn can_parse_array_arguments() {
                 last_name: \"Doe\"
             }
         ])
+    }
     ";
 
     let expected: Query = [
@@ -449,24 +462,26 @@ fn can_parse_array_arguments() {
         }),
     ].into();
 
-    let actual = parse_query(query).expect("Expected query to parse");
-    assert_eq!(expected, actual);
+    let actual = &parse_message(query).expect("Expected query to parse").projections[0];
+    assert_eq!(&expected, actual);
 }
 
 
 #[test]
 fn arg_with_no_ident_fails() {
-    let query = "
-    ()
+    let query = "message {
+        ()
+    }
     ";
 
-    parse_query(query).unwrap_err();
+    parse_message(query).unwrap_err();
 }
 #[test]
 fn can_parse_resolver_with_no_fields () {
-    let query = "
-    me {
+    let query = "message {
+        me {
 
+        }
     }";
 
     let expected: Query = [
@@ -478,8 +493,8 @@ fn can_parse_resolver_with_no_fields () {
         }),
     ].into();
 
-    let actual = parse_query(query).expect("Expected query to parse");
-    assert_eq!(expected, actual);
+    let actual = &parse_message(query).expect("Expected query to parse").projections[0];
+    assert_eq!(&expected, actual);
 }
 
 // #[test]
@@ -542,8 +557,8 @@ fn can_parse_resolver_with_no_fields () {
 //     let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
 //         ("me".into(), Want::new_object_projection(fields, HashMap::new())),
 //     ]);
-//     let actual = parse_query(query).unwrap();
-//     assert_eq!(expected, actual.wants);
+//     let actual = &parse_message(query).unwrap();
+//     assert_eq!(&expected, actual.wants);
 // }
 
 // #[test]
@@ -626,6 +641,6 @@ fn can_parse_resolver_with_no_fields () {
 //     let expected: HashMap<Box<str>, Want> = insert_each_field_into_fields(vec![
 //         ("me".into(), Want::new_object_projection(fields, HashMap::new())),
 //     ]);
-//     let actual = parse_query(query).unwrap();
-//     assert_eq!(expected, actual.wants);
+//     let actual = &parse_message(query).unwrap();
+//     assert_eq!(&expected, actual.wants);
 // }

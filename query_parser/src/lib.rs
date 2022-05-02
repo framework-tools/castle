@@ -1,21 +1,30 @@
+#![feature(if_let_guard)]
+
 pub(crate) mod parsers;
 pub(crate) mod types;
 
 use castle_error::CastleError;
-use parsers::parse_projection::parse_projection_inner;
-use tokenizer::{Tokenizer, Tokenizable};
-pub use types::{Field, FieldKind, Projection, Inputs, Input};
+use parsers::parse_projection::{parse_projection};
+use tokenizer::{Tokenizer, Tokenizable, TokenKind, Keyword, Punctuator};
+pub use types::{Field, FieldKind, Projection, Inputs, Input, Message};
 
-pub fn parse_query(query: &str) -> Result<Projection, CastleError> {
-    let bytes = query.as_bytes();
+pub fn parse_message(msg: &str) -> Result<Message, CastleError> {
+    let bytes = msg.as_bytes();
     let mut tokenizer = Tokenizer::new(bytes);
-    let map = parse_projection_inner(&mut tokenizer)?;
-    // check that the tokenizer is at EOF
-    match tokenizer.next(true)? {
-        Some(token) => Err(CastleError::Query(
-            format!("Expected identifier or EOF, got: {:?}", token.kind).into(),
-            token.span
-        )),
-        None => Ok(map),
+    let mut projections = Vec::new();
+    loop {
+        match tokenizer.next(true)? {
+            Some(token) if let TokenKind::Keyword(Keyword::Message) = token.kind => {
+                projections.push(parse_projection(&mut tokenizer, Punctuator::OpenBlock, Punctuator::CloseBlock)?);
+            }
+            Some(token) => return Err(CastleError::Query(
+                format!("Expected query keyword or EOF, got: {:?}", token.kind).into(),
+                token.span
+            )),
+            None => return Ok(Message {
+                projections,
+            }),
+        }
     }
 }
+

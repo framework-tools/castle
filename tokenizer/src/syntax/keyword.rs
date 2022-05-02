@@ -14,6 +14,7 @@ pub enum Keyword {
     Enum, // enum
     Directive, // directive
     Input, // input
+    Message, // message
 }
 
 impl FromStr for Keyword {
@@ -29,6 +30,7 @@ impl FromStr for Keyword {
             "enum" => Ok(Keyword::Enum),
             "directive" => Ok(Keyword::Directive),
             "input" => Ok(Keyword::Input),
+            "message" => Ok(Keyword::Message),
             _ => Err(format!("unexpected keyword: {}", s)),
         }
     }

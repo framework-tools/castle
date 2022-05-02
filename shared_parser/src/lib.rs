@@ -41,7 +41,7 @@ impl Display for Input {
             Input::Primitive(primitive) => write!(f, "{}", primitive),
             Input::Variant(variant) => write!(f, "{:#?}", variant),
             Input::Map(map) => write!(f, "{:#?}", map),
-            Input::List(list) => write!(f, "{:#?}", list),
+            Input::List(list) => write!(f, "{}", list.iter().map(|item| format!("{}", item)).collect::<Vec<String>>().join(", ")),
         }
     }
 }

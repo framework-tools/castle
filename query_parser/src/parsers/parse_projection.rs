@@ -66,7 +66,7 @@ fn parse_rename_optional(
     }
 }
 
-fn parse_projection(
+pub(crate) fn parse_projection(
     tokenizer: &mut impl Tokenizable,
     opening: Punctuator,
     closing: Punctuator,

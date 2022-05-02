@@ -10,7 +10,7 @@ struct MockDirective;
 impl<Ctx: Send + 'static> Directive<Ctx> for MockDirective {}
 
 #[test]
-fn schema_without_type_query_fails() {
+fn schema_without_type_message_fails() {
     let schema = "
 
     ";
@@ -63,7 +63,7 @@ fn schema_using_number_primitive_works() {
 }
 
 #[test]
-fn schema_with_non_existent_type_query_fails() {
+fn schema_with_non_existent_type_message_fails() {
     let schema = "
     type Query {
         foo: NonExistent
