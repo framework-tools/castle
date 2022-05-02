@@ -127,7 +127,6 @@ pub(crate) fn type_check_inputs_against_input_definitions(
             ).into()))?
         }
     }
-
     // check for extra inputs
     for (ident, ..) in map.iter() {
         // check that the input definition actually has an input definition for this user-provided input
@@ -139,7 +138,14 @@ pub(crate) fn type_check_inputs_against_input_definitions(
             ).into()))?
         }
     }
-
-
     Ok(())
+}
+
+pub(crate) fn type_check_generic(
+    schema: &SchemaDefinition,
+    path: &[&str],
+    input_defs: &InputDefinitions,
+    map: &Inputs,
+) -> Result<(), CastleError> {
+    unimplemented!()
 }
