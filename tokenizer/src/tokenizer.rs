@@ -135,3 +135,10 @@ fn is_whitespace(ch: u32) -> bool {
         0x1680 | 0x2000..=0x200A | 0x202F | 0x205F | 0x3000
     )
 }
+
+
+#[test]
+fn skips_newlines_with_eof() {
+    let mut tokenizer = Tokenizer::new("\n\n".as_bytes());
+    assert_eq!(tokenizer.next(true).unwrap(), None)
+}
