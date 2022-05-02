@@ -10,7 +10,7 @@ pub fn parse_newline(cursor: &mut Cursor<impl Read>, start: Position) -> Result<
     // peek the next char in a loop and coalesce all line terminators into a single newline token
     loop {
         match cursor.peek()? {
-            Some(b'\n' | b'\r') | None => cursor.next_byte()?,
+            Some(b'\n' | b'\r') => cursor.next_byte()?,
             _ => break Ok(Token::new(TokenKind::LineTerminator, Span::new(start, cursor.pos()))),
         };
     }

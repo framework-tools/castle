@@ -29,8 +29,6 @@ fn create_castle() -> Castle<()> {
         .unwrap()
 }
 
-
-
 #[test]
 fn basic_projection_validates() {
     let msg = r#"
