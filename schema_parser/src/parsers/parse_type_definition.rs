@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use castle_error::CastleError;
-use shared_parser::parse_inputs::consume_optional_separator;
+use shared_parser::parse_inputs::{consume_optional_separator, parse_optional_inputs};
 use tokenizer::{
     extensions::{ExpectIdentifier, ExpectPunctuator, IsPunctuator},
     Punctuator, Tokenizable,
@@ -35,7 +35,6 @@ fn parse_fields(
             break;
         }
         let name = tokenizer.expect_identifier(true)?;
-        tokenizer.expect_punctuator(Punctuator::Colon, true)?;
         fields.insert(name.clone(), parse_field_definition(tokenizer, name)?);
         consume_optional_separator(tokenizer)?;
     }
@@ -54,7 +53,10 @@ fn parse_field_definition(
             Punctuator::OpenParen,
             Punctuator::CloseParen,
         )?,
-        return_kind: parse_kind(tokenizer)?,
+        return_kind: {
+            tokenizer.expect_punctuator(Punctuator::Colon, true)?;
+            parse_kind(tokenizer)?
+        },
         directives: parse_directives(tokenizer)?,
     })
 }

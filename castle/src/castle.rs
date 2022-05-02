@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use castle_error::CastleError;
-use query_parser::{parse_message, Message};
+use query_parser::{Message, parse_message};
 use schema_parser::{parsers::parse_schema::parse_schema, types::SchemaDefinition};
 
 use crate::{

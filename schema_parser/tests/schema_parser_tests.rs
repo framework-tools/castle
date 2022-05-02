@@ -875,3 +875,99 @@ fn can_parse_input_type() {
     let actual = parse_schema(schema).unwrap();
     assert_eq!(expected, actual);
 }
+
+#[test]
+fn can_parse_type_with_field_args() {
+    let schema = "
+        type Test {
+            foo(bar: String): String
+        }
+    ";
+
+    let expected = SchemaDefinition {
+        directives: HashMap::new(),
+        enums: HashMap::new(),
+        input_types: HashMap::new(),
+        types: [(
+            "Test".into(),
+            TypeDefinition {
+                ident: "Test".into(),
+                directives: vec![],
+                fields: [(
+                    "foo".into(),
+                    FieldDefinition {
+                        directives: vec![],
+                        input_definitions: [("bar".into(), InputDefinition {
+                            ident: "bar".into(),
+                            default: None,
+                            directives: vec![],
+                            input_kind: Kind {
+                                ident: "String".into(),
+                                generics: vec![],
+                            },
+                        })]
+                        .into(),
+                        return_kind: Kind {
+                            ident: "String".into(),
+                            generics: vec![],
+                        },
+                        ident: "foo".into(),
+                    },
+                )]
+                .into(),
+            },
+        )]
+        .into(),
+    };
+
+    let actual = parse_schema(schema).unwrap();
+    assert_eq!(expected, actual);
+}
+
+#[test]
+fn can_parse_type_with_custom_input_type() {
+    let schema = "
+        type Test {
+            foo(bar: Xyz): String
+        }
+    ";
+
+    let expected = SchemaDefinition {
+        directives: HashMap::new(),
+        enums: HashMap::new(),
+        input_types: HashMap::new(),
+        types: [(
+            "Test".into(),
+            TypeDefinition {
+                ident: "Test".into(),
+                directives: vec![],
+                fields: [(
+                    "foo".into(),
+                    FieldDefinition {
+                        directives: vec![],
+                        input_definitions: [("bar".into(), InputDefinition {
+                            ident: "bar".into(),
+                            default: None,
+                            directives: vec![],
+                            input_kind: Kind {
+                                ident: "Xyz".into(),
+                                generics: vec![],
+                            },
+                        })]
+                        .into(),
+                        return_kind: Kind {
+                            ident: "String".into(),
+                            generics: vec![],
+                        },
+                        ident: "foo".into(),
+                    },
+                )]
+                .into(),
+            },
+        )]
+        .into(),
+    };
+
+    let actual = parse_schema(schema).unwrap();
+    assert_eq!(expected, actual);
+}

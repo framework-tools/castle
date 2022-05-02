@@ -373,6 +373,23 @@ fn directive_with_missing_arg_fails() {
         .expect_err("schema should fail but didn't");
 }
 
+#[test]
+fn test_resolvers() {
+    let schema = "
+    type Query {
+        foo: String
+        bar(arg: String): String
+    }
+    ";
+    CastleBuilder::<()>::new(schema)
+    .add_resolver(&"foo", |_, _| Ok(Value::String("bar".into())))
+    .build()
+    .expect_err("schema should fail but didn't");
+}
+
+
+
+
 // todo: test generic types
 // todo: enum types
 // todo: option type
