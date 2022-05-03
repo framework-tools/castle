@@ -17,7 +17,7 @@ pub fn parse_message(msg: &str) -> Result<Message, CastleError> {
             Some(token) if let TokenKind::Keyword(Keyword::Message) = token.kind => {
                 projections.push(parse_projection(&mut tokenizer, Punctuator::OpenBlock, Punctuator::CloseBlock)?);
             }
-            Some(token) => return Err(CastleError::Query(
+            Some(token) => return Err(CastleError::Root(
                 format!("Expected query keyword or EOF, got: {:?}", token.kind).into(),
                 token.span
             )),

@@ -15,7 +15,7 @@ use super::{Kind, Directive};
 ///
 /// Eg:
 /// ```text
-/// type Query {
+/// type Root {
 ///     hello(
 ///         this_is_an_arg: String @lowercase
 ///         and_another: Number

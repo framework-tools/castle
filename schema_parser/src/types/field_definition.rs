@@ -2,7 +2,7 @@ use super::{Kind, Directive, InputDefinitions};
 
 /// Definition of a field resolver, used in field types
 /// ```notrust
-/// type Query {
+/// type Root {
 ///     this_is_a_field(arg: String): String
 ///     also_a_field: String @lowercase
 /// }

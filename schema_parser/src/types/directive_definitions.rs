@@ -69,7 +69,7 @@ impl Display for DirectiveLocation {
 /// Named below for convenience.
 /// ```notrust
 /// @type_directive(arg: 123)
-/// type Query {
+/// type Root {
 ///     this_is_a_field(arg: String): String @FieldDefinition(an_arg: 123)
 /// }
 /// ```

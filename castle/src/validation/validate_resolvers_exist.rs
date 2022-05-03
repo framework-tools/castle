@@ -9,17 +9,17 @@ pub(crate) fn validate_resolvers_exist<Ctx>(
     parsed_schema: &SchemaDefinition,
     field_resolvers: &HashMap<Box<str>, Resolver<Ctx>>,
 ) -> Result<(), CastleError> {
-    match parsed_schema.types.get("Query") {
+    match parsed_schema.types.get("Root") {
         Some(query_type) => {
             for field_name in query_type.fields.keys() {
                 if !field_resolvers.contains_key(field_name) {
                     Err(CastleError::MissingResolver(
-                        format!("Missing resolver for Query.{}", field_name).into(),
+                        format!("Missing resolver for Root.{}", field_name).into(),
                     ))?;
                 }
             }
             Ok(())
         },
-        None => Err(CastleError::MissingResolver("Missing `type Query` root type".into()))?,
+        None => Err(CastleError::MissingResolver("Missing `type Root` root type".into()))?,
     }
 }

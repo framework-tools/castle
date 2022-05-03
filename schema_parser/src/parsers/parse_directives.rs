@@ -10,7 +10,7 @@ use crate::types::Directive;
 /// directive lowercase (
 ///     arg_definiton
 /// )
-/// type Query {
+/// type Root {
 ///     user(arg_definiton: String): User @directive(arg: 123)
 /// }
 /// user(user_id: 123) {

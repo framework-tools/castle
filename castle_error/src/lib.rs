@@ -17,7 +17,7 @@ pub enum CastleError {
     Validation(Box<str>),
     MissingDirective(Box<str>),
     MissingResolver(Box<str>),
-    Query(Box<str>, Span),
+    Root(Box<str>, Span),
     Unimplemented,
 }
 
@@ -56,7 +56,7 @@ impl fmt::Display for CastleError {
             Self::Other(msg) => write!(f, "Error: {}", msg),
             Self::Schema(msg, span) => write!(f, "Schema error: {} at {}", msg, span),
             Self::Validation(msg) => write!(f, "Schema validation error: {}", msg),
-            Self::Query(msg, span) => write!(f, "Query error: {} at {}", msg, span),
+            Self::Root(msg, span) => write!(f, "Root error: {} at {}", msg, span),
             Self::MissingDirective(msg) => write!(f, "Missing directive: {}", msg),
             Self::MissingResolver(msg) => write!(f, "Missing resolver: {}", msg),
             Self::Unimplemented => write!(f, "Unimplemented"),
@@ -77,7 +77,7 @@ impl ExtendedErrorDisplay for CastleError {
             Self::Syntax(msg, pos) => pretty_print_lexer_error(msg, pos, src),
             Self::Parser(msg, span) => pretty_print_parser_error(msg, span, src),
             Self::Schema(msg, span) => pretty_print_parser_error(msg, span, src),
-            Self::Query(msg, span) => pretty_print_parser_error(msg, span, src),
+            Self::Root(msg, span) => pretty_print_parser_error(msg, span, src),
             Self::Validation(msg) => msg.to_string(),
             Self::MissingDirective(msg) => msg.to_string(),
             Self::MissingResolver(msg) => msg.to_string(),

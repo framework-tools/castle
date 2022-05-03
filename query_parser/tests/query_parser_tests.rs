@@ -13,7 +13,7 @@ fn can_parse_empty_message() {
     assert_eq!(&expected, actual);
 }
 
-type Query = HashMap<Box<str>, Field>;
+type Root = HashMap<Box<str>, Field>;
 
 #[test]
 fn can_parse_single_field() {
@@ -26,7 +26,7 @@ fn can_parse_single_field() {
             rename: None,
             kind: FieldKind::Field,
         }),
-    ].into_iter().collect::<Query>();
+    ].into_iter().collect::<Root>();
 
     let actual = &parse_message(query).expect("Failed to parse query").projections[0];
     assert_eq!(&expected, actual);
@@ -59,7 +59,7 @@ fn can_parse_two_fields_with_empty_args() {
             rename: None,
             kind: FieldKind::Field,
         }),
-    ].into_iter().collect::<Query>();
+    ].into_iter().collect::<Root>();
 
     let actual = &parse_message(query).expect("Failed to parse query").projections[0];
     assert_eq!(&expected, actual);
@@ -73,7 +73,7 @@ fn can_parse_object_projection() {
         }
     }";
 
-    let expected: Query = [
+    let expected: Root = [
         ("me".into(), Field {
             name: "me".into(),
             inputs: HashMap::new(),
@@ -119,9 +119,9 @@ fn can_parse_object_projection_with_two_fields() {
                     rename: None,
                     kind: FieldKind::Field,
                 }),
-            ].into_iter().collect::<Query>()),
+            ].into_iter().collect::<Root>()),
         }),
-    ].into_iter().collect::<Query>();
+    ].into_iter().collect::<Root>();
 
     let actual = &parse_message(query).expect("Failed to parse query").projections[0];
     assert_eq!(&expected, actual);
@@ -148,7 +148,7 @@ fn query_with_trailing_comma_succeeds() {
         }
     }";
 
-    let expected: Query = [
+    let expected: Root = [
         ("me".into(), Field {
             name: "me".into(),
             inputs: HashMap::new(),
@@ -183,7 +183,7 @@ fn query_without_trailing_comma_succeeds() {
         }
     }";
 
-    let expected: Query = [
+    let expected: Root = [
         ("me".into(), Field {
             name: "me".into(),
             inputs: HashMap::new(),
@@ -229,7 +229,7 @@ fn can_parse_object_and_single_field() {
         xyz
     }";
 
-    let expected: Query = [
+    let expected: Root = [
         ("foo".into(), Field {
             name: "foo".into(),
             inputs: HashMap::new(),
@@ -267,7 +267,7 @@ fn can_parse_numeric_argument() {
         profile_picture(size: 48)
     }";
 
-    let expected: Query = [
+    let expected: Root = [
         ("profile_picture".into(), Field {
             name: "profile_picture".into(),
             inputs: [("size".into(), Input::Primitive(Primitive::Number(48.into())))].into(),
@@ -286,7 +286,7 @@ fn can_parse_multiple_numeric_arguments() {
         profile_picture(size: 48, width: 100)
     }";
 
-    let expected: Query = [
+    let expected: Root = [
         ("profile_picture".into(), Field {
             name: "profile_picture".into(),
             inputs: [
@@ -308,7 +308,7 @@ fn can_parse_string_arguments() {
         profile_picture(size: \"48\")
     }";
 
-    let expected: Query = [
+    let expected: Root = [
         ("profile_picture".into(), Field {
             name: "profile_picture".into(),
             inputs: [("size".into(), Input::Primitive(Primitive::String("48".into())))].into(),
@@ -327,7 +327,7 @@ fn can_parse_boolean_arguments() {
         foo(a: true, b: false)
     }";
 
-    let expected: Query = [
+    let expected: Root = [
         ("foo".into(), Field {
             name: "foo".into(),
             inputs: [
@@ -355,7 +355,7 @@ fn can_parse_deeply_nested_message() {
         }
     }";
 
-    let expected: Query = [
+    let expected: Root = [
         ("me".into(), Field {
             name: "me".into(),
             inputs: HashMap::new(),
@@ -404,7 +404,7 @@ fn can_parse_object_argument() {
     }
     ";
 
-    let expected: Query = [
+    let expected: Root = [
         ("create_user".into(), Field {
             name: "create_user".into(),
             inputs: [("user".into(), Input::Map(
@@ -438,7 +438,7 @@ fn can_parse_array_arguments() {
     }
     ";
 
-    let expected: Query = [
+    let expected: Root = [
         ("create_user".into(), Field {
             name: "create_user".into(),
             inputs: [("user".into(), Input::List(
@@ -484,7 +484,7 @@ fn can_parse_resolver_with_no_fields () {
         }
     }";
 
-    let expected: Query = [
+    let expected: Root = [
         ("me".into(), Field {
             name: "me".into(),
             inputs: HashMap::new(),
