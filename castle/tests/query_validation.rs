@@ -10,7 +10,7 @@
 use castle::{castle::Castle};
 use castle_error::CastleError;
 
-fn create_castle() -> Castle<()> {
+fn create_castle() -> Castle<i32> {
     let schema = r#"
         input Xyz {
             abc: number
@@ -43,19 +43,19 @@ fn create_castle() -> Castle<()> {
         }
     "#;
     castle::castle::CastleBuilder::new(schema)
-        .add_resolver("hello", |_, _|unimplemented!())
-        .add_resolver("foo", |_, _|unimplemented!())
-        .add_resolver("baz", |_, _|unimplemented!())
-        .add_resolver("list", |_, _|unimplemented!())
-        .add_resolver("list2", |_, _|unimplemented!())
-        .add_resolver("foobar", |_, _|unimplemented!())
-        .add_resolver("oogabooga", |_, _|unimplemented!())
-        .add_resolver("some_thing", |_, _|unimplemented!())
-        .add_resolver("sigma", |_, _|unimplemented!())
-        .add_resolver("thing_is_true", |_, _|unimplemented!())
-        .add_resolver("high_level_obj", |_, _|unimplemented!())
-        .add_resolver("list_of_some_things", |_, _|unimplemented!())
-        .add_resolver("list_of_high_level_obj", |_, _|unimplemented!())
+        .add_resolver("hello", ResolverWrapper::new(|_, &0|unimplemented!()))
+        .add_resolver("foo", ResolverWrapper::new(|_, &0|unimplemented!()))
+        .add_resolver("baz", ResolverWrapper::new(|_, &0|unimplemented!()))
+        .add_resolver("list", ResolverWrapper::new(|_, &0|unimplemented!()))
+        .add_resolver("list2", ResolverWrapper::new(|_, &0|unimplemented!()))
+        .add_resolver("foobar", ResolverWrapper::new(|_, &0|unimplemented!()))
+        .add_resolver("oogabooga", ResolverWrapper::new(|_, &0|unimplemented!()))
+        .add_resolver("some_thing", ResolverWrapper::new(|_, &0|unimplemented!()))
+        .add_resolver("sigma", ResolverWrapper::new(|_, &0|unimplemented!()))
+        .add_resolver("thing_is_true", ResolverWrapper::new(|_, &0|unimplemented!()))
+        .add_resolver("high_level_obj", ResolverWrapper::new(|_, &0|unimplemented!()))
+        .add_resolver("list_of_some_things", ResolverWrapper::new(|_, &0|unimplemented!()))
+        .add_resolver("list_of_high_level_obj", ResolverWrapper::new(|_, &0|unimplemented!()))
         .build()
         .unwrap()
 }

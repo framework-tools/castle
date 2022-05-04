@@ -8,7 +8,7 @@ mod validation;
 pub mod castle;
 
 #[derive(Debug)]
-pub enum Value<Ctx> {
+pub enum Value<Ctx: Debug> {
     Empty,
     Bool(bool),
     Int(i64),
@@ -17,7 +17,7 @@ pub enum Value<Ctx> {
     String(String),
     Vec(Vec<Value<Ctx>>),
     Object(HashMap<Box<str>, Value<Ctx>>),
-    Resolver(Box<dyn Resolver<Ctx>>),
+    Resolver(ResolverWrapper<Ctx>),
 }
 
 impl <Ctx: Debug> PartialEq for Value<Ctx> {
@@ -30,7 +30,7 @@ impl <Ctx: Debug> PartialEq for Value<Ctx> {
             (Self::String(l0), Self::String(r0)) => l0 == r0,
             (Self::Vec(l0), Self::Vec(r0)) => l0 == r0,
             (Self::Object(l0), Self::Object(r0)) => l0 == r0,
-            (Self::Resolver(l0), Self::Resolver(r0)) => l0 == r0,
+            (Self::Resolver(l0), Self::Resolver(r0)) => l0.unwrap() == r0.unwrap(),
             _ => core::mem::discriminant(self) == core::mem::discriminant(other),
         }
     }
@@ -45,9 +45,33 @@ impl<Ctx> PartialEq for dyn Resolver<Ctx> + {
 //A resolver takes in fields (inner wants), arguments and context and returns the resolved want
 // pub type Resolver<Ctx: Debug, F: Fn> = Fn(&mut Field, &Ctx) -> Result<Value<Ctx>, CastleError>;
 #[async_trait::async_trait]
-pub trait Resolver<Ctx: Debug>: Send + Sync + Debug {
+pub trait Resolver<Ctx: Debug>: Send + Sync {
     async fn resolve(&self, field: &Field, ctx: &Ctx) -> Result<Value<Ctx>, CastleError>;
 }
+
+pub struct ResolverWrapper<Ctx: Debug> {
+    pub resolver: Box<dyn Resolver<Ctx>>
+}
+
+impl <Ctx: Debug>ResolverWrapper<Ctx> {
+    pub fn new(resolver: impl Resolver<Ctx> + 'static) -> ResolverWrapper<Ctx> {
+        ResolverWrapper {
+            resolver: Box::new(resolver)
+        }
+    }
+    
+    pub fn unwrap<'a>(&'a self) -> &'a Box<dyn Resolver<Ctx>> {
+        &self.resolver
+    }
+}
+impl <Ctx: Debug> Debug for ResolverWrapper<Ctx> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Resolver")
+    }
+}
+
+
+
 
 // This allows closures to impl the resolver trait
 #[async_trait::async_trait]
