@@ -2,12 +2,12 @@
 // error if unknown argument provided to directive
 // error if directive definition argument with no default is missing in the directive
 // error if the directive is allowed on the given directive location
-
+use std::fmt::Debug;
 use castle::{castle::CastleBuilder, Directive, Value};
 
 struct MockDirective;
 
-impl<Ctx: Send + 'static> Directive<Ctx> for MockDirective {}
+impl<Ctx: Send + 'static + Debug> Directive<Ctx> for MockDirective {}
 
 #[test]
 fn schema_without_type_message_fails() {

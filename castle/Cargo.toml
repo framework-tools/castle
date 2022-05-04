@@ -15,5 +15,6 @@ query_parser = { path = "../query_parser" }
 shared_parser = { path = "../shared_parser" }
 async-trait = "0.1.53"
 derivative = "2.2.0"
+dyn_partial_eq = "0.1.2"
 [dev-dependencies]
 tokio = { version = "1.17.0", features = ["macros", "rt"]}

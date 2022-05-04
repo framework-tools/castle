@@ -1,4 +1,13 @@
-use castle::castle::Castle;
+// #[test]
+// fn testing() {
+//     let resolver = |arg1: i32, arg2: i32| unimplemented!();
+//     let resolver_wrapper = in
+//     type Ctx = ();
+//     let builder: CastleBuilder<Ctx> = CastleBuilder::new("");
+//     let castle = builder.add_resolver("foo", resolver).build().unwrap();
+// }
+
+use castle::{castle::Castle};
 use castle_error::CastleError;
 
 fn create_castle() -> Castle<()> {
@@ -472,14 +481,15 @@ fn fails_for_invalid_field_multiple_layers_of_nesting() {
                 doesnt_exist
             }
         ]
-
         list_of_some_things [
             hello
         ]
     }
     "#;
-
     create_castle()
         .validate_message(msg)
         .unwrap_err();
 }
+
+use castle::{castle::CastleBuilder, ResolverWrapper};
+
