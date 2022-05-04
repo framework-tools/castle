@@ -3,11 +3,11 @@ use std::fmt::Debug;
 use castle_error::CastleError;
 use schema_parser::types::SchemaDefinition;
 
-use crate::{Resolver, ResolverWrapper};
+use crate::{Resolver};
 
 pub(crate) fn validate_resolvers_exist<Ctx: Debug>(
     parsed_schema: &SchemaDefinition,
-    field_resolvers: &HashMap<Box<str>, ResolverWrapper<Ctx>>,
+    field_resolvers: &HashMap<Box<str>, Box<dyn Resolver<Ctx>>>,
 ) -> Result<(), CastleError> {
     match parsed_schema.types.get("Root") {
         Some(query_type) => {

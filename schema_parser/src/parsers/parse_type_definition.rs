@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use castle_error::CastleError;
-use shared_parser::parse_inputs::{consume_optional_separator, parse_optional_inputs};
+use shared_parser::parse_inputs::{consume_optional_separator};
 use tokenizer::{
     extensions::{ExpectIdentifier, ExpectPunctuator, IsPunctuator},
     Punctuator, Tokenizable,

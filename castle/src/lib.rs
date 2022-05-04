@@ -16,7 +16,7 @@ pub enum Value<Ctx: Debug> {
     String(String),
     Vec(Vec<Value<Ctx>>),
     Object(HashMap<Box<str>, Value<Ctx>>),
-    Resolver(ResolverWrapper<Ctx>),
+    Resolver(Box<dyn Resolver<Ctx>>),
 }
 
 impl <Ctx: Debug> PartialEq for Value<Ctx> {
@@ -29,7 +29,7 @@ impl <Ctx: Debug> PartialEq for Value<Ctx> {
             (Self::String(l0), Self::String(r0)) => l0 == r0,
             (Self::Vec(l0), Self::Vec(r0)) => l0 == r0,
             (Self::Object(l0), Self::Object(r0)) => l0 == r0,
-            (Self::Resolver(l0), Self::Resolver(r0)) => l0.unwrap() == r0.unwrap(),
+            (Self::Resolver(l0), Self::Resolver(r0)) => l0 == r0,
             _ => core::mem::discriminant(self) == core::mem::discriminant(other),
         }
     }
@@ -41,6 +41,13 @@ impl<Ctx> PartialEq for dyn Resolver<Ctx> + {
     }
 }
 
+impl<Ctx> Debug for dyn Resolver<Ctx> + {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Resolver")
+    }
+}
+
+
 //A resolver takes in fields (inner wants), arguments and context and returns the resolved want
 // pub type Resolver<Ctx: Debug, F: Fn> = Fn(&mut Field, &Ctx) -> Result<Value<Ctx>, CastleError>;
 #[async_trait::async_trait]
@@ -48,33 +55,14 @@ pub trait Resolver<Ctx: Debug>: Send + Sync {
     async fn resolve(&self, field: &Field, ctx: &Ctx) -> Result<Value<Ctx>, CastleError>;
 }
 
-pub struct ResolverWrapper<Ctx: Debug> {
-    pub resolver: Box<dyn Resolver<Ctx>>
-}
-
-impl <Ctx: Debug>ResolverWrapper<Ctx> {
-    pub fn new(resolver: impl Resolver<Ctx> + 'static) -> ResolverWrapper<Ctx> {
-        ResolverWrapper {
-            resolver: Box::new(resolver)
-        }
-    }
-    
-    pub fn unwrap<'a>(&'a self) -> &'a Box<dyn Resolver<Ctx>> {
-        &self.resolver
-    }
-}
-impl <Ctx: Debug> Debug for ResolverWrapper<Ctx> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Resolver")
-    }
-}
-
-
-
 
 // This allows closures to impl the resolver trait
 #[async_trait::async_trait]
-impl <Ctx: Debug + Sync, F: Fn(&Field, &Ctx) -> Result<Value<Ctx>, CastleError> + Debug + Send + Sync> Resolver<Ctx> for F {
+impl<Ctx, F> Resolver<Ctx> for F
+where
+    Ctx: Debug + Sync + Send + 'static,
+    F: Fn(&Field, &Ctx) -> Result<Value<Ctx>, CastleError> + Send + Sync + 'static,
+{
     async fn resolve(&self, field: &Field, ctx: &Ctx) -> Result<Value<Ctx>, CastleError> {
         self(field, ctx)
     }

@@ -1,16 +1,8 @@
-// #[test]
-// fn testing() {
-//     let resolver = |arg1: i32, arg2: i32| unimplemented!();
-//     let resolver_wrapper = in
-//     type Ctx = ();
-//     let builder: CastleBuilder<Ctx> = CastleBuilder::new("");
-//     let castle = builder.add_resolver("foo", resolver).build().unwrap();
-// }
-
 use castle::{castle::Castle};
 use castle_error::CastleError;
+use query_parser::Field;
 
-fn create_castle() -> Castle<i32> {
+fn create_castle() -> Castle<()> {
     let schema = r#"
         input Xyz {
             abc: number
@@ -43,19 +35,19 @@ fn create_castle() -> Castle<i32> {
         }
     "#;
     castle::castle::CastleBuilder::new(schema)
-        .add_resolver("hello", ResolverWrapper::new(|_, &0|unimplemented!()))
-        .add_resolver("foo", ResolverWrapper::new(|_, &0|unimplemented!()))
-        .add_resolver("baz", ResolverWrapper::new(|_, &0|unimplemented!()))
-        .add_resolver("list", ResolverWrapper::new(|_, &0|unimplemented!()))
-        .add_resolver("list2", ResolverWrapper::new(|_, &0|unimplemented!()))
-        .add_resolver("foobar", ResolverWrapper::new(|_, &0|unimplemented!()))
-        .add_resolver("oogabooga", ResolverWrapper::new(|_, &0|unimplemented!()))
-        .add_resolver("some_thing", ResolverWrapper::new(|_, &0|unimplemented!()))
-        .add_resolver("sigma", ResolverWrapper::new(|_, &0|unimplemented!()))
-        .add_resolver("thing_is_true", ResolverWrapper::new(|_, &0|unimplemented!()))
-        .add_resolver("high_level_obj", ResolverWrapper::new(|_, &0|unimplemented!()))
-        .add_resolver("list_of_some_things", ResolverWrapper::new(|_, &0|unimplemented!()))
-        .add_resolver("list_of_high_level_obj", ResolverWrapper::new(|_, &0|unimplemented!()))
+        .add_resolver("hello", Box::new(|_: &Field, _: &()|unimplemented!()))
+        .add_resolver("foo", Box::new(|_: &Field, _: &()|unimplemented!()))
+        .add_resolver("baz", Box::new(|_: &Field, _: &()|unimplemented!()))
+        .add_resolver("list", Box::new(|_: &Field, _: &()|unimplemented!()))
+        .add_resolver("list2", Box::new(|_: &Field, _: &()|unimplemented!()))
+        .add_resolver("foobar", Box::new(|_: &Field, _: &()|unimplemented!()))
+        .add_resolver("oogabooga", Box::new(|_: &Field, _: &()|unimplemented!()))
+        .add_resolver("some_thing", Box::new(|_: &Field, _: &()|unimplemented!()))
+        .add_resolver("sigma", Box::new(|_: &Field, _: &()|unimplemented!()))
+        .add_resolver("thing_is_true", Box::new(|_: &Field, _: &()|unimplemented!()))
+        .add_resolver("high_level_obj", Box::new(|_: &Field, _: &()|unimplemented!()))
+        .add_resolver("list_of_some_things", Box::new(|_: &Field, _: &()|unimplemented!()))
+        .add_resolver("list_of_high_level_obj", Box::new(|_: &Field, _: &()|unimplemented!()))
         .build()
         .unwrap()
 }
