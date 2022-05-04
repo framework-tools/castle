@@ -144,7 +144,7 @@ fn nested_input_with_unknown_args_fails() {
 fn list_items_without_correct_type_fails() {
     let msg = "
     message {
-        list(arg: [\"abc\", 123]) 
+        list(arg: [\"abc\", 123])
     }
     ";
 
@@ -490,6 +490,4 @@ fn fails_for_invalid_field_multiple_layers_of_nesting() {
         .validate_message(msg)
         .unwrap_err();
 }
-
-use castle::{castle::CastleBuilder, ResolverWrapper};
 

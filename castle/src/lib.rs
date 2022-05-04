@@ -1,7 +1,6 @@
 #![feature(if_let_guard)]
 use std::{collections::HashMap, fmt::Debug};
 use castle_error::CastleError;
-use dyn_partial_eq::{DynPartialEq, dyn_partial_eq};
 use query_parser::{Field, Inputs, Projection};
 
 mod validation;
