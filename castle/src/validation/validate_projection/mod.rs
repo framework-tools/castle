@@ -11,80 +11,54 @@ pub(crate) fn validate_projection(schema: &SchemaDefinition, projection: &Projec
     return Ok(())
 }
 
-// for each field in projection:
-// -> check field has been defined in schema & get its definition
-// -> validate its inputs against it's definitions inputs
-// -> match the field:
-//     if Single Field -> check the field is defined in the type
-//     if Object -> recursively validate each field
 fn validate_each_projection_field(
-    schema: &SchemaDefinition, 
+    schema: &SchemaDefinition,
     projection: &Projection,
     type_being_validated: &TypeDefinition,
     path: &[&str]
 ) -> Result<(), CastleError> {
     for (name, value) in projection {
-        let field_def = get_field_definition(type_being_validated, name)?;
-        type_check_inputs_against_input_definitions(schema, &[path, &[name]].concat(), &field_def.input_definitions, &value.inputs)?;
-        validate_field_kind(&value.kind, schema, name, type_being_validated, field_def, &[path, &[name]].concat())?;
-    }
-    return Ok(())
-}
+        let field_def = type_being_validated.fields.get(name)
+            .ok_or(CastleError::Validation(format!("{} has no field named: {}", join_paths(path), name).into()))?;
 
-fn get_field_definition<'a>(root: &'a TypeDefinition, name: &Box<str>) -> Result<&'a FieldDefinition, CastleError> {
-    return match root.fields.get(name) {
-        Some(definition) => Ok(definition),
-        None => Err(CastleError::Validation(format!("Root has no field named: {}", name).into())),
+        type_check_inputs_against_input_definitions(schema, &[path, &[name]].concat(), &field_def.input_definitions, &value.inputs)?;
+        validate_field_kind(&value.kind, schema, field_def, &[path, &[name]].concat())?;
     }
+    Ok(())
 }
 
 fn validate_field_kind(
-    kind: &FieldKind,
-    schema: &SchemaDefinition, 
-    name: &Box<str>, 
-    type_being_validated: &TypeDefinition, 
-    field_def: &FieldDefinition, 
+    input_kind: &FieldKind,
+    schema: &SchemaDefinition,
+    field_def: &FieldDefinition,
     path: &[&str]
 ) -> Result<(), CastleError> {
-    return match &kind {
-        FieldKind::Field => field_exists_in_type(name, type_being_validated, path),
-        FieldKind::Object(projection) => validate_nested_projection(schema, &field_def.return_kind.ident, projection, path),
+    match input_kind {
+        FieldKind::Field => match is_scalar(&field_def.return_kind) {
+            true => Ok(()),
+            false => Err(CastleError::Validation(format!("{} is not a scalar type", join_paths(path)).into()))
+        },
+        FieldKind::Object(projection) => match schema.types.get(&field_def.return_kind.ident) {
+            Some(type_def) => validate_each_projection_field(schema, projection, type_def, path),
+            None => Err(CastleError::Validation(format!("{} tried to project an fields on type {}", join_paths(path), field_def.return_kind).into()))
+        },
         FieldKind::List(projection) => validate_list(schema, field_def, projection, path),
     }
 }
 
-fn field_exists_in_type(field_name: &Box<str>, type_being_validated: &TypeDefinition, path: &[&str]) -> Result<(), CastleError> {
-    match type_being_validated.fields.get(field_name) {
-        Some(_) => Ok(()),
-        None => Err(CastleError::Validation(format!("Type {} does not have a field named {}. path: {}", type_being_validated.ident, field_name, join_paths(path)).into())),
-    }
-}
-
-fn validate_nested_projection(schema: &SchemaDefinition, type_ident: &Box<str>, projection: &Projection, path: &[&str]) -> Result<(), CastleError> {
-    
-    let type_def = get_type_definition(schema, type_ident, path)?;
-    validate_each_projection_field(schema, projection, type_def, path)
-}
-
-
-fn get_type_definition<'a>(schema: &'a SchemaDefinition, ident: &Box<str>, path: &[&str]) -> Result<&'a TypeDefinition, CastleError> {
-    schema.types.get(ident).ok_or(CastleError::Validation(format!("{} is not defined in schema. path: {}", ident, join_paths(path)).into()))
-}
-
 fn validate_list(schema: &SchemaDefinition, field_def: &FieldDefinition, projection: &Projection, path: &[&str]) -> Result<(), CastleError> {
-    return match &*field_def.return_kind.ident {
-        "Vec" => {
-            let vec_inner_type = &field_def.return_kind.generics[0];
-            if is_primitive_or_string_type(vec_inner_type) { return Ok(()) }
-            validate_nested_projection(schema, &vec_inner_type.ident, projection, path)
+    match (&*field_def.return_kind.ident, schema.types.get(&field_def.return_kind.generics[0].ident)) {
+        ("Vec", Some(type_def)) if !is_scalar(&field_def.return_kind) => {
+            validate_each_projection_field(schema, projection, type_def, path)
         },
-        _ => Err(CastleError::Validation(format!("Expected Vec kind. Got: {}, path: {}", field_def.return_kind.ident, join_paths(path)).into()))?,
+        _ => Err(CastleError::Validation(format!("{} tried to project an fields on type {}", join_paths(path), field_def.return_kind).into()))?,
     }
 }
 
-fn is_primitive_or_string_type(kind: &Kind) -> bool {
+fn is_scalar(kind: &Kind) -> bool {
     match &*kind.ident {
         "String" | "number" | "bool" => true,
+        "Vec" if is_scalar(&kind.generics[0]) => true,
         _ => false,
     }
 }

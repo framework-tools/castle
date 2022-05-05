@@ -136,7 +136,7 @@ fn query_with_two_separators_fails() {
         }
     }";
 
-    parse_message(query).expect_err("Expected error");
+    parse_message(query).unwrap_err();
 }
 
 #[test]
@@ -216,7 +216,7 @@ fn query_with_missing_closing_bracket_fails() {
             first_name
         }";
 
-    parse_message(query).expect_err("Expected error");
+    parse_message(query).unwrap_err();
 }
 
 #[test]

@@ -2,7 +2,7 @@ use castle::{castle::Castle};
 use castle_error::CastleError;
 use query_parser::Field;
 
-fn create_castle() -> Castle<()> {
+fn create_castle() -> Castle<(), ()> {
     let schema = r#"
         input Xyz {
             abc: number
@@ -35,19 +35,19 @@ fn create_castle() -> Castle<()> {
         }
     "#;
     castle::castle::CastleBuilder::new(schema)
-        .add_resolver("hello", Box::new(|_: &Field, _: &()|unimplemented!()))
-        .add_resolver("foo", Box::new(|_: &Field, _: &()|unimplemented!()))
-        .add_resolver("baz", Box::new(|_: &Field, _: &()|unimplemented!()))
-        .add_resolver("list", Box::new(|_: &Field, _: &()|unimplemented!()))
-        .add_resolver("list2", Box::new(|_: &Field, _: &()|unimplemented!()))
-        .add_resolver("foobar", Box::new(|_: &Field, _: &()|unimplemented!()))
-        .add_resolver("oogabooga", Box::new(|_: &Field, _: &()|unimplemented!()))
-        .add_resolver("some_thing", Box::new(|_: &Field, _: &()|unimplemented!()))
-        .add_resolver("sigma", Box::new(|_: &Field, _: &()|unimplemented!()))
-        .add_resolver("thing_is_true", Box::new(|_: &Field, _: &()|unimplemented!()))
-        .add_resolver("high_level_obj", Box::new(|_: &Field, _: &()|unimplemented!()))
-        .add_resolver("list_of_some_things", Box::new(|_: &Field, _: &()|unimplemented!()))
-        .add_resolver("list_of_high_level_obj", Box::new(|_: &Field, _: &()|unimplemented!()))
+        .add_resolver("hello", |_: &Field, _: &()|unimplemented!())
+        .add_resolver("foo", |_: &Field, _: &()|unimplemented!())
+        .add_resolver("baz", |_: &Field, _: &()|unimplemented!())
+        .add_resolver("list", |_: &Field, _: &()|unimplemented!())
+        .add_resolver("list2", |_: &Field, _: &()|unimplemented!())
+        .add_resolver("foobar", |_: &Field, _: &()|unimplemented!())
+        .add_resolver("oogabooga", |_: &Field, _: &()|unimplemented!())
+        .add_resolver("some_thing", |_: &Field, _: &()|unimplemented!())
+        .add_resolver("sigma", |_: &Field, _: &()|unimplemented!())
+        .add_resolver("thing_is_true", |_: &Field, _: &()|unimplemented!())
+        .add_resolver("high_level_obj", |_: &Field, _: &()|unimplemented!())
+        .add_resolver("list_of_some_things", |_: &Field, _: &()|unimplemented!())
+        .add_resolver("list_of_high_level_obj", |_: &Field, _: &()|unimplemented!())
         .build()
         .unwrap()
 }
@@ -71,7 +71,7 @@ fn basic_projection_validates_breaks_with_mismatch() -> Result<(), CastleError> 
     }"#;
     create_castle()
         .validate_message(msg)
-        .expect_err("schema should fail but didn't");
+        .unwrap_err();
     Ok(())
 }
 
@@ -85,7 +85,7 @@ fn projection_with_unknown_args_fails() {
 
     create_castle()
         .validate_message(msg)
-        .expect_err("schema should fail but didn't");
+        .unwrap_err();
 }
 
 #[test]
@@ -98,7 +98,7 @@ fn projection_with_missing_args_fails() {
 
     create_castle()
         .validate_message(msg)
-        .expect_err("schema should fail but didn't");
+        .unwrap_err();
 }
 
 #[test]
@@ -182,7 +182,7 @@ fn list_item_with_input_type_mismatch_fails() {
 
     create_castle()
         .validate_message(msg)
-        .expect_err("schema should fail but didn't");
+        .unwrap_err();
 }
 
 #[test]
@@ -375,7 +375,22 @@ fn fails_if_field_is_not_defined_on_type(){
 }
 
 #[test]
-fn passes_if_valid_nested_obj(){
+fn empty_projection_succeeds(){
+    let msg = r#"
+    message {
+        high_level_obj {
+
+        }
+    }
+    "#;
+
+    create_castle()
+        .validate_message(msg)
+        .unwrap();
+}
+
+#[test]
+fn fails_if_invalid_nested_obj(){
     let msg = r#"
     message {
         high_level_obj {
@@ -386,7 +401,7 @@ fn passes_if_valid_nested_obj(){
 
     create_castle()
         .validate_message(msg)
-        .unwrap();
+        .unwrap_err();
 }
 
 #[test]

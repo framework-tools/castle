@@ -7,21 +7,24 @@ use crate::{Resolver, Directive, Value};
 
 
 
-pub async fn execute_message<Ctx: Debug>(
-    message: Message,
-    field_resolvers: &HashMap<Box<str>, Box<dyn Resolver<Ctx>>>,
-    directives: &HashMap<Box<str>, Box<dyn Directive<Ctx>>>,
+pub async fn execute_message<Ctx: Debug, E: Debug>(
+    message: &mut Message,
+    field_resolvers: &HashMap<Box<str>, Box<dyn Resolver<Ctx, E>>>,
+    directives: &HashMap<Box<str>, Box<dyn Directive<Ctx, E>>>,
     ctx: &Ctx,
-) -> Result<Value<Ctx>, CastleError> {
-    for projection in message.projections {
+) -> Result<Result<Value<Ctx, E>, E>, CastleError> {
+    for projection in message.projections.iter_mut() {
         for (field_name, field) in projection.iter() {
             let resolver = match field_resolvers.get(field_name) {
                 Some(resolver) => resolver,
-                None => return Err(CastleError::Validation("Should never happen, lol".into())),
+                None => unreachable!(),
             };
-            let value = resolver.resolve(field, ctx).await?;
-
+            let value = resolver.resolve(field, ctx).await;
         }
     }
-    return Ok(Value::Empty);
+
+
+
+
+    unimplemented!()
 }

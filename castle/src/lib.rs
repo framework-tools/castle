@@ -1,76 +1,47 @@
 #![feature(if_let_guard)]
-use std::{collections::HashMap, fmt::Debug};
-use castle_error::CastleError;
-use query_parser::{Field, Inputs, Projection};
+use std::{fmt::Debug};
+pub use query_parser::{Field, Inputs, Projection};
+pub use types::value::Value;
 
 mod validation;
 pub mod castle;
+pub mod types;
 
-#[derive(Debug)]
-pub enum Value<Ctx: Debug> {
-    Empty,
-    Bool(bool),
-    Int(i64),
-    UInt(u64),
-    Float(f64),
-    String(String),
-    Vec(Vec<Value<Ctx>>),
-    Object(HashMap<Box<str>, Value<Ctx>>),
-    Resolver(Box<dyn Resolver<Ctx>>),
-}
-
-impl <Ctx: Debug> PartialEq for Value<Ctx> {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (Self::Bool(l0), Self::Bool(r0)) => l0 == r0,
-            (Self::Int(l0), Self::Int(r0)) => l0 == r0,
-            (Self::UInt(l0), Self::UInt(r0)) => l0 == r0,
-            (Self::Float(l0), Self::Float(r0)) => l0 == r0,
-            (Self::String(l0), Self::String(r0)) => l0 == r0,
-            (Self::Vec(l0), Self::Vec(r0)) => l0 == r0,
-            (Self::Object(l0), Self::Object(r0)) => l0 == r0,
-            (Self::Resolver(l0), Self::Resolver(r0)) => l0 == r0,
-            _ => core::mem::discriminant(self) == core::mem::discriminant(other),
-        }
-    }
-}
-
-impl<Ctx> PartialEq for dyn Resolver<Ctx> + {
+impl<Ctx, E: Debug> PartialEq for dyn Resolver<Ctx, E> + {
     fn eq(&self, other: &Self) -> bool {
         self as *const _ == other as *const _
     }
 }
 
-impl<Ctx> Debug for dyn Resolver<Ctx> + {
+impl<Ctx, E: Debug> Debug for dyn Resolver<Ctx, E> + {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Resolver")
+        write!(f, "Resolver {}", std::any::type_name::<Self>())
     }
 }
 
 
 //A resolver takes in fields (inner wants), arguments and context and returns the resolved want
-// pub type Resolver<Ctx: Debug, F: Fn> = Fn(&mut Field, &Ctx) -> Result<Value<Ctx>, CastleError>;
 #[async_trait::async_trait]
-pub trait Resolver<Ctx: Debug>: Send + Sync {
-    async fn resolve(&self, field: &Field, ctx: &Ctx) -> Result<Value<Ctx>, CastleError>;
+pub trait Resolver<Ctx: Debug, E: Debug>: Send + Sync {
+    async fn resolve(&self, field: &Field, ctx: &Ctx) -> Result<Value<Ctx, E>, E>;
 }
 
 
 // This allows closures to impl the resolver trait
 #[async_trait::async_trait]
-impl<Ctx, F> Resolver<Ctx> for F
+impl<Ctx, F, E: Debug> Resolver<Ctx, E> for F
 where
     Ctx: Debug + Sync + Send + 'static,
-    F: Fn(&Field, &Ctx) -> Result<Value<Ctx>, CastleError> + Send + Sync + 'static,
+    F: Fn(&Field, &Ctx) -> Result<Value<Ctx, E>, E> + Send + Sync + 'static,
 {
-    async fn resolve(&self, field: &Field, ctx: &Ctx) -> Result<Value<Ctx>, CastleError> {
+    async fn resolve(&self, field: &Field, ctx: &Ctx) -> Result<Value<Ctx, E>, E> {
         self(field, ctx)
     }
 }
 
 #[async_trait::async_trait]
-pub trait Directive<Ctx: Send + 'static + Debug>: Send + Sync {
-    async fn field_visitor(&self, field: &Field, directive_args: &Inputs, value: Box<dyn Resolver<Ctx>>, context: Ctx) -> Result<Value<Ctx>, CastleError> {
+pub trait Directive<Ctx: Send + 'static + Debug, E: Debug + 'static>: Send + Sync {
+    async fn field_visitor(&self, field: &Field, directive_args: &Inputs, value: Box<dyn Resolver<Ctx, E>>, context: Ctx) -> Result<Value<Ctx, E>, E> {
         unimplemented!()
     }
 }

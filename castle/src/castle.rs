@@ -14,20 +14,20 @@ use crate::{
 };
 #[derive(derivative::Derivative)]
 #[derivative(Debug)]
-pub struct Castle<Ctx: Debug> {
+pub struct Castle<Ctx: Debug, E: Debug> {
     pub parsed_schema: SchemaDefinition,
     #[derivative(Debug = "ignore")]
-    pub field_resolvers: HashMap<Box<str>, Box<dyn Resolver<Ctx>>>,
+    pub field_resolvers: HashMap<Box<str>, Box<dyn Resolver<Ctx, E>>>,
     #[derivative(Debug = "ignore")]
-    pub directives: HashMap<Box<str>, Box<dyn Directive<Ctx>>>,
+    pub directives: HashMap<Box<str>, Box<dyn Directive<Ctx, E>>>,
 }
 
-impl<Ctx: Debug> Castle<Ctx> {
+impl<Ctx: Debug, E: Debug> Castle<Ctx, E> {
     pub(crate) fn build_and_validate(
-        field_resolvers: HashMap<Box<str>, Box<dyn Resolver<Ctx>>>,
-        directives: HashMap<Box<str>, Box<dyn Directive<Ctx>>>,
+        field_resolvers: HashMap<Box<str>, Box<dyn Resolver<Ctx, E>>>,
+        directives: HashMap<Box<str>, Box<dyn Directive<Ctx, E>>>,
         parsed_schema: SchemaDefinition,
-    ) -> Result<Castle<Ctx>, CastleError> {
+    ) -> Result<Castle<Ctx, E>, CastleError> {
         let castle = Castle {
             field_resolvers,
             parsed_schema,
@@ -61,23 +61,23 @@ impl<Ctx: Debug> Castle<Ctx> {
     /// - Validates query against the schema for validity and type correctness
     /// - Runs the query using the resolvers
     /// - Returns the result
-    pub async fn run_message(&self, query: &str, ctx: &Ctx) -> Result<Value<Ctx>, CastleError> {
-        let parsed_message = self.validate_message(query)?;
-        execute_message(parsed_message, &self.field_resolvers, &self.directives, ctx).await
+    pub async fn run_message(&self, query: &str, ctx: &Ctx) -> Result<Result<Value<Ctx, E>, E>, CastleError> {
+        let mut parsed_message = self.validate_message(query)?;
+        execute_message(&mut parsed_message, &self.field_resolvers, &self.directives, ctx).await
     }
 }
 
 #[derive(derivative::Derivative)]
 #[derivative(Debug)]
-pub struct CastleBuilder<Ctx: Debug> {
+pub struct CastleBuilder<Ctx: Debug, E: Debug> {
     #[derivative(Debug = "ignore")]
-    pub resolver_map: HashMap<Box<str>, Box<dyn Resolver<Ctx>>>,
+    pub resolver_map: HashMap<Box<str>, Box<dyn Resolver<Ctx, E>>>,
     #[derivative(Debug = "ignore")]
-    pub directives: HashMap<Box<str>, Box<dyn Directive<Ctx>>>,
+    pub directives: HashMap<Box<str>, Box<dyn Directive<Ctx, E>>>,
     pub parsed_schema: Result<SchemaDefinition, CastleError>,
 }
 
-impl<Ctx: Send + 'static + Debug> CastleBuilder<Ctx> {
+impl<Ctx: Send + 'static + Debug, E: Debug + 'static> CastleBuilder<Ctx, E> {
     pub fn new(schema: &str) -> Self {
         Self {
             resolver_map: HashMap::new(),
@@ -86,14 +86,14 @@ impl<Ctx: Send + 'static + Debug> CastleBuilder<Ctx> {
         }
     }
 
-    pub fn build(self) -> Result<Castle<Ctx>, CastleError> {
+    pub fn build(self) -> Result<Castle<Ctx, E>, CastleError> {
         Castle::build_and_validate(self.resolver_map, self.directives, self.parsed_schema?)
     }
 
     pub fn add_resolver(
         mut self,
         resolver_name: &str,
-        resolver: impl Resolver<Ctx> + 'static
+        resolver: impl Resolver<Ctx, E> + 'static
     ) -> Self {
         self.resolver_map.insert(resolver_name.into(), Box::new(resolver));
         self
@@ -102,7 +102,7 @@ impl<Ctx: Send + 'static + Debug> CastleBuilder<Ctx> {
     pub fn add_directive(
         mut self,
         directive_name: &str,
-        directive: impl Directive<Ctx> + 'static,
+        directive: impl Directive<Ctx, E> + 'static,
     ) -> Self {
         self.directives
             .insert(directive_name.into(), Box::new(directive));
