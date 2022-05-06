@@ -8,8 +8,8 @@ use tokenizer::Primitive;
 #[test]
 fn can_parse_empty_message() {
     let query = "";
-    let expected: Vec<Projection> = Vec::new();
-    let actual = &parse_message(query).expect("Failed to parse query").projections;
+    let expected: Projection = HashMap::new();
+    let actual = &parse_message(query).expect("Failed to parse query").projection;
     assert_eq!(&expected, actual);
 }
 
@@ -28,7 +28,7 @@ fn can_parse_single_field() {
         }),
     ].into_iter().collect::<Root>();
 
-    let actual = &parse_message(query).expect("Failed to parse query").projections[0];
+    let actual = &parse_message(query).expect("Failed to parse query").projection;
     assert_eq!(&expected, actual);
 }
 
@@ -61,7 +61,7 @@ fn can_parse_two_fields_with_empty_args() {
         }),
     ].into_iter().collect::<Root>();
 
-    let actual = &parse_message(query).expect("Failed to parse query").projections[0];
+    let actual = &parse_message(query).expect("Failed to parse query").projection;
     assert_eq!(&expected, actual);
 }
 
@@ -88,7 +88,7 @@ fn can_parse_object_projection() {
             ].into()),
         }),
     ].into();
-    let actual = &parse_message(query).expect("Failed to parse query").projections[0];
+    let actual = &parse_message(query).expect("Failed to parse query").projection;
     assert_eq!(&expected, actual);
 }
 
@@ -123,7 +123,7 @@ fn can_parse_object_projection_with_two_fields() {
         }),
     ].into_iter().collect::<Root>();
 
-    let actual = &parse_message(query).expect("Failed to parse query").projections[0];
+    let actual = &parse_message(query).expect("Failed to parse query").projection;
     assert_eq!(&expected, actual);
 }
 
@@ -170,7 +170,7 @@ fn query_with_trailing_comma_succeeds() {
         }),
     ].into();
 
-    let actual = &parse_message(query).expect("Expected success").projections[0];
+    let actual = &parse_message(query).expect("Expected success").projection;
     assert_eq!(&expected, actual);
 }
 
@@ -205,7 +205,7 @@ fn query_without_trailing_comma_succeeds() {
         }),
     ].into();
 
-    let actual = &parse_message(query).expect("Expected success").projections[0];
+    let actual = &parse_message(query).expect("Expected success").projection;
     assert_eq!(&expected, actual);
 }
 
@@ -257,7 +257,7 @@ fn can_parse_object_and_single_field() {
         }),
     ].into();
 
-    let actual = &parse_message(query).expect("Failed to parse query").projections[0];
+    let actual = &parse_message(query).expect("Failed to parse query").projection;
     assert_eq!(&expected, actual);
 }
 
@@ -276,7 +276,7 @@ fn can_parse_numeric_argument() {
         }),
     ].into();
 
-    let actual = &parse_message(query).expect("Expected query to parse").projections[0];
+    let actual = &parse_message(query).expect("Expected query to parse").projection;
     assert_eq!(&expected, actual);
 }
 
@@ -298,7 +298,7 @@ fn can_parse_multiple_numeric_arguments() {
         }),
     ].into();
 
-    let actual = &parse_message(query).expect("Expected query to parse").projections[0];
+    let actual = &parse_message(query).expect("Expected query to parse").projection;
     assert_eq!(&expected, actual);
 }
 
@@ -317,7 +317,7 @@ fn can_parse_string_arguments() {
         }),
     ].into();
 
-    let actual = &parse_message(query).expect("Expected query to parse").projections[0];
+    let actual = &parse_message(query).expect("Expected query to parse").projection;
     assert_eq!(&expected, actual);
 }
 
@@ -339,7 +339,7 @@ fn can_parse_boolean_arguments() {
         }),
     ].into();
 
-    let actual = &parse_message(query).expect("Expected query to parse").projections[0];
+    let actual = &parse_message(query).expect("Expected query to parse").projection;
     assert_eq!(&expected, actual);
 }
 
@@ -390,7 +390,7 @@ fn can_parse_deeply_nested_message() {
         }),
     ].into();
 
-    let actual = &parse_message(query).expect("Expected query to parse").projections[0];
+    let actual = &parse_message(query).expect("Expected query to parse").projection;
     assert_eq!(&expected, actual);
 }
 
@@ -418,7 +418,7 @@ fn can_parse_object_argument() {
         }),
     ].into();
 
-    let actual = &parse_message(query).expect("Expected query to parse").projections[0];
+    let actual = &parse_message(query).expect("Expected query to parse").projection;
     assert_eq!(&expected, actual);
 }
 
@@ -462,7 +462,7 @@ fn can_parse_array_arguments() {
         }),
     ].into();
 
-    let actual = &parse_message(query).expect("Expected query to parse").projections[0];
+    let actual = &parse_message(query).expect("Expected query to parse").projection;
     assert_eq!(&expected, actual);
 }
 
@@ -493,7 +493,7 @@ fn can_parse_resolver_with_no_fields () {
         }),
     ].into();
 
-    let actual = &parse_message(query).expect("Expected query to parse").projections[0];
+    let actual = &parse_message(query).expect("Expected query to parse").projection;
     assert_eq!(&expected, actual);
 }
 

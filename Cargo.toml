@@ -1,5 +1,5 @@
-[workspace]
 
+[workspace]
 members = [
     "castle",
     "input_cursor",
@@ -9,3 +9,5 @@ members = [
     "tokenizer",
     "shared_parser",
 ]
+license = "MIT"
+repository = "https://github.com/framework-tools/castle"

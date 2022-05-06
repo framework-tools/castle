@@ -6,11 +6,11 @@ use schema_parser::{parsers::parse_schema::parse_schema, types::SchemaDefinition
 
 use crate::{
     validation::{
-        executor::execute_message, validate_directives_exist::validate_directives_exist,
+        executor::{execute_message}, validate_directives_exist::validate_directives_exist,
         validate_projection::validate_projection,
         validate_resolvers_exist::validate_resolvers_exist, validate_schema::validate_schema,
     },
-    Directive, Resolver, Value,
+    Directive, Resolver, types::result::CastleResult,
 };
 #[derive(derivative::Derivative)]
 #[derivative(Debug)]
@@ -51,9 +51,7 @@ impl<Ctx: Debug, E: Debug> Castle<Ctx, E> {
 
     pub fn validate_message(&self, query: &str) -> Result<Message, CastleError> {
         let parsed_message = parse_message(query)?;
-        for projection in &parsed_message.projections {
-            validate_projection(&self.parsed_schema, projection)?;
-        }
+        validate_projection(&self.parsed_schema, &parsed_message.projection)?;
         Ok(parsed_message)
     }
 
@@ -61,7 +59,7 @@ impl<Ctx: Debug, E: Debug> Castle<Ctx, E> {
     /// - Validates query against the schema for validity and type correctness
     /// - Runs the query using the resolvers
     /// - Returns the result
-    pub async fn run_message(&self, query: &str, ctx: &Ctx) -> Result<Result<Value<Ctx, E>, E>, CastleError> {
+    pub async fn run_message(&self, query: &str, ctx: &Ctx) -> Result<CastleResult<Ctx, E>, CastleError> {
         let mut parsed_message = self.validate_message(query)?;
         execute_message(&mut parsed_message, &self.field_resolvers, &self.directives, ctx).await
     }

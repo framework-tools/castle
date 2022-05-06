@@ -1,35 +1,62 @@
-use castle::castle::CastleBuilder;
-use castle_error::CastleError;
+use std::fmt::Debug;
+
+use castle::{castle::CastleBuilder, types::result::CastleResult, Resolver, Value};
 use query_parser::Field;
 
+async fn run_schema_with_query<Ctx: Debug + Send + Sync + 'static, E: Debug + 'static>(
+    schema: &str,
+    query: &str,
+    resolvers: Vec<(&str, impl Resolver<Ctx, E> + 'static)>,
+    ctx: &Ctx,
+) -> CastleResult<Ctx, E> {
+    let mut castle = CastleBuilder::new(schema);
+    for (field_name, resolver) in resolvers {
+        castle = castle.add_resolver(field_name, resolver);
+    }
+    castle
+        .build()
+        .unwrap()
+        .run_message(query, ctx)
+        .await
+        .unwrap()
+}
 
-
-
-#[test]
-fn resolver_can_return_string() {
+#[tokio::test]
+async fn resolver_can_return_string() {
     let schema = "
     type Root {
         bar(arg: String): String
     }
     ";
-    let castle = CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"bar", |_: &Field, _: &()| Ok("hello".into()))
-        .build().unwrap();
-
     let query = "
         message {
             bar(arg: \"world\")
         }
     ";
-
-        struct CastleResult<Ctx, E> {
-            data: Value<Ctx>,
-            errors: Vec<E>
-        }
-
-        // return type of run_message() -> Result<CastleResult, CastleError>
-
-    let result = castle.run_message(query, ctx).await
-        .unwrap()
+    let result: CastleResult<(), ()> = run_schema_with_query(&schema, &query, vec![(&"bar", |_: &Field, _: &()| Ok("hello".into()))], &()).await;
+    let expected = CastleResult {
+        data: [("bar".into(), Value::String("hello".into()))].into(),
+        errors: vec![],
+    };
+    assert_eq!(result, expected)
 }
 
+#[tokio::test]
+async fn resolver_can_return_number() {
+    let schema = "
+    type Root {
+        bar(arg: String): number
+    }
+    ";
+    let query = "
+        message {
+            bar(arg: \"world\")
+        }
+    ";
+    let result: CastleResult<(), ()> = run_schema_with_query(&schema, &query, vec![(&"bar", |_: &Field, _: &()| Ok(32.into()))], &()).await;
+    let expected = CastleResult {
+        data: [("bar".into(), Value::Int(32))].into(),
+        errors: vec![],
+    };
+    assert_eq!(result, expected)
+}
