@@ -41,7 +41,7 @@ where
 
 #[async_trait::async_trait]
 pub trait Directive<Ctx: Send + 'static + Debug, E: Debug + 'static>: Send + Sync {
-    async fn field_visitor(&self, field: &Field, directive_args: &Inputs, value: Box<dyn Resolver<Ctx, E>>, context: Ctx) -> Result<Value<Ctx, E>, E> {
+    async fn field_visitor(&self, _field: &Field, _directive_args: &Inputs, _value: Box<dyn Resolver<Ctx, E>>, _context: Ctx) -> Result<Value<Ctx, E>, E> {
         unimplemented!()
     }
 }
