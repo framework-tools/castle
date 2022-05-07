@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-castle_input_cursor = { path = "../castle_input_cursor" version = "0.2.0" }
+castle_input_cursor = { path = "../castle_input_cursor", version = "0.2.0" }
 serde = { version = "1.0.117", features = ["derive"] }
 rmp-serde = "0.15.5"
 byte = "0.2.6"
