@@ -1,7 +1,7 @@
 
 use std::fmt;
 
-use input_cursor::{Position, Span};
+use castle_input_cursor::{Position, Span};
 use serde::{Deserialize, Serialize};
 
 extern crate rmp_serde as rmps;
