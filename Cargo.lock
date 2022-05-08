@@ -93,7 +93,7 @@ dependencies = [
 
 [[package]]
 name = "castle_tokenizer"
-version = "0.2.3"
+version = "0.2.4"
 dependencies = [
  "castle_error",
  "castle_input_cursor",
