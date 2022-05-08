@@ -1,6 +1,6 @@
 [package]
 name = "castle_api"
-version = "0.2.4"
+version = "0.2.5"
 edition = "2021"
 license = "MIT"
 description = "Castle API, graph api"
@@ -10,8 +10,8 @@ description = "Castle API, graph api"
 [dependencies]
 serde = { version = "1.0.117", features = ["derive"] }
 rmpv = { version = "1.0.0" }
-castle_error = { path = "../castle_error" }
 uuid = "1.0.0"
+castle_error = { path = "../castle_error" }
 castle_schema_parser = { path = "../castle_schema_parser" }
 castle_query_parser = { path = "../castle_query_parser" }
 castle_shared_parser = { path = "../castle_shared_parser" }
