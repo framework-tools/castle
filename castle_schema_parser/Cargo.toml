@@ -1,0 +1,12 @@
+[package]
+name = "castle_schema_parser"
+version = "0.2.5"
+edition = "2021"
+license = "MIT"
+description = "Castle Schema Parser"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+castle_error = { path = "../castle_error" }
+castle_tokenizer = { path = "../castle_tokenizer" }
+castle_shared_parser = { path = "../castle_shared_parser" }

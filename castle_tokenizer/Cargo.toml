@@ -1,14 +1,12 @@
 [package]
-name = "castle_error"
+name = "castle_tokenizer"
 version = "0.2.5"
 edition = "2021"
 license = "MIT"
-description = "Castle Error, error handling for Castle systems"
+description = "Castle Tokenizer: tokenizer "
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+castle_error = { path = "../castle_error" }
 castle_input_cursor = { path = "../castle_input_cursor" }
-serde = { version = "1.0.117", features = ["derive"] }
-rmp-serde = "0.15.5"
-byte = "0.2.6"
-uuid = { version = "0.8", features = ["serde", "v4"] }
+fast-float = "0.2.0"

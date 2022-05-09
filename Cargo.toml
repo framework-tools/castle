@@ -1,11 +1,11 @@
-[workspace]
 
+[workspace]
 members = [
-    "castle",
-    "input_cursor",
-    "query_parser",
-    "schema_parser",
+    "castle_api",
+    "castle_input_cursor",
+    "castle_query_parser",
+    "castle_schema_parser",
     "castle_error",
-    "tokenizer",
-    "shared_parser",
+    "castle_tokenizer",
+    "castle_shared_parser",
 ]
