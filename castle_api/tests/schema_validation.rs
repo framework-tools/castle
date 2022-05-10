@@ -10,8 +10,8 @@ struct MockDirective;
 
 impl<Ctx: Send + 'static + Debug, E: Debug + 'static> Directive<Ctx, E> for MockDirective {}
 
-#[test]
-fn schema_without_type_message_fails() {
+#[tokio::test]
+async fn schema_without_type_message_fails() {
     let schema = "
 
     ";
@@ -21,8 +21,8 @@ fn schema_without_type_message_fails() {
         .unwrap_err();
 }
 
-#[test]
-fn schema_using_string_primitive_works() {
+#[tokio::test]
+async fn schema_using_string_primitive_works() {
     let schema = "
     type Root {
         foo: String
@@ -30,13 +30,13 @@ fn schema_using_string_primitive_works() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!())
+        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
         .build()
         .unwrap();
 }
 
-#[test]
-fn schema_using_bool_primitive_works() {
+#[tokio::test]
+async fn schema_using_bool_primitive_works() {
     let schema = "
     type Root {
         foo: bool
@@ -44,13 +44,13 @@ fn schema_using_bool_primitive_works() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!())
+        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
         .build()
         .unwrap();
 }
 
-#[test]
-fn schema_using_number_primitive_works() {
+#[tokio::test]
+async fn schema_using_number_primitive_works() {
     let schema = "
     type Root {
         foo: number
@@ -58,13 +58,13 @@ fn schema_using_number_primitive_works() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!())
+        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
         .build()
         .unwrap();
 }
 
-#[test]
-fn schema_with_non_existent_type_message_fails() {
+#[tokio::test]
+async fn schema_with_non_existent_type_message_fails() {
     let schema = "
     type Root {
         foo: NonExistent
@@ -76,8 +76,8 @@ fn schema_with_non_existent_type_message_fails() {
         .unwrap_err();
 }
 
-#[test]
-fn schema_with_existent_type_succeeds() {
+#[tokio::test]
+async fn schema_with_existent_type_succeeds() {
     let schema = "
     type Root {
         foo: Bar
@@ -89,13 +89,13 @@ fn schema_with_existent_type_succeeds() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!())
+        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
         .build()
         .unwrap();
 }
 
-#[test]
-fn non_existent_directive_fails() {
+#[tokio::test]
+async fn non_existent_directive_fails() {
     let schema = "
     type Root {
         foo: String @foo
@@ -103,13 +103,13 @@ fn non_existent_directive_fails() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!())
+        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
         .build()
         .unwrap_err();
 }
 
-#[test]
-fn directive_with_missing_argument_fails() {
+#[tokio::test]
+async fn directive_with_missing_argument_fails() {
     let schema = "
     directive @foo(arg: String) on FieldDefinition
 
@@ -119,13 +119,13 @@ fn directive_with_missing_argument_fails() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!())
+        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
         .build()
         .unwrap_err();
 }
 
-#[test]
-fn directive_with_definition_and_resolver_succeeds() {
+#[tokio::test]
+async fn directive_with_definition_and_resolver_succeeds() {
     let schema = "
     directive @bar on FieldDefinition
 
@@ -135,14 +135,14 @@ fn directive_with_definition_and_resolver_succeeds() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!())
+        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap();
 }
 
-#[test]
-fn directive_on_wrong_location_fails() {
+#[tokio::test]
+async fn directive_on_wrong_location_fails() {
     let schema = "
     directive @bar on VariantDefinition
 
@@ -152,14 +152,14 @@ fn directive_on_wrong_location_fails() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!())
+        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap_err();
 }
 
-#[test]
-fn directive_with_unspecified_arg_fails() {
+#[tokio::test]
+async fn directive_with_unspecified_arg_fails() {
     let schema = "
     directive @bar on FieldDefinition
 
@@ -169,14 +169,14 @@ fn directive_with_unspecified_arg_fails() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!())
+        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap_err();
 }
 
-#[test]
-fn directive_with_string_input_type_mismatch_fails() {
+#[tokio::test]
+async fn directive_with_string_input_type_mismatch_fails() {
     let schema = "
     directive @bar(arg: String) on FieldDefinition
 
@@ -186,14 +186,14 @@ fn directive_with_string_input_type_mismatch_fails() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!())
+        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap_err();
 }
 
-#[test]
-fn directive_with_matching_number_type_succeeds() {
+#[tokio::test]
+async fn directive_with_matching_number_type_succeeds() {
     let schema = "
     directive @bar(arg: number) on FieldDefinition
 
@@ -203,14 +203,14 @@ fn directive_with_matching_number_type_succeeds() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!())
+        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap();
 }
 
-#[test]
-fn directive_with_matching_number_type_succeeds_with_casting() {
+#[tokio::test]
+async fn directive_with_matching_number_type_succeeds_with_casting() {
     let schema = "
     directive @bar(arg: number) on FieldDefinition
 
@@ -220,15 +220,15 @@ fn directive_with_matching_number_type_succeeds_with_casting() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!())
+        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap();
 }
 
 
-#[test]
-fn directive_with_number_input_type_mismatch_fails() {
+#[tokio::test]
+async fn directive_with_number_input_type_mismatch_fails() {
     let schema = "
     directive @bar(arg: number) on FieldDefinition
 
@@ -238,14 +238,14 @@ fn directive_with_number_input_type_mismatch_fails() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!())
+        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap_err();
 }
 
-#[test]
-fn directive_with_custom_type_mismatch_fails() {
+#[tokio::test]
+async fn directive_with_custom_type_mismatch_fails() {
     let schema = "
     directive @bar(arg: Custom) on FieldDefinition
 
@@ -260,14 +260,14 @@ fn directive_with_custom_type_mismatch_fails() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!())
+        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap_err();
 }
 
-#[test]
-fn directive_with_custom_type_succeeds() {
+#[tokio::test]
+async fn directive_with_custom_type_succeeds() {
     let schema = "
     directive @bar(arg: Custom) on FieldDefinition
 
@@ -281,15 +281,15 @@ fn directive_with_custom_type_succeeds() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!())
+        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap();
 }
 
 
-#[test]
-fn directive_with_boolean_type_succeeds() {
+#[tokio::test]
+async fn directive_with_boolean_type_succeeds() {
     let schema = "
     directive @bar(arg: bool) on FieldDefinition
 
@@ -299,14 +299,14 @@ fn directive_with_boolean_type_succeeds() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!())
+        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap();
 }
 
-#[test]
-fn directive_with_array_type_succeeds() {
+#[tokio::test]
+async fn directive_with_array_type_succeeds() {
     let schema = "
     directive @bar(arg: Vec<String>) on FieldDefinition
 
@@ -316,14 +316,14 @@ fn directive_with_array_type_succeeds() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!())
+        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap();
 }
 
-#[test]
-fn directive_with_array_type_mismatch_fails() {
+#[tokio::test]
+async fn directive_with_array_type_mismatch_fails() {
     let schema = "
     directive @bar(arg: Vec<String>) on FieldDefinition
 
@@ -333,14 +333,14 @@ fn directive_with_array_type_mismatch_fails() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!())
+        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap_err();
 }
 
-#[test]
-fn directive_with_too_many_generic_params_fails() {
+#[tokio::test]
+async fn directive_with_too_many_generic_params_fails() {
     let schema = "
     directive @bar(arg: Vec<String, String>) on FieldDefinition
 
@@ -350,15 +350,15 @@ fn directive_with_too_many_generic_params_fails() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!())
+        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap_err();
 }
 
 
-#[test]
-fn directive_with_missing_arg_fails() {
+#[tokio::test]
+async fn directive_with_missing_arg_fails() {
     let schema = "
     directive @foo(arg: String) on FieldDefinition
 
@@ -368,7 +368,7 @@ fn directive_with_missing_arg_fails() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!())
+        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
         .add_directive(&"foo", MockDirective)
         .build()
         .unwrap_err();

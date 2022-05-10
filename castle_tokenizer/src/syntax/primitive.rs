@@ -8,7 +8,7 @@ pub enum Primitive {
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Number {
-    n: NumberKind,
+    pub n: NumberKind,
 }
 
 impl Number {
@@ -16,27 +16,27 @@ impl Number {
         n.into()
     }
 
-    pub fn as_float(&self) -> Option<f64> {
+    pub fn as_float(&self) -> f64 {
         match self.n {
-            NumberKind::Float(f) => Some(f),
-            NumberKind::Int(i) => Some(i as f64),
-            NumberKind::UInt(u) => Some(u as f64),
+            NumberKind::Float(f) =>f,
+            NumberKind::Int(i) =>i as f64,
+            NumberKind::UInt(u) =>u as f64,
         }
     }
 
-    pub fn as_int(&self) -> Option<i64> {
+    pub fn as_int(&self) -> i64 {
         match self.n {
-            NumberKind::Float(f) => Some(f as i64),
-            NumberKind::Int(i) => Some(i),
-            NumberKind::UInt(u) => Some(u as i64),
+            NumberKind::Float(f) => f as i64,
+            NumberKind::Int(i) => i,
+            NumberKind::UInt(u) => u as i64,
         }
     }
 
-    pub fn as_uint(&self) -> Option<u64> {
+    pub fn as_uint(&self) -> u64 {
         match self.n {
-            NumberKind::Float(f) => Some(f as u64),
-            NumberKind::Int(i) => Some(i as u64),
-            NumberKind::UInt(u) => Some(u),
+            NumberKind::Float(f) => f as u64,
+            NumberKind::Int(i) => i as u64,
+            NumberKind::UInt(u) => u,
         }
     }
 }
@@ -98,7 +98,7 @@ impl_from_unsigned!(u8, u16, u32, u64, usize);
 impl_from_signed!(i8, i16, i32, i64, isize);
 
 #[derive(Debug, PartialEq, Clone, Copy)]
-enum NumberKind {
+pub enum NumberKind {
     Float(f64),
     Int(i64),
     UInt(u64),

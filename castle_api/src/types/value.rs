@@ -1,5 +1,5 @@
 use std::{fmt::Debug, collections::HashMap};
-
+use castle_tokenizer::Number;
 use castle_query_parser::Field;
 
 use crate::Resolver;
@@ -8,22 +8,24 @@ use crate::Resolver;
 #[derive(Debug)]
 pub enum Value<Ctx: Debug, E: Debug> {
     Bool(bool),
-    Int(i64),
-    UInt(u64),
-    Float(f64),
+    Number(Number),
     String(String),
     Vec(Vec<Value<Ctx, E>>),
     Object(HashMap<Box<str>, Value<Ctx, E>>),
     Resolver(Box<dyn Resolver<Ctx, E>>),
 }
 
+impl <Ctx: Debug, E: Debug> From<Number> for Value<Ctx, E> {
+    fn from(number: Number) -> Self {
+        Value::Number(number)
+    }
+}
+
 impl <Ctx: Debug, E: Debug> PartialEq for Value<Ctx, E> {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (Self::Bool(l0), Self::Bool(r0)) => l0 == r0,
-            (Self::Int(l0), Self::Int(r0)) => l0 == r0,
-            (Self::UInt(l0), Self::UInt(r0)) => l0 == r0,
-            (Self::Float(l0), Self::Float(r0)) => l0 == r0,
+            (Self::Number(l0), Self::Number(r0)) => l0 == r0,
             (Self::String(l0), Self::String(r0)) => l0 == r0,
             (Self::Vec(l0), Self::Vec(r0)) => l0 == r0,
             (Self::Object(l0), Self::Object(r0)) => l0 == r0,
@@ -35,27 +37,27 @@ impl <Ctx: Debug, E: Debug> PartialEq for Value<Ctx, E> {
 
 // Implement From for all the primitive numeric types
 macro_rules! impl_from_primitive {
-    ($($t:ty, $variant:ident, $out:ty),*) => {
+    ($($t:ty),*) => {
         $(
             impl<Ctx: Debug, E: Debug> From<$t> for Value<Ctx, E> {
                 fn from(value: $t) -> Self {
-                    Value::$variant(value as $out)
+                    Value::Number(value.into())
                 }
             }
         )*
     };
 }
 
-impl_from_primitive!(i8, Int, i64);
-impl_from_primitive!(i16, Int, i64);
-impl_from_primitive!(i32, Int, i64);
-impl_from_primitive!(i64, Int, i64);
-impl_from_primitive!(u8, UInt, u64);
-impl_from_primitive!(u16, UInt, u64);
-impl_from_primitive!(u32, UInt, u64);
-impl_from_primitive!(u64, UInt, u64);
-impl_from_primitive!(f32, Float, f64);
-impl_from_primitive!(f64, Float, f64);
+impl_from_primitive!(i8);
+impl_from_primitive!(i16);
+impl_from_primitive!(i32);
+impl_from_primitive!(i64);
+impl_from_primitive!(u8);
+impl_from_primitive!(u16);
+impl_from_primitive!(u32);
+impl_from_primitive!(u64);
+impl_from_primitive!(f32);
+impl_from_primitive!(f64);
 
 
 impl<Ctx: Debug, E: Debug> From<bool> for Value<Ctx, E> {

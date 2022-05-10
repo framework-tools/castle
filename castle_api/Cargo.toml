@@ -15,6 +15,7 @@ castle_error = { path = "../castle_error" }
 castle_schema_parser = { path = "../castle_schema_parser" }
 castle_query_parser = { path = "../castle_query_parser" }
 castle_shared_parser = { path = "../castle_shared_parser" }
+castle_tokenizer = { path = "../castle_tokenizer" }
 async-trait = "0.1.53"
 derivative = "2.2.0"
 

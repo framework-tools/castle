@@ -11,7 +11,7 @@ async fn run_schema_with_query<Ctx: Debug + Send + Sync + 'static, E: Debug + 's
 ) -> CastleResult<Ctx, E> {
     let mut castle = CastleBuilder::new(schema);
     for (field_name, resolver) in resolvers {
-        castle = castle.add_resolver(field_name, resolver);
+        castle = castle.add_resolver(field_name, resolver).await;
     }
     castle
         .build()
@@ -35,7 +35,7 @@ async fn resolver_can_return_string() {
     ";
     let result: CastleResult<(), ()> = run_schema_with_query(&schema, &query, vec![(&"bar", |_: &Field, _: &()| Ok("hello".into()))], &()).await;
     let expected = CastleResult {
-        data: [("bar".into(), Value::String("hello".into()))].into(),
+        data: [("bar".into(), "hello".into())].into(),
         errors: vec![],
     };
     assert_eq!(result, expected)
@@ -55,7 +55,7 @@ async fn resolver_can_return_number() {
     ";
     let result: CastleResult<(), ()> = run_schema_with_query(&schema, &query, vec![(&"bar", |_: &Field, _: &()| Ok(32.into()))], &()).await;
     let expected = CastleResult {
-        data: [("bar".into(), Value::Int(32))].into(),
+        data: [("bar".into(), 32.into())].into(),
         errors: vec![],
     };
     assert_eq!(result, expected)

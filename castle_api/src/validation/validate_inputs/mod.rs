@@ -45,6 +45,8 @@ pub(crate) fn type_check_input_against_expected_type(
         // TODO: Uuid
         // TODO: Option
         // TODO: Enum
+
+        Input::Variant(_) => {}
         Input::Primitive(Primitive::String(..)) if &*expected_kind.ident == "String" => {}
         Input::Primitive(Primitive::Number(..)) if &*expected_kind.ident == "number" => {}
         Input::Primitive(Primitive::Boolean(..)) if &*expected_kind.ident == "bool" => {}

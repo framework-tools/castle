@@ -35,7 +35,6 @@ fn validate_variant(schema: &SchemaDefinition, enum_name: &str, variant: &Varian
         VariantKindDefinition::Map(map) => validate_map(schema, &enum_name, &variant.ident, &map)?,
     }
 
-    // TODO: validate each enum variant type (map, unit, tuple) and check that each type is defined in the schema
 
     return Ok(());
 }

@@ -88,13 +88,13 @@ impl<Ctx: Send + 'static + Debug, E: Debug + 'static> CastleBuilder<Ctx, E> {
         Castle::build_and_validate(self.resolver_map, self.directives, self.parsed_schema?)
     }
 
-    pub fn add_resolver(
+    pub async fn add_resolver(
         mut self,
         resolver_name: &str,
         resolver: impl Resolver<Ctx, E> + 'static
     ) -> Self {
         self.resolver_map.insert(resolver_name.into(), Box::new(resolver));
-        self
+        return self
     }
 
     pub fn add_directive(
