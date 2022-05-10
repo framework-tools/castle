@@ -1,11 +1,12 @@
 use std::{fmt::Debug, collections::HashMap};
 
 use castle_query_parser::Field;
+use serde::{Serialize, Deserialize};
 
 use crate::Resolver;
 
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub enum Value<Ctx: Debug, E: Debug> {
     Bool(bool),
     Int(i64),
@@ -14,6 +15,7 @@ pub enum Value<Ctx: Debug, E: Debug> {
     String(String),
     Vec(Vec<Value<Ctx, E>>),
     Object(HashMap<Box<str>, Value<Ctx, E>>),
+    #[serde(skip)]
     Resolver(Box<dyn Resolver<Ctx, E>>),
 }
 
