@@ -43,20 +43,6 @@ where
     }
 }
 
-// This allows closures to impl the resolver trait
-#[async_trait::async_trait]
-impl<Ctx, F, E: Debug, Fut> Resolver<Ctx, E> for F
-where
-    Ctx: Debug + Sync + Send + 'static,
-    F: Fn(&Field, &Ctx) -> Fut + Send + Sync + 'static,
-    Fut: Future<Output = Result<Value<Ctx, E>, E>>,
-{
-    async fn resolve(&self, field: &Field, ctx: &Ctx) -> Result<Value<Ctx, E>, E> {
-        self(field, ctx).await
-    }
-}
-
-
 #[async_trait::async_trait]
 pub trait Directive<Ctx: Send + 'static, E: 'static>: Send + Sync {
     async fn field_visitor(&self, _field: &Field, _directive_args: &Inputs, _value: Box<dyn Resolver<Ctx, E>>, _context: Ctx) -> Result<Value<Ctx, E>, E> {

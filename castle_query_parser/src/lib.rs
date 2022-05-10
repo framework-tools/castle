@@ -19,7 +19,7 @@ pub fn parse_message(msg: &str) -> Result<Message, CastleError> {
                 parse_projection(&mut tokenizer, Punctuator::OpenBlock, Punctuator::CloseBlock)?
             }
             Some(token) => return Err(CastleError::Root(
-                format!("Expected query keyword or EOF, got: {:?}", token.kind).into(),
+                format!("Expected keyword or EOF, got: {:?}", token.kind).into(),
                 token.span
             )),
             None => HashMap::new(),
