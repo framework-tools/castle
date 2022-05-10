@@ -1,3 +1,5 @@
+use serde::{Serialize, Deserialize};
+
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Primitive {
@@ -8,8 +10,23 @@ pub enum Primitive {
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Number {
-    pub n: NumberKind,
+    pub(crate) n: NumberKind,
 }
+
+impl Serialize for Number {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where S: serde::Serializer {
+        self.n.serialize(serializer)
+    }
+}
+
+impl<'de> Deserialize<'de> for Number {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where D: serde::Deserializer<'de> {
+        Ok(Number { n: NumberKind::deserialize(deserializer)? })
+    }
+}
+
 
 impl Number {
     pub fn new(n: impl Into<Number>) -> Self {
@@ -95,7 +112,7 @@ macro_rules! from_num_to_primitive {
 
 from_num_to_primitive!(u8, u16, u32, u64, usize, i8, i16, i32, i64, isize, f64, f32);
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, Clone, Copy, Serialize, Deserialize)]
 pub enum NumberKind {
     Float(f64),
     Int(i64),

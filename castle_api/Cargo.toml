@@ -19,5 +19,6 @@ castle_tokenizer = { path = "../castle_tokenizer" }
 async-trait = "0.1.53"
 derivative = "2.2.0"
 
+
 [dev-dependencies]
 tokio = { version = "1.17.0", features = ["macros", "rt"]}
