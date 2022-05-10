@@ -2,13 +2,12 @@
 // error if unknown argument provided to directive
 // error if directive definition argument with no default is missing in the directive
 // error if the directive is allowed on the given directive location
-use std::fmt::Debug;
 use castle_api::{castle::CastleBuilder, Directive};
 use castle_query_parser::Field;
 
 struct MockDirective;
 
-impl<Ctx: Send + 'static + Debug, E: Debug + 'static> Directive<Ctx, E> for MockDirective {}
+impl<Ctx: Send + 'static, E: 'static> Directive<Ctx, E> for MockDirective {}
 
 #[tokio::test]
 async fn schema_without_type_message_fails() {

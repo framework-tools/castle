@@ -23,7 +23,7 @@ use super::{Kind, Directive};
 ///     height(unit: Unit = METER): Float
 /// }
 /// ```
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct InputDefinition {
     pub ident: Box<str>,
     pub input_kind: Kind,
@@ -34,7 +34,7 @@ pub struct InputDefinition {
 pub type InputDefinitions = HashMap<Box<str>, InputDefinition>;
 
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct InputTypeDefinition {
     pub ident: Box<str>,
     pub input_definitions: InputDefinitions,

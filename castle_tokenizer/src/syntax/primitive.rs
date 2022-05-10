@@ -15,30 +15,6 @@ impl Number {
     pub fn new(n: impl Into<Number>) -> Self {
         n.into()
     }
-
-    pub fn as_float(&self) -> f64 {
-        match self.n {
-            NumberKind::Float(f) =>f,
-            NumberKind::Int(i) =>i as f64,
-            NumberKind::UInt(u) =>u as f64,
-        }
-    }
-
-    pub fn as_int(&self) -> i64 {
-        match self.n {
-            NumberKind::Float(f) => f as i64,
-            NumberKind::Int(i) => i,
-            NumberKind::UInt(u) => u as i64,
-        }
-    }
-
-    pub fn as_uint(&self) -> u64 {
-        match self.n {
-            NumberKind::Float(f) => f as u64,
-            NumberKind::Int(i) => i as u64,
-            NumberKind::UInt(u) => u,
-        }
-    }
 }
 
 impl From<f64> for Number {
@@ -94,8 +70,30 @@ macro_rules! impl_from_signed {
 }
 
 
+
+
 impl_from_unsigned!(u8, u16, u32, u64, usize);
 impl_from_signed!(i8, i16, i32, i64, isize);
+
+macro_rules! from_num_to_primitive {
+    (
+        $($ty:ty),*
+    ) => {
+        $(
+            impl From<Number> for Option<$ty> {
+                fn from(num: Number) -> Option<$ty> {
+                    match num.n {
+                        NumberKind::UInt(u) => Some(u as $ty),
+                        NumberKind::Int(i) => Some(i as $ty),
+                        NumberKind::Float(f) => Some(f as $ty),
+                    }
+                }
+            }
+        )*
+    };
+}
+
+from_num_to_primitive!(u8, u16, u32, u64, usize, i8, i16, i32, i64, isize, f64, f32);
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum NumberKind {

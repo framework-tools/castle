@@ -7,7 +7,7 @@ use super::{Kind, Directive, InputDefinitions};
 ///     also_a_field: String @lowercase
 /// }
 /// ```
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct FieldDefinition {
     pub ident: Box<str>,
     pub input_definitions: InputDefinitions,

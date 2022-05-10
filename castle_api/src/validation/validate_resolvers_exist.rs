@@ -1,11 +1,10 @@
 use std::collections::HashMap;
-use std::fmt::Debug;
 use castle_error::CastleError;
 use castle_schema_parser::types::SchemaDefinition;
 
 use crate::{Resolver};
 
-pub(crate) fn validate_resolvers_exist<Ctx: Debug, E: Debug>(
+pub(crate) fn validate_resolvers_exist<Ctx, E>(
     parsed_schema: &SchemaDefinition,
     field_resolvers: &HashMap<Box<str>, Box<dyn Resolver<Ctx, E>>>,
 ) -> Result<(), CastleError> {

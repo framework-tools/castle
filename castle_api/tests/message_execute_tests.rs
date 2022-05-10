@@ -1,9 +1,9 @@
-use std::fmt::Debug;
 
-use castle_api::{castle::CastleBuilder, types::result::CastleResult, Resolver, Value};
+
+use castle_api::{castle::CastleBuilder, types::result::CastleResult, Resolver};
 use castle_query_parser::Field;
 
-async fn run_schema_with_query<Ctx: Debug + Send + Sync + 'static, E: Debug + 'static>(
+async fn run_schema_with_query<Ctx: Send + Sync + 'static, E: 'static>(
     schema: &str,
     query: &str,
     resolvers: Vec<(&str, impl Resolver<Ctx, E> + 'static)>,
@@ -11,7 +11,7 @@ async fn run_schema_with_query<Ctx: Debug + Send + Sync + 'static, E: Debug + 's
 ) -> CastleResult<Ctx, E> {
     let mut castle = CastleBuilder::new(schema);
     for (field_name, resolver) in resolvers {
-        castle = castle.add_resolver(field_name, resolver).await;
+        castle.add_resolver(field_name, resolver).await;
     }
     castle
         .build()

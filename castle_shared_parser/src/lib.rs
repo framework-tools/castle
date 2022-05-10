@@ -14,7 +14,7 @@ pub mod parse_inputs;
 // (ident: Variant (value, value), ident_2: Primitive) // this is a tuple variant
 // (ident: Variant, ident_2: primitive) // is a unit variant
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Input {
     Primitive(Primitive),
     Variant(Variant),
@@ -22,13 +22,13 @@ pub enum Input {
     List(Vec<Input>),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Variant {
     ident: Box<str>,
     value: VariantType,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum VariantType {
     Unit,
     Tuple(Vec<Input>),

@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fmt::Debug};
+use std::{collections::HashMap};
 
 use castle_error::CastleError;
 use castle_query_parser::{parse_message, Message};
@@ -14,7 +14,7 @@ use crate::{
 };
 #[derive(derivative::Derivative)]
 #[derivative(Debug)]
-pub struct Castle<Ctx: Debug, E: Debug> {
+pub struct Castle<Ctx, E> {
     pub parsed_schema: SchemaDefinition,
     #[derivative(Debug = "ignore")]
     pub field_resolvers: HashMap<Box<str>, Box<dyn Resolver<Ctx, E>>>,
@@ -22,7 +22,7 @@ pub struct Castle<Ctx: Debug, E: Debug> {
     pub directives: HashMap<Box<str>, Box<dyn Directive<Ctx, E>>>,
 }
 
-impl<Ctx: Debug, E: Debug> Castle<Ctx, E> {
+impl<Ctx, E> Castle<Ctx, E> {
     pub(crate) fn build_and_validate(
         field_resolvers: HashMap<Box<str>, Box<dyn Resolver<Ctx, E>>>,
         directives: HashMap<Box<str>, Box<dyn Directive<Ctx, E>>>,
@@ -67,41 +67,41 @@ impl<Ctx: Debug, E: Debug> Castle<Ctx, E> {
 
 #[derive(derivative::Derivative)]
 #[derivative(Debug)]
-pub struct CastleBuilder<Ctx: Debug, E: Debug> {
+pub struct CastleBuilder<Ctx, E> {
     #[derivative(Debug = "ignore")]
-    pub resolver_map: HashMap<Box<str>, Box<dyn Resolver<Ctx, E>>>,
+    resolver_map: HashMap<Box<str>, Box<dyn Resolver<Ctx, E>>>,
     #[derivative(Debug = "ignore")]
-    pub directives: HashMap<Box<str>, Box<dyn Directive<Ctx, E>>>,
-    pub parsed_schema: Result<SchemaDefinition, CastleError>,
+    directives: HashMap<Box<str>, Box<dyn Directive<Ctx, E>>>,
+    schema: String,
 }
 
-impl<Ctx: Send + 'static + Debug, E: Debug + 'static> CastleBuilder<Ctx, E> {
+impl<Ctx: Send + 'static, E: 'static> CastleBuilder<Ctx, E> {
     pub fn new(schema: &str) -> Self {
         Self {
             resolver_map: HashMap::new(),
-            parsed_schema: parse_schema(schema),
+            schema: schema.into(),
             directives: HashMap::new(),
         }
     }
 
-    pub fn build(self) -> Result<Castle<Ctx, E>, CastleError> {
-        Castle::build_and_validate(self.resolver_map, self.directives, self.parsed_schema?)
+    pub fn build(&mut self) -> Result<Castle<Ctx, E>, CastleError> {
+        Castle::build_and_validate(self.resolver_map.drain().collect(), self.directives.drain().collect(), parse_schema(&self.schema)?)
     }
 
     pub async fn add_resolver(
-        mut self,
+        &mut self,
         resolver_name: &str,
         resolver: impl Resolver<Ctx, E> + 'static
-    ) -> Self {
+    ) -> &mut Self {
         self.resolver_map.insert(resolver_name.into(), Box::new(resolver));
-        return self
+        self
     }
 
     pub fn add_directive(
-        mut self,
+        &mut self,
         directive_name: &str,
         directive: impl Directive<Ctx, E> + 'static,
-    ) -> Self {
+    ) -> &mut Self {
         self.directives
             .insert(directive_name.into(), Box::new(directive));
         self

@@ -22,14 +22,14 @@ use super::InputDefinition;
 ///     reason: String = "No longer supported"
 /// )
 /// ```
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct DirectiveDefinition {
     pub ident: Box<str>,
     pub input_definitions: HashMap<Box<str>, InputDefinition>,
     pub locations: HashSet<DirectiveLocation>,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
 pub enum DirectiveLocation {
     /// FieldDefinition
     FieldDefinition,
@@ -73,7 +73,7 @@ impl Display for DirectiveLocation {
 ///     this_is_a_field(arg: String): String @FieldDefinition(an_arg: 123)
 /// }
 /// ```
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Directive {
     pub ident: Box<str>,
     pub inputs: HashMap<Box<str>, Input>,
