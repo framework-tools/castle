@@ -33,7 +33,7 @@ async fn resolver_can_return_string() {
             bar(arg: \"world\")
         }
     ";
-    let result: CastleResult<(), ()> = run_schema_with_query(&schema, &query, vec![(&"bar", |_: &Field, _: &()| Ok("hello".into()))], &()).await;
+    let result: CastleResult<(), ()> = run_schema_with_query(&schema, &query, vec![(&"bar", |_: &Field, _: &()| async { Ok("hello".into()) })], &()).await;
     let expected = CastleResult {
         data: [("bar".into(), "hello".into())].into(),
         errors: vec![],
@@ -53,7 +53,7 @@ async fn resolver_can_return_number() {
             bar(arg: \"world\")
         }
     ";
-    let result: CastleResult<(), ()> = run_schema_with_query(&schema, &query, vec![(&"bar", |_: &Field, _: &()| Ok(32.into()))], &()).await;
+    let result: CastleResult<(), ()> = run_schema_with_query(&schema, &query, vec![(&"bar", |_: &Field, _: &()| async { Ok(32.into()) })], &()).await;
     let expected = CastleResult {
         data: [("bar".into(), 32.into())].into(),
         errors: vec![],

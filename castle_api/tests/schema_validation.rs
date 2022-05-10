@@ -29,7 +29,7 @@ async fn schema_using_string_primitive_works() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
+        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() }).await
         .build()
         .unwrap();
 }
@@ -43,7 +43,7 @@ async fn schema_using_bool_primitive_works() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
+        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() }).await
         .build()
         .unwrap();
 }
@@ -57,7 +57,7 @@ async fn schema_using_number_primitive_works() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
+        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() }).await
         .build()
         .unwrap();
 }
@@ -88,7 +88,7 @@ async fn schema_with_existent_type_succeeds() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
+        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() }).await
         .build()
         .unwrap();
 }
@@ -102,7 +102,7 @@ async fn non_existent_directive_fails() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
+        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() }).await
         .build()
         .unwrap_err();
 }
@@ -118,7 +118,7 @@ async fn directive_with_missing_argument_fails() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
+        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() }).await
         .build()
         .unwrap_err();
 }
@@ -134,7 +134,7 @@ async fn directive_with_definition_and_resolver_succeeds() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
+        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() }).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap();
@@ -151,7 +151,7 @@ async fn directive_on_wrong_location_fails() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
+        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() }).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap_err();
@@ -168,7 +168,7 @@ async fn directive_with_unspecified_arg_fails() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
+        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() }).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap_err();
@@ -185,7 +185,7 @@ async fn directive_with_string_input_type_mismatch_fails() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
+        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() }).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap_err();
@@ -202,7 +202,7 @@ async fn directive_with_matching_number_type_succeeds() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
+        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() }).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap();
@@ -219,7 +219,7 @@ async fn directive_with_matching_number_type_succeeds_with_casting() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
+        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() }).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap();
@@ -237,7 +237,7 @@ async fn directive_with_number_input_type_mismatch_fails() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
+        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() }).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap_err();
@@ -259,7 +259,7 @@ async fn directive_with_custom_type_mismatch_fails() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
+        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() }).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap_err();
@@ -280,7 +280,7 @@ async fn directive_with_custom_type_succeeds() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
+        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() }).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap();
@@ -298,7 +298,7 @@ async fn directive_with_boolean_type_succeeds() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
+        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() }).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap();
@@ -315,7 +315,7 @@ async fn directive_with_array_type_succeeds() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
+        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() }).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap();
@@ -332,7 +332,7 @@ async fn directive_with_array_type_mismatch_fails() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
+        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() }).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap_err();
@@ -349,7 +349,7 @@ async fn directive_with_too_many_generic_params_fails() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
+        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() }).await
         .add_directive(&"bar", MockDirective)
         .build()
         .unwrap_err();
@@ -367,7 +367,7 @@ async fn directive_with_missing_arg_fails() {
     ";
 
     CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()| unreachable!()).await
+        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() }).await
         .add_directive(&"foo", MockDirective)
         .build()
         .unwrap_err();

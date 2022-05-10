@@ -1,4 +1,5 @@
 #![feature(if_let_guard)]
+use std::future::Future;
 use std::{fmt::Debug};
 pub use castle_query_parser::Input;
 pub use castle_query_parser::{Field, Inputs, Projection};
@@ -29,31 +30,18 @@ pub trait Resolver<Ctx, E>: Send + Sync {
     async fn resolve(&self, field: &Field, ctx: &Ctx) -> Result<Value<Ctx, E>, E>;
 }
 
-
 // This allows closures to impl the resolver trait
 #[async_trait::async_trait]
-impl<Ctx, F, E> Resolver<Ctx, E> for F
+impl<Ctx, F, E, Fut> Resolver<Ctx, E> for F
 where
-    Ctx: Sync + Send + 'static,
-    F: Fn(&Field, &Ctx) -> Result<Value<Ctx, E>, E> + Send + Sync + 'static,
+    Ctx: Debug + Sync + Send + 'static,
+    F: Fn(&Field, &Ctx) -> Fut + Send + Sync + 'static,
+    Fut: Future<Output = Result<Value<Ctx, E>, E>> + Send + 'static,
 {
     async fn resolve(&self, field: &Field, ctx: &Ctx) -> Result<Value<Ctx, E>, E> {
-        self(field, ctx)
+        self(field, ctx).await
     }
 }
-
-// This allows closures to impl the resolver trait
-// #[async_trait::async_trait]
-// impl<Ctx, F, E: Debug, Fut> Resolver<Ctx, E> for F
-// where
-//     Ctx: Debug + Sync + Send + 'static,
-//     F: Fn(&Field, &Ctx) -> Fut + Send + Sync + 'static,
-//     Fut: Future<Output = Result<Value<Ctx, E>, E>>,
-// {
-//     async fn resolve(&self, field: &Field, ctx: &Ctx) -> Result<Value<Ctx, E>, E> {
-//         self(field, ctx).await
-//     }
-// }
 
 
 #[async_trait::async_trait]
