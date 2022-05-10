@@ -2,12 +2,11 @@ use std::collections::HashMap;
 
 use castle_error::CastleError;
 use castle_query_parser::{Message};
-use std::fmt::Debug;
 use crate::{Resolver, Directive, types::result::CastleResult};
 
 
 
-pub async fn execute_message<Ctx: Debug, E: Debug>(
+pub async fn execute_message<Ctx, E>(
     message: &mut Message,
     field_resolvers: &HashMap<Box<str>, Box<dyn Resolver<Ctx, E>>>,
     _directives: &HashMap<Box<str>, Box<dyn Directive<Ctx, E>>>,

@@ -1,7 +1,9 @@
-use castle_error::CastleError;
-use castle_schema_parser::types::{EnumDefinition, SchemaDefinition, VariantDefinition, DirectiveLocation};
+use std::collections::HashMap;
 
-use super::validate_directives::validate_directive;
+use castle_error::CastleError;
+use castle_schema_parser::types::{EnumDefinition, SchemaDefinition, VariantDefinition, DirectiveLocation, VariantKindDefinition, Kind};
+
+use super::{validate_directives::validate_directive, return_type_exists};
 
 
 pub(super) fn validate_enums(schema: &SchemaDefinition) -> Result<(), CastleError> {
@@ -27,7 +29,32 @@ fn validate_variant(schema: &SchemaDefinition, enum_name: &str, variant: &Varian
         validate_directive(schema, &[&enum_name, &variant.ident], directive, DirectiveLocation::VariantDefinition)?;
     }
 
-    // TODO: validate each enum variant type (map, unit, tuple) and check that each type is defined in the schema
+    match &variant.kind {
+        VariantKindDefinition::Unit => {},
+        VariantKindDefinition::Tuple(tup) => validate_tuple(schema, &enum_name, &variant.ident, &tup)?,
+        VariantKindDefinition::Map(map) => validate_map(schema, &enum_name, &variant.ident, &map)?,
+    }
+
 
     return Ok(());
+}
+
+fn validate_tuple(schema: &SchemaDefinition, enum_name: &str, variant_name: &str, tup: &Vec<Kind>) -> Result<(), CastleError> {
+    for kind in tup.iter() {
+        match return_type_exists(schema, kind) {
+            Ok(()) => {}
+            Err(e) => Err(CastleError::Validation(format!("{}.{} has invalid kind: {}", enum_name, variant_name, e).into()))?,
+        }
+    }
+    return Ok(())
+}
+
+fn validate_map(schema: &SchemaDefinition, enum_name: &str, variant_name: &str, map: &HashMap<Box<str>, Kind>) -> Result<(), CastleError> {
+    for (_, value) in map.iter() {
+        match return_type_exists(schema, value) {
+            Ok(()) => {}
+            Err(e) => Err(CastleError::Validation(format!("{}.{} has invalid kind: {}", enum_name, variant_name, e).into()))?,
+        };
+    }
+    return Ok(())
 }

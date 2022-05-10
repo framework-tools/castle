@@ -40,6 +40,7 @@ dependencies = [
  "castle_query_parser",
  "castle_schema_parser",
  "castle_shared_parser",
+ "castle_tokenizer",
  "derivative",
  "rmpv",
  "serde",
