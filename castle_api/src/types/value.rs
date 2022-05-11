@@ -1,6 +1,5 @@
 use std::{fmt::Debug, collections::HashMap};
 use castle_tokenizer::Number;
-use castle_query_parser::Field;
 use serde::{Serialize, Deserialize};
 
 use crate::Resolver;
@@ -136,9 +135,9 @@ impl<Ctx, E> From<Box<dyn Resolver<Ctx, E>>> for Value<Ctx, E> {
     }
 }
 
-#[async_trait::async_trait]
-impl<Ctx: Sync + Send, E: Send + Sync> Resolver<Ctx, E> for Value<Ctx, E> {
-    async fn resolve(&self, _field_: &Field, _ctx: &Ctx) -> Result<Value<Ctx, E>, E> {
-        unimplemented!()
-    }
-}
+// #[async_trait::async_trait]
+// impl<Ctx: Sync + Send, E: Send + Sync> Resolver<Ctx, E> for Value<Ctx, E> {
+//     async fn resolve(&self, _field_: &Field, _ctx: &Ctx) -> Result<Value<Ctx, E>, E> {
+//         unimplemented!()
+//     }
+// }

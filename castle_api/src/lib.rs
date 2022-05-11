@@ -31,13 +31,23 @@ pub trait Resolver<Ctx, E>: Send + Sync {
     async fn resolve(&self, field: &Field, ctx: &Ctx) -> Result<Value<Ctx, E>, E>;
 }
 
-// This allows closures to impl the resolver trait
+/// ### Allows async closures to `impl` the [Resolver] trait.
+///
+/// This is ***dark magic***. Don't ask how it works I won't be able to explain it.
+/// This is needed in order to make any async functions work
+/// with the add_resolver function.
+trait Fn2Args<Arg1, Arg2>: Fn(Arg1, Arg2) -> <Self as Fn2Args<Arg1, Arg2>>::Output {
+    type Output;
+}
+impl<F: Fn(Arg1, Arg2) -> Out, Arg1, Arg2, Out> Fn2Args<Arg1, Arg2> for F {
+    type Output = Out;
+}
+
 #[async_trait::async_trait]
-impl<Ctx, F, E, Fut> Resolver<Ctx, E> for F
+impl<F, Ctx: Send + Sync, E: Send + Sync> Resolver<Ctx, E> for F
 where
-    Ctx: Debug + Sync + Send,
-    F: Fn(&Field, &Ctx) -> Fut + Send + Sync,
-    Fut: Future<Output = Result<Value<Ctx, E>, E>> + Send,
+    F: for<'a, 'b> Fn2Args<&'a Field, &'b Ctx> + Sync + Send,
+    for<'a, 'b> <F as Fn2Args<&'a Field, &'b Ctx>>::Output: Future<Output = Result<Value<Ctx, E>, E>> + Send,
 {
     async fn resolve(&self, field: &Field, ctx: &Ctx) -> Result<Value<Ctx, E>, E> {
         self(field, ctx).await
