@@ -6,6 +6,7 @@ pub use castle_query_parser::{Field, Inputs, Projection};
 pub use types::value::Value;
 
 pub use crate::castle::Castle;
+pub use castle_tokenizer::{Primitive, Number};
 
 mod validation;
 pub mod castle;
@@ -34,9 +35,9 @@ pub trait Resolver<Ctx, E>: Send + Sync {
 #[async_trait::async_trait]
 impl<Ctx, F, E, Fut> Resolver<Ctx, E> for F
 where
-    Ctx: Debug + Sync + Send + 'static,
-    F: Fn(&Field, &Ctx) -> Fut + Send + Sync + 'static,
-    Fut: Future<Output = Result<Value<Ctx, E>, E>> + Send + 'static,
+    Ctx: Debug + Sync + Send,
+    F: Fn(&Field, &Ctx) -> Fut + Send + Sync,
+    Fut: Future<Output = Result<Value<Ctx, E>, E>> + Send,
 {
     async fn resolve(&self, field: &Field, ctx: &Ctx) -> Result<Value<Ctx, E>, E> {
         self(field, ctx).await

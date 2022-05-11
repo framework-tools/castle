@@ -7,6 +7,7 @@ use crate::Resolver;
 
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(bound = "")]
 pub enum Value<Ctx, E> {
     Bool(bool),
     Number(Number),
