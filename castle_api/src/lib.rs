@@ -25,7 +25,7 @@ impl<Ctx, E> Debug for dyn Resolver<Ctx, E> + {
 }
 
 
-//A resolver takes in fields (inner wants), arguments and context and returns the resolved want
+//A resolver takes in a field and context and returns the resolved value
 #[async_trait::async_trait]
 pub trait Resolver<Ctx, E>: Send + Sync {
     async fn resolve(&self, field: &Field, ctx: &Ctx) -> Result<Value<Ctx, E>, E>;
@@ -36,6 +36,8 @@ pub trait Resolver<Ctx, E>: Send + Sync {
 /// This is ***dark magic***. Don't ask how it works I won't be able to explain it.
 /// This is needed in order to make any async functions work
 /// with the add_resolver function.
+///
+/// They are called higher-ranked trait bounds.
 trait Fn2Args<Arg1, Arg2>: Fn(Arg1, Arg2) -> <Self as Fn2Args<Arg1, Arg2>>::Output {
     type Output;
 }
