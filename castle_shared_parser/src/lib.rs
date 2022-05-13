@@ -22,6 +22,33 @@ pub enum Input {
     List(Vec<Input>),
 }
 
+impl Input {
+    pub fn as_str(&self) -> Option<&str> {
+        match self {
+            Input::Primitive(Primitive::String(str)) => return Some(&**str),
+            _ => None,
+        }
+    }
+    pub fn as_map(&self) -> Option<&HashMap<Box<str>, Input>> {
+        match self {
+            Input::Map(map) => return Some(map),
+            _ => None,
+        }
+    }
+    pub fn as_list(&self) -> Option<&Vec<Input>> {
+        match self {
+            Input::List(list) => return Some(list),
+            _ => None,
+        }
+    }
+    pub fn as_variant(&self) -> Option<&Variant> {
+        match self {
+            Input::Variant(variant) => return Some(variant),
+            _ => None,
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Clone)]
 pub struct Variant {
     ident: Box<str>,
