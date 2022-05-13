@@ -13,6 +13,7 @@ pub enum Value<Ctx, E> {
     String(String),
     Vec(Vec<Value<Ctx, E>>),
     Object(HashMap<Box<str>, Value<Ctx, E>>),
+    Void(()),
     #[serde(skip)]
     Resolver(Box<dyn Resolver<Ctx, E>>),
 }
@@ -31,6 +32,7 @@ impl <Ctx, E> PartialEq for Value<Ctx, E> {
             (Self::String(l0), Self::String(r0)) => l0 == r0,
             (Self::Vec(l0), Self::Vec(r0)) => l0 == r0,
             (Self::Object(l0), Self::Object(r0)) => l0 == r0,
+            (Self::Void(l0), Self::Void(r0)) => l0 == r0,
             (Self::Resolver(l0), Self::Resolver(r0)) => l0 == r0,
             _ => core::mem::discriminant(self) == core::mem::discriminant(other),
         }
