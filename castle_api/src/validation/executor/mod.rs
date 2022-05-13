@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use castle_error::CastleError;
 use castle_query_parser::{Message};
-use crate::{Resolver, Directive, types::result::CastleResult};
+use crate::{Resolver, Directive, types::result::CastleResult, Value};
 
 
 
@@ -22,6 +22,7 @@ pub async fn execute_message<Ctx, E>(
             None => unreachable!(),
         };
         match resolver.resolve(field, ctx).await {
+            Ok(Value::Void) => {},
             Ok(data) => { result.data.insert(field_name.clone(), data); },
             Err(e) => { result.errors.push(e); }
         };

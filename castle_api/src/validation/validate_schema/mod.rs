@@ -36,6 +36,7 @@ pub(crate) fn return_type_exists(schema: &SchemaDefinition, kind: &Kind) -> Resu
         "number" if kind.generics.len() == 0 => (),
         "bool" if kind.generics.len() == 0 => (),
         "String" if kind.generics.len() == 0 => (),
+        "void" if kind.generics.len() == 0 => (),
         "Uuid" if kind.generics.len() == 0 => (),
         "Vec" => match &kind.generics {
             generics if generics.len() == 1 => return_type_exists(schema, &generics[0])?,
