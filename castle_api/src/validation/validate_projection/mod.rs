@@ -57,7 +57,7 @@ fn validate_list(schema: &SchemaDefinition, field_def: &FieldDefinition, project
 
 fn is_scalar(kind: &Kind) -> bool {
     match &*kind.ident {
-        "String" | "number" | "bool" => true,
+        "String" | "number" | "bool" | "void" => true,
         "Vec" if is_scalar(&kind.generics[0]) => true,
         _ => false,
     }

@@ -86,6 +86,30 @@ async fn async_resolver_doesnt_complain() {
 }
 
 
+#[tokio::test]
+async fn testing_void() {
+    let query = "
+    message {
+        foo()
+    }
+    ";
+
+    let schema = "
+
+    type Root {
+        foo: void
+    }
+    ";
+
+    let result: CastleResult<(), ()> = run_schema_with_query(&schema, &query, vec![(&"foo", |_: &Field, _: &()| async { Ok(Value::Void) })], &()).await;
+    let expected = CastleResult {
+        data: [].into(),
+        errors: vec![],
+    };
+    assert_eq!(result, expected)
+}
+
+
 // use std::future::Future;
 
 
