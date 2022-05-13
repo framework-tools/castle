@@ -13,7 +13,6 @@ pub enum Value<Ctx, E> {
     String(String),
     Vec(Vec<Value<Ctx, E>>),
     Object(HashMap<Box<str>, Value<Ctx, E>>),
-    #[serde(skip)]
     Void,
     #[serde(skip)]
     Resolver(Box<dyn Resolver<Ctx, E>>),
