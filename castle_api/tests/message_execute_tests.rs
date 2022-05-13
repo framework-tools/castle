@@ -12,7 +12,7 @@ async fn run_schema_with_query<Ctx: Send + Sync + 'static, E: Send + Sync + 'sta
 ) -> CastleResult<Ctx, E> {
     let mut castle = CastleBuilder::new(schema);
     for (field_name, resolver) in resolvers {
-        castle.add_resolver(field_name, resolver).await;
+        castle.add_resolver(field_name, resolver);
     }
     castle
         .build()

@@ -88,7 +88,7 @@ impl<Ctx: Send + 'static, E: 'static> CastleBuilder<Ctx, E> {
         Castle::build_and_validate(self.resolver_map.drain().collect(), self.directives.drain().collect(), parse_schema(&self.schema)?)
     }
 
-    pub async fn add_resolver(
+    pub fn add_resolver(
         &mut self,
         resolver_name: &str,
         resolver: impl Resolver<Ctx, E> + 'static

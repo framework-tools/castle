@@ -36,19 +36,19 @@ async fn create_castle() -> Castle<(), ()> {
         }
     "#;
     CastleBuilder::new(schema)
-        .add_resolver("hello", |_: &Field, _: &()|async { unimplemented!() }).await
-        .add_resolver("foo", |_: &Field, _: &()|async { unimplemented!() }).await
-        .add_resolver("baz", |_: &Field, _: &()|async { unimplemented!() }).await
-        .add_resolver("list", |_: &Field, _: &()|async { unimplemented!() }).await
-        .add_resolver("list2", |_: &Field, _: &()|async { unimplemented!() }).await
-        .add_resolver("foobar", |_: &Field, _: &()|async { unimplemented!() }).await
-        .add_resolver("oogabooga", |_: &Field, _: &()|async { unimplemented!() }).await
-        .add_resolver("some_thing", |_: &Field, _: &()|async { unimplemented!() }).await
-        .add_resolver("sigma", |_: &Field, _: &()|async { unimplemented!() }).await
-        .add_resolver("thing_is_true", |_: &Field, _: &()|async { unimplemented!() }).await
-        .add_resolver("high_level_obj", |_: &Field, _: &()|async { unimplemented!() }).await
-        .add_resolver("list_of_some_things", |_: &Field, _: &()|async { unimplemented!() }).await
-        .add_resolver("list_of_high_level_obj", |_: &Field, _: &()|async { unimplemented!() }).await
+        .add_resolver("hello", |_: &Field, _: &()|async { unimplemented!() })
+        .add_resolver("foo", |_: &Field, _: &()|async { unimplemented!() })
+        .add_resolver("baz", |_: &Field, _: &()|async { unimplemented!() })
+        .add_resolver("list", |_: &Field, _: &()|async { unimplemented!() })
+        .add_resolver("list2", |_: &Field, _: &()|async { unimplemented!() })
+        .add_resolver("foobar", |_: &Field, _: &()|async { unimplemented!() })
+        .add_resolver("oogabooga", |_: &Field, _: &()|async { unimplemented!() })
+        .add_resolver("some_thing", |_: &Field, _: &()|async { unimplemented!() })
+        .add_resolver("sigma", |_: &Field, _: &()|async { unimplemented!() })
+        .add_resolver("thing_is_true", |_: &Field, _: &()|async { unimplemented!() })
+        .add_resolver("high_level_obj", |_: &Field, _: &()|async { unimplemented!() })
+        .add_resolver("list_of_some_things", |_: &Field, _: &()|async { unimplemented!() })
+        .add_resolver("list_of_high_level_obj", |_: &Field, _: &()|async { unimplemented!() })
         .build()
         .unwrap()
 }
