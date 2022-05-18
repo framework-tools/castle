@@ -1,20 +1,22 @@
-use std::{collections::HashMap};
+use std::collections::HashMap;
 
 use castle_error::CastleError;
 use castle_query_parser::{parse_message, Message};
 use castle_schema_parser::{parsers::parse_schema::parse_schema, types::SchemaDefinition};
 
 use crate::{
+    executor::execute_message,
+    types::result::CastleResult,
     validation::{
-        executor::{execute_message}, validate_directives_exist::validate_directives_exist,
+        validate_directives_exist::validate_directives_exist,
         validate_projection::validate_projection,
         validate_resolvers_exist::validate_resolvers_exist, validate_schema::validate_schema,
     },
-    Directive, Resolver, types::result::CastleResult,
+    Directive, Resolver,
 };
 #[derive(derivative::Derivative)]
 #[derivative(Debug)]
-pub struct Castle<Ctx, E> {
+pub struct Castle<Ctx: Send + Sync + 'static, E: Send + Sync + 'static> {
     pub parsed_schema: SchemaDefinition,
     #[derivative(Debug = "ignore")]
     pub field_resolvers: HashMap<Box<str>, Box<dyn Resolver<Ctx, E>>>,
@@ -22,7 +24,7 @@ pub struct Castle<Ctx, E> {
     pub directives: HashMap<Box<str>, Box<dyn Directive<Ctx, E>>>,
 }
 
-impl<Ctx, E> Castle<Ctx, E> {
+impl<Ctx: Send + Sync + 'static, E: Send + Sync + 'static> Castle<Ctx, E> {
     pub(crate) fn build_and_validate(
         field_resolvers: HashMap<Box<str>, Box<dyn Resolver<Ctx, E>>>,
         directives: HashMap<Box<str>, Box<dyn Directive<Ctx, E>>>,
@@ -59,9 +61,23 @@ impl<Ctx, E> Castle<Ctx, E> {
     /// - Validates query against the schema for validity and type correctness
     /// - Runs the query using the resolvers
     /// - Returns the result
-    pub async fn run_message(&self, query: &str, ctx: &Ctx) -> Result<CastleResult<Ctx, E>, CastleError> {
+    pub async fn run_message(
+        &self,
+        query: &str,
+        ctx: &Ctx,
+    ) -> Result<CastleResult<Ctx, E>, CastleError> where 
+        Ctx: Send + Sync + 'static,
+        E: Send + Sync + 'static
+    {
         let mut parsed_message = self.validate_message(query)?;
-        execute_message(&mut parsed_message, &self.field_resolvers, &self.directives, ctx).await
+        execute_message(
+            &mut parsed_message,
+            &self.field_resolvers,
+            &self.directives,
+            &self.parsed_schema,
+            ctx,
+        )
+        .await
     }
 }
 
@@ -75,7 +91,7 @@ pub struct CastleBuilder<Ctx, E> {
     schema: String,
 }
 
-impl<Ctx: Send + 'static, E: 'static> CastleBuilder<Ctx, E> {
+impl<Ctx: Send + Sync + 'static, E: Send + Sync + 'static> CastleBuilder<Ctx, E> {
     pub fn new(schema: &str) -> Self {
         Self {
             resolver_map: HashMap::new(),
@@ -85,15 +101,20 @@ impl<Ctx: Send + 'static, E: 'static> CastleBuilder<Ctx, E> {
     }
 
     pub fn build(&mut self) -> Result<Castle<Ctx, E>, CastleError> {
-        Castle::build_and_validate(self.resolver_map.drain().collect(), self.directives.drain().collect(), parse_schema(&self.schema)?)
+        Castle::build_and_validate(
+            self.resolver_map.drain().collect(),
+            self.directives.drain().collect(),
+            parse_schema(&self.schema)?,
+        )
     }
 
     pub fn add_resolver(
         &mut self,
         resolver_name: &str,
-        resolver: impl Resolver<Ctx, E> + 'static
+        resolver: impl Resolver<Ctx, E> + 'static,
     ) -> &mut Self {
-        self.resolver_map.insert(resolver_name.into(), Box::new(resolver));
+        self.resolver_map
+            .insert(resolver_name.into(), Box::new(resolver));
         self
     }
 

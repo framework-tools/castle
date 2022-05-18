@@ -5,7 +5,7 @@ use std::collections::HashMap;
 
 use castle_shared_parser::Input;
 
-use super::{Kind, Directive};
+use super::{Kind, AppliedDirective};
 /// Argument Definition
 ///
 /// Not to be confused with input arguments which are for the actual provided
@@ -28,7 +28,7 @@ pub struct InputDefinition {
     pub ident: Box<str>,
     pub input_kind: Kind,
     pub default: Option<Input>,
-    pub directives: Vec<Directive>,
+    pub directives: Vec<AppliedDirective>,
 }
 
 pub type InputDefinitions = HashMap<Box<str>, InputDefinition>;
@@ -38,5 +38,5 @@ pub type InputDefinitions = HashMap<Box<str>, InputDefinition>;
 pub struct InputTypeDefinition {
     pub ident: Box<str>,
     pub input_definitions: InputDefinitions,
-    pub directives: Vec<Directive>,
+    pub directives: Vec<AppliedDirective>,
 }

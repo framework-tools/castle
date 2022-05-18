@@ -5,7 +5,7 @@ use castle_tokenizer::{
     Punctuator, Tokenizable,
 };
 
-use crate::types::Directive;
+use crate::types::AppliedDirective;
 /// ```text
 /// directive lowercase (
 ///     arg_definiton
@@ -18,8 +18,8 @@ use crate::types::Directive;
 /// }
 /// ```
 
-pub fn parse_directives(tokenizer: &mut impl Tokenizable) -> Result<Vec<Directive>, CastleError> {
-    let mut directives: Vec<Directive> = Vec::new();
+pub fn parse_directives(tokenizer: &mut impl Tokenizable) -> Result<Vec<AppliedDirective>, CastleError> {
+    let mut directives: Vec<AppliedDirective> = Vec::new();
     loop {
         match tokenizer.peek_is_punctuator(Punctuator::At, true)? {
             true => directives.push(expect_directive(tokenizer)?),
@@ -28,9 +28,9 @@ pub fn parse_directives(tokenizer: &mut impl Tokenizable) -> Result<Vec<Directiv
     }
 }
 
-pub fn expect_directive(tokenizer: &mut impl Tokenizable) -> Result<Directive, CastleError> {
+pub fn expect_directive(tokenizer: &mut impl Tokenizable) -> Result<AppliedDirective, CastleError> {
     tokenizer.expect_punctuator(Punctuator::At, true)?;
-    Ok(Directive {
+    Ok(AppliedDirective {
         ident: tokenizer.expect_identifier(false)?,
         inputs: parse_optional_inputs(tokenizer)?,
     })

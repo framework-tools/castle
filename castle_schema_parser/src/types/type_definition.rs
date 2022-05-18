@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use super::{field_definition::FieldDefinition, directive_definitions::Directive};
+use super::{field_definition::FieldDefinition, directive_definitions::AppliedDirective};
 
 /// Definition of a type in the schema.
 ///
@@ -15,5 +15,5 @@ use super::{field_definition::FieldDefinition, directive_definitions::Directive}
 pub struct TypeDefinition {
     pub ident: Box<str>,
     pub fields: HashMap<Box<str>, FieldDefinition>,
-    pub directives: Vec<Directive>,
+    pub directives: Vec<AppliedDirective>,
 }

@@ -1,4 +1,4 @@
-use super::{Kind, Directive, InputDefinitions};
+use super::{Kind, AppliedDirective, InputDefinitions};
 
 /// Definition of a field resolver, used in field types
 /// ```notrust
@@ -12,5 +12,5 @@ pub struct FieldDefinition {
     pub ident: Box<str>,
     pub input_definitions: InputDefinitions,
     pub return_kind: Kind,
-    pub directives: Vec<Directive>,
+    pub directives: Vec<AppliedDirective>,
 }

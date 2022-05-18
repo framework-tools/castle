@@ -19,6 +19,8 @@ pub enum CastleError {
     MissingResolver(Box<str>),
     Root(Box<str>, Span),
     Unimplemented,
+    
+    
 }
 
 impl From<std::io::Error> for CastleError {

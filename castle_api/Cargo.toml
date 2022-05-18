@@ -18,7 +18,8 @@ castle_shared_parser = { path = "../castle_shared_parser" , version = "0.5.9" }
 castle_tokenizer = { path = "../castle_tokenizer" , version = "0.5.9" }
 async-trait = "0.1.53"
 derivative = "2.2.0"
-
+tokio = { version = "1.17.0", features = ["sync"]}
+async-recursion = "1.0.0"
 
 [dev-dependencies]
 tokio = { version = "1.17.0", features = ["macros", "rt"]}

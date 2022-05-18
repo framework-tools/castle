@@ -7,7 +7,7 @@ use castle_tokenizer::{
     Punctuator, Tokenizable,
 };
 
-use crate::types::{Directive, FieldDefinition, TypeDefinition};
+use crate::types::{AppliedDirective, FieldDefinition, TypeDefinition};
 
 use super::{
     parse_directives::parse_directives,
@@ -16,7 +16,7 @@ use super::{
 
 pub(crate) fn parse_type_definition(
     tokenizer: &mut impl Tokenizable,
-    directives: Vec<Directive>,
+    directives: Vec<AppliedDirective>,
 ) -> Result<TypeDefinition, CastleError> {
     Ok(TypeDefinition {
         ident: tokenizer.expect_identifier(true)?,

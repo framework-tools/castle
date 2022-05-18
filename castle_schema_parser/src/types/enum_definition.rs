@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use super::{Directive, Kind};
+use super::{AppliedDirective, Kind};
 
 
 
@@ -8,14 +8,14 @@ use super::{Directive, Kind};
 pub struct EnumDefinition {
     pub ident: Box<str>,
     pub variants: HashMap<Box<str>, VariantDefinition>,
-    pub directives: Vec<Directive>,
+    pub directives: Vec<AppliedDirective>,
 }
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct VariantDefinition {
     pub ident: Box<str>,
     pub kind: VariantKindDefinition,
-    pub directives: Vec<Directive>,
+    pub directives: Vec<AppliedDirective>,
 }
 
 #[derive(Debug, PartialEq, Clone)]

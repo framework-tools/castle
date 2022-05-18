@@ -6,7 +6,7 @@ mod kind;
 mod schema_definition;
 mod type_definition;
 
-pub use directive_definitions::{Directive, DirectiveDefinition, DirectiveLocation};
+pub use directive_definitions::{AppliedDirective, DirectiveDefinition, DirectiveLocation};
 pub use enum_definition::EnumDefinition;
 pub use enum_definition::VariantDefinition;
 pub use enum_definition::VariantKindDefinition;

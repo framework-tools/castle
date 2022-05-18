@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use castle_error::CastleError;
 use castle_tokenizer::{Tokenizable, Punctuator, extensions::{IsPunctuator, ExpectPunctuator, ExpectIdentifier}};
 
-use crate::types::{InputTypeDefinition, Directive, InputDefinition};
+use crate::types::{InputTypeDefinition, AppliedDirective, InputDefinition};
 
 use super::{parse_kind::parse_kind, parse_directives::parse_directives};
 
@@ -11,7 +11,7 @@ use super::{parse_kind::parse_kind, parse_directives::parse_directives};
 
 pub(crate) fn parse_input_type_definition(
     tokenizer: &mut impl Tokenizable,
-    directives: Vec<Directive>,
+    directives: Vec<AppliedDirective>,
 ) -> Result<InputTypeDefinition, CastleError> {
     Ok(InputTypeDefinition {
         ident: tokenizer.expect_identifier(true)?,

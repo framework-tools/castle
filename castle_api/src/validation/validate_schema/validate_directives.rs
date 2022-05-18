@@ -1,12 +1,12 @@
 use castle_error::CastleError;
-use castle_schema_parser::types::{Directive, DirectiveDefinition, DirectiveLocation, SchemaDefinition};
+use castle_schema_parser::types::{AppliedDirective, DirectiveDefinition, DirectiveLocation, SchemaDefinition};
 
 use crate::validation::{join_paths, validate_inputs::{check_for_unspecified_args, check_for_missing_args}};
 
 pub(crate) fn validate_directive(
     schema: &SchemaDefinition,
     path: &[&str],
-    directive: &Directive,
+    directive: &AppliedDirective,
     used_at_location: DirectiveLocation,
 ) -> Result<(), CastleError> {
     let new_path: &[&str] = &[&format!("{} @{}", join_paths(path), directive.ident)];

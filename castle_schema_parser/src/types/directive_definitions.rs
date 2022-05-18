@@ -63,8 +63,8 @@ impl Display for DirectiveLocation {
     }
 }
 
-/// ### Directive
-/// A directive being used on a field, type, enum, enum value, or input arg.
+/// ### AppliedDirective
+/// A directive being applied or used on a field, type, enum, enum value, or input arg.
 ///
 /// Named below for convenience.
 /// ```notrust
@@ -74,7 +74,7 @@ impl Display for DirectiveLocation {
 /// }
 /// ```
 #[derive(Debug, PartialEq, Clone)]
-pub struct Directive {
+pub struct AppliedDirective {
     pub ident: Box<str>,
     pub inputs: HashMap<Box<str>, Input>,
 }

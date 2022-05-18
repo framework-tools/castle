@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use castle_schema_parser::{
     parsers::parse_schema::parse_schema,
     types::{
-        Directive, DirectiveDefinition, DirectiveLocation, EnumDefinition, FieldDefinition,
+        AppliedDirective, DirectiveDefinition, DirectiveLocation, EnumDefinition, FieldDefinition,
         InputDefinition, Kind, SchemaDefinition, TypeDefinition, VariantDefinition,
         VariantKindDefinition, InputTypeDefinition,
     },
@@ -680,12 +680,12 @@ fn can_parse_directives_on_fields() {
                     "is_admin".into(),
                     FieldDefinition {
                         directives: vec![
-                            Directive {
+                            AppliedDirective {
                                 ident: "bar".into(),
                                 inputs: [("baz".into(), Input::Primitive(Primitive::Number(Number::from(123))))]
                                     .into(),
                             },
-                            Directive {
+                            AppliedDirective {
                                 ident: "foo".into(),
                                 inputs: HashMap::new(),
                             },
