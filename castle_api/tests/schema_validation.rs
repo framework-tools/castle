@@ -7,7 +7,7 @@ use castle_query_parser::Field;
 
 struct MockDirective;
 
-impl<Ctx: Send + 'static, E: 'static> Directive<Ctx, E> for MockDirective {}
+impl Directive for MockDirective {}
 
 #[tokio::test]
 async fn schema_without_type_message_fails() {

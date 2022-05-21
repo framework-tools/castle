@@ -1,32 +1,25 @@
 use std::{fmt::Debug, collections::HashMap};
-use castle_query_parser::Field;
 use castle_tokenizer::Number;
 use serde::{Serialize, Deserialize};
 
-use crate::Resolver;
-
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(bound = "")]
-pub enum Value<Ctx, E> {
+pub enum Value {
     Bool(bool),
     Number(Number),
     String(String),
-    Vec(Vec<Value<Ctx, E>>),
-    Object(HashMap<Box<str>, Value<Ctx, E>>),
-    #[serde(skip)]
+    Vec(Vec<Value>),
+    Object(HashMap<Box<str>, Value>),
     Void,
-    #[serde(skip)]
-    Resolver(Box<dyn Resolver<Ctx, E>>),
 }
 
-impl <Ctx, E> From<Number> for Value<Ctx, E> {
+impl  From<Number> for Value {
     fn from(number: Number) -> Self {
         Value::Number(number)
     }
 }
 
-impl <Ctx, E> PartialEq for Value<Ctx, E> {
+impl  PartialEq for Value {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (Self::Bool(l0), Self::Bool(r0)) => l0 == r0,
@@ -35,7 +28,6 @@ impl <Ctx, E> PartialEq for Value<Ctx, E> {
             (Self::Vec(l0), Self::Vec(r0)) => l0 == r0,
             (Self::Object(l0), Self::Object(r0)) => l0 == r0,
             (Self::Void, Self::Void) => true,
-            (Self::Resolver(l0), Self::Resolver(r0)) => l0 == r0,
             _ => core::mem::discriminant(self) == core::mem::discriminant(other),
         }
     }
@@ -45,7 +37,7 @@ impl <Ctx, E> PartialEq for Value<Ctx, E> {
 macro_rules! impl_from_primitive {
     ($($t:ty),*) => {
         $(
-            impl<Ctx, E> From<$t> for Value<Ctx, E> {
+            impl From<$t> for Value {
                 fn from(value: $t) -> Self {
                     Value::Number(value.into())
                 }
@@ -65,7 +57,7 @@ impl_from_primitive!(u64);
 impl_from_primitive!(f32);
 impl_from_primitive!(f64);
 
-impl<Ctx, E> Value<Ctx, E> {
+impl Value {
     pub fn as_str(&self) -> Option<&str> {
         match self {
             Self::String(s) => Some(s),
@@ -87,14 +79,14 @@ impl<Ctx, E> Value<Ctx, E> {
         }
     }
 
-    pub fn as_vec(self) -> Option<Vec<Value<Ctx, E>>> {
+    pub fn as_vec(self) -> Option<Vec<Value>> {
         match self {
             Self::Vec(v) => Some(v),
             _ => None,
         }
     }
 
-    pub fn as_object(self) -> Option<HashMap<Box<str>, Value<Ctx, E>>> {
+    pub fn as_object(self) -> Option<HashMap<Box<str>, Value>> {
         match self {
             Self::Object(o) => Some(o),
             _ => None,
@@ -103,45 +95,32 @@ impl<Ctx, E> Value<Ctx, E> {
 }
 
 
-impl<Ctx, E> From<bool> for Value<Ctx, E> {
+impl From<bool> for Value {
     fn from(value: bool) -> Self {
         Value::Bool(value)
     }
 }
 
-impl<Ctx, E> From<String> for Value<Ctx, E> {
+impl From<String> for Value {
     fn from(value: String) -> Self {
         Value::String(value)
     }
 }
 
-impl<Ctx, E> From<&str> for Value<Ctx, E> {
+impl From<&str> for Value {
     fn from(value: &str) -> Self {
         Value::String(value.to_string())
     }
 }
 
-impl<Ctx, VT, E> From<Vec<VT>> for Value<Ctx, E> where VT: Into<Value<Ctx, E>> {
+impl<VT> From<Vec<VT>> for Value where VT: Into<Value> {
     fn from(value: Vec<VT>) -> Self {
         Value::Vec(value.into_iter().map(Into::into).collect())
     }
 }
 
-impl<Ctx, IntoV: Into<Value<Ctx, E>>, AsStr: AsRef<str>, E> From<HashMap<AsStr, IntoV>> for Value<Ctx, E> {
+impl<IntoV: Into<Value>, AsStr: AsRef<str>> From<HashMap<AsStr, IntoV>> for Value {
     fn from(value: HashMap<AsStr, IntoV>) -> Self {
         Value::Object(value.into_iter().map(|(k, v)| (k.as_ref().into(), v.into())).collect())
     }
 }
-
-impl<Ctx, E> From<Box<dyn Resolver<Ctx, E>>> for Value<Ctx, E> {
-    fn from(value: Box<dyn Resolver<Ctx, E>>) -> Self {
-        Value::Resolver(value)
-    }
-}
-
-// #[async_trait::async_trait]
-// impl<Ctx: Sync + Send, E: Send + Sync> Resolver<Ctx, E> for Value<Ctx, E> {
-//     async fn resolve(&self, _field_: &Field, _ctx: &Ctx) -> Result<Value<Ctx, E>, E> {
-        
-//     }
-// }

@@ -4,9 +4,9 @@ use castle_schema_parser::types::SchemaDefinition;
 
 use crate::{Resolver};
 
-pub(crate) fn validate_resolvers_exist<Ctx, E>(
+pub(crate) fn validate_resolvers_exist(
     parsed_schema: &SchemaDefinition,
-    field_resolvers: &HashMap<Box<str>, Box<dyn Resolver<Ctx, E>>>,
+    field_resolvers: &HashMap<Box<str>, Box<dyn Resolver>>,
 ) -> Result<(), CastleError> {
     match parsed_schema.types.get("Root") {
         Some(query_type) => {

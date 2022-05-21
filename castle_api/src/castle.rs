@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, error::Error};
 
 use castle_error::CastleError;
 use castle_query_parser::{parse_message, Message};
@@ -6,30 +6,29 @@ use castle_schema_parser::{parsers::parse_schema::parse_schema, types::SchemaDef
 
 use crate::{
     executor::execute_message,
-    types::result::CastleResult,
     validation::{
         validate_directives_exist::validate_directives_exist,
         validate_projection::validate_projection,
         validate_resolvers_exist::validate_resolvers_exist, validate_schema::validate_schema,
     },
-    Directive, Resolver,
+    Directive, Resolver, context::Context, Value,
 };
 #[derive(derivative::Derivative)]
 #[derivative(Debug)]
-pub struct Castle<Ctx: Send + Sync + 'static, E: Send + Sync + 'static> {
+pub struct Castle {
     pub parsed_schema: SchemaDefinition,
     #[derivative(Debug = "ignore")]
-    pub field_resolvers: HashMap<Box<str>, Box<dyn Resolver<Ctx, E>>>,
+    pub field_resolvers: HashMap<Box<str>, Box<dyn Resolver>>,
     #[derivative(Debug = "ignore")]
-    pub directives: HashMap<Box<str>, Box<dyn Directive<Ctx, E>>>,
+    pub directives: HashMap<Box<str>, Box<dyn Directive>>,
 }
 
-impl<Ctx: Send + Sync + 'static, E: Send + Sync + 'static> Castle<Ctx, E> {
+impl Castle {
     pub(crate) fn build_and_validate(
-        field_resolvers: HashMap<Box<str>, Box<dyn Resolver<Ctx, E>>>,
-        directives: HashMap<Box<str>, Box<dyn Directive<Ctx, E>>>,
+        field_resolvers: HashMap<Box<str>, Box<dyn Resolver>>,
+        directives: HashMap<Box<str>, Box<dyn Directive>>,
         parsed_schema: SchemaDefinition,
-    ) -> Result<Castle<Ctx, E>, CastleError> {
+    ) -> Result<Castle, CastleError> {
         let castle = Castle {
             field_resolvers,
             parsed_schema,
@@ -64,11 +63,8 @@ impl<Ctx: Send + Sync + 'static, E: Send + Sync + 'static> Castle<Ctx, E> {
     pub async fn run_message(
         &self,
         query: &str,
-        ctx: &Ctx,
-    ) -> Result<CastleResult<Ctx, E>, CastleError> where 
-        Ctx: Send + Sync + 'static,
-        E: Send + Sync + 'static
-    {
+        ctx: &Context,
+    ) -> Result<(Value, Vec<Error>), CastleError> {
         let mut parsed_message = self.validate_message(query)?;
         execute_message(
             &mut parsed_message,
@@ -83,15 +79,15 @@ impl<Ctx: Send + Sync + 'static, E: Send + Sync + 'static> Castle<Ctx, E> {
 
 #[derive(derivative::Derivative)]
 #[derivative(Debug)]
-pub struct CastleBuilder<Ctx, E> {
+pub struct CastleBuilder {
     #[derivative(Debug = "ignore")]
-    resolver_map: HashMap<Box<str>, Box<dyn Resolver<Ctx, E>>>,
+    resolver_map: HashMap<Box<str>, Box<dyn Resolver>>,
     #[derivative(Debug = "ignore")]
-    directives: HashMap<Box<str>, Box<dyn Directive<Ctx, E>>>,
+    directives: HashMap<Box<str>, Box<dyn Directive>>,
     schema: String,
 }
 
-impl<Ctx: Send + Sync + 'static, E: Send + Sync + 'static> CastleBuilder<Ctx, E> {
+impl CastleBuilder {
     pub fn new(schema: &str) -> Self {
         Self {
             resolver_map: HashMap::new(),
@@ -100,7 +96,7 @@ impl<Ctx: Send + Sync + 'static, E: Send + Sync + 'static> CastleBuilder<Ctx, E>
         }
     }
 
-    pub fn build(&mut self) -> Result<Castle<Ctx, E>, CastleError> {
+    pub fn build(&mut self) -> Result<Castle, CastleError> {
         Castle::build_and_validate(
             self.resolver_map.drain().collect(),
             self.directives.drain().collect(),
@@ -111,7 +107,7 @@ impl<Ctx: Send + Sync + 'static, E: Send + Sync + 'static> CastleBuilder<Ctx, E>
     pub fn add_resolver(
         &mut self,
         resolver_name: &str,
-        resolver: impl Resolver<Ctx, E> + 'static,
+        resolver: impl Resolver + 'static,
     ) -> &mut Self {
         self.resolver_map
             .insert(resolver_name.into(), Box::new(resolver));
@@ -121,7 +117,7 @@ impl<Ctx: Send + Sync + 'static, E: Send + Sync + 'static> CastleBuilder<Ctx, E>
     pub fn add_directive(
         &mut self,
         directive_name: &str,
-        directive: impl Directive<Ctx, E> + 'static,
+        directive: impl Directive + 'static,
     ) -> &mut Self {
         self.directives
             .insert(directive_name.into(), Box::new(directive));
