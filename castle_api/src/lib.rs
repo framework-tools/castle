@@ -31,13 +31,7 @@ impl Debug for dyn Resolver {
 //A resolver takes in a field and context and returns the resolved value
 #[async_trait::async_trait]
 pub trait Resolver: Send + Sync {
-    async fn resolve(&self, field: &Field, ctx: &Context) -> Result<Value, E>;
-    async fn resolve_recursively(&self, field: &Field, ctx: &Context) -> Result<Value, Error>{
-        match self.resolve(field, ctx).await? {
-            Value::Resolver(resolver) => resolver.resolve_recursively(field, ctx).await,
-            value => Ok(value),
-        }
-    }
+    async fn resolve(&self, field: &Field, ctx: &Context) -> Result<Value, anyhow::Error>;
 }
 
 /// ### Allows async closures to `impl` the [Resolver] trait.
@@ -59,21 +53,21 @@ impl<F> Resolver for F
 where
     F: for<'a, 'b> Fn2Args<&'a Field, &'b Context> + Sync + Send,
     for<'a, 'b> <F as Fn2Args<&'a Field, &'b Context>>::Output:
-        Future<Output = Result<Value, E>> + Send,
+        Future<Output = Result<Value, anyhow::Error>> + Send,
 {
-    async fn resolve(&self, field: &Field, ctx: &Context) -> Result<Value, E> {
+    async fn resolve(&self, field: &Field, ctx: &Context) -> Result<Value, anyhow::Error> {
         self(field, ctx).await
     }
 }
 pub struct Next {
-    pub(crate) sender: mpsc::Sender<oneshot::Sender<Result<Value, E>>>,
+    pub(crate) sender: mpsc::Sender<oneshot::Sender<Result<Value, anyhow::Error>>>,
 }
 
 impl Next {
-    async fn resolve(self) -> Result<Value, E> {
+    async fn resolve(self) -> Result<Value, anyhow::Error> {
         let (sender, receiver) = oneshot::channel();
-        let _ = self.sender.send(sender);
-        receiver.await.unwrap()
+        self.sender.send(sender).await?;
+        receiver.await?
     }
 }
 
@@ -85,7 +79,7 @@ pub trait Directive: Send + Sync {
         directive_args: &Inputs,
         next: Next,
         context: &Context,
-    ) -> Result<Value, E>
+    ) -> Result<Value, anyhow::Error>
     where
         Context: Send + Sync,
 
