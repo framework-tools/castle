@@ -49,6 +49,54 @@ impl Input {
     }
 }
 
+impl From<&Input> for Option<String> {
+    fn from(input: &Input) -> Self {
+        match input {
+            Input::Primitive(Primitive::String(str)) => Some(String::from(&**str)),
+            _ => None,
+        }
+    }
+}
+
+impl From<&Input> for String {
+    fn from(input: &Input) -> Self {
+        let opt: Option<String> = input.into();
+        opt.unwrap()
+    }
+}
+
+// Implement From for all the primitive numeric types
+macro_rules! impl_from_input {
+    ($($t:ty, $as:ident),*) => {
+        $(
+            impl From<&Input> for $t {
+                fn from(value: &Input) -> Self {
+                    match value {
+                        Input::Primitive(Primitive::Number(number)) => number.into(),
+                        _ => panic!("Cannot convert input to {}", stringify!($t)),
+                    }
+                }
+            }
+        )*
+    };
+}
+
+impl_from_input!(
+    i8, as_i64,
+    i16, as_i64,
+    i32, as_i64,
+    i64, as_i64,
+    u8, as_u64,
+    u16, as_u64,
+    u32, as_u64,
+    u64, as_u64,
+    f32, as_f64,
+    f64, as_f64,
+    usize, as_u64,
+    isize, as_i64
+);
+
+
 #[derive(Debug, PartialEq, Clone)]
 pub struct Variant {
     ident: Box<str>,

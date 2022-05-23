@@ -97,12 +97,12 @@ macro_rules! from_num_to_primitive {
         $($ty:ty),*
     ) => {
         $(
-            impl From<Number> for Option<$ty> {
-                fn from(num: Number) -> Option<$ty> {
+            impl From<&Number> for $ty {
+                fn from(num: &Number) -> Self {
                     match num.n {
-                        NumberKind::UInt(u) => Some(u as $ty),
-                        NumberKind::Int(i) => Some(i as $ty),
-                        NumberKind::Float(f) => Some(f as $ty),
+                        NumberKind::UInt(u) => u as $ty,
+                        NumberKind::Int(i) => i as $ty,
+                        NumberKind::Float(f) => f as $ty,
                     }
                 }
             }

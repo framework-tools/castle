@@ -8,4 +8,5 @@ members = [
     "castle_error",
     "castle_tokenizer",
     "castle_shared_parser",
+    "castle_macro",
 ]
