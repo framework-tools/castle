@@ -1,9 +1,10 @@
-use castle_api::{Inputs, Input, Primitive};
+use castle_api::{Inputs, Input, Primitive, types::schema_item::SchemaItem};
+use castle_schema_parser::types::{SchemaDefinition, FieldDefinition, TypeDefinition};
 
 
 #[test]
 fn can_derive_struct() {
-    #[castle_macro::castle(input)]
+    #[castle_macro::castle(Input)]
     struct Foo {
         bar: i32,
         bar2: usize,
@@ -24,17 +25,45 @@ fn can_derive_struct() {
     assert_eq!(converted.bar3, "hello".to_string());
 }
 
+
+
 #[test]
 fn can_impl_resolve() {
+    struct Root {
+        foo: String
+    }
 
-    #[castle_macro::castle(type)]
-    type Root {
-        me: User @authenticated,
-        login(email: String, password: String): String
-    };
+    #[castle_macro::castle(Type)]
+    impl Root {
+        async fn foo(a: String) -> Result<String, castle_api::Error> {
+            unimplemented!()
+        }
+    }
 }
 
+// #[test]
+// fn can_impl_resolve_complex() {
+//     struct Root {
+//         foo: String
+//     }
 
+//     #[castle_macro::castle(Type)]
+//     impl Root {
+//         async fn me(ctx: Ctx) -> Result<User, castle_api::Error> {
+//             User {
+//                 id: "foo",
+//             }
+//         }
+        
+//         async fn login(input: LoginDetails, ctx: Ctx) -> Result<String, Error> {
+//             unimplemented!()
+//         }
+        
+//         pub async fn signup(input: CreateUser, ctx: Ctx) -> Result<(), Error> {
+//             User::create_user(input).await
+//         }
+//     }
+// }
 
 
 

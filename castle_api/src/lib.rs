@@ -9,6 +9,7 @@ pub use types::value::Value;
 
 pub use crate::castle::Castle;
 pub use castle_tokenizer::{Number, Primitive};
+pub use anyhow::Error;
 
 pub mod castle;
 pub mod context;

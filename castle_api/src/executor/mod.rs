@@ -39,24 +39,24 @@ async fn evaluate_map(
 
     for (field_name, field) in message.projection.iter() {
         let field_def = type_def.fields.get(field_name).unwrap();
-        let resolver = field_resolvers.get(field_name).unwrap();
+        // let resolver = field_resolvers.get(field_name).unwrap();
 
-        match evaluate_field(
-            field,
-            field_def,
-            &field_def.directives[..],
-            ctx,
-            resolver,
-            &directives,
-        )
-        .await
-        {
-            Ok(Value::Void) => {}
-            Ok(data) => {
-                map.insert(field_name.clone(), data);
-            }
-            Err(e) => errors.push(e),
-        }
+        // match evaluate_field(
+        //     field,
+        //     field_def,
+        //     &field_def.directives[..],
+        //     ctx,
+        //     resolver,
+        //     &directives,
+        // )
+        // .await
+        // {
+        //     Ok(Value::Void) => {}
+        //     Ok(data) => {
+        //         map.insert(field_name.clone(), data);
+        //     }
+        //     Err(e) => errors.push(e),
+        // }
     }
 
     map

@@ -19,4 +19,12 @@ impl SchemaDefinition {
             directives: HashMap::new()
         }
     }
+    pub fn is_type_registered(&self, item: &str) -> bool {
+        if self.types.contains_key(item) {
+            return true
+        } else { return false }
+    }
+    pub fn register_type(&mut self, item: TypeDefinition) {
+        self.types.insert(item.ident.clone(), item);
+    }
 }
