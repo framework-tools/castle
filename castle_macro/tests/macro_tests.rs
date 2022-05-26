@@ -16,7 +16,7 @@ fn can_derive_struct() {
         ("bar2".into(), Input::Primitive(Primitive::Number(2u32.into()))),
         ("bar3".into(), Input::Primitive(Primitive::String("hello".into()))),
     ].into();
-    
+
 
     let converted: Foo = Foo::from(&inputs);
 
@@ -35,7 +35,7 @@ fn can_impl_resolve() {
 
     #[castle_macro::castle(Type)]
     impl Root {
-        async fn foo(a: String) -> Result<String, castle_api::Error> {
+        async fn foo(a: String) -> Result<(), castle_api::Error> {
             unimplemented!()
         }
     }
@@ -54,11 +54,11 @@ fn can_impl_resolve() {
 //                 id: "foo",
 //             }
 //         }
-        
+
 //         async fn login(input: LoginDetails, ctx: Ctx) -> Result<String, Error> {
 //             unimplemented!()
 //         }
-        
+
 //         pub async fn signup(input: CreateUser, ctx: Ctx) -> Result<(), Error> {
 //             User::create_user(input).await
 //         }
