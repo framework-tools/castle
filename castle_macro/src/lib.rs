@@ -36,45 +36,62 @@ pub fn castle(attr: proc_macro::TokenStream, item: proc_macro::TokenStream) -> p
 
 fn derive_input(struct_: ItemStruct) -> proc_macro2::TokenStream {
     let name = &struct_.ident;
+
+    let mut types_used = vec![];
+
     let fields = match &struct_.fields {
         Fields::Named(fields) => fields,
         _ => panic!("Only named fields are supported"),
     };
-    let field_names = fields.named.iter().map(|field| field.ident.as_ref().unwrap());
 
-    let conversions = fields.named.iter().map(|field| {
+    let field_conversions = fields.named.iter().map(|field| {
         let name = field.ident.as_ref().unwrap();
         let ty = &field.ty;
-        quote_spanned!(ty.span()=> inputs.get(stringify!(#name)).unwrap().into())
+        quote_spanned!(ty.span()=> #name: inputs.get(stringify!(#name)).unwrap().into())
     });
 
-    let mut types_used = vec![];
+    let input_definitions = fields.named.iter().map(|field| {
+        let name = field.ident.as_ref().unwrap();
+        let ty = &field.ty;
+        types_used.push(ty.clone());
+        quote_spanned!(ty.span()=> (
+            stringify!(#name).into(), ::castle_api::types::InputDefinition {
+                ident: stringify!(#name).into(),
+                input_kind: <#ty as ::castle_api::types::SchemaItem>::kind(),
+                default: ::core::option::Option::None,
+                directives: vec![],
+            }
+        ))
+    });
     
     quote_spanned! {name.span()=>
         #struct_
-        impl ::From<&::castle_api::types::Inputs> for #name {
+
+        impl ::core::convert::From<&::castle_api::types::Inputs> for #name {
             fn from(inputs: &::castle_api::types::Inputs) -> Self {
                 #name {
-                    #(#field_names: #conversions),*
+                    #(
+                        #field_conversions,
+                    )*
                 }
             }
         }
 
         impl ::castle_api::types::SchemaItem for &#name {
-            fn kind() -> ::castle_schema_parser::types::Kind {
-                ::castle_schema_parser::types::Kind {
+            fn kind() -> ::castle_api::types::Kind {
+                ::castle_api::types::Kind {
                     ident: stringify!(#name).into(),
                     generics: vec![]
                 }
             }
 
-            fn initialize_item(schema: &mut ::castle_schema_parser::types::SchemaDefinition) {
+            fn initialize_item(schema: &mut ::castle_api::types::SchemaDefinition) {
                 if !schema.is_type_registered(&stringify!(#name)) {
-                    let input_def = ::castle_schema_parser::types::InputTypeDefinition {
+                    let input_def = ::castle_api::types::InputTypeDefinition {
                         ident: stringify!(#name).into(),
                         input_definitions: [
                             #(
-                                #input_definition,
+                                #input_definitions,
                             )*
                         ].into(),
                         directives: vec![].into(),
@@ -83,7 +100,7 @@ fn derive_input(struct_: ItemStruct) -> proc_macro2::TokenStream {
                     schema.register_input(input_def);
 
                     #(
-                        <#types_used as ::castle_api::types::schema_item::SchemaItem>::initialize_item(schema);
+                        <#types_used as ::castle_api::types::SchemaItem>::initialize_item(schema);
                     )*
                 }
             }
@@ -100,16 +117,25 @@ fn derive_type(item_impl: ItemImpl) -> proc_macro2::TokenStream {
     quote_spanned!{ item_impl.self_ty.span() =>
         #item_impl
 
-        impl ::castle_api::types::schema_item::SchemaItem for #self_name {
-            fn kind() -> ::castle_schema_parser::types::Kind {
-                ::castle_schema_parser::types::Kind {
+        impl ::castle_api::types::ResolvesFields for #self_name {
+            fn resolve(&self, field: &::castle_api::types::Field, ctx: &::castle_api::types::Context) -> Result<::castle_api::types::Value, ::castle_api::Error> {
+                match &*field.ident {
+                    
+                    _ => unreachable!("Should not reachable if property validated")
+                }
+            }
+        }
+
+        impl ::castle_api::types::SchemaItem for #self_name {
+            fn kind() -> ::castle_api::types::Kind {
+                ::castle_api::types::Kind {
                     ident: stringify!(#self_name).into(),
                     generics: vec![]
                 }
             }
-            fn initialize_item(schema: &mut ::castle_schema_parser::types::SchemaDefinition) {
+            fn initialize_item(schema: &mut ::castle_api::types::SchemaDefinition) {
                 if !schema.is_type_registered(&stringify!(#self_name)) {
-                    let type_def = ::castle_schema_parser::types::TypeDefinition {
+                    let type_def = ::castle_api::types::TypeDefinition {
                         ident: stringify!(#self_name).into(),
                         fields: [
                             #(
@@ -122,7 +148,7 @@ fn derive_type(item_impl: ItemImpl) -> proc_macro2::TokenStream {
                     schema.register_type(type_def);
 
                     #(
-                        <#types_used as ::castle_api::types::schema_item::SchemaItem>::initialize_item(schema);
+                        <#types_used as ::castle_api::types::SchemaItem>::initialize_item(schema);
                     )*
                 }
             }
@@ -162,7 +188,7 @@ fn get_field_definitions_from_impl(item_impl: &ItemImpl, types_used: &mut Vec<Ty
                         }) => Some(quote_spanned!(ty.span() =>
                             (stringify!(#ident).into(), ::castle_api::types::InputDefinition {
                                 ident: stringify!(#ident).into(),
-                                input_kind: <#ty as ::castle_api::types::schema_item::SchemaItem>::kind(),
+                                input_kind: <#ty as ::castle_api::types::SchemaItem>::kind(),
                                 default: None,
                                 directives: vec![],
                             })
@@ -176,8 +202,8 @@ fn get_field_definitions_from_impl(item_impl: &ItemImpl, types_used: &mut Vec<Ty
             Some(quote_spanned!(fn_name.span() =>
                 (stringify!(#fn_name).into(), FieldDefinition {
                     ident: stringify!(#fn_name).into(),
-                    input_definitions: [#( #input_definitions ),*].into(),
-                    return_kind: <#return_kind as ::castle_api::types::schema_item::SchemaItem>::kind(),
+                    input_definitions: [#( #input_definitions, )*].into(),
+                    return_kind: <#return_kind as ::castle_api::types::SchemaItem>::kind(),
                     directives: [].into(),
                 })
             ))

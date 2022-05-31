@@ -4,8 +4,6 @@ use std::{collections::HashMap};
 use async_recursion::async_recursion;
 use castle_types::{Directive, Context, Value, Next, Message, SchemaDefinition, TypeDefinition, Field, FieldDefinition, AppliedDirective};
 
-use crate::Resolver;
-
 pub async fn execute_message(
     message: &mut Message,
     directives: &HashMap<Box<str>, Box<dyn Directive>>,
@@ -67,38 +65,39 @@ async fn evaluate_field(
     field_def: &FieldDefinition,
     remaining_directives: &[AppliedDirective],
     ctx: &Context,
-    resolver: &Box<dyn Resolver>,
+    // resolver: &Box<dyn Resolver>,
     directives: &HashMap<Box<str>, Box<dyn Directive>>,
 ) -> Result<Value, anyhow::Error> {
-    match remaining_directives.get(0) {
-        Some(applied_directive) => {
-            let directive = match directives.get(&applied_directive.ident) {
-                Some(directive) => directive,
-                None => unreachable!(), // we should have already validated the directives
-            };
+    unimplemented!()
+    // match remaining_directives.get(0) {
+    //     Some(applied_directive) => {
+    //         let directive = match directives.get(&applied_directive.ident) {
+    //             Some(directive) => directive,
+    //             None => unreachable!(), // we should have already validated the directives
+    //         };
 
-            let (sender, mut wait_next) = tokio::sync::mpsc::channel(1);
-            let next = Next { sender };
-            let mut value_fut =
-                directive.field_visitor(field, &applied_directive.inputs, next, ctx);
+    //         let (sender, mut wait_next) = tokio::sync::mpsc::channel(1);
+    //         let next = Next { sender };
+    //         let mut value_fut =
+    //             directive.field_visitor(field, &applied_directive.inputs, next, ctx);
 
-            loop {
-                tokio::select! {
-                    Some(sender) = wait_next.recv() => {
-                        let _ = sender.send(evaluate_field(
-                            field,
-                            field_def,
-                            &remaining_directives[1..],
-                            ctx,
-                            resolver,
-                            directives
-                        ).await);
-                        continue
-                    }
-                    value = &mut value_fut => return Ok(value?)
-                }
-            }
-        }
-        None => Ok(resolver.resolve(field, ctx).await?),
-    }
+    //         loop {
+    //             tokio::select! {
+    //                 Some(sender) = wait_next.recv() => {
+    //                     let _ = sender.send(evaluate_field(
+    //                         field,
+    //                         field_def,
+    //                         &remaining_directives[1..],
+    //                         ctx,
+    //                         // resolver,
+    //                         directives
+    //                     ).await);
+    //                     continue
+    //                 }
+    //                 value = &mut value_fut => return Ok(value?)
+    //             }
+    //         }
+    //     }
+    //     None => Ok(resolver.resolve(field, ctx).await?),
+    // }
 }

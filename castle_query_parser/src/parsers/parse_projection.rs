@@ -28,7 +28,7 @@ pub fn parse_projection_inner(
         match tokenizer.peek(true)?.map(|t| (&t.kind, &t.span)) {
             Some((TokenKind::Identifier(_), ..)) => {
                 let field = parse_field(tokenizer)?;
-                projections.insert(field.name.clone(), field);
+                projections.insert(field.ident.clone(), field);
                 consume_optional_separator(tokenizer)?;
             },
             _ => break, // EOF or something else
@@ -40,7 +40,7 @@ pub fn parse_projection_inner(
 
 fn parse_field(tokenizer: &mut impl Tokenizable) -> Result<Field, CastleError> {
     Ok(Field {
-        name: tokenizer.expect_identifier(true)?,
+        ident: tokenizer.expect_identifier(true)?,
         inputs: if tokenizer.peek_is_punctuator(Punctuator::OpenParen, true)? {
             parse_inputs(tokenizer)?
         } else {

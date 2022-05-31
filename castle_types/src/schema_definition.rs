@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+
 use super::{TypeDefinition, EnumDefinition, DirectiveDefinition, InputTypeDefinition};
 
 #[derive(Debug, PartialEq, Clone)]
@@ -26,5 +27,8 @@ impl SchemaDefinition {
     }
     pub fn register_type(&mut self, item: TypeDefinition) {
         self.types.insert(item.ident.clone(), item);
+    }
+    pub fn register_input(&mut self, item: InputTypeDefinition) {
+        self.input_types.insert(item.ident.clone(), item);
     }
 }

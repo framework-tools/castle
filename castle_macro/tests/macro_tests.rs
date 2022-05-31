@@ -1,5 +1,4 @@
-use castle_api::{Inputs, Input, Primitive, types::schema_item::SchemaItem};
-use castle_schema_parser::types::{SchemaDefinition, FieldDefinition, TypeDefinition};
+use castle_api::types::{Inputs, Input, Primitive, FieldDefinition};
 
 
 #[test]
@@ -35,7 +34,7 @@ fn can_impl_resolve() {
 
     #[castle_macro::castle(Type)]
     impl Root {
-        async fn foo(a: String) -> Result<(), castle_api::Error> {
+        async fn foo(a: String) -> Result<(), anyhow::Error> {
             unimplemented!()
         }
     }

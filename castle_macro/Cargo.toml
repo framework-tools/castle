@@ -16,3 +16,4 @@ castle_schema_parser = { path = "../castle_schema_parser" }
 [dev-dependencies]
 castle_api = { path = "../castle_api" }
 castle_schema_parser = { path = "../castle_schema_parser" }
+anyhow = "1.0.57"

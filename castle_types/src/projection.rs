@@ -42,7 +42,7 @@ pub type Projection = HashMap<Box<str>, Field>;
 /// ```
 #[derive(Debug, PartialEq)]
 pub struct Field {
-    pub name: Box<str>,
+    pub ident: Box<str>,
     pub inputs: Inputs,
 
     /// Used to rename fields, eg:

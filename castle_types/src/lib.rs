@@ -16,6 +16,7 @@ mod schema_definition;
 mod schema_item;
 mod type_definition;
 mod value;
+mod resolves_fields;
 
 pub use self::{
     context::Context,
@@ -36,4 +37,7 @@ pub use self::{
     schema_item::SchemaItem,
     type_definition::TypeDefinition,
     value::Value,
+    resolves_fields::ResolvesFields
 };
+
+pub use anyhow::Error;

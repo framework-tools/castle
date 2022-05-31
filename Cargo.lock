@@ -78,6 +78,7 @@ dependencies = [
 name = "castle_macro"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "castle_api",
  "castle_schema_parser",
  "proc-macro2",

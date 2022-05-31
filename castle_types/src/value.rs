@@ -66,7 +66,7 @@ impl PartialEq for Value {
 
 // Implement From for all the primitive numeric types
 macro_rules! impl_from_primitive {
-    ($($t:ty),*) => {
+    ($($t:ty,)*) => {
         $(
             impl From<$t> for Value {
                 fn from(value: $t) -> Self {
@@ -77,14 +77,17 @@ macro_rules! impl_from_primitive {
     };
 }
 
-impl_from_primitive!(i8);
-impl_from_primitive!(i16);
-impl_from_primitive!(i32);
-impl_from_primitive!(i64);
-impl_from_primitive!(u8);
-impl_from_primitive!(u16);
-impl_from_primitive!(u32);
-impl_from_primitive!(u64);
-impl_from_primitive!(f32);
-impl_from_primitive!(f64);
-
+impl_from_primitive!(
+    usize,
+    u8,
+    u16,
+    u32,
+    u64,
+    isize,
+    i8,
+    i16,
+    i32,
+    i64,
+    f32,
+    f64,
+);
