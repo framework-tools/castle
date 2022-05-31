@@ -2,8 +2,6 @@ use std::collections::HashMap;
 
 use crate::Input;
 
-
-pub type Inputs = HashMap<Box<str>, Input>;
 pub type Projection = HashMap<Box<str>, Field>;
 
 /// The query
