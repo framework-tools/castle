@@ -1,8 +1,9 @@
 [package]
 name = "castle_macro"
-version = "0.1.0"
+version = "0.6.2"
 edition = "2021"
-
+license = "MIT"
+description = "Castle Macro, macros to make your life easier"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
 proc-macro = true
@@ -11,7 +12,7 @@ proc-macro = true
 syn = { version = "1.0.95", features = ["full"] }
 quote = "1.0.18"
 proc-macro2 = "1.0.39"
-castle_schema_parser = { path = "../castle_schema_parser" }
+castle_schema_parser = { path = "../castle_schema_parser" , version = "0.6.2" }
 
 [dev-dependencies]
 castle_api = { path = "../castle_api" }

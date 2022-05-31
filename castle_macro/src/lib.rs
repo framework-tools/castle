@@ -1,7 +1,9 @@
+#![feature(proc_macro_diagnostic)]
+
 extern crate proc_macro;
 
 use quote::{quote_spanned};
-use syn::{parse_macro_input, ItemStruct, Fields, spanned::Spanned, ItemImpl, ImplItem, ReturnType, Type, FnArg, Pat, ImplItemMethod, Signature, PatType, PatIdent};
+use syn::{parse_macro_input, ItemStruct, Fields, spanned::Spanned, ItemImpl, ImplItem, ReturnType, Type, FnArg, Pat, ImplItemMethod, Signature, PatType, PatIdent, Ident};
 
 /// For #[castle_macro::castle(Input)]
 /// Implements `From<Input>` for the given struct. eg:
@@ -54,7 +56,7 @@ fn derive_input(struct_: ItemStruct) -> proc_macro2::TokenStream {
         let name = field.ident.as_ref().unwrap();
         let ty = &field.ty;
         types_used.push(ty.clone());
-        quote_spanned!(ty.span()=> (
+        syn::parse_quote_spanned!(ty.span()=> (
             stringify!(#name).into(), ::castle_api::types::InputDefinition {
                 ident: stringify!(#name).into(),
                 input_kind: <#ty as ::castle_api::types::SchemaItem>::kind(),
@@ -62,6 +64,10 @@ fn derive_input(struct_: ItemStruct) -> proc_macro2::TokenStream {
                 directives: vec![],
             }
         ))
+    }).collect::<Vec<syn::Item>>();
+
+    let initializations = types_used.iter().map(|ty| {
+        quote_spanned!(ty.span()=> <#ty as ::castle_api::types::SchemaItem>::initialize_item(schema);)
     });
     
     quote_spanned! {name.span()=>
@@ -100,7 +106,7 @@ fn derive_input(struct_: ItemStruct) -> proc_macro2::TokenStream {
                     schema.register_input(input_def);
 
                     #(
-                        <#types_used as ::castle_api::types::SchemaItem>::initialize_item(schema);
+                        #initializations
                     )*
                 }
             }
@@ -110,22 +116,13 @@ fn derive_input(struct_: ItemStruct) -> proc_macro2::TokenStream {
 
 fn derive_type(item_impl: ItemImpl) -> proc_macro2::TokenStream {
     let mut types_used = vec![];
+    let mut fn_names = vec![];
     let self_name = &item_impl.self_ty;
 
-    let field_definitions = get_field_definitions_from_impl(&item_impl, &mut types_used);
+    let field_definitions = get_field_definitions_from_impl(&item_impl, &mut types_used, &mut fn_names);
 
     quote_spanned!{ item_impl.self_ty.span() =>
         #item_impl
-
-        impl ::castle_api::types::ResolvesFields for #self_name {
-            fn resolve(&self, field: &::castle_api::types::Field, ctx: &::castle_api::types::Context) -> Result<::castle_api::types::Value, ::castle_api::Error> {
-                match &*field.ident {
-                    
-                    _ => unreachable!("Should not reachable if property validated")
-                }
-            }
-        }
-
         impl ::castle_api::types::SchemaItem for #self_name {
             fn kind() -> ::castle_api::types::Kind {
                 ::castle_api::types::Kind {
@@ -153,10 +150,21 @@ fn derive_type(item_impl: ItemImpl) -> proc_macro2::TokenStream {
                 }
             }
         }
+
+        impl ::castle_api::types::ResolvesFields for #self_name {
+            fn resolve(&self, field: &::castle_api::types::Field, ctx: &::castle_api::types::Context) -> Result<::castle_api::types::Value, ::castle_api::Error> {
+                match &*field.ident {
+                    #(
+                        stringify!(#fn_names) => self.#fn_names(ctx, <_ as ::castle_api::types::FromInputs>::from_inputs(&field.inputs)).into(),
+                    )*
+                    _ => unreachable!("Should not reachable if property validated")
+                }
+            }
+        }
     }.into()
 }
 
-fn get_field_definitions_from_impl(item_impl: &ItemImpl, types_used: &mut Vec<Type>) -> Vec<proc_macro2::TokenStream> {
+fn get_field_definitions_from_impl(item_impl: &ItemImpl, types_used: &mut Vec<Type>, fn_names: &mut Vec<Ident>) -> Vec<proc_macro2::TokenStream> {
     item_impl.items.iter().filter_map(|field| match field {
         ImplItem::Method(ImplItemMethod {
             sig: Signature {
@@ -172,15 +180,19 @@ fn get_field_definitions_from_impl(item_impl: &ItemImpl, types_used: &mut Vec<Ty
                 ReturnType::Default => syn::parse_quote!(())
             };
 
+            fn_names.push(fn_name.clone());
             types_used.push(return_kind.clone());
 
-            let input_definitions = inputs.iter().filter_map(|input| match input {
+            let input_definitions = inputs.iter()
+                .skip(2)
+                .filter_map(|input| match input {
                 FnArg::Typed(PatType {
                     pat,
                     ty,
                     ..
                 }) => {
                     types_used.push(*ty.clone());
+
                     match &**pat {
                         Pat::Ident(PatIdent {
                             ident,
@@ -196,7 +208,7 @@ fn get_field_definitions_from_impl(item_impl: &ItemImpl, types_used: &mut Vec<Ty
                         _ => panic!("Only named args are supported, eg: `arg: i32`"),
                     }
                 },
-                _ => panic!("self args are not supported"),
+                FnArg::Receiver(_) => None,
             });
 
             Some(quote_spanned!(fn_name.span() =>
@@ -241,9 +253,10 @@ fn get_field_definitions_from_impl(item_impl: &ItemImpl, types_used: &mut Vec<Ty
 /// ```
 fn derive_castle_object(item_impl: ItemImpl) -> proc_macro2::TokenStream {
     let mut types_used = vec![];
+    let mut fn_names = vec![];
     let self_name = &item_impl.self_ty;
 
-    let field_definitions = get_field_definitions_from_impl(&item_impl, &mut types_used);
+    let field_definitions = get_field_definitions_from_impl(&item_impl, &mut types_used, &mut fn_names);
 
     quote_spanned!{ item_impl.self_ty.span() =>
         #item_impl

@@ -3,9 +3,6 @@ use std::{collections::HashMap, fmt::Display};
 use crate::Primitive;
 
 
-
-
-
 // (ident: primitive, ident2: primitive)
 // (ident: { ident: value, ident2: value })
 // (ident: [ value, value ])
@@ -21,6 +18,18 @@ pub enum Input {
     Variant(Variant),
     Map(HashMap<Box<str>, Input>),
     List(Vec<Input>),
+}
+
+pub type Inputs = HashMap<Box<str>, Input>;
+
+pub trait FromInputs {
+    fn from_inputs(inputs: &Inputs) -> Self;
+}
+
+impl FromInputs for () {
+    fn from_inputs(_inputs: &Inputs) -> () {
+        ()
+    }
 }
 
 impl Input {

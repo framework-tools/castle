@@ -1,4 +1,4 @@
-use castle_api::types::{Inputs, Input, Primitive, FieldDefinition};
+use castle_api::types::{Inputs, Input, Primitive, FieldDefinition, Context};
 
 
 #[test]
@@ -26,15 +26,42 @@ fn can_derive_struct() {
 
 
 
+// #[test]
+// fn can_impl_resolve() {
+//     struct Root {
+//         foo: String
+//     }
+
+//     #[castle_macro::castle(Type)]
+//     impl Root {
+//         async fn first_name(a: String) -> Result<(), anyhow::Error> {
+//             unimplemented!()
+//         }
+//     }
+// }
+
 #[test]
-fn can_impl_resolve() {
-    struct Root {
-        foo: String
+fn testing_user_match() {
+    struct User{
+        name: String,
+        age: i32
+    }
+    
+    struct Profile {}
+
+    #[castle_macro::castle(Type)]
+    impl Profile {
+        fn name(&self, ctx: &Context, input: ()) -> String {
+            "hello".to_string()
+        }
     }
 
     #[castle_macro::castle(Type)]
-    impl Root {
-        async fn foo(a: String) -> Result<(), anyhow::Error> {
+    impl User {
+        fn profile(&self, ctx: &Context, input: (), ) -> Profile {
+            unimplemented!()
+        }
+        fn first_name(&self, ctx: &Context, input: ()) -> Result<String, anyhow::Error> {
             unimplemented!()
         }
     }

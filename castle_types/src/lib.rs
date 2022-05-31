@@ -26,7 +26,7 @@ pub use self::{
     error::CastleError,
     field_definition::FieldDefinition,
     input_definition::{InputDefinition, InputDefinitions, InputTypeDefinition},
-    inputs::{Input, Variant, VariantType},
+    inputs::{Input, FromInputs, Variant, VariantType},
     kind::Kind,
     message::Message,
     next::Next,

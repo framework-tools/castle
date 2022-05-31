@@ -1,7 +1,7 @@
 use std::{fmt::Debug, collections::HashMap};
 use serde::{Serialize, Deserialize};
 
-use crate::Number;
+use crate::{Number, ResolvesFields};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(bound = "")]
@@ -11,6 +11,8 @@ pub enum Value {
     String(String),
     Vec(Vec<Value>),
     Object(HashMap<Box<str>, Value>),
+    #[serde(skip)]
+    ResolveFields(Box<dyn ResolvesFields>),
     Void,
 }
 
