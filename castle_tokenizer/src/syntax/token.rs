@@ -1,8 +1,10 @@
 use std::{fmt::{Formatter, self, Display}};
 
 use castle_input_cursor::{Span};
+use castle_types::Primitive;
 
-use crate::{Keyword, Punctuator, Primitive};
+use crate::{Punctuator, Keyword};
+
 
 #[derive(Debug, PartialEq)]
 pub struct Token {

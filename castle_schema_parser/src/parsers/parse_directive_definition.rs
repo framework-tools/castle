@@ -1,9 +1,8 @@
 use std::collections::HashSet;
 
-use castle_error::CastleError;
 use castle_tokenizer::{Tokenizable, extensions::{ExpectIdentifier, ExpectPunctuator, IsPunctuator}, Punctuator};
+use castle_types::{DirectiveDefinition, CastleError, DirectiveLocation};
 
-use crate::types::{DirectiveDefinition, DirectiveLocation};
 
 use super::parse_input_type_definition::parse_optional_input_definitions;
 

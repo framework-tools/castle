@@ -1,13 +1,12 @@
 use std::collections::HashMap;
 
-use castle_error::CastleError;
 use castle_shared_parser::parse_inputs::consume_optional_separator;
 use castle_tokenizer::{
     extensions::{ExpectIdentifier, ExpectPunctuator, IsPunctuator},
     Punctuator, TokenKind, Tokenizable,
 };
+use castle_types::{AppliedDirective, EnumDefinition, CastleError, VariantDefinition, VariantKindDefinition, Kind};
 
-use crate::types::{AppliedDirective, EnumDefinition, Kind, VariantDefinition, VariantKindDefinition};
 
 use super::{parse_directives::parse_directives, parse_kind::parse_kind};
 

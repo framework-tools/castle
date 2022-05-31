@@ -1,13 +1,12 @@
 use std::collections::HashMap;
 
-use castle_error::CastleError;
 use castle_shared_parser::parse_inputs::{parse_inputs, consume_optional_separator};
 use castle_tokenizer::{
     extensions::{ExpectIdentifier, ExpectKeyword, ExpectPunctuator, PeekKeyword, IsPunctuator},
     Keyword, Punctuator, TokenKind, Tokenizable,
 };
+use castle_types::{Field, CastleError, FieldKind};
 
-use crate::{types::Field, FieldKind};
 
 /// Parses a object projection, except without the {} brackets (so just the fields)
 /// ```text

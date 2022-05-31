@@ -28,6 +28,7 @@ pub fn castle(attr: proc_macro::TokenStream, item: proc_macro::TokenStream) -> p
     let expanded = match &attr.to_string()[..] {
         "Input" => derive_input(parse_macro_input!(item as ItemStruct)),
         "Type" => derive_type(parse_macro_input!(item as ItemImpl)),
+        "CastleObject" => derive_castle_object(parse_macro_input!(item as ItemImpl)),
         attribute => panic!("attribute {} is not supported", attribute),
     };
     proc_macro::TokenStream::from(expanded)
@@ -47,12 +48,82 @@ fn derive_input(struct_: ItemStruct) -> proc_macro2::TokenStream {
         quote_spanned!(ty.span()=> inputs.get(stringify!(#name)).unwrap().into())
     });
 
+    let mut types_used = vec![];
+    
     quote_spanned! {name.span()=>
         #struct_
         impl ::From<&::castle_api::types::Inputs> for #name {
             fn from(inputs: &::castle_api::types::Inputs) -> Self {
                 #name {
                     #(#field_names: #conversions),*
+                }
+            }
+        }
+
+        impl ::castle_api::types::SchemaItem for &#name {
+            fn kind() -> ::castle_schema_parser::types::Kind {
+                ::castle_schema_parser::types::Kind {
+                    ident: stringify!(#name).into(),
+                    generics: vec![]
+                }
+            }
+
+            fn initialize_item(schema: &mut ::castle_schema_parser::types::SchemaDefinition) {
+                if !schema.is_type_registered(&stringify!(#name)) {
+                    let input_def = ::castle_schema_parser::types::InputTypeDefinition {
+                        ident: stringify!(#name).into(),
+                        input_definitions: [
+                            #(
+                                #input_definition,
+                            )*
+                        ].into(),
+                        directives: vec![].into(),
+                    };
+
+                    schema.register_input(input_def);
+
+                    #(
+                        <#types_used as ::castle_api::types::schema_item::SchemaItem>::initialize_item(schema);
+                    )*
+                }
+            }
+        }
+    }.into()
+}
+
+fn derive_type(item_impl: ItemImpl) -> proc_macro2::TokenStream {
+    let mut types_used = vec![];
+    let self_name = &item_impl.self_ty;
+
+    let field_definitions = get_field_definitions_from_impl(&item_impl, &mut types_used);
+
+    quote_spanned!{ item_impl.self_ty.span() =>
+        #item_impl
+
+        impl ::castle_api::types::schema_item::SchemaItem for #self_name {
+            fn kind() -> ::castle_schema_parser::types::Kind {
+                ::castle_schema_parser::types::Kind {
+                    ident: stringify!(#self_name).into(),
+                    generics: vec![]
+                }
+            }
+            fn initialize_item(schema: &mut ::castle_schema_parser::types::SchemaDefinition) {
+                if !schema.is_type_registered(&stringify!(#self_name)) {
+                    let type_def = ::castle_schema_parser::types::TypeDefinition {
+                        ident: stringify!(#self_name).into(),
+                        fields: [
+                            #(
+                                #field_definitions,
+                            )*
+                        ].into(),
+                        directives: vec![].into(),
+                    };
+
+                    schema.register_type(type_def);
+
+                    #(
+                        <#types_used as ::castle_api::types::schema_item::SchemaItem>::initialize_item(schema);
+                    )*
                 }
             }
         }
@@ -115,7 +186,34 @@ fn get_field_definitions_from_impl(item_impl: &ItemImpl, types_used: &mut Vec<Ty
     }).collect()
 }
 
-fn derive_type(item_impl: ItemImpl) -> proc_macro2::TokenStream {
+
+
+/// For #[castle_macro::castle(CastleObject)]
+/// implement resolve for the type
+/// ```
+/// #[castle_macro::castle(input)]
+///impl User {
+///    async fn first_name(&self, ctx: Context) -> Result<String, Error> {
+///      
+///    }
+///}
+/// ```
+/// will generate:
+/// ```ignore
+///impl Resolve for User {
+///    fn resolve(&self, field: &Field, ctx: &Context, errors: &mut Vec<Error>) {
+///      let map = field.as_map();
+///      let result_map = HashMap::new();
+///      
+///      for field in map {
+///        match field.ident {
+///          "first_name" => result_map.insert("first_name", Resolver::resolve(self.first_name(ctx), ctx, errors))
+///        }
+///      }
+///    }
+///  }
+/// ```
+fn derive_castle_object(item_impl: ItemImpl) -> proc_macro2::TokenStream {
     let mut types_used = vec![];
     let self_name = &item_impl.self_ty;
 

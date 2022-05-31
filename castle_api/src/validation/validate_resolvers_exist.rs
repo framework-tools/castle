@@ -1,6 +1,6 @@
 use std::collections::HashMap;
-use castle_error::CastleError;
-use castle_schema_parser::types::SchemaDefinition;
+
+use castle_types::{SchemaDefinition, CastleError};
 
 use crate::{Resolver};
 

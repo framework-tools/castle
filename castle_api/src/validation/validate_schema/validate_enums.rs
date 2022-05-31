@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
-use castle_error::CastleError;
-use castle_schema_parser::types::{EnumDefinition, SchemaDefinition, VariantDefinition, DirectiveLocation, VariantKindDefinition, Kind};
+use castle_types::{SchemaDefinition, CastleError, EnumDefinition, DirectiveLocation, VariantDefinition, VariantKindDefinition, Kind};
 
 use super::{validate_directives::validate_directive, return_type_exists};
 

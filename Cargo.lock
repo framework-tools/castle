@@ -55,26 +55,15 @@ dependencies = [
  "anyhow",
  "async-recursion",
  "async-trait",
- "castle_error",
  "castle_query_parser",
  "castle_schema_parser",
  "castle_shared_parser",
  "castle_tokenizer",
+ "castle_types",
  "derivative",
  "rmpv",
  "serde",
  "tokio",
- "uuid",
-]
-
-[[package]]
-name = "castle_error"
-version = "0.5.9"
-dependencies = [
- "byte",
- "castle_input_cursor",
- "rmp-serde",
- "serde",
  "uuid",
 ]
 
@@ -100,36 +89,51 @@ dependencies = [
 name = "castle_query_parser"
 version = "0.5.9"
 dependencies = [
- "castle_error",
  "castle_shared_parser",
  "castle_tokenizer",
+ "castle_types",
 ]
 
 [[package]]
 name = "castle_schema_parser"
 version = "0.5.9"
 dependencies = [
- "castle_error",
  "castle_shared_parser",
  "castle_tokenizer",
+ "castle_types",
 ]
 
 [[package]]
 name = "castle_shared_parser"
 version = "0.5.9"
 dependencies = [
- "castle_error",
  "castle_tokenizer",
+ "castle_types",
 ]
 
 [[package]]
 name = "castle_tokenizer"
 version = "0.5.9"
 dependencies = [
- "castle_error",
  "castle_input_cursor",
+ "castle_types",
  "fast-float",
  "serde",
+]
+
+[[package]]
+name = "castle_types"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-recursion",
+ "async-trait",
+ "byte",
+ "castle_input_cursor",
+ "rmp-serde",
+ "serde",
+ "tokio",
+ "uuid",
 ]
 
 [[package]]

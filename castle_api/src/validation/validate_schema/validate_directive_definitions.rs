@@ -1,5 +1,5 @@
-use castle_error::CastleError;
-use castle_schema_parser::types::{SchemaDefinition, DirectiveDefinition};
+
+use castle_types::{SchemaDefinition, CastleError, DirectiveDefinition};
 
 use super::input_type_exists;
 

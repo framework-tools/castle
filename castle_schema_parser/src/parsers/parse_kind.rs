@@ -1,8 +1,8 @@
-use castle_error::CastleError;
+
 use castle_shared_parser::parse_inputs::consume_optional_separator;
 use castle_tokenizer::{Tokenizable, TokenKind, extensions::{ExpectIdentifier, ExpectPunctuator, IsPunctuator}, Punctuator, Token};
+use castle_types::{CastleError, Kind};
 
-use crate::types::Kind;
 
 
 pub(crate) fn parse_kind(tokenizer: &mut impl Tokenizable) -> Result<Kind, CastleError> {

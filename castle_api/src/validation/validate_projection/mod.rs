@@ -1,7 +1,6 @@
-use castle_error::CastleError;
-use castle_query_parser::FieldKind;
-use castle_schema_parser::types::{SchemaDefinition, FieldDefinition, TypeDefinition, Kind};
-use crate::Projection;
+
+use castle_types::{SchemaDefinition, Projection, CastleError, TypeDefinition, FieldKind, FieldDefinition, Kind};
+
 use super::{validate_inputs::{type_check_inputs_against_input_definitions}, join_paths};
 
 

@@ -1,10 +1,9 @@
 use std::collections::HashMap;
-use castle_error::CastleError;
 use castle_tokenizer::{
     extensions::{ExpectIdentifier, ExpectPunctuator, IsPunctuator, ExpectPrimitive},
     Punctuator, TokenKind, Tokenizable,
 };
-use crate::{Input, Variant, VariantType};
+use castle_types::{Input, CastleError, Variant, VariantType};
 
 
 pub fn parse_optional_inputs(

@@ -1,10 +1,10 @@
 use std::io::Read;
 
-use castle_error::CastleError;
 use castle_input_cursor::{Position, Cursor, Span};
+use castle_types::{Primitive, CastleError};
 
 
-use crate::{Token, TokenKind, Primitive};
+use crate::{Token, TokenKind};
 
 #[derive(PartialEq, Debug, Clone, Copy, Eq)]
 pub enum NumericKind {

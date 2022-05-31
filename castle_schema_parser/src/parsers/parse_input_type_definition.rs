@@ -1,9 +1,8 @@
 use std::collections::HashMap;
 
-use castle_error::CastleError;
-use castle_tokenizer::{Tokenizable, Punctuator, extensions::{IsPunctuator, ExpectPunctuator, ExpectIdentifier}};
 
-use crate::types::{InputTypeDefinition, AppliedDirective, InputDefinition};
+use castle_tokenizer::{Tokenizable, Punctuator, extensions::{IsPunctuator, ExpectPunctuator, ExpectIdentifier}};
+use castle_types::{AppliedDirective, InputTypeDefinition, CastleError, InputDefinition};
 
 use super::{parse_kind::parse_kind, parse_directives::parse_directives};
 

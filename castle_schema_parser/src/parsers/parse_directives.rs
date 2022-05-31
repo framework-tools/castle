@@ -1,11 +1,11 @@
-use castle_error::CastleError;
+
 use castle_shared_parser::parse_inputs::parse_optional_inputs;
 use castle_tokenizer::{
     extensions::{ExpectIdentifier, ExpectPunctuator, IsPunctuator},
     Punctuator, Tokenizable,
 };
+use castle_types::{AppliedDirective, CastleError};
 
-use crate::types::AppliedDirective;
 /// ```text
 /// directive lowercase (
 ///     arg_definiton

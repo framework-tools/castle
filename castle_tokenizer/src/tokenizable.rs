@@ -1,6 +1,7 @@
 
 
-use castle_error::CastleError;
+
+use castle_types::CastleError;
 
 use crate::{Token, TokenKind};
 pub trait Tokenizable {

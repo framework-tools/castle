@@ -1,7 +1,8 @@
 
 use std::{collections::{HashMap, HashSet}, fmt::Display};
 
-use castle_shared_parser::Input;
+
+use crate::Input;
 
 use super::InputDefinition;
 

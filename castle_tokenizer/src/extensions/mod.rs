@@ -1,8 +1,7 @@
+use castle_types::{CastleError, Primitive};
 
+use crate::{Tokenizable, Token, Punctuator, TokenKind, Keyword};
 
-use castle_error::CastleError;
-
-use crate::{Keyword, Tokenizable, TokenKind, Punctuator, Token, Primitive};
 
 pub trait ExpectNext: Tokenizable {
     fn expect_next(&mut self, skip_line_terminators: bool) -> Result<Token, CastleError> {

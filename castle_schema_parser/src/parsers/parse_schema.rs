@@ -1,7 +1,6 @@
-use castle_error::CastleError;
-use castle_tokenizer::{Keyword, TokenKind, Tokenizable, Tokenizer};
 
-use crate::types::SchemaDefinition;
+use castle_tokenizer::{Keyword, TokenKind, Tokenizable, Tokenizer};
+use castle_types::{SchemaDefinition, CastleError};
 
 use super::{
     parse_directive_definition::parse_directive_definition,

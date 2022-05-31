@@ -1,9 +1,5 @@
-use castle_error::CastleError;
-use castle_query_parser::{Input, Inputs};
-use castle_schema_parser::types::{
-    DirectiveLocation, InputDefinition, InputDefinitions, Kind, SchemaDefinition,
-};
-use castle_shared_parser::Primitive;
+
+use castle_types::{SchemaDefinition, InputDefinition, Input, CastleError, Kind, Primitive, InputDefinitions, Inputs, DirectiveLocation};
 
 use super::{join_paths, validate_schema::validate_directives::validate_directive};
 

@@ -2,8 +2,8 @@
 // error if unknown argument provided to directive
 // error if directive definition argument with no default is missing in the directive
 // error if the directive is allowed on the given directive location
-use castle_api::{Directive};
-use castle_query_parser::Field;
+
+use castle_types::{Directive, Field};
 
 struct MockDirective;
 

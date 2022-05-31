@@ -1,4 +1,6 @@
-use castle_schema_parser::types::{SchemaDefinition, Kind};
+use crate::{SchemaDefinition, Kind};
+
+
 
 
 pub trait SchemaItem {
@@ -6,7 +8,7 @@ pub trait SchemaItem {
     fn kind() -> Kind;
 }
 
-impl<T> SchemaItem for Result<T, crate::Error> where T: SchemaItem {
+impl<T> SchemaItem for Result<T, super::CastleError> where T: SchemaItem {
     fn initialize_item(schema: &mut SchemaDefinition) {
         unimplemented!()
     }

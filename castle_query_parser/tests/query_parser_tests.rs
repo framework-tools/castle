@@ -1,9 +1,9 @@
 
 use std::collections::HashMap;
 
-use castle_query_parser::{Field, FieldKind, parse_message, Projection};
-use castle_shared_parser::Input;
-use castle_tokenizer::Primitive;
+use castle_query_parser::parse_message;
+use castle_types::{Projection, Field, FieldKind, Input, Primitive};
+
 
 #[test]
 fn can_parse_empty_message() {

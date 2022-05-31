@@ -5,6 +5,8 @@ mod input_definition;
 mod kind;
 mod schema_definition;
 mod type_definition;
+mod message;
+mod projection;
 
 pub use directive_definitions::{AppliedDirective, DirectiveDefinition, DirectiveLocation};
 pub use enum_definition::EnumDefinition;

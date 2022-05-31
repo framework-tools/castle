@@ -1,16 +1,8 @@
 
 use std::collections::HashMap;
 
-use castle_schema_parser::{
-    parsers::parse_schema::parse_schema,
-    types::{
-        AppliedDirective, DirectiveDefinition, DirectiveLocation, EnumDefinition, FieldDefinition,
-        InputDefinition, Kind, SchemaDefinition, TypeDefinition, VariantDefinition,
-        VariantKindDefinition, InputTypeDefinition,
-    },
-};
-use castle_shared_parser::Input;
-use castle_tokenizer::{Primitive, Number};
+use castle_schema_parser::parsers::parse_schema::parse_schema;
+use castle_types::{SchemaDefinition, TypeDefinition, FieldDefinition, Kind, EnumDefinition, VariantDefinition, VariantKindDefinition, AppliedDirective, Input, Primitive, Number, DirectiveDefinition, InputDefinition, DirectiveLocation, InputTypeDefinition};
 
 #[test]
 fn can_parse_empty_message() {

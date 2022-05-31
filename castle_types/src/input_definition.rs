@@ -3,7 +3,8 @@
 
 use std::collections::HashMap;
 
-use castle_shared_parser::Input;
+
+use crate::Input;
 
 use super::{Kind, AppliedDirective};
 /// Argument Definition

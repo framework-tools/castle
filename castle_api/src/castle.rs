@@ -1,15 +1,13 @@
 use std::collections::HashMap;
-
-use castle_error::CastleError;
-use castle_query_parser::{parse_message, Message};
-use castle_schema_parser::{parsers::parse_schema::parse_schema, types::SchemaDefinition};
+use castle_query_parser::parse_message;
+use castle_types::{Context, Value, Directive, SchemaDefinition, CastleError, Message};
 
 use crate::{
     validation::{
         validate_directives_exist::validate_directives_exist,
         validate_projection::validate_projection,
     },
-    Directive, Resolver, context::Context, Value, executor::execute_message,
+    executor::execute_message,
 };
 #[derive(derivative::Derivative)]
 #[derivative(Debug)]

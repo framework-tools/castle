@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
-pub use castle_shared_parser::Input;
+use crate::Input;
+
 
 pub type Inputs = HashMap<Box<str>, Input>;
 pub type Projection = HashMap<Box<str>, Field>;

@@ -1,9 +1,8 @@
 [package]
-name = "castle_error"
-version = "0.5.9"
+name = "castle_types"
+version = "0.1.0"
 edition = "2021"
-license = "MIT"
-description = "Castle Error, error handling for Castle systems"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -12,3 +11,7 @@ serde = { version = "1.0.117", features = ["derive"] }
 rmp-serde = "1.1.0"
 byte = "0.2.6"
 uuid = { version = "1.0.0", features = ["serde", "v4"] }
+async-trait = "0.1.53"
+tokio = { version = "1.17.0", features = ["sync", "macros"]}
+async-recursion = "1.0.0"
+anyhow = "1.0.57"

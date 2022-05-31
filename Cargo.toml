@@ -5,7 +5,7 @@ members = [
     "castle_input_cursor",
     "castle_query_parser",
     "castle_schema_parser",
-    "castle_error",
+    "castle_types",
     "castle_tokenizer",
     "castle_shared_parser",
     "castle_macro",

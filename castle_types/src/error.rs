@@ -4,7 +4,6 @@ use std::fmt;
 use castle_input_cursor::{Position, Span};
 use serde::{Deserialize, Serialize};
 
-extern crate rmp_serde as rmps;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub enum CastleError {

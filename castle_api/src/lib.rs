@@ -1,19 +1,14 @@
 #![feature(if_let_guard)]
-pub use castle_query_parser::Input;
-pub use castle_query_parser::{Field, Inputs, Projection};
-use context::Context;
+
+use castle_types::{Context, Value, Field};
 use tokio::sync::{oneshot, mpsc};
 use std::fmt::Debug;
 use std::future::Future;
-pub use types::value::Value;
 
 pub use crate::castle::Castle;
-pub use castle_tokenizer::{Number, Primitive};
 pub use anyhow::Error;
 
 pub mod castle;
-pub mod context;
-pub mod types;
 pub(crate) mod executor;
 pub(crate) mod validation;
 
@@ -58,33 +53,5 @@ where
 {
     async fn resolve(&self, field: &Field, ctx: &Context) -> Result<Value, anyhow::Error> {
         self(field, ctx).await
-    }
-}
-pub struct Next {
-    pub(crate) sender: mpsc::Sender<oneshot::Sender<Result<Value, anyhow::Error>>>,
-}
-
-impl Next {
-    async fn resolve(self) -> Result<Value, anyhow::Error> {
-        let (sender, receiver) = oneshot::channel();
-        self.sender.send(sender).await?;
-        receiver.await?
-    }
-}
-
-#[async_trait::async_trait]
-pub trait Directive: Send + Sync {
-    async fn field_visitor(
-        &self,
-        field: &Field,
-        directive_args: &Inputs,
-        next: Next,
-        context: &Context,
-    ) -> Result<Value, anyhow::Error>
-    where
-        Context: Send + Sync,
-
-    {
-        unimplemented!()
     }
 }

@@ -1,6 +1,5 @@
 use castle_api::{castle::Castle};
-use castle_error::CastleError;
-use castle_query_parser::Field;
+use castle_types::{CastleError, Field};
 
 
 async fn create_castle() -> Castle<(), ()> {

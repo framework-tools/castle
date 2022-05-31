@@ -1,7 +1,6 @@
 use std::io::Read;
-
-use castle_error::CastleError;
 use castle_input_cursor::Cursor;
+use castle_types::CastleError;
 
 pub(crate) fn skip_comment(cursor: &mut Cursor<impl Read>) -> Result<(), CastleError> {
     // while the next byte is not a newline or EOF

@@ -1,5 +1,6 @@
-use castle_error::CastleError;
-use castle_schema_parser::types::{SchemaDefinition, TypeDefinition, FieldDefinition, DirectiveLocation};
+
+
+use castle_types::{SchemaDefinition, CastleError, TypeDefinition, DirectiveLocation, FieldDefinition};
 
 use super::{validate_directives::validate_directive, return_type_exists, input_type_exists};
 

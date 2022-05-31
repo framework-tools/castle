@@ -1,13 +1,5 @@
 use serde::{Serialize, Deserialize};
 
-
-#[derive(Debug, PartialEq, Clone)]
-pub enum Primitive {
-    String(Box<str>),
-    Number(Number),
-    Boolean(bool),
-}
-
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Number {
     pub(crate) n: NumberKind,
@@ -110,25 +102,6 @@ macro_rules! from_num_to_primitive {
     };
 }
 
-from_num_to_primitive!(u8, u16, u32, u64, usize, i8, i16, i32, i64, isize, f64, f32);
-
-#[derive(Debug, PartialEq, Clone, Copy, Serialize, Deserialize)]
-pub enum NumberKind {
-    Float(f64),
-    Int(i64),
-    UInt(u64),
-}
-
-impl std::fmt::Display for Primitive {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Primitive::String(s) => write!(f, "\"{}\"", s),
-            Primitive::Number(n) => write!(f, "{}", n),
-            Primitive::Boolean(b) => write!(f, "{}", b),
-        }
-    }
-}
-
 impl std::fmt::Display for Number {
     fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self.n {
@@ -137,4 +110,13 @@ impl std::fmt::Display for Number {
             NumberKind::UInt(u) => write!(fmt, "{}", u),
         }
     }
+}
+
+from_num_to_primitive!(u8, u16, u32, u64, usize, i8, i16, i32, i64, isize, f64, f32);
+
+#[derive(Debug, PartialEq, Clone, Copy, Serialize, Deserialize)]
+pub enum NumberKind {
+    Float(f64),
+    Int(i64),
+    UInt(u64),
 }

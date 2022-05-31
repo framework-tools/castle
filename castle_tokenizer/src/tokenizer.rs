@@ -1,7 +1,7 @@
 use std::{collections::VecDeque, io::Read};
 
-use castle_error::CastleError;
 use castle_input_cursor::Cursor;
+use castle_types::CastleError;
 
 use crate::{
     token_parsers::{
