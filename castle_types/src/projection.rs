@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::Input;
+use crate::Inputs;
 
 pub type Projection = HashMap<Box<str>, Field>;
 

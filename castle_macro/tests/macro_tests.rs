@@ -42,12 +42,8 @@ fn can_derive_struct() {
 
 #[test]
 fn testing_user_match() {
-    struct User{
-        name: String,
-        age: i32
-    }
-    
-    struct Profile {}
+    struct User;
+    struct Profile;
 
     #[castle_macro::castle(Type)]
     impl Profile {
