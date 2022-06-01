@@ -26,7 +26,7 @@ pub use self::{
     error::CastleError,
     field_definition::FieldDefinition,
     input_definition::{InputDefinition, InputDefinitions, InputTypeDefinition},
-    inputs::{Input, FromInputs, Inputs, Variant, VariantType},
+    inputs::{Input, Inputs, Variant, VariantType},
     kind::Kind,
     message::Message,
     next::Next,
@@ -36,7 +36,7 @@ pub use self::{
     schema_definition::SchemaDefinition,
     schema_item::SchemaItem,
     type_definition::TypeDefinition,
-    value::{Value, ValueToResult},
+    value::{Value, ConvertFrom},
     resolves_fields::ResolvesFields
 };
 

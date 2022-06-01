@@ -38,8 +38,9 @@ pub fn derive_input(item_struct: ItemStruct) -> proc_macro2::TokenStream {
     quote_spanned! {item_struct.span() =>
         #item_struct
 
-        impl ::core::convert::From<&::castle_api::types::Inputs> for #name {
-            fn from(inputs: &::castle_api::types::Inputs) -> Self {
+        impl ::core::convert::From<&::castle_api::types::Input> for #name {
+            fn from(input: &::castle_api::types::Input) -> Self {
+                let inputs = input.as_map().unwrap();
                 #name {
                     #(
                         #field_conversions,

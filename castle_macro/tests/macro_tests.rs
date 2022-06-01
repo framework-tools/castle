@@ -1,4 +1,4 @@
-use castle_api::types::{Inputs, Input, Primitive, FieldDefinition, Context};
+use castle_api::types::{Input, Primitive, Context};
 
 
 #[test]
@@ -10,14 +10,11 @@ fn can_derive_struct() {
         bar3: String
     }
 
-    let inputs: Inputs = [
+    let converted: Foo = Foo::from(&Input::Map([
         ("bar".into(), Input::Primitive(Primitive::Number(1u32.into()))),
         ("bar2".into(), Input::Primitive(Primitive::Number(2u32.into()))),
         ("bar3".into(), Input::Primitive(Primitive::String("hello".into()))),
-    ].into();
-
-
-    let converted: Foo = Foo::from(&inputs);
+    ].into()));
 
     assert_eq!(converted.bar, 1);
     assert_eq!(converted.bar2, 2);
@@ -54,11 +51,12 @@ fn testing_user_match() {
 
     #[castle_macro::castle(Type)]
     impl User {
-        fn profile(&self, ctx: &Context, arg: String) -> Profile {
-            unimplemented!()
-        }
 
         fn first_name(&self, ctx: &Context) -> Result<String, anyhow::Error> {
+            unimplemented!()
+        }
+        
+        fn profile(&self, ctx: &Context, arg: String) -> Profile {
             unimplemented!()
         }
     }

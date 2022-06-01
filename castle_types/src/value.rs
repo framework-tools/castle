@@ -1,4 +1,4 @@
-use std::{fmt::Debug, collections::HashMap, error::Error};
+use std::{fmt::Debug, collections::HashMap};
 use serde::{Serialize, Deserialize};
 
 use crate::{Number, ResolvesFields};
@@ -15,6 +15,28 @@ pub enum Value {
     ResolveFields(Box<dyn ResolvesFields>),
     Void,
 }
+
+pub trait ConvertFrom<T> {
+    fn from(value: T) -> Self;
+}
+
+impl<IV: Into<Value>> ConvertFrom<IV> for Result<Value, anyhow::Error> {
+    fn from(value: IV) -> Self {
+        Ok(value.into())
+    }
+}
+
+impl<IV: Into<Value>> ConvertFrom<Result<IV, anyhow::Error>> for Result<Value, anyhow::Error> {
+    fn from(value: Result<IV, anyhow::Error>) -> Self {
+        value.map(Into::into)
+    }
+}
+
+// impl<T> ConvertFrom<T> for T {
+//     fn from(value: T) -> Self {
+//         value
+//     }
+// }
 
 impl From<Number> for Value {
     fn from(number: Number) -> Self {
@@ -37,25 +59,6 @@ impl From<String> for Value {
 impl From<&str> for Value {
     fn from(value: &str) -> Self {
         Value::String(value.to_string())
-    }
-}
-
-pub trait ValueToResult {
-    fn value_to_result(self) -> Result<Value, anyhow::Error>;
-}
-
-impl<ValInto: Into<Value>> ValueToResult for ValInto {
-    fn value_to_result(self) -> Result<Value, anyhow::Error> {
-        Ok(self.into())
-    }
-}
-
-impl<ValInto: Into<Value>> ValueToResult for Result<ValInto, anyhow::Error> {
-    fn value_to_result(self) -> Result<Value, anyhow::Error> {
-        match self {
-            Ok(value) => Ok(value.into()),
-            Err(err) => Err(err),
-        }
     }
 }
 
