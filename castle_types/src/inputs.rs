@@ -26,6 +26,12 @@ pub trait FromInputs {
     fn from_inputs(inputs: &Inputs) -> Self;
 }
 
+impl<FromImp: From<Input>> FromInputs for FromImp {
+    fn from_inputs(inputs: &Inputs) -> Self {
+        FromImp::from(inputs.get("").unwrap().clone())
+    }
+}
+
 impl FromInputs for () {
     fn from_inputs(_inputs: &Inputs) -> () {
         ()

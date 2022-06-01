@@ -1,4 +1,4 @@
-use std::{fmt::Debug, collections::HashMap};
+use std::{fmt::Debug, collections::HashMap, error::Error};
 use serde::{Serialize, Deserialize};
 
 use crate::{Number, ResolvesFields};
@@ -37,6 +37,25 @@ impl From<String> for Value {
 impl From<&str> for Value {
     fn from(value: &str) -> Self {
         Value::String(value.to_string())
+    }
+}
+
+pub trait ValueToResult {
+    fn value_to_result(self) -> Result<Value, anyhow::Error>;
+}
+
+impl<ValInto: Into<Value>> ValueToResult for ValInto {
+    fn value_to_result(self) -> Result<Value, anyhow::Error> {
+        Ok(self.into())
+    }
+}
+
+impl<ValInto: Into<Value>> ValueToResult for Result<ValInto, anyhow::Error> {
+    fn value_to_result(self) -> Result<Value, anyhow::Error> {
+        match self {
+            Ok(value) => Ok(value.into()),
+            Err(err) => Err(err),
+        }
     }
 }
 

@@ -47,17 +47,18 @@ fn testing_user_match() {
 
     #[castle_macro::castle(Type)]
     impl Profile {
-        fn name(&self, ctx: &Context, input: ()) -> String {
+        fn name(&self, ctx: &Context) -> String {
             "hello".to_string()
         }
     }
 
     #[castle_macro::castle(Type)]
     impl User {
-        fn profile(&self, ctx: &Context, input: (), ) -> Profile {
+        fn profile(&self, ctx: &Context, arg: String) -> Profile {
             unimplemented!()
         }
-        fn first_name(&self, ctx: &Context, input: ()) -> Result<String, anyhow::Error> {
+
+        fn first_name(&self, ctx: &Context) -> Result<String, anyhow::Error> {
             unimplemented!()
         }
     }

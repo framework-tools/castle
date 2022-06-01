@@ -36,7 +36,7 @@ pub use self::{
     schema_definition::SchemaDefinition,
     schema_item::SchemaItem,
     type_definition::TypeDefinition,
-    value::Value,
+    value::{Value, ValueToResult},
     resolves_fields::ResolvesFields
 };
 
