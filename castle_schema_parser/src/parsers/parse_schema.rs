@@ -57,3 +57,4 @@ pub fn parse_schema(schema: &str) -> Result<SchemaDefinition, CastleError> {
         }
     }
 }
+

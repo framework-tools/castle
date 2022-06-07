@@ -103,6 +103,9 @@ dependencies = [
  "castle_shared_parser",
  "castle_tokenizer",
  "castle_types",
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]

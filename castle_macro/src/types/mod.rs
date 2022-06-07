@@ -1,28 +1,38 @@
+
 use quote::quote_spanned;
 use syn::{
     spanned::Spanned, FnArg, ImplItem, ItemImpl, PatType, ReturnType
 };
 use crate::{Unzip2};
 
-pub fn derive_type(item_impl: ItemImpl) -> proc_macro2::TokenStream {
+pub fn derive_type(mut item_impl: ItemImpl) -> proc_macro2::TokenStream {
     let self_name = &item_impl.self_ty;
     let mut types_used = vec![];
-
     let (
         matched_fns,
         field_definitions,
-    ) = item_impl.items.iter().map(|impl_item| match impl_item {
+    ) = item_impl.items.iter_mut().map(|impl_item| match impl_item {
         ImplItem::Method(method) => {
             let fn_name = &method.sig.ident;
             let fn_return_type = match &method.sig.output {
                 ReturnType::Type(_, ty) => *ty.clone(),
-                ReturnType::Default => syn::parse_quote_spanned! { fn_name.span() => ()}
+                ReturnType::Default => syn::parse_quote_spanned! { fn_name.span() => () }
             };
+            let mut directives = None;
+            method.attrs.retain(|attr| {
+                if attr.path.is_ident("directive") {
+                    directives = Some(attr.tokens.clone().to_string());
+                    false
+                } else {
+                    true
+                }
+            });
 
             types_used.push(fn_return_type.clone());
 
+
             let (input_definitions, input_conversion) = method.sig.inputs
-                .iter()
+                .iter_mut()
                 .skip(2)
                 .filter_map(|arg| match arg {
                     FnArg::Typed(PatType { 
@@ -55,7 +65,7 @@ pub fn derive_type(item_impl: ItemImpl) -> proc_macro2::TokenStream {
                         ident: stringify!(#fn_name).into(),
                         input_definitions: [#( #input_definitions, )*].into(),
                         return_kind: <#fn_return_type as ::castle_api::types::SchemaItem>::kind(),
-                        directives: [].into(),
+                        directives: caslte_api::parse_directives_from_str(#directives),
                     })),
             )
         }
@@ -65,7 +75,7 @@ pub fn derive_type(item_impl: ItemImpl) -> proc_macro2::TokenStream {
     let initializations = types_used.iter()
         .map(|ty| quote_spanned!(ty.span() => <#ty as ::castle_api::types::SchemaItem>::initialize_item(schema)))
         .collect::<Vec<_>>();
-    
+
     quote_spanned!{ item_impl.span() =>
         #item_impl
 
@@ -85,7 +95,7 @@ pub fn derive_type(item_impl: ItemImpl) -> proc_macro2::TokenStream {
                                 #field_definitions,
                             )*
                         ].into(),
-                        directives: vec![].into(),
+                        directives: [].into(),
                     };
 
                     schema.register_type(type_def);

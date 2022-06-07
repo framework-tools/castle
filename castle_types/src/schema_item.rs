@@ -17,29 +17,6 @@ impl<T, E> SchemaItem for Result<T, E> where T: SchemaItem {
     }
 }
 
-impl SchemaItem for String {
-    fn initialize_item(schema: &mut SchemaDefinition) {
-        unimplemented!()
-    }
-    fn kind() -> Kind {
-        Kind {
-            ident: "String".into(),
-            generics: vec![],
-        }
-    }
-}
-
-impl SchemaItem for () {
-    fn initialize_item(schema: &mut SchemaDefinition) {
-        unimplemented!()
-    }
-    fn kind() -> Kind {
-        Kind {
-            ident: "void".into(),
-            generics: vec![],
-        }
-    }
-}
 
 macro_rules! impl_schema_item_for_scalars {
     (
@@ -75,4 +52,6 @@ impl_schema_item_for_scalars! {
     f64: number,
     f32: number,
     bool: bool,
+    String: String,
+    (): void,
 }

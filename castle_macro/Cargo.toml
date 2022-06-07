@@ -14,6 +14,7 @@ syn = { version = "1.0.95", features = ["full"] }
 quote = "1.0.18"
 proc-macro2 = "1.0.39"
 castle_schema_parser = { path = "../castle_schema_parser" , version = "0.6.2" }
+castle_api = { path = "../castle_api" }
 
 [dev-dependencies]
 castle_api = { path = "../castle_api" }
