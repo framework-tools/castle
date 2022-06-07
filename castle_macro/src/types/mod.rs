@@ -65,7 +65,7 @@ pub fn derive_type(mut item_impl: ItemImpl) -> proc_macro2::TokenStream {
                         ident: stringify!(#fn_name).into(),
                         input_definitions: [#( #input_definitions, )*].into(),
                         return_kind: <#fn_return_type as ::castle_api::types::SchemaItem>::kind(),
-                        directives: caslte_api::parse_directives_from_str(#directives),
+                        directives: castle_schema_parser::parse_directives_from_str(#directives),
                     })),
             )
         }
