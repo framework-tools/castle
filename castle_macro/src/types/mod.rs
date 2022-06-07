@@ -18,10 +18,11 @@ pub fn derive_type(mut item_impl: ItemImpl) -> proc_macro2::TokenStream {
                 ReturnType::Type(_, ty) => *ty.clone(),
                 ReturnType::Default => syn::parse_quote_spanned! { fn_name.span() => () }
             };
-            let mut directives = None;
+            let mut directives = String::new();
             method.attrs.retain(|attr| {
-                if attr.path.is_ident("directive") {
-                    directives = Some(attr.tokens.clone().to_string());
+                if attr.path.is_ident("directives") {
+                    let directive_tokens = attr.tokens.to_string();
+                    directives = directive_tokens[2..directive_tokens.len() - 2].to_string();
                     false
                 } else {
                     true
@@ -50,7 +51,7 @@ pub fn derive_type(mut item_impl: ItemImpl) -> proc_macro2::TokenStream {
                                     directives: vec![],
                                 })
                             }),
-                            quote_spanned!(ty.span() => inputs.get(stringify!(#pat)).unwrap().into()),
+                            quote_spanned!(ty.span() => field.inputs.get(stringify!(#pat)).unwrap().into()),
                         ))
                     }
                     _ => panic!("unexpected argument type"),
@@ -97,9 +98,7 @@ pub fn derive_type(mut item_impl: ItemImpl) -> proc_macro2::TokenStream {
                         ].into(),
                         directives: [].into(),
                     };
-
                     schema.register_type(type_def);
-
                     #(
                         #initializations;
                     )*
@@ -109,7 +108,6 @@ pub fn derive_type(mut item_impl: ItemImpl) -> proc_macro2::TokenStream {
 
         impl ::castle_api::types::ResolvesFields for #self_name {
             fn resolve(&self, field: &::castle_api::types::Field, ctx: &::castle_api::types::Context) -> ::core::result::Result<::castle_api::types::Value, ::castle_api::Error> {
-                let inputs = &field.inputs;
                 match &*field.ident {
                     #(
                         #matched_fns,

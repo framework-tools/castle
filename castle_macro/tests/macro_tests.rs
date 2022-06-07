@@ -67,7 +67,6 @@ fn testing_user_match() {
 #[test]
 fn testing_directives() {
 
-    struct Authenticated;
     struct Root;
     // directives need a identifier or name
     // directives can take args and must match the specification within the
@@ -75,8 +74,7 @@ fn testing_directives() {
     // full eg directive #[directive = Authenticated(args: 123), Authenticated(args: 123),]
     #[castle_macro::castle(Type)]
     impl Root {
-
-        #[directives(@authenticated)]
+        #[directives("@authenticated(a: b)@sorted(a: b)")]
         fn me(&self, ctx: &Context) -> String {
             "hello".to_string()
         }
