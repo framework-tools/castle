@@ -1,8 +1,11 @@
-
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use castle_schema_parser::parsers::parse_schema::parse_schema;
-use castle_types::{SchemaDefinition, TypeDefinition, FieldDefinition, Kind, EnumDefinition, VariantDefinition, VariantKindDefinition, AppliedDirective, Input, Primitive, Number, DirectiveDefinition, InputDefinition, DirectiveLocation, InputTypeDefinition};
+use castle_types::{
+    AppliedDirective, DirectiveDefinition, DirectiveLocation, EnumDefinition, FieldDefinition,
+    Input, InputDefinition, InputTypeDefinition, Kind, Number, Primitive, SchemaDefinition,
+    TypeDefinition, VariantDefinition, VariantKindDefinition,
+};
 
 #[test]
 fn can_parse_empty_message() {
@@ -20,6 +23,7 @@ fn can_parse_simple_type() {
         }";
 
     let expected = SchemaDefinition {
+        scalars: HashSet::new(),
         input_types: HashMap::new(),
         directives: HashMap::new(),
         enums: HashMap::new(),
@@ -61,6 +65,7 @@ fn can_parse_simple_type_more_fields_and_no_commas() {
         }";
 
     let expected = SchemaDefinition {
+        scalars: HashSet::new(),
         directives: HashMap::new(),
         input_types: HashMap::new(),
         enums: HashMap::new(),
@@ -135,6 +140,7 @@ fn can_parse_two_types() {
         }";
 
     let expected = SchemaDefinition {
+        scalars: HashSet::new(),
         directives: HashMap::new(),
         input_types: HashMap::new(),
         enums: HashMap::new(),
@@ -181,7 +187,8 @@ fn can_parse_two_types() {
                                 ident: "age".into(),
                             },
                         ),
-                    ].into(),
+                    ]
+                    .into(),
                 },
             ),
             (
@@ -249,55 +256,50 @@ fn can_parse_types_with_two_vecs() {
         }";
 
     let expected = SchemaDefinition {
+        scalars: HashSet::new(),
         directives: HashMap::new(),
         input_types: HashMap::new(),
         enums: HashMap::new(),
-        types: [
-            (
-                "Organization".into(),
-                TypeDefinition {
-                    ident: "Organization".into(),
-                    directives: vec![],
-                    fields: [
-                        (
-                            "industries".into(),
-                            FieldDefinition {
-                                directives: vec![],
-                                input_definitions: HashMap::new(),
-                                return_kind: Kind {
-                                    ident: "Vec".into(),
-                                    generics: vec![
-                                        Kind {
-                                            ident: "String".into(),
-                                            generics: vec![],
-                                        },
-                                    ],
-                                },
-                                ident: "industries".into(),
+        types: [(
+            "Organization".into(),
+            TypeDefinition {
+                ident: "Organization".into(),
+                directives: vec![],
+                fields: [
+                    (
+                        "industries".into(),
+                        FieldDefinition {
+                            directives: vec![],
+                            input_definitions: HashMap::new(),
+                            return_kind: Kind {
+                                ident: "Vec".into(),
+                                generics: vec![Kind {
+                                    ident: "String".into(),
+                                    generics: vec![],
+                                }],
                             },
-                        ),
-                        (
-                            "related_orgs".into(),
-                            FieldDefinition {
-                                directives: vec![],
-                                input_definitions: HashMap::new(),
-                                return_kind: Kind {
-                                    ident: "Vec".into(),
-                                    generics: vec![
-                                        Kind {
-                                            ident: "Organisation".into(),
-                                            generics: vec![],
-                                        },
-                                    ],
-                                },
-                                ident: "related_orgs".into(),
+                            ident: "industries".into(),
+                        },
+                    ),
+                    (
+                        "related_orgs".into(),
+                        FieldDefinition {
+                            directives: vec![],
+                            input_definitions: HashMap::new(),
+                            return_kind: Kind {
+                                ident: "Vec".into(),
+                                generics: vec![Kind {
+                                    ident: "Organisation".into(),
+                                    generics: vec![],
+                                }],
                             },
-                        ),
-                    ]
-                    .into(),
-                },
-            ),
-        ]
+                            ident: "related_orgs".into(),
+                        },
+                    ),
+                ]
+                .into(),
+            },
+        )]
         .into(),
     };
 
@@ -316,6 +318,7 @@ fn can_parse_enum_schema() {
     ";
 
     let expected = SchemaDefinition {
+        scalars: HashSet::new(),
         directives: HashMap::new(),
         input_types: HashMap::new(),
         enums: [(
@@ -375,6 +378,7 @@ fn can_parse_enum_and_type() {
     ";
 
     let expected = SchemaDefinition {
+        scalars: HashSet::new(),
         directives: HashMap::new(),
         input_types: HashMap::new(),
         enums: [(
@@ -417,20 +421,19 @@ fn can_parse_enum_and_type() {
             TypeDefinition {
                 ident: "User".into(),
                 directives: vec![],
-                fields: [
-                    (
-                        "first_name".into(),
-                        FieldDefinition {
-                            directives: vec![],
-                            input_definitions: HashMap::new(),
-                            return_kind: Kind {
-                                ident: "String".into(),
-                                generics: vec![],
-                            },
-                            ident: "first_name".into(),
+                fields: [(
+                    "first_name".into(),
+                    FieldDefinition {
+                        directives: vec![],
+                        input_definitions: HashMap::new(),
+                        return_kind: Kind {
+                            ident: "String".into(),
+                            generics: vec![],
                         },
-                    ),
-                ].into(),
+                        ident: "first_name".into(),
+                    },
+                )]
+                .into(),
             },
         )]
         .into(),
@@ -454,6 +457,7 @@ fn can_parse_enum_with_tuple_variant() {
         ";
 
     let expected = SchemaDefinition {
+        scalars: HashSet::new(),
         directives: HashMap::new(),
         input_types: HashMap::new(),
         enums: [(
@@ -532,6 +536,7 @@ fn can_parse_enum_with_fields() {
     ";
 
     let expected = SchemaDefinition {
+        scalars: HashSet::new(),
         directives: HashMap::new(),
         input_types: HashMap::new(),
         enums: [(
@@ -603,6 +608,7 @@ fn can_parse_generic_field_type() {
     ";
 
     let expected = SchemaDefinition {
+        scalars: HashSet::new(),
         directives: HashMap::new(),
         enums: HashMap::new(),
         input_types: HashMap::new(),
@@ -660,6 +666,7 @@ fn can_parse_directives_on_fields() {
     ";
 
     let expected = SchemaDefinition {
+        scalars: HashSet::new(),
         input_types: HashMap::new(),
         directives: HashMap::new(),
         enums: HashMap::new(),
@@ -674,8 +681,11 @@ fn can_parse_directives_on_fields() {
                         directives: vec![
                             AppliedDirective {
                                 ident: "bar".into(),
-                                inputs: [("baz".into(), Input::Primitive(Primitive::Number(Number::from(123))))]
-                                    .into(),
+                                inputs: [(
+                                    "baz".into(),
+                                    Input::Primitive(Primitive::Number(Number::from(123))),
+                                )]
+                                .into(),
                             },
                             AppliedDirective {
                                 ident: "foo".into(),
@@ -707,6 +717,7 @@ fn can_parse_directive_definitions() {
     ";
 
     let expected = SchemaDefinition {
+        scalars: HashSet::new(),
         input_types: HashMap::new(),
         directives: [
             (
@@ -758,6 +769,7 @@ fn can_parse_comments() {
     ";
 
     let expected = SchemaDefinition {
+        scalars: HashSet::new(),
         directives: HashMap::new(),
         enums: HashMap::new(),
         input_types: HashMap::new(),
@@ -797,6 +809,7 @@ fn generic_inside_generic_works() {
     ";
 
     let expected = SchemaDefinition {
+        scalars: HashSet::new(),
         directives: HashMap::new(),
         enums: HashMap::new(),
         input_types: HashMap::new(),
@@ -842,15 +855,18 @@ fn can_parse_input_type() {
     ";
 
     let expected = SchemaDefinition {
+        scalars: HashSet::new(),
         directives: HashMap::new(),
         enums: HashMap::new(),
         types: HashMap::new(),
-        input_types: [
-            ("Test".into(), InputTypeDefinition {
+        input_types: [(
+            "Test".into(),
+            InputTypeDefinition {
                 ident: "Test".into(),
                 directives: vec![],
-                input_definitions: [
-                    ("foo".into(), InputDefinition {
+                input_definitions: [(
+                    "foo".into(),
+                    InputDefinition {
                         ident: "foo".into(),
                         default: None,
                         directives: vec![],
@@ -858,10 +874,12 @@ fn can_parse_input_type() {
                             ident: "String".into(),
                             generics: vec![],
                         },
-                    }),
-                ].into(),
-            }),
-        ].into(),
+                    },
+                )]
+                .into(),
+            },
+        )]
+        .into(),
     };
 
     let actual = parse_schema(schema).unwrap();
@@ -877,6 +895,7 @@ fn can_parse_type_with_field_args() {
     ";
 
     let expected = SchemaDefinition {
+        scalars: HashSet::new(),
         directives: HashMap::new(),
         enums: HashMap::new(),
         input_types: HashMap::new(),
@@ -889,15 +908,18 @@ fn can_parse_type_with_field_args() {
                     "foo".into(),
                     FieldDefinition {
                         directives: vec![],
-                        input_definitions: [("bar".into(), InputDefinition {
-                            ident: "bar".into(),
-                            default: None,
-                            directives: vec![],
-                            input_kind: Kind {
-                                ident: "String".into(),
-                                generics: vec![],
+                        input_definitions: [(
+                            "bar".into(),
+                            InputDefinition {
+                                ident: "bar".into(),
+                                default: None,
+                                directives: vec![],
+                                input_kind: Kind {
+                                    ident: "String".into(),
+                                    generics: vec![],
+                                },
                             },
-                        })]
+                        )]
                         .into(),
                         return_kind: Kind {
                             ident: "String".into(),
@@ -925,6 +947,7 @@ fn can_parse_type_with_custom_input_type() {
     ";
 
     let expected = SchemaDefinition {
+        scalars: HashSet::new(),
         directives: HashMap::new(),
         enums: HashMap::new(),
         input_types: HashMap::new(),
@@ -937,15 +960,18 @@ fn can_parse_type_with_custom_input_type() {
                     "foo".into(),
                     FieldDefinition {
                         directives: vec![],
-                        input_definitions: [("bar".into(), InputDefinition {
-                            ident: "bar".into(),
-                            default: None,
-                            directives: vec![],
-                            input_kind: Kind {
-                                ident: "Xyz".into(),
-                                generics: vec![],
+                        input_definitions: [(
+                            "bar".into(),
+                            InputDefinition {
+                                ident: "bar".into(),
+                                default: None,
+                                directives: vec![],
+                                input_kind: Kind {
+                                    ident: "Xyz".into(),
+                                    generics: vec![],
+                                },
                             },
-                        })]
+                        )]
                         .into(),
                         return_kind: Kind {
                             ident: "String".into(),

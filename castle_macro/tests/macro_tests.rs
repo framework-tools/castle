@@ -44,7 +44,7 @@ fn testing_user_match() {
 
     #[castle_macro::castle(Type)]
     impl Profile {
-        fn name(&self, ctx: &Context) -> String {
+        fn name(&self, _ctx: &Context) -> String {
             "hello".to_string()
         }
     }
@@ -52,11 +52,11 @@ fn testing_user_match() {
     #[castle_macro::castle(Type)]
     impl User {
 
-        fn first_name(&self, ctx: &Context) -> Result<String, anyhow::Error> {
+        fn first_name(&self, _ctx: &Context) -> Result<String, anyhow::Error> {
             unimplemented!()
         }
         
-        fn profile(&self, ctx: &Context, arg: String) -> Profile {
+        fn profile(&self, _ctx: &Context, _arg: String) -> Profile {
             unimplemented!()
         }
     }
@@ -67,16 +67,24 @@ fn testing_user_match() {
 #[test]
 fn testing_directives() {
 
+    #[castle_macro::castle(Directive {
+        name = "authenticated",
+        args = {
+            limit: u32,
+        }
+    })]
+    struct Authenticated;
+
     struct Root;
     // directives need a identifier or name
     // directives can take args and must match the specification within the
     // SchemaItem trait
-    // full eg directive #[directive = Authenticated(args: 123), Authenticated(args: 123),]
+    // full eg directive #[directive(type: value)]
     #[castle_macro::castle(Type)]
     impl Root {
-        #[directives("@authenticated(a: b)@sorted(a: b)")]
-        fn me(&self, ctx: &Context) -> String {
-            "hello".to_string()
+        #[directives("@Authenticated(a: b)@sorted(a: b)")]
+        fn me(&self, _ctx: &Context) -> String {
+            unimplemented!()
         }
     }
 }

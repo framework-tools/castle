@@ -1,19 +1,15 @@
-use crate::{SchemaDefinition, Kind};
+use crate::{SchemaDefinition};
 
 
 
 
 pub trait SchemaItem {
     fn initialize_item(schema: &mut SchemaDefinition);
-    fn kind() -> Kind;
 }
 
 impl<T, E> SchemaItem for Result<T, E> where T: SchemaItem {
     fn initialize_item(schema: &mut SchemaDefinition) {
-        unimplemented!()
-    }
-    fn kind() -> Kind {
-        T::kind()
+        T::initialize_item(schema);
     }
 }
 
@@ -25,12 +21,8 @@ macro_rules! impl_schema_item_for_scalars {
         $(
             impl SchemaItem for $ty {
                 fn initialize_item(schema: &mut SchemaDefinition) {
-                    unimplemented!()
-                }
-                fn kind() -> Kind {
-                    Kind {
-                        ident: stringify!($ident).into(),
-                        generics: vec![],
+                    if !schema.kind_is_registered(stringify!($ident)) {
+                        schema.register_scalar(stringify!($ident).into());
                     }
                 }
             }

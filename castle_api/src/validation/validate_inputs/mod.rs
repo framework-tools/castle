@@ -29,7 +29,6 @@ pub(crate) fn type_check_input_against_input_definition(
 
     Ok(())
 }
-
 pub(crate) fn type_check_input_against_expected_type(
     schema: &SchemaDefinition,
     path: &[&str], // used to build error message

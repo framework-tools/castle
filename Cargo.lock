@@ -55,6 +55,7 @@ dependencies = [
  "anyhow",
  "async-recursion",
  "async-trait",
+ "castle_macro",
  "castle_query_parser",
  "castle_schema_parser",
  "castle_shared_parser",

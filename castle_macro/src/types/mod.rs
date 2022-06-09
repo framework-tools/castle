@@ -46,7 +46,7 @@ pub fn derive_type(mut item_impl: ItemImpl) -> proc_macro2::TokenStream {
                             quote_spanned!(ty.span()=>{
                                 (stringify!(#pat).into(), ::castle_api::types::InputDefinition {
                                     ident: stringify!(#pat).into(),
-                                    input_kind: <#ty as ::castle_api::types::SchemaItem>::kind(),
+                                    input_kind: <#ty as ::castle_api::types::HasKind>::kind(),
                                     default: ::core::option::Option::None,
                                     directives: vec![],
                                 })
@@ -65,7 +65,7 @@ pub fn derive_type(mut item_impl: ItemImpl) -> proc_macro2::TokenStream {
                     (stringify!(#fn_name).into(), ::castle_api::types::FieldDefinition {
                         ident: stringify!(#fn_name).into(),
                         input_definitions: [#( #input_definitions, )*].into(),
-                        return_kind: <#fn_return_type as ::castle_api::types::SchemaItem>::kind(),
+                        return_kind: <#fn_return_type as ::castle_api::types::HasKind>::kind(),
                         directives: castle_schema_parser::parse_directives_from_str(#directives),
                     })),
             )
@@ -80,15 +80,18 @@ pub fn derive_type(mut item_impl: ItemImpl) -> proc_macro2::TokenStream {
     quote_spanned!{ item_impl.span() =>
         #item_impl
 
-        impl ::castle_api::types::SchemaItem for #self_name {
+        impl ::castle_api::types::HasKind for #self_name{
             fn kind() -> ::castle_api::types::Kind {
                 ::castle_api::types::Kind {
                     ident: stringify!(#self_name).into(),
                     generics: vec![]
                 }
             }
+        }
+
+        impl ::castle_api::types::SchemaItem for #self_name {
             fn initialize_item(schema: &mut ::castle_api::types::SchemaDefinition) {
-                if !schema.is_type_registered(&stringify!(#self_name)) {
+                if !schema.kind_is_registered(&stringify!(#self_name)) {
                     let type_def = ::castle_api::types::TypeDefinition {
                         ident: stringify!(#self_name).into(),
                         fields: [

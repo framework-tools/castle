@@ -1,7 +1,7 @@
 
 use castle_types::{SchemaDefinition, AppliedDirective, DirectiveLocation, CastleError, DirectiveDefinition};
 
-use crate::validation::{join_paths, validate_inputs::{check_for_unspecified_args, check_for_missing_args}};
+use crate::validation::{join_paths, validate_inputs::{check_for_unspecified_args, check_for_missing_args}, };
 
 pub(crate) fn validate_directive(
     schema: &SchemaDefinition,

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use castle_query_parser::parse_message;
-use castle_types::{Context, Value, Directive, SchemaDefinition, CastleError, Message};
+use castle_types::{Context, Value, Directive, SchemaDefinition, CastleError, Message, ResolvesFields, SchemaItem};
 
 use crate::{
     validation::{
@@ -54,4 +54,9 @@ impl Castle {
             ctx,
         ).await)
     }
+}
+
+pub struct CastleBuilder {
+    pub root: Box<dyn ResolvesFields + SchemaItem>,
+
 }

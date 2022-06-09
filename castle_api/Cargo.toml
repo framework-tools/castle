@@ -21,6 +21,7 @@ derivative = "2.2.0"
 tokio = { version = "1.17.0", features = ["sync", "macros"]}
 async-recursion = "1.0.0"
 anyhow = "1.0.57"
+castle_macro = { path = "../castle_macro" , version = "0.6.2" }
 
 [dev-dependencies]
 tokio = { version = "1.17.0", features = ["macros", "rt"]}

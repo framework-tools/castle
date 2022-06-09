@@ -1,4 +1,4 @@
-use crate::{Field, Inputs, Next, Value, Context};
+use crate::{Field, Inputs, Next, Value, Context, SchemaItem};
 
 #[allow(unused_variables)]
 #[async_trait::async_trait]

@@ -33,11 +33,6 @@ pub(crate) fn validate_schema(schema: &SchemaDefinition) -> Result<(), CastleErr
 /// If the type is found, it will return void
 pub(crate) fn return_type_exists(schema: &SchemaDefinition, kind: &Kind) -> Result<(), String> {
     Ok(match &*kind.ident {
-        "number" if kind.generics.len() == 0 => (),
-        "bool" if kind.generics.len() == 0 => (),
-        "String" if kind.generics.len() == 0 => (),
-        "void" if kind.generics.len() == 0 => (),
-        "Uuid" if kind.generics.len() == 0 => (),
         "Vec" => match &kind.generics {
             generics if generics.len() == 1 => return_type_exists(schema, &generics[0])?,
             _ => Err("Vec type must have 1 generic type")?,
@@ -47,6 +42,7 @@ pub(crate) fn return_type_exists(schema: &SchemaDefinition, kind: &Kind) -> Resu
             _ => Err("Option type must have 1 generic type")?,
         },
         name if kind.generics.len() == 0 => match name {
+            name if schema.scalars.contains(name) => (),
             name if schema.types.contains_key(name) => (),
             name if schema.enums.contains_key(name) => (),
             _ => Err(format!("Type {} not defined in schema types or enums", name))?,
@@ -60,10 +56,6 @@ pub(crate) fn return_type_exists(schema: &SchemaDefinition, kind: &Kind) -> Resu
 /// If the type is found, it will return void
 pub(crate) fn input_type_exists(schema: &SchemaDefinition, kind: &Kind) -> Result<(), String> {
     Ok(match &*kind.ident {
-        "number" if kind.generics.len() == 0 => (),
-        "bool" if kind.generics.len() == 0 => (),
-        "String" if kind.generics.len() == 0 => (),
-        "Uuid" if kind.generics.len() == 0 => (),
         "Vec" => match &kind.generics {
             generics if generics.len() == 1 => input_type_exists(schema, &generics[0])?,
             _ => Err("Vec type must have 1 generic type")?,
@@ -74,6 +66,7 @@ pub(crate) fn input_type_exists(schema: &SchemaDefinition, kind: &Kind) -> Resul
         },
         name if kind.generics.len() == 0 => match name {
             name if schema.input_types.contains_key(name) => (),
+            name if schema.scalars.contains(name) => (),
             _ => Err(format!("Type {} not defined in schema input_types", name))?,
         }
         _ => Err(format!("Type {} not defined in schema, maybe there is an incorrect number of generics", kind.ident))?,

@@ -1,7 +1,7 @@
 use quote::quote_spanned;
 use syn::{spanned::Spanned, Fields, ItemStruct};
 
-use crate::Unzip3;
+use crate::{shared_functions::get_input_def_and_initalizations};
 
 pub fn derive_input(item_struct: ItemStruct) -> proc_macro2::TokenStream {
     let name = &item_struct.ident;
@@ -12,28 +12,19 @@ pub fn derive_input(item_struct: ItemStruct) -> proc_macro2::TokenStream {
     };
 
     let (
-        field_conversions,
         input_definitions,
         initializations
-    ) = fields.named
+    ) = get_input_def_and_initalizations(fields.named.clone());
+
+    let field_conversions = fields.named
         .iter()
         .map(|field| {
             let name = field.ident.as_ref().unwrap();
             let ty = &field.ty;
-            (
-                quote_spanned!(ty.span()=> #name: inputs.get(stringify!(#name)).unwrap().into()),
-                quote_spanned!(ty.span()=> (
-                    stringify!(#name).into(), ::castle_api::types::InputDefinition {
-                        ident: stringify!(#name).into(),
-                        input_kind: <#ty as ::castle_api::types::SchemaItem>::kind(),
-                        default: ::core::option::Option::None,
-                        directives: vec![],
-                    }
-                )),
-                quote_spanned!(ty.span()=> <#ty as ::castle_api::types::SchemaItem>::initialize_item(schema)),
-            )
-        })
-        .unzip_n::<Vec<_>, Vec<_>, Vec<_>>();
+            quote_spanned!(ty.span()=> #name: inputs.get(stringify!(#name)).unwrap().into())
+        });
+
+        
 
     quote_spanned! {item_struct.span() =>
         #item_struct
@@ -49,16 +40,18 @@ pub fn derive_input(item_struct: ItemStruct) -> proc_macro2::TokenStream {
             }
         }
 
-        impl ::castle_api::types::SchemaItem for &#name {
+        impl ::castle_api::types::HasKind for &#name {
             fn kind() -> ::castle_api::types::Kind {
                 ::castle_api::types::Kind {
                     ident: stringify!(#name).into(),
                     generics: vec![]
                 }
             }
+        }
 
+        impl ::castle_api::types::SchemaItem for &#name {
             fn initialize_item(schema: &mut ::castle_api::types::SchemaDefinition) {
-                if !schema.is_type_registered(&stringify!(#name)) {
+                if !schema.kind_is_registered(&stringify!(#name)) {
                     let input_def = ::castle_api::types::InputTypeDefinition {
                         ident: stringify!(#name).into(),
                         input_definitions: [
@@ -69,7 +62,7 @@ pub fn derive_input(item_struct: ItemStruct) -> proc_macro2::TokenStream {
                         directives: vec![].into(),
                     };
 
-                    schema.register_input(input_def);
+                    schema.register_input_type(input_def);
 
                     #(
                         #initializations;

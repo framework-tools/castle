@@ -27,7 +27,7 @@ pub use self::{
     field_definition::FieldDefinition,
     input_definition::{InputDefinition, InputDefinitions, InputTypeDefinition},
     inputs::{Input, Inputs, Variant, VariantType},
-    kind::Kind,
+    kind::{Kind, HasKind},
     message::Message,
     next::Next,
     number::{Number, NumberKind},
