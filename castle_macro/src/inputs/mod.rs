@@ -14,7 +14,7 @@ pub fn derive_input(item_struct: ItemStruct) -> proc_macro2::TokenStream {
     let (
         input_definitions,
         initializations
-    ) = get_input_def_and_initalizations(fields.named.clone());
+    ) = get_input_def_and_initalizations(&fields.named);
 
     let field_conversions = fields.named
         .iter()
@@ -24,7 +24,7 @@ pub fn derive_input(item_struct: ItemStruct) -> proc_macro2::TokenStream {
             quote_spanned!(ty.span()=> #name: inputs.get(stringify!(#name)).unwrap().into())
         });
 
-        
+
 
     quote_spanned! {item_struct.span() =>
         #item_struct

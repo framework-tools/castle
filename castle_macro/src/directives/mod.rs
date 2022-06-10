@@ -1,73 +1,42 @@
-use proc_macro2::TokenStream;
 use quote::quote_spanned;
-use syn::{Ident, Result, parse::{Parse, ParseStream}, ItemStruct, FieldsNamed, spanned::Spanned};
+use syn::{Ident, Result, parse::{Parse, ParseStream}, ItemStruct, spanned::Spanned};
 
 use crate::{shared_functions::get_input_def_and_initalizations};
 
-pub struct CustomAttribute {
+#[derive(Debug)]
+pub struct DirectiveDefinitionAttribute {
+    pub at: syn::Token![@],
     pub ident: Ident,
-    pub tokens: TokenStream,
+    pub paren_token: syn::token::Paren,
+    pub inputs: syn::punctuated::Punctuated<syn::Field, syn::Token![,]>,
 }
 
-pub struct DirectiveDefAst {
-    pub brace_token: syn::token::Brace,
-    pub name: Field<syn::LitStr>,
-    pub comma_token: syn::Token![,],
-    pub args: Field<FieldsNamed>,
-}
-
-pub struct Field<T> {
-    pub ident: Ident,
-    pub equals_token: syn::Token![=],
-    pub tokens: T,
-}
-
-impl Parse for CustomAttribute {
-    fn parse(input: ParseStream) -> Result<Self> {
-        Ok(CustomAttribute {
-            ident: input.parse()?,
-            tokens: input.parse::<TokenStream>()?
-        })
-    }
-}
-
-impl Parse for DirectiveDefAst {
+impl Parse for DirectiveDefinitionAttribute {
     fn parse(input: ParseStream) -> Result<Self> {
         let content;
-        Ok(DirectiveDefAst {
-            brace_token: syn::braced!(content in input),
-            name: content.parse()?,
-            comma_token: content.parse()?,
-            args: content.parse()?
-        })
-    }
-}
-
-impl<T: Parse> Parse for Field<T> {
-    fn parse(input: ParseStream) -> Result<Self> {
-        Ok(Field {
+        Ok(Self {
+            at: input.parse()?,
             ident: input.parse()?,
-            equals_token: input.parse()?,
-            tokens: input.parse()?
+            paren_token: syn::parenthesized!(content in input),
+            inputs: content.parse_terminated(syn::Field::parse_named)?,
         })
     }
 }
 
-pub fn derive_directive(item_struct: ItemStruct, directives: DirectiveDefAst) -> proc_macro2::TokenStream {
+pub fn derive_directive(directive_attribute: DirectiveDefinitionAttribute, item_struct: ItemStruct) -> proc_macro2::TokenStream {
     let directive_name = &item_struct.ident;
-    let directive_str_name = directives.name.tokens;
-    let directive_args = directives.args.tokens.named;
+    let directive_str_name = directive_attribute.ident;
     let (
         input_definitions,
         initializations
-    ) = get_input_def_and_initalizations(directive_args);
+    ) = get_input_def_and_initalizations(&directive_attribute.inputs);
 
     return quote_spanned!{item_struct.span() =>
         #item_struct
 
         impl ::castle_api::types::SchemaItem for #directive_name {
             fn initialize_item(schema: &mut ::castle_api::types::SchemaDefinition) {
-                if !schema.kind_is_registered(&#directive_str_name) {
+                if !schema.kind_is_registered(&stringify!(#directive_str_name)) {
                     let type_def = ::castle_api::types::DirectiveDefinition {
                         ident: stringify!(#directive_str_name).into(),
                         input_definitions: [

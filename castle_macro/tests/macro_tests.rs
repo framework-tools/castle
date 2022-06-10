@@ -1,4 +1,4 @@
-use castle_api::types::{Input, Primitive, Context};
+use castle_api::types::{Input, Primitive, Context, Directive};
 
 
 #[test]
@@ -55,7 +55,7 @@ fn testing_user_match() {
         fn first_name(&self, _ctx: &Context) -> Result<String, anyhow::Error> {
             unimplemented!()
         }
-        
+
         fn profile(&self, _ctx: &Context, _arg: String) -> Profile {
             unimplemented!()
         }
@@ -67,13 +67,12 @@ fn testing_user_match() {
 #[test]
 fn testing_directives() {
 
-    #[castle_macro::castle(Directive {
-        name = "authenticated",
-        args = {
-            limit: u32,
-        }
-    })]
+    #[castle_macro::castle(Directive @authenticated(limit: u32))]
     struct Authenticated;
+
+    impl Directive for Authenticated {
+
+    }
 
     struct Root;
     // directives need a identifier or name
@@ -82,38 +81,12 @@ fn testing_directives() {
     // full eg directive #[directive(type: value)]
     #[castle_macro::castle(Type)]
     impl Root {
-        #[directives("@Authenticated(a: b)@sorted(a: b)")]
+        #[directives("@authenticated(a: 1) @sorted(a: 1)")]
         fn me(&self, _ctx: &Context) -> String {
             unimplemented!()
         }
     }
 }
-
-
-
-// #[test]
-// fn can_impl_resolve_complex() {
-//     struct Root {
-//         foo: String
-//     }
-
-//     #[castle_macro::castle(Type)]
-//     impl Root {
-//         async fn me(ctx: Ctx) -> Result<User, castle_api::Error> {
-//             User {
-//                 id: "foo",
-//             }
-//         }
-
-//         async fn login(input: LoginDetails, ctx: Ctx) -> Result<String, Error> {
-//             unimplemented!()
-//         }
-
-//         pub async fn signup(input: CreateUser, ctx: Ctx) -> Result<(), Error> {
-//             User::create_user(input).await
-//         }
-//     }
-// }
 
 
 

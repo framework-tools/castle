@@ -5,16 +5,17 @@
 
 use castle_api::types::Directive;
 
-#[castle_api::castle_macro(Directive{
-    name = "bar",
-    args = {
-        foo: String,
-    }
+#[castle_api::castle_macro(Directive {
+    foo: String,
 })]
 struct MockDirective;
 
 
-impl Directive for MockDirective {}
+impl Directive for MockDirective {
+    fn name() -> &'static str {
+        "bar"
+    }
+}
 
 
 #[tokio::test]
