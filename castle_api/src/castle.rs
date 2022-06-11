@@ -77,10 +77,10 @@ impl Castle {
 #[derive(derivative::Derivative)]
 #[derivative(Debug)]
 pub struct CastleBuilder {
-    pub root: Box<dyn ResolvesFields>,
-    pub schema_def: SchemaDefinition,
+    root: Option<Box<dyn ResolvesFields>>,
+    schema_def: Option<SchemaDefinition>,
     #[derivative(Debug = "ignore")]
-    pub directives: HashMap<Box<str>, Box<dyn Directive>>,
+    directives: HashMap<Box<str>, Box<dyn Directive>>,
 }
 
 impl CastleBuilder {
@@ -89,22 +89,24 @@ impl CastleBuilder {
         Root::initialize_item(&mut schema_def);
 
         Self {
-            root: Box::new(root),
-            schema_def: SchemaDefinition::new(),
+            root: Some(Box::new(root)),
+            schema_def: Some(schema_def),
             directives: HashMap::new(),
         }
     }
 
-    pub fn add_directive(&mut self, name: &str, directive: impl Directive + SchemaItem + 'static) {
+    pub fn add_directive<T: Directive + SchemaItem + 'static>(&mut self, name: &str, directive: T) -> &mut Self {
+        self.schema_def.as_mut().map(|schema_def| T::initialize_item(schema_def));
         self.directives
             .insert(name.into(), Box::new(directive));
+        self
     }
 
-    pub fn build(self) -> Result<Castle, CastleError> {
+    pub fn build(&mut self) -> Result<Castle, CastleError> {
         Castle::new_and_validate(
-            self.root,
-            self.schema_def,
-            self.directives,
+            self.root.take().unwrap(),
+            self.schema_def.take().unwrap(),
+            self.directives.drain().collect(),
         )
     }
 }

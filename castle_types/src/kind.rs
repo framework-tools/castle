@@ -20,6 +20,24 @@ impl<T, E> HasKind for Result<T, E> where T: HasKind {
     }
 }
 
+impl<G> HasKind for Vec<G> where G: HasKind {
+    fn kind() -> Kind {
+        Kind {
+            ident: "Vec".into(),
+            generics: vec![G::kind()],
+        }
+    }
+}
+
+impl<G> HasKind for Option<G> where G: HasKind {
+    fn kind() -> Kind {
+        Kind {
+            ident: "Option".into(),
+            generics: vec![G::kind()],
+        }
+    }
+}
+
 macro_rules! impl_has_kind_for_scalars {
     (
         $($ty:ty: $ident:ident,)*

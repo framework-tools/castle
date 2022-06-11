@@ -20,7 +20,7 @@ mod resolves_fields;
 
 pub use self::{
     context::Context,
-    directive_definitions::{AppliedDirective, DirectiveDefinition, DirectiveLocation},
+    directive_definitions::{AppliedDirective, DirectiveDefinition},
     directive_trait::Directive,
     enum_definition::{EnumDefinition, VariantDefinition, VariantKindDefinition},
     error::CastleError,

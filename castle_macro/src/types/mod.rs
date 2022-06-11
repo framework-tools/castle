@@ -3,7 +3,7 @@ use quote::quote_spanned;
 use syn::{
     spanned::Spanned, FnArg, ImplItem, ItemImpl, PatType, ReturnType
 };
-use crate::{Unzip2};
+use crate::{Unzip2, directives::AppliedDirective};
 
 pub fn derive_type(mut item_impl: ItemImpl) -> proc_macro2::TokenStream {
     let self_name = &item_impl.self_ty;
@@ -18,16 +18,12 @@ pub fn derive_type(mut item_impl: ItemImpl) -> proc_macro2::TokenStream {
                 ReturnType::Type(_, ty) => *ty.clone(),
                 ReturnType::Default => syn::parse_quote_spanned! { fn_name.span() => () }
             };
-            let mut directives = String::new();
-            method.attrs.retain(|attr| {
-                if attr.path.is_ident("directives") {
-                    let directive_tokens = attr.tokens.to_string();
-                    directives = directive_tokens[2..directive_tokens.len() - 2].to_string();
-                    false
-                } else {
-                    true
-                }
-            });
+            
+            let directives: String = method.attrs.drain_filter(|attr| attr.path.is_ident("directives"))
+                .map(|attr| {
+                    let tokens = attr.tokens.into();
+                    syn::parse::<AppliedDirective>(tokens).unwrap().string.value()
+                }).collect::<Vec<String>>().join(" ");
 
             types_used.push(fn_return_type.clone());
 

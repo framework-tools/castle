@@ -24,7 +24,7 @@ pub fn derive_input(item_struct: ItemStruct) -> proc_macro2::TokenStream {
             quote_spanned!(ty.span()=> #name: inputs.get(stringify!(#name)).unwrap().into())
         });
 
-
+        
 
     quote_spanned! {item_struct.span() =>
         #item_struct
@@ -40,7 +40,7 @@ pub fn derive_input(item_struct: ItemStruct) -> proc_macro2::TokenStream {
             }
         }
 
-        impl ::castle_api::types::HasKind for &#name {
+        impl ::castle_api::types::HasKind for #name {
             fn kind() -> ::castle_api::types::Kind {
                 ::castle_api::types::Kind {
                     ident: stringify!(#name).into(),
@@ -49,7 +49,7 @@ pub fn derive_input(item_struct: ItemStruct) -> proc_macro2::TokenStream {
             }
         }
 
-        impl ::castle_api::types::SchemaItem for &#name {
+        impl ::castle_api::types::SchemaItem for #name {
             fn initialize_item(schema: &mut ::castle_api::types::SchemaDefinition) {
                 if !schema.kind_is_registered(&stringify!(#name)) {
                     let input_def = ::castle_api::types::InputTypeDefinition {

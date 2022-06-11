@@ -27,41 +27,6 @@ use super::InputDefinition;
 pub struct DirectiveDefinition {
     pub ident: Box<str>,
     pub input_definitions: HashMap<Box<str>, InputDefinition>,
-    pub locations: HashSet<DirectiveLocation>,
-}
-
-#[derive(Debug, PartialEq, Eq, Hash, Clone)]
-pub enum DirectiveLocation {
-    /// FieldDefinition
-    FieldDefinition,
-
-    /// EnumDefinition
-    EnumDefinition,
-
-    /// VariantDefinition
-    VariantDefinition,
-
-    /// InputDefinition
-    InputDefinition,
-
-    /// TypeDefinition
-    TypeDefinition,
-
-    /// InputFieldDefinition
-    InputFieldDefinition,
-}
-
-impl Display for DirectiveLocation {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            DirectiveLocation::FieldDefinition => write!(f, "FieldDefinition"),
-            DirectiveLocation::EnumDefinition => write!(f, "EnumDefinition"),
-            DirectiveLocation::VariantDefinition => write!(f, "VariantDefinition"),
-            DirectiveLocation::InputDefinition => write!(f, "InputDefinition"),
-            DirectiveLocation::TypeDefinition => write!(f, "TypeDefinition"),
-            DirectiveLocation::InputFieldDefinition => write!(f, "InputFieldDefinition"),
-        }
-    }
 }
 
 /// ### AppliedDirective

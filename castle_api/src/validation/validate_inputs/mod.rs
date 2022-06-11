@@ -1,5 +1,5 @@
 
-use castle_types::{SchemaDefinition, InputDefinition, Input, CastleError, Kind, Primitive, InputDefinitions, Inputs, DirectiveLocation};
+use castle_types::{SchemaDefinition, InputDefinition, Input, CastleError, Kind, Primitive, InputDefinitions, Inputs};
 
 use super::{join_paths, validate_schema::validate_directives::validate_directive};
 
@@ -23,7 +23,6 @@ pub(crate) fn type_check_input_against_input_definition(
             schema,
             path,
             input_directive,
-            DirectiveLocation::InputFieldDefinition,
         )?;
     }
 

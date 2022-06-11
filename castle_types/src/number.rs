@@ -89,8 +89,8 @@ macro_rules! from_num_to_primitive {
         $($ty:ty),*
     ) => {
         $(
-            impl From<&Number> for $ty {
-                fn from(num: &Number) -> Self {
+            impl From<Number> for $ty {
+                fn from(num: Number) -> Self {
                     match num.n {
                         NumberKind::UInt(u) => u as $ty,
                         NumberKind::Int(i) => i as $ty,

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use castle_types::{SchemaDefinition, CastleError, EnumDefinition, DirectiveLocation, VariantDefinition, VariantKindDefinition, Kind};
+use castle_types::{SchemaDefinition, CastleError, EnumDefinition, VariantDefinition, VariantKindDefinition, Kind};
 
 use super::{validate_directives::validate_directive, return_type_exists};
 
@@ -14,7 +14,7 @@ pub(super) fn validate_enums(schema: &SchemaDefinition) -> Result<(), CastleErro
 
 fn validate_enum(schema: &SchemaDefinition, enum_def: &EnumDefinition) -> Result<(), CastleError> {
     for directive in enum_def.directives.iter() {
-        validate_directive(schema, &[&enum_def.ident], directive, DirectiveLocation::EnumDefinition)?;
+        validate_directive(schema, &[&enum_def.ident], directive)?;
     }
 
     for variant in enum_def.variants.values() {
@@ -25,7 +25,7 @@ fn validate_enum(schema: &SchemaDefinition, enum_def: &EnumDefinition) -> Result
 
 fn validate_variant(schema: &SchemaDefinition, enum_name: &str, variant: &VariantDefinition) -> Result<(), CastleError> {
     for directive in variant.directives.iter() {
-        validate_directive(schema, &[&enum_name, &variant.ident], directive, DirectiveLocation::VariantDefinition)?;
+        validate_directive(schema, &[&enum_name, &variant.ident], directive)?;
     }
 
     match &variant.kind {

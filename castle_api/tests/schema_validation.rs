@@ -3,259 +3,17 @@
 // error if directive definition argument with no default is missing in the directive
 // error if the directive is allowed on the given directive location
 
-use castle_api::types::Directive;
-
-#[castle_api::castle_macro(Directive {
-    foo: String,
-})]
-struct MockDirective;
+use castle_api::{types::Directive, castle::CastleBuilder};
 
 
-impl Directive for MockDirective {
-    fn name() -> &'static str {
-        "bar"
-    }
-}
-
-
-#[tokio::test]
-async fn directive_with_definition_and_resolver_succeeds() {
-    let schema = "
-    directive @bar on FieldDefinition
-
-    type Root {
-        foo: String @bar
-    }
-    ";
-
-    CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() })
-        .add_directive(&"bar", MockDirective)
-        .build()
-        .unwrap();
-}
-
-#[tokio::test]
-async fn directive_on_wrong_location_fails() {
-    let schema = "
-    directive @bar on VariantDefinition
-
-    type Root {
-        foo: String @bar
-    }
-    ";
-
-    CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() })
-        .add_directive(&"bar", MockDirective)
-        .build()
-        .unwrap_err();
-}
-
-#[tokio::test]
-async fn directive_with_unspecified_arg_fails() {
-    let schema = "
-    directive @bar on FieldDefinition
-
-    type Root {
-        foo: String @bar(arg: 123)
-    }
-    ";
-
-    CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() })
-        .add_directive(&"bar", MockDirective)
-        .build()
-        .unwrap_err();
-}
-
-#[tokio::test]
-async fn directive_with_string_input_type_mismatch_fails() {
-    let schema = "
-    directive @bar(arg: String) on FieldDefinition
-
-    type Root {
-        foo: String @bar(arg: 123)
-    }
-    ";
-
-    CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() })
-        .add_directive(&"bar", MockDirective)
-        .build()
-        .unwrap_err();
-}
-
-#[tokio::test]
-async fn directive_with_matching_number_type_succeeds() {
-    let schema = "
-    directive @bar(arg: number) on FieldDefinition
-
-    type Root {
-        foo: String @bar(arg: -123)
-    }
-    ";
-
-    CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() })
-        .add_directive(&"bar", MockDirective)
-        .build()
-        .unwrap();
-}
-
-#[tokio::test]
-async fn directive_with_matching_number_type_succeeds_with_casting() {
-    let schema = "
-    directive @bar(arg: number) on FieldDefinition
-
-    type Root {
-        foo: String @bar(arg: 123)
-    }
-    ";
-
-    CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() })
-        .add_directive(&"bar", MockDirective)
-        .build()
-        .unwrap();
-}
-
-
-#[tokio::test]
-async fn directive_with_number_input_type_mismatch_fails() {
-    let schema = "
-    directive @bar(arg: number) on FieldDefinition
-
-    type Root {
-        foo: String @bar(arg: \"string\")
-    }
-    ";
-
-    CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() })
-        .add_directive(&"bar", MockDirective)
-        .build()
-        .unwrap_err();
-}
-
-#[tokio::test]
-async fn directive_with_custom_type_mismatch_fails() {
-    let schema = "
-    directive @bar(arg: Custom) on FieldDefinition
-
-    type Root {
-        foo1: String @bar(arg: 123)
-        foo2: String @bar(arg: { a: 123 })
-    }
-
-    input Custom {
-
-    }
-    ";
-
-    CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() })
-        .add_directive(&"bar", MockDirective)
-        .build()
-        .unwrap_err();
-}
-
-#[tokio::test]
-async fn directive_with_custom_type_succeeds() {
-    let schema = "
-    directive @bar(arg: Custom) on FieldDefinition
-
-    type Root {
-        foo: String @bar(arg: { a: 123 })
-    }
-
-    input Custom {
-        a: number
-    }
-    ";
-
-    CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() })
-        .add_directive(&"bar", MockDirective)
-        .build()
-        .unwrap();
-}
-
-
-#[tokio::test]
-async fn directive_with_boolean_type_succeeds() {
-    let schema = "
-    directive @bar(arg: bool) on FieldDefinition
-
-    type Root {
-        foo: String @bar(arg: true)
-    }
-    ";
-
-    CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() })
-        .add_directive(&"bar", MockDirective)
-        .build()
-        .unwrap();
-}
-
-#[tokio::test]
-async fn directive_with_array_type_succeeds() {
-    let schema = "
-    directive @bar(arg: Vec<String>) on FieldDefinition
-
-    type Root {
-        foo: String @bar(arg: [\"string\"])
-    }
-    ";
-
-    CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() })
-        .add_directive(&"bar", MockDirective)
-        .build()
-        .unwrap();
-}
-
-#[tokio::test]
-async fn directive_with_array_type_mismatch_fails() {
-    let schema = "
-    directive @bar(arg: Vec<String>) on FieldDefinition
-
-    type Root {
-        foo: String @bar(arg: [123])
-    }
-    ";
-
-    CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() })
-        .add_directive(&"bar", MockDirective)
-        .build()
-        .unwrap_err();
-}
-
-#[tokio::test]
-async fn directive_with_too_many_generic_params_fails() {
-    let schema = "
-    directive @bar(arg: Vec<String, String>) on FieldDefinition
-
-    type Root {
-        foo: String @bar(arg: [\"string\"])
-    }
-    ";
-
-    CastleBuilder::<(), ()>::new(schema)
-        .add_resolver(&"foo", |_: &Field, _: &()|async { unimplemented!() })
-        .add_directive(&"bar", MockDirective)
-        .build()
-        .unwrap_err();
-}
-
-
-// #[directives("@authenticated(a: b)@sorted(a: b)")]
 #[test]
-fn directive_with_missing_arg_fails() {
+fn directive_with_definition_and_resolver_succeeds() {
+
+    #[castle_api::castle_macro(Directive @bar())]
+    struct MockDirective;
+    impl Directive for MockDirective {}
+
     struct Root;
-    // directive @foo(arg: String) on FieldDefinition
     #[castle_macro::castle(Type)]
     impl Root {
         #[directives("@bar")]
@@ -264,9 +22,227 @@ fn directive_with_missing_arg_fails() {
         }
     }
     CastleBuilder::new(Root)
-        .add_directive(MockDirective)
+    .add_directive(&"bar", MockDirective)
+    .build()
+    .unwrap();
+}
+
+#[test]
+fn directive_with_unspecified_arg_fails() {
+    #[castle_api::castle_macro(Directive @bar())]
+    struct MockDirective;
+    impl Directive for MockDirective {}
+
+    struct Root;
+    #[castle_macro::castle(Type)]
+    impl Root {
+        #[directives("@bar(arg: 123)")]
+        fn foo(&self, ctx: &castle_api::types::Context) -> String {
+            unimplemented!()
+        }
+    }
+
+    CastleBuilder::new(Root)
+    .add_directive(&"bar", MockDirective)
+    .build()
+    .unwrap_err();
+}
+
+#[test]
+fn directive_with_string_input_type_mismatch_fails() {
+    #[castle_api::castle_macro(Directive @bar(arg: String))]
+    struct MockDirective;
+    impl Directive for MockDirective {}
+
+    struct Root;
+    #[castle_macro::castle(Type)]
+    impl Root {
+        #[directives("@bar(arg: 123)")]
+        fn foo(&self, ctx: &castle_api::types::Context) -> String {
+            unimplemented!()
+        }
+    }
+
+
+    CastleBuilder::new(Root)
+    .add_directive(&"bar", MockDirective)
+    .build()
+    .unwrap_err();
+}
+
+#[test]
+fn directive_with_matching_number_type_succeeds() {
+    #[castle_api::castle_macro(Directive @bar(arg: f64))]
+    struct MockDirective;
+    impl Directive for MockDirective {}
+
+    struct Root;
+    #[castle_macro::castle(Type)]
+    impl Root {
+        #[directives("@bar(arg: -123)")]
+        fn foo(&self, ctx: &castle_api::types::Context) -> String {
+            unimplemented!()
+        }
+    }
+
+
+    CastleBuilder::new(Root)
+    .add_directive(&"bar", MockDirective)
+    .build()
+    .unwrap();
+}
+
+
+
+#[test]
+fn directive_with_number_input_type_mismatch_fails() {
+    #[castle_api::castle_macro(Directive @bar(arg: u32))]
+    struct MockDirective;
+    impl Directive for MockDirective {}
+
+    struct Root;
+    #[castle_macro::castle(Type)]
+    impl Root {
+        #[directives("@bar(string: \"string\")")]
+        fn foo(&self, ctx: &castle_api::types::Context) -> String {
+            unimplemented!()
+        }
+    }
+
+
+    CastleBuilder::new(Root)
+    .add_directive(&"bar", MockDirective)
+    .build()
+    .unwrap_err();
+}
+
+#[test]
+fn field_with_custom_type_mismatch_fails() {
+    #[castle_api::castle_macro(Input)]
+    struct Custom {}
+
+    struct Root;
+    #[castle_macro::castle(Type)]
+    impl Root {
+        fn foo(&self, ctx: &castle_api::types::Context, custom: Custom) -> String {
+            unimplemented!()
+        }
+    }
+
+    CastleBuilder::new(Root)
+    .build()
+    .unwrap();
+}
+
+
+#[test]
+fn directive_with_boolean_type_succeeds() {
+    #[castle_api::castle_macro(Directive @bar(arg: bool))]
+    struct MockDirective;
+    impl Directive for MockDirective {}
+
+    struct Root;
+    #[castle_macro::castle(Type)]
+    impl Root {
+        #[directives("@bar(arg: true)")]
+        fn foo(&self, ctx: &castle_api::types::Context) -> String {
+            unimplemented!()
+        }
+    }
+    CastleBuilder::new(Root)
+    .add_directive(&"bar", MockDirective)
+    .build()
+    .unwrap();
+}
+
+#[test]
+fn directive_with_array_type_succeeds() {
+    let schema = "
+    directive @bar(arg: Vec<String>) on FieldDefinition
+
+    type Root {
+        foo: String @bar(arg: [\"string\"])
+    }
+    ";
+    #[castle_api::castle_macro(Directive @bar(arg: Vec<String>))]
+    struct MockDirective;
+    impl Directive for MockDirective {}
+
+    struct Root;
+    #[castle_macro::castle(Type)]
+    impl Root {
+        #[directives("@bar(arg: [\"a\", \"b\"])")]
+        fn foo(&self, ctx: &castle_api::types::Context) -> String {
+            unimplemented!()
+        }
+    }
+    CastleBuilder::new(Root)
+    .add_directive(&"bar", MockDirective)
+    .build()
+    .unwrap();
+}
+
+#[test]
+fn directive_with_string_array_type() {
+    #[castle_api::castle_macro(Directive @bar3(arg: Vec<String>))]
+    struct MockDirective3;
+    impl Directive for MockDirective3 {}
+
+    struct Root;
+    #[castle_macro::castle(Type)]
+    impl Root {
+        #[directives(r#"@bar3(arg: ["string", "string", "string"])"#)]
+        fn foo(&self, ctx: &castle_api::types::Context) -> String {
+            unimplemented!()
+        }
+    }
+    CastleBuilder::new(Root)
+        .add_directive(&"bar3", MockDirective3)
+        .build()
+        .unwrap();
+}
+#[test]
+fn directive_with_array_type_mismatch_fails() {
+    #[castle_api::castle_macro(Directive @bar3(arg: Vec<String>))]
+    struct MockDirective3;
+    impl Directive for MockDirective3 {}
+
+    struct Root;
+    #[castle_macro::castle(Type)]
+    impl Root {
+        #[directives(r#"@bar3(arg: [123, "string", "string"])"#)]
+        fn foo(&self, ctx: &castle_api::types::Context) -> String {
+            unimplemented!()
+        }
+    }
+    CastleBuilder::new(Root)
+        .add_directive(&"bar3", MockDirective3)
         .build()
         .unwrap_err();
+}
+
+
+
+
+// #[directives("@authenticated(a: b)@sorted(a: b)")]
+#[test]
+fn testing_directives_with_number_arg() {
+    #[castle_api::castle_macro(Directive @bar(arg: u32))]
+    struct MockDirective;
+    impl Directive for MockDirective {}
+    
+    struct Root;
+    #[castle_macro::castle(Type)]
+    impl Root {
+        #[directives("@bar(arg: 1)")]
+        fn foo(&self, ctx: &castle_api::types::Context) -> String {
+            unimplemented!()
+        }
+    }
+    CastleBuilder::new(Root)
+        .add_directive(&"bar", MockDirective)
+        .build()
+        .unwrap();
     // initalise castle based on above Root
     // add directive to castle builder
     // build and validate...

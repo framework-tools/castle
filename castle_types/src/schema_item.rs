@@ -12,6 +12,16 @@ impl<T, E> SchemaItem for Result<T, E> where T: SchemaItem {
         T::initialize_item(schema);
     }
 }
+impl<G> SchemaItem for Vec<G> where G: SchemaItem {
+    fn initialize_item(schema: &mut SchemaDefinition) {
+        G::initialize_item(schema);
+    }
+}
+impl<G> SchemaItem for Option<G> where G: SchemaItem {
+    fn initialize_item(schema: &mut SchemaDefinition) {
+        G::initialize_item(schema);
+    }
+}
 
 
 macro_rules! impl_schema_item_for_scalars {

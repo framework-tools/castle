@@ -1,6 +1,6 @@
 
 
-use castle_types::{SchemaDefinition, CastleError, TypeDefinition, DirectiveLocation, FieldDefinition};
+use castle_types::{SchemaDefinition, CastleError, TypeDefinition, FieldDefinition};
 
 use super::{validate_directives::validate_directive, return_type_exists, input_type_exists};
 
@@ -17,7 +17,7 @@ pub(super) fn validate_types(schema: &SchemaDefinition) -> Result<(), CastleErro
 /// - validates each directive applied on the type
 fn validate_type(schema: &SchemaDefinition, type_def: &TypeDefinition) -> Result<(), CastleError> {
     for directive in type_def.directives.iter() {
-        validate_directive(schema, &[&type_def.ident], directive, DirectiveLocation::EnumDefinition)?;
+        validate_directive(schema, &[&type_def.ident], directive)?;
     }
 
     for field in type_def.fields.values() {
@@ -44,7 +44,7 @@ fn validate_field(schema: &SchemaDefinition, type_name: &str, field: &FieldDefin
     }
 
     for directive in field.directives.iter() {
-        validate_directive(schema, &[&type_name, &field.ident], directive, DirectiveLocation::FieldDefinition)?;
+        validate_directive(schema, &[&type_name, &field.ident], directive)?;
     }
 
     return Ok(());

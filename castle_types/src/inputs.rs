@@ -65,6 +65,27 @@ impl From<&Input> for String {
     }
 }
 
+impl From<&Input> for bool {
+    fn from(input: &Input) -> Self {
+        match input {
+            Input::Primitive(Primitive::Boolean(bool)) => *bool,
+            _ => panic!("Expected bool"),
+        }
+    }
+}
+
+impl<'a, T: From<&'a Input>> From<&'a Input> for Vec<T> {
+    fn from(input: &'a Input) -> Self {
+        match input {
+            Input::List(list) => list
+                .iter()
+                .map(|input| T::from(input))
+                .collect(),
+            _ => vec![],
+        }
+    }
+}
+
 // Implement From for all the primitive numeric types
 macro_rules! impl_from_input {
     ($($t:ty, $as:ident),*) => {
@@ -72,7 +93,7 @@ macro_rules! impl_from_input {
             impl From<&Input> for $t {
                 fn from(value: &Input) -> Self {
                     match value {
-                        Input::Primitive(Primitive::Number(number)) => number.into(),
+                        Input::Primitive(Primitive::Number(number)) => number.clone().into(),
                         _ => panic!("Cannot convert input to {}", stringify!($t)),
                     }
                 }

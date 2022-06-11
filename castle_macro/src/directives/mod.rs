@@ -23,6 +23,22 @@ impl Parse for DirectiveDefinitionAttribute {
     }
 }
 
+#[derive(Debug)]
+pub struct AppliedDirective {
+    pub paren_token: syn::token::Paren,
+    pub string: syn::LitStr,
+}
+
+impl Parse for AppliedDirective {
+    fn parse(input: ParseStream) -> Result<Self> {
+        let content;
+        Ok(Self {
+            paren_token: syn::parenthesized!(content in input),
+            string: content.parse()?,
+        })
+    }
+}
+
 pub fn derive_directive(directive_attribute: DirectiveDefinitionAttribute, item_struct: ItemStruct) -> proc_macro2::TokenStream {
     let directive_name = &item_struct.ident;
     let directive_str_name = directive_attribute.ident;
@@ -44,7 +60,6 @@ pub fn derive_directive(directive_attribute: DirectiveDefinitionAttribute, item_
                                 #input_definitions,
                             )*
                         ].into(),
-                        locations: [].into(),
                     };
                     schema.register_directive_definition(type_def);
                     #(
