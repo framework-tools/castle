@@ -7,7 +7,6 @@ mod inputs;
 mod types;
 mod directives;
 mod shared_functions;
-mod type_struct;
 // Allows you to unzip Vec<(A, B, C)> into (Vec<A>, Vec<B>, Vec<C>)
 unzip_n::unzip_n!(3);
 unzip_n::unzip_n!(2);
@@ -36,12 +35,11 @@ pub fn castle(
 
     match &*attr.ident.to_string() {
         "Input" => inputs::derive_input(syn::parse_macro_input!(item as syn::ItemStruct)).into(),
-        "Type" => types::derive_type(syn::parse_macro_input!(item as syn::ItemImpl)).into(),
+        "Type" => types::derive_type(syn::parse_macro_input!(item as syn::Item)).into(),
         "Directive" => directives::derive_directive(
             syn::parse_macro_input!(attr_tokens as DirectiveDefinitionAttribute),
             syn::parse_macro_input!(item as syn::ItemStruct),
         ).into(),
-        "TypeStruct" => type_struct::derive_type_struct(syn::parse_macro_input!(item as syn::Item)).into(),
         attribute => panic!(
             "attribute {} is not supported. Use Input, Type or Directive",
             attribute
