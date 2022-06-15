@@ -52,7 +52,7 @@ fn testing_user_match() {
     #[castle_macro::castle(Type)]
     impl User {
 
-        fn first_name(&self, _ctx: &Context) -> Result<String, anyhow::Error> {
+        async fn first_name(&self, _ctx: &Context) -> Result<String, anyhow::Error> {
             unimplemented!()
         }
 

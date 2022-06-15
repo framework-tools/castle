@@ -1,5 +1,5 @@
 use castle_api::{castle::Castle};
-use castle_types::{CastleError, Field};
+use castle_types::{CastleError, Field, Context};
 
 
 async fn create_castle() -> Castle {
@@ -56,13 +56,13 @@ async fn create_castle() -> Castle {
     #[castle_macro::castle(Type)]
     impl Root {
         fn hello(&self, _ctx: &castle_api::types::Context) -> String {
-            unimplemented!()
+            return "world".to_string()
         }
         fn foo(&self, _ctx: &castle_api::types::Context, bar: f64) -> String {
             unimplemented!()
         }
         fn sigma(&self, _ctx: &castle_api::types::Context) -> f64 {
-            unimplemented!()
+            return 69.0
         }
         fn baz(&self, _ctx: &castle_api::types::Context, arg: Xyz) -> String {
             unimplemented!()
@@ -80,10 +80,10 @@ async fn create_castle() -> Castle {
             unimplemented!()
         }
         fn some_thing(&self, _ctx: &castle_api::types::Context) -> SomeThing {
-            unimplemented!()
+            SomeThing { hello: self.hello(_ctx), sigma: self.sigma(_ctx), thing_is_true: self.thing_is_true(_ctx) }
         }
         fn thing_is_true(&self, _ctx: &castle_api::types::Context) -> bool {
-            unimplemented!()
+            return true
         }
         fn high_level_obj(&self, _ctx: &castle_api::types::Context) -> HighLevelObj {
             unimplemented!()
@@ -106,13 +106,15 @@ async fn create_castle() -> Castle {
 
 #[tokio::test]
 async fn basic_projection_validates() {
+    let ctx = Context::new();
     let msg = r#"
     message {
         hello
     }"#;
-    create_castle()
-        .await.validate_message(msg)
-        .unwrap();
+    let a = create_castle().await
+    .run_message(msg, &ctx).await
+    .unwrap();
+    println!("{:?}", a);
 }
 
 #[tokio::test]
@@ -122,7 +124,7 @@ async fn basic_projection_validates_breaks_with_mismatch() -> Result<(), CastleE
         world
     }"#;
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap_err();
     Ok(())
 }
@@ -136,7 +138,7 @@ async fn projection_with_unknown_args_fails() {
     ";
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap_err();
 }
 
@@ -149,7 +151,7 @@ async fn projection_with_missing_args_fails() {
     ";
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap_err();
 }
 
@@ -164,7 +166,7 @@ async fn nested_input_args_validates() {
     ";
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap();
 }
 
@@ -180,7 +182,7 @@ async fn nested_input_with_unknown_args_fails() {
     ";
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap_err();
 }
 
@@ -193,7 +195,7 @@ async fn list_items_without_correct_type_fails() {
     ";
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap_err();
 }
 
@@ -213,7 +215,7 @@ async fn list_item_with_input_type_validates() {
     ";
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap();
 }
 
@@ -233,7 +235,7 @@ async fn list_item_with_input_type_mismatch_fails() {
     ";
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap_err();
 }
 
@@ -246,7 +248,7 @@ async fn item_with_multiple_args_fails_if_wrong_type() {
     ";
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap_err();
 }
 
@@ -259,7 +261,7 @@ async fn item_with_too_many_args_fails() {
     ";
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap_err();
 }
 
@@ -272,7 +274,7 @@ async fn item_with_too_little_args_fails() {
     ";
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap_err();
 }
 
@@ -285,7 +287,7 @@ async fn item_with_matching_args_should_pass() {
     "#;
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap();
 }
 
@@ -298,7 +300,7 @@ async fn item_with_correct_return_type_should_pass() {
     "#;
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap();
 }
 
@@ -311,7 +313,7 @@ async fn fails_if_number_mismatch_on_argument() {
     "#;
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap_err();
 }
 
@@ -324,7 +326,7 @@ async fn fails_if_string_mismatch_on_argument() {
     "#;
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap_err();
 }
 
@@ -337,7 +339,7 @@ async fn passes_validating_bool_input() {
     "#;
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap();
 }
 
@@ -350,7 +352,7 @@ async fn fails_if_bool_mismatch_on_arg() {
     "#;
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap_err();
 }
 
@@ -363,7 +365,7 @@ async fn fails_if_type_mismatch_for_user_defined_type() {
     "#;
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap_err();
 
     let msg = r#"
@@ -375,7 +377,7 @@ async fn fails_if_type_mismatch_for_user_defined_type() {
     "#;
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap_err();
 }
 
@@ -388,12 +390,13 @@ async fn validates_vec_that_is_correctly_typed(){
     "#;
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap();
 }
 
 #[tokio::test]
 async fn can_validate_valid_object_projection(){
+    let ctx = Context::new();
     let msg = r#"
     message {
         some_thing {
@@ -404,9 +407,11 @@ async fn can_validate_valid_object_projection(){
     }
     "#;
 
-    create_castle()
-        .await.validate_message(msg)
+    let a = create_castle()
+        .await.
+        run_message(msg, &ctx).await
         .unwrap();
+    println!("{:#?}", a);
 }
 
 #[tokio::test]
@@ -422,7 +427,7 @@ async fn fails_if_field_is_not_defined_on_type(){
     "#;
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap_err();
 }
 
@@ -437,7 +442,7 @@ async fn empty_projection_succeeds(){
     "#;
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap();
 }
 
@@ -452,7 +457,7 @@ async fn fails_if_invalid_nested_obj(){
     "#;
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap_err();
 }
 
@@ -471,7 +476,7 @@ async fn fails_if_nested_obj_has_undefined_field(){
     "#;
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap_err();
 }
 
@@ -486,7 +491,7 @@ async fn passes_for_valid_array_projection(){
     "#;
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap();
 }
 
@@ -502,7 +507,7 @@ async fn fails_array_projection_with_invalid_field(){
     "#;
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap_err();
 }
 
@@ -525,7 +530,7 @@ async fn passes_valid_mesage_with_multiple_layers_of_nesting() {
     "#;
 
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap();
 }
 
@@ -546,7 +551,7 @@ async fn fails_for_invalid_field_multiple_layers_of_nesting() {
     }
     "#;
     create_castle()
-        .await.validate_message(msg)
+        .await.parse_and_validate_message(msg)
         .unwrap_err();
 }
 

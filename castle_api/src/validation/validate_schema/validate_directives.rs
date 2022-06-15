@@ -1,5 +1,5 @@
 
-use castle_types::{SchemaDefinition, AppliedDirective, CastleError, DirectiveDefinition};
+use castle_types::{SchemaDefinition, AppliedDirective, CastleError};
 
 use crate::validation::{join_paths, validate_inputs::{check_for_unspecified_args, check_for_missing_args}, };
 

@@ -1,19 +1,22 @@
-use std::{collections::HashMap};
-
+use std::collections::HashMap;
 
 use async_recursion::async_recursion;
-use castle_types::{Directive, Context, Value, Next, Message, SchemaDefinition, TypeDefinition, Field, FieldDefinition, AppliedDirective, Projection, ResolvesFields};
+use castle_types::{
+    AppliedDirective, Context, Directive, Field, FieldDefinition, FieldKind, Message,
+    Next, Projection, ResolvesFields, SchemaDefinition, TypeDefinition, Value,
+};
 
 pub async fn execute_message(
     root: &dyn ResolvesFields,
-    message: &mut Message,
+    message: Message,
     directives: &HashMap<Box<str>, Box<dyn Directive>>,
     schema: &SchemaDefinition,
     ctx: &Context,
 ) -> (Value, Vec<anyhow::Error>) {
     let mut errors = Vec::new();
     let data = evaluate_map(
-        &mut message.projection,
+        root,
+        message.projection,
         schema.types.get("Root").unwrap(),
         directives,
         schema,
@@ -26,7 +29,8 @@ pub async fn execute_message(
 }
 
 async fn evaluate_map(
-    projection: &mut Projection,
+    resolves_fields: &dyn ResolvesFields,
+    projection: Projection,
     type_def: &TypeDefinition,
     directives: &HashMap<Box<str>, Box<dyn Directive>>,
     schema: &SchemaDefinition,
@@ -35,22 +39,28 @@ async fn evaluate_map(
 ) -> HashMap<Box<str>, Value> {
     let mut map = HashMap::new();
 
-    for (field_name, field) in projection.iter() {
-        let field_def = type_def.fields.get(field_name).unwrap();
+    for (field_name, field) in projection.into_iter() {
+        let field_def = type_def.fields.get(&field_name).unwrap();
 
         match evaluate_field(
+            resolves_fields,
             field,
             field_def,
             &field_def.directives[..],
             ctx,
             &directives,
-        ).await
+            schema,
+            errors,
+        )
+        .await
         {
             Ok(Value::Void) => {}
             Ok(data) => {
                 map.insert(field_name.clone(), data);
             }
-            Err(e) => errors.push(e),
+            Err(err) => {
+                errors.push(err);
+            }
         }
     }
 
@@ -59,11 +69,14 @@ async fn evaluate_map(
 
 #[async_recursion]
 async fn evaluate_field(
-    field: &Field,
+    resolves_fields: &dyn ResolvesFields,
+    field: Field,
     field_def: &FieldDefinition,
     remaining_directives: &[AppliedDirective],
     ctx: &Context,
     directives: &HashMap<Box<str>, Box<dyn Directive>>,
+    schema: &SchemaDefinition,
+    errors: &mut Vec<anyhow::Error>,
 ) -> Result<Value, anyhow::Error> {
     match remaining_directives.get(0) {
         Some(applied_directive) => {
@@ -77,22 +90,57 @@ async fn evaluate_field(
             let mut value_fut =
                 directive.field_visitor(field, &applied_directive.inputs, next, ctx);
 
-            loop {
-                tokio::select! {
-                    Some(sender) = wait_next.recv() => {
-                        let _ = sender.send(evaluate_field(
-                            field,
-                            field_def,
-                            &remaining_directives[1..],
-                            ctx,
-                            directives
-                        ).await);
-                        continue
-                    }
-                    value = &mut value_fut => return Ok(value?)
-                }
+            tokio::select! {
+                // the directive called `next` so we need to get it from the next evalate_field call
+                Some((sender, field)) = wait_next.recv() => match sender.send(evaluate_field(
+                    resolves_fields,
+                    field,
+                    field_def,
+                    // pop off the first directive
+                    &remaining_directives[1..],
+                    ctx,
+                    directives,
+                    schema,
+                    errors,
+                ).await) {
+                    // we got a value from next, so we're going to return that to the caller
+                    Ok(()) => value_fut.await,
+                    Err(value) => Err(castle_types::CastleError::Other(
+                        format!("Failure sending value to next directive or resolver: {:?}", value).into()
+                    ).into()),
+                },
+                value = &mut value_fut => value,
             }
         }
-        None => Ok(resolve(field, ctx).await?),
+        // no more directives, so just evaluate the field
+        // TODO: we are not ensuring the developer returns the correct type here, nor are we resolving fields of `Value::Object`
+        // to ensure they have no dynamic fields.
+        None => {
+            let val = resolves_fields.resolve(&field, ctx).await?;
+
+            match field.kind {
+                // query tried to project a map and this is an object, so
+                // if it is a ResolvesFields, we need to resolve each field into Value::Object
+                FieldKind::Object(projection) => match val {
+                    val @ Value::Object(..) => Ok(val),
+                    // if it is a `ResolvesFields` then we need to evaluate_map
+                    Value::ResolveFields(sub_resolves_fields) => Ok(Value::Object(
+                        evaluate_map(
+                            &*sub_resolves_fields,
+                            projection,
+                            schema.types.get(&field_def.ident).unwrap(),
+                            directives,
+                            schema,
+                            ctx,
+                            errors,
+                        )
+                        .await,
+                    )),
+                    _ => Err(anyhow::anyhow!("Expected Value::Object or ResolvesFields")),
+                },
+                // TODO: we should be validating here, for vecs, etc, etc,
+                _ => Ok(val),
+            }
+        }
     }
 }

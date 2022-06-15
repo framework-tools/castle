@@ -5,7 +5,7 @@ use crate::{Field, Inputs, Next, Value, Context};
 pub trait Directive: Send + Sync {
     async fn field_visitor(
         &self,
-        field: &Field,
+        field: Field,
         directive_args: &Inputs,
         next: Next,
         context: &Context,

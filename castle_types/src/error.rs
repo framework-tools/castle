@@ -16,16 +16,16 @@ pub enum CastleError {
     Validation(Box<str>),
     MissingDirective(Box<str>),
     MissingResolver(Box<str>),
-    Root(Box<str>, Span),
     Unimplemented,
 }
+
+impl std::error::Error for CastleError {}
 
 impl From<std::io::Error> for CastleError {
     fn from(err: std::io::Error) -> Self {
         Self::IO(err.to_string().into())
     }
 }
-
 
 impl CastleError {
     pub fn syntax<Msg, Pos>(msg: Msg, pos: Pos) -> Self
@@ -55,7 +55,6 @@ impl fmt::Display for CastleError {
             Self::Other(msg) => write!(f, "Error: {}", msg),
             Self::Schema(msg, span) => write!(f, "Schema error: {} at {}", msg, span),
             Self::Validation(msg) => write!(f, "Schema validation error: {}", msg),
-            Self::Root(msg, span) => write!(f, "Root error: {} at {}", msg, span),
             Self::MissingDirective(msg) => write!(f, "Missing directive: {}", msg),
             Self::MissingResolver(msg) => write!(f, "Missing resolver: {}", msg),
             Self::Unimplemented => write!(f, "Unimplemented"),
@@ -76,7 +75,6 @@ impl ExtendedErrorDisplay for CastleError {
             Self::Syntax(msg, pos) => pretty_print_lexer_error(msg, pos, src),
             Self::Parser(msg, span) => pretty_print_parser_error(msg, span, src),
             Self::Schema(msg, span) => pretty_print_parser_error(msg, span, src),
-            Self::Root(msg, span) => pretty_print_parser_error(msg, span, src),
             Self::Validation(msg) => msg.to_string(),
             Self::MissingDirective(msg) => msg.to_string(),
             Self::MissingResolver(msg) => msg.to_string(),

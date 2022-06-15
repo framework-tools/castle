@@ -68,6 +68,10 @@ fn get_item_impl_conversion(mut item_impl: syn::ItemImpl, types_used: &mut Vec<s
                 ReturnType::Type(_, ty) => *ty.clone(),
                 ReturnType::Default => syn::parse_quote_spanned! { fn_name.span() => () }
             };
+            let await_suffix = match method.sig.asyncness {
+                Some(_) => quote_spanned! { fn_name.span() => .await },
+                None => quote_spanned!(fn_name.span() => ),
+            };
             
             let directives: String = method.attrs.drain_filter(|attr| attr.path.is_ident("directives"))
                 .map(|attr| {
@@ -105,7 +109,7 @@ fn get_item_impl_conversion(mut item_impl: syn::ItemImpl, types_used: &mut Vec<s
                 .unzip_n::<Vec<_>, Vec<_>>();
 
             (
-                quote_spanned!(fn_name.span() => stringify!(#fn_name) => ::castle_api::types::ConvertFrom::from(self.#fn_name(ctx #( , #input_conversion )*))),
+                quote_spanned!(fn_name.span() => stringify!(#fn_name) => ::castle_api::types::ConvertFrom::from(self.#fn_name(ctx #( , #input_conversion )*)#await_suffix)),
                 syn::parse_quote_spanned!(fn_name.span() =>
                     (stringify!(#fn_name).into(), ::castle_api::types::FieldDefinition {
                         ident: stringify!(#fn_name).into(),
@@ -125,8 +129,9 @@ fn get_item_impl_conversion(mut item_impl: syn::ItemImpl, types_used: &mut Vec<s
         [
             syn::Item::Impl(item_impl),
             syn::parse_quote_spanned!{ self_name.span() =>
+                #[castle_api::async_trait]
                 impl ::castle_api::types::ResolvesFields for #self_name {
-                    fn resolve(&self, field: &::castle_api::types::Field, ctx: &::castle_api::types::Context) -> ::core::result::Result<::castle_api::types::Value, ::castle_api::Error> {
+                    async fn resolve(&self, field: &::castle_api::types::Field, ctx: &::castle_api::types::Context) -> ::core::result::Result<::castle_api::types::Value, ::castle_api::Error> {
                         match &*field.ident {
                             #(
                                 #matched_fns,

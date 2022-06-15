@@ -21,6 +21,12 @@ pub struct Castle {
 }
 
 impl Castle {
+
+    ///This function runs self validation and cross validates the schema types and enums.
+    /// It also checks if the necessary resolvers have also been provided
+    /// - Self validate schema
+    ///     - all schema_types and enums used as types have been defined in the schema
+    /// - Validate schema resolvers & directives (functions) match the ones we've built in Rust
     pub(crate) fn new_and_validate(
         root: Box<dyn ResolvesFields>,
         schema_def: SchemaDefinition,
@@ -32,22 +38,12 @@ impl Castle {
             directives,
         };
 
-        castle.validate()?;
+        validate_schema(&castle.parsed_schema)?;
+        validate_directives_exist(&castle.parsed_schema, &castle.directives)?;
         Ok(castle)
     }
 
-    ///This function runs self validation and cross validates the schema types and enums.
-    /// It also checks if the necessary resolvers have also been provided
-    /// - Self validate schema
-    ///     - all schema_types and enums used as types have been defined in the schema
-    /// - Validate schema resolvers & directives (functions) match the ones we've built in Rust
-    fn validate(&self) -> Result<(), CastleError> {
-        validate_schema(&self.parsed_schema)?;
-        validate_directives_exist(&self.parsed_schema, &self.directives)?;
-        return Ok(());
-    }
-
-    pub fn validate_message(&self, query: &str) -> Result<Message, CastleError> {
+    pub fn parse_and_validate_message(&self, query: &str) -> Result<Message, CastleError> {
         let parsed_message = parse_message(query)?;
         validate_projection(&self.parsed_schema, &parsed_message.projection)?;
         Ok(parsed_message)
@@ -62,10 +58,9 @@ impl Castle {
         query: &str,
         ctx: &Context,
     ) -> Result<(Value, Vec<anyhow::Error>), CastleError> {
-        let mut parsed_message = self.validate_message(query)?;
         Ok(execute_message(
             &*self.root,
-            &mut parsed_message,
+            self.parse_and_validate_message(query)?,
             &self.directives,
             &self.parsed_schema,
             ctx,

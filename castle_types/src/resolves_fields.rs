@@ -1,4 +1,4 @@
-use std::{fmt::Debug, collections::HashMap};
+use std::{fmt::Debug};
 
 use crate::{Field, Context, Value};
 
@@ -19,9 +19,3 @@ impl Debug for dyn ResolvesFields {
     }
 }
 
-#[async_trait::async_trait]
-impl ResolvesFields for HashMap<Box<str>, Value> {
-    async fn resolve(&self, field: &Field, ctx: &Context) -> Result<Value, anyhow::Error> {
-
-    }
-}
