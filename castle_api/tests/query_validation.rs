@@ -35,7 +35,7 @@ async fn create_castle() -> Castle {
         }
     "#;
     struct Root;
-    #[castle_macro::castle(Input)]
+    #[castle_macro::castle(Type)]
     struct SomeThing {
         hello: String,
         sigma: f64,
@@ -47,7 +47,7 @@ async fn create_castle() -> Castle {
         abc: f64
     }
 
-    #[castle_macro::castle(Input)]
+    #[castle_macro::castle(Type)]
     struct HighLevelObj {
         some_thing: SomeThing,
     }
@@ -55,43 +55,43 @@ async fn create_castle() -> Castle {
 
     #[castle_macro::castle(Type)]
     impl Root {
-        fn hello(&self, ctx: &castle_api::types::Context) -> String {
+        fn hello(&self, _ctx: &castle_api::types::Context) -> String {
             unimplemented!()
         }
-        fn foo(&self, ctx: &castle_api::types::Context, bar: f64) -> String {
+        fn foo(&self, _ctx: &castle_api::types::Context, bar: f64) -> String {
             unimplemented!()
         }
-        fn sigma(&self, ctx: &castle_api::types::Context) -> f64 {
+        fn sigma(&self, _ctx: &castle_api::types::Context) -> f64 {
             unimplemented!()
         }
-        fn baz(&self, ctx: &castle_api::types::Context, arg: Xyz) -> String {
+        fn baz(&self, _ctx: &castle_api::types::Context, arg: Xyz) -> String {
             unimplemented!()
         }
-        fn list(&self, ctx: &castle_api::types::Context, arg: Vec<String>) -> String {
+        fn list(&self, _ctx: &castle_api::types::Context, arg: Vec<String>) -> String {
             unimplemented!()
         }
-        fn list2(&self, ctx: &castle_api::types::Context, arg: Vec<Xyz>) -> String {
+        fn list2(&self, _ctx: &castle_api::types::Context, arg: Vec<Xyz>) -> String {
             unimplemented!()
         }
-        fn foobar(&self, ctx: &castle_api::types::Context, arg1: f64, arg2: String) -> String {
+        fn foobar(&self, _ctx: &castle_api::types::Context, arg1: f64, arg2: String) -> String {
             unimplemented!()
         }
-        fn oogabooga(&self, ctx: &castle_api::types::Context, is_true: bool) -> String {
+        fn oogabooga(&self, _ctx: &castle_api::types::Context, is_true: bool) -> String {
             unimplemented!()
         }
-        fn some_thing(&self, ctx: &castle_api::types::Context) -> SomeThing {
+        fn some_thing(&self, _ctx: &castle_api::types::Context) -> SomeThing {
             unimplemented!()
         }
-        fn thing_is_true(&self, ctx: &castle_api::types::Context) -> bool {
+        fn thing_is_true(&self, _ctx: &castle_api::types::Context) -> bool {
             unimplemented!()
         }
-        fn high_level_obj(&self, ctx: &castle_api::types::Context) -> HighLevelObj {
+        fn high_level_obj(&self, _ctx: &castle_api::types::Context) -> HighLevelObj {
             unimplemented!()
         }
-        fn list_of_some_things(&self, ctx: &castle_api::types::Context) -> Vec<SomeThing> {
+        fn list_of_some_things(&self, _ctx: &castle_api::types::Context) -> Vec<SomeThing> {
             unimplemented!()
         }
-        fn list_of_high_level_obj(&self, ctx: &castle_api::types::Context) -> Vec<HighLevelObj> {
+        fn list_of_high_level_obj(&self, _ctx: &castle_api::types::Context) -> Vec<HighLevelObj> {
             unimplemented!()
         }
     }
@@ -99,20 +99,7 @@ async fn create_castle() -> Castle {
 
 
 
-    CastleBuilder::new(schema)
-        .add_resolver("hello", |_: &Field, _: &()|async { unimplemented!() })
-        .add_resolver("foo", |_: &Field, _: &()|async { unimplemented!() })
-        .add_resolver("baz", |_: &Field, _: &()|async { unimplemented!() })
-        .add_resolver("list", |_: &Field, _: &()|async { unimplemented!() })
-        .add_resolver("list2", |_: &Field, _: &()|async { unimplemented!() })
-        .add_resolver("foobar", |_: &Field, _: &()|async { unimplemented!() })
-        .add_resolver("oogabooga", |_: &Field, _: &()|async { unimplemented!() })
-        .add_resolver("some_thing", |_: &Field, _: &()|async { unimplemented!() })
-        .add_resolver("sigma", |_: &Field, _: &()|async { unimplemented!() })
-        .add_resolver("thing_is_true", |_: &Field, _: &()|async { unimplemented!() })
-        .add_resolver("high_level_obj", |_: &Field, _: &()|async { unimplemented!() })
-        .add_resolver("list_of_some_things", |_: &Field, _: &()|async { unimplemented!() })
-        .add_resolver("list_of_high_level_obj", |_: &Field, _: &()|async { unimplemented!() })
+    castle_api::castle::CastleBuilder::new(Root)
         .build()
         .unwrap()
 }

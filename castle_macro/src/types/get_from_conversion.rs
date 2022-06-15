@@ -4,13 +4,15 @@ use syn::{Fields, spanned::Spanned};
 use crate::Unzip2;
 
 
-pub fn get_from_conversion(item_struct: syn::ItemStruct, types_used: &mut Vec<syn::Type>) -> (syn::Ident, Vec<syn::Expr>, Vec<syn::Item>) {
-    let name = &item_struct.ident;
+pub fn get_from_conversion(item_struct: syn::ItemStruct, types_used: &mut Vec<syn::Type>) -> (syn::Type, Vec<syn::Expr>, Vec<syn::Item>) {
+    let ident = &item_struct.ident;
+    let name: syn::Type = syn::parse_quote_spanned!(item_struct.ident.span() => #ident);
 
     let fields = match &item_struct.fields {
         Fields::Named(fields) => fields,
         _ => panic!("Only structs with named fields are supporte"),
     };
+
 
     let (field_conversions, field_definitions) = fields.named
         .iter()
@@ -33,23 +35,22 @@ pub fn get_from_conversion(item_struct: syn::ItemStruct, types_used: &mut Vec<sy
             )
         })
         .unzip_n::<Vec<_>, Vec<_>>();
-
     (
         name.clone(),
         field_definitions,
         [
-            syn::Item::Struct(item_struct),
-            syn::parse_quote_spanned!(item_struct.span() => {
+            syn::Item::Struct(item_struct.clone()),
+            syn::parse_quote_spanned!(item_struct.span() => 
                 impl From<#name> for ::castle_api::types::Value {
                     fn from(item: #name) -> Self {
-                        [
+                        ::castle_api::types::Value::Object([
                             #(
                                 #field_conversions,
                             )*
-                        ].into()
+                        ].into())
                     }
                 }
-            }),
+            ),
         ].into()
     )
 }

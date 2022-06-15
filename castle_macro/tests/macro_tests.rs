@@ -89,4 +89,11 @@ fn testing_directives() {
 }
 
 
-
+#[test]
+fn testing_structs_in_type() {
+    
+    #[castle_macro::castle(Type)]
+    struct Root {
+        a: u32,
+    }
+}

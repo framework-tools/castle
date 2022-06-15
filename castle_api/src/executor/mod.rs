@@ -2,9 +2,10 @@ use std::{collections::HashMap};
 
 
 use async_recursion::async_recursion;
-use castle_types::{Directive, Context, Value, Next, Message, SchemaDefinition, TypeDefinition, Field, FieldDefinition, AppliedDirective};
+use castle_types::{Directive, Context, Value, Next, Message, SchemaDefinition, TypeDefinition, Field, FieldDefinition, AppliedDirective, Projection, ResolvesFields};
 
 pub async fn execute_message(
+    root: &dyn ResolvesFields,
     message: &mut Message,
     directives: &HashMap<Box<str>, Box<dyn Directive>>,
     schema: &SchemaDefinition,
@@ -12,7 +13,7 @@ pub async fn execute_message(
 ) -> (Value, Vec<anyhow::Error>) {
     let mut errors = Vec::new();
     let data = evaluate_map(
-        message,
+        &mut message.projection,
         schema.types.get("Root").unwrap(),
         directives,
         schema,
@@ -25,7 +26,7 @@ pub async fn execute_message(
 }
 
 async fn evaluate_map(
-    message: &mut Message,
+    projection: &mut Projection,
     type_def: &TypeDefinition,
     directives: &HashMap<Box<str>, Box<dyn Directive>>,
     schema: &SchemaDefinition,
@@ -34,26 +35,23 @@ async fn evaluate_map(
 ) -> HashMap<Box<str>, Value> {
     let mut map = HashMap::new();
 
-    for (field_name, field) in message.projection.iter() {
+    for (field_name, field) in projection.iter() {
         let field_def = type_def.fields.get(field_name).unwrap();
-        // let resolver = field_resolvers.get(field_name).unwrap();
 
-        // match evaluate_field(
-        //     field,
-        //     field_def,
-        //     &field_def.directives[..],
-        //     ctx,
-        //     resolver,
-        //     &directives,
-        // )
-        // .await
-        // {
-        //     Ok(Value::Void) => {}
-        //     Ok(data) => {
-        //         map.insert(field_name.clone(), data);
-        //     }
-        //     Err(e) => errors.push(e),
-        // }
+        match evaluate_field(
+            field,
+            field_def,
+            &field_def.directives[..],
+            ctx,
+            &directives,
+        ).await
+        {
+            Ok(Value::Void) => {}
+            Ok(data) => {
+                map.insert(field_name.clone(), data);
+            }
+            Err(e) => errors.push(e),
+        }
     }
 
     map
@@ -65,39 +63,36 @@ async fn evaluate_field(
     field_def: &FieldDefinition,
     remaining_directives: &[AppliedDirective],
     ctx: &Context,
-    // resolver: &Box<dyn Resolver>,
     directives: &HashMap<Box<str>, Box<dyn Directive>>,
 ) -> Result<Value, anyhow::Error> {
-    unimplemented!()
-    // match remaining_directives.get(0) {
-    //     Some(applied_directive) => {
-    //         let directive = match directives.get(&applied_directive.ident) {
-    //             Some(directive) => directive,
-    //             None => unreachable!(), // we should have already validated the directives
-    //         };
+    match remaining_directives.get(0) {
+        Some(applied_directive) => {
+            let directive = match directives.get(&applied_directive.ident) {
+                Some(directive) => directive,
+                None => unreachable!(), // we should have already validated the directives
+            };
 
-    //         let (sender, mut wait_next) = tokio::sync::mpsc::channel(1);
-    //         let next = Next { sender };
-    //         let mut value_fut =
-    //             directive.field_visitor(field, &applied_directive.inputs, next, ctx);
+            let (sender, mut wait_next) = tokio::sync::mpsc::channel(1);
+            let next = Next { sender };
+            let mut value_fut =
+                directive.field_visitor(field, &applied_directive.inputs, next, ctx);
 
-    //         loop {
-    //             tokio::select! {
-    //                 Some(sender) = wait_next.recv() => {
-    //                     let _ = sender.send(evaluate_field(
-    //                         field,
-    //                         field_def,
-    //                         &remaining_directives[1..],
-    //                         ctx,
-    //                         // resolver,
-    //                         directives
-    //                     ).await);
-    //                     continue
-    //                 }
-    //                 value = &mut value_fut => return Ok(value?)
-    //             }
-    //         }
-    //     }
-    //     None => Ok(resolver.resolve(field, ctx).await?),
-    // }
+            loop {
+                tokio::select! {
+                    Some(sender) = wait_next.recv() => {
+                        let _ = sender.send(evaluate_field(
+                            field,
+                            field_def,
+                            &remaining_directives[1..],
+                            ctx,
+                            directives
+                        ).await);
+                        continue
+                    }
+                    value = &mut value_fut => return Ok(value?)
+                }
+            }
+        }
+        None => Ok(resolve(field, ctx).await?),
+    }
 }

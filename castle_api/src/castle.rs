@@ -8,7 +8,7 @@ use crate::{
     executor::execute_message,
     validation::{
         validate_directives_exist::validate_directives_exist,
-        validate_projection::validate_projection, validate_schema::validate_schema, validate_resolvers_exist::validate_resolvers_exist,
+        validate_projection::validate_projection, validate_schema::validate_schema,
     },
 };
 #[derive(derivative::Derivative)]
@@ -26,7 +26,7 @@ impl Castle {
         schema_def: SchemaDefinition,
         directives: HashMap<Box<str>, Box<dyn Directive>>,
     ) -> Result<Self, CastleError> {
-        let mut castle = Castle {
+        let castle = Castle {
             root,
             parsed_schema: schema_def,
             directives,
@@ -43,7 +43,6 @@ impl Castle {
     /// - Validate schema resolvers & directives (functions) match the ones we've built in Rust
     fn validate(&self) -> Result<(), CastleError> {
         validate_schema(&self.parsed_schema)?;
-        // validate_resolvers_exist(&self.parsed_schema, &self.field_resolvers)?;
         validate_directives_exist(&self.parsed_schema, &self.directives)?;
         return Ok(());
     }
@@ -65,6 +64,7 @@ impl Castle {
     ) -> Result<(Value, Vec<anyhow::Error>), CastleError> {
         let mut parsed_message = self.validate_message(query)?;
         Ok(execute_message(
+            &*self.root,
             &mut parsed_message,
             &self.directives,
             &self.parsed_schema,

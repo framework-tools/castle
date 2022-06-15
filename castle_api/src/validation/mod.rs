@@ -1,7 +1,6 @@
 pub(crate) mod validate_schema;
 pub(crate) mod validate_projection;
 pub(crate) mod validate_directives_exist;
-pub(crate) mod validate_resolvers_exist;
 pub(crate) mod validate_inputs;
 
 pub fn join_paths(path: &[&str]) -> String {
