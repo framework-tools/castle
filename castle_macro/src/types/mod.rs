@@ -117,7 +117,7 @@ fn get_item_impl_conversion(mut item_impl: syn::ItemImpl, types_used: &mut HashS
                         ident: stringify!(#fn_name).into(),
                         input_definitions: [#( #input_definitions, )*].into(),
                         return_kind: <#fn_return_type as ::castle_api::types::HasKind>::kind(),
-                        directives: castle_schema_parser::parse_directives_from_str(#directives),
+                        directives: castle_api::parse_directives_from_str(#directives),
                     })),
             )
         }
