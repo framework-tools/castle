@@ -1,11 +1,11 @@
 [package]
 name = "castle_shared_parser"
-version = "0.6.5"
+version = "0.7.0"
 edition = "2021"
 license = "MIT"
 description = "Castle Shared Parser"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-castle_tokenizer = { path = "../castle_tokenizer" , version = "0.6.5" }
-castle_types = { path = "../castle_types" , version = "0.6.5" }
+castle_tokenizer = { path = "../castle_tokenizer" , version = "0.7.0" }
+castle_types = { path = "../castle_types" , version = "0.7.0" }
