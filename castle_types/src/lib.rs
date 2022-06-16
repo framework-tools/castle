@@ -1,4 +1,4 @@
-mod context;
+mod state;
 mod directive_definitions;
 mod directive_trait;
 mod enum_definition;
@@ -19,7 +19,7 @@ mod value;
 mod resolves_fields;
 
 pub use self::{
-    context::Context,
+    state::State,
     directive_definitions::{AppliedDirective, DirectiveDefinition},
     directive_trait::Directive,
     enum_definition::{EnumDefinition, VariantDefinition, VariantKindDefinition},

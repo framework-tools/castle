@@ -16,7 +16,7 @@ pub fn derive_type(item_impl: Item) -> proc_macro2::TokenStream {
         Item::Struct(item_struct) => get_from_conversion(item_struct, &mut types_used),
         _ => panic!("Only impls and structs are supported"),
     };
-    
+
     let initializations = types_used.iter()
         .map(|ty| quote_spanned!(ty.span() => <#ty as ::castle_api::types::SchemaItem>::initialize_item(schema)))
         .collect::<Vec<_>>();
@@ -55,7 +55,7 @@ pub fn derive_type(item_impl: Item) -> proc_macro2::TokenStream {
             #items
         )*
     }.into()
-    
+
 }
 
 fn get_item_impl_conversion(mut item_impl: syn::ItemImpl, types_used: &mut HashSet<syn::Type>) -> (syn::Type, Vec<syn::Expr>, Vec<syn::Item>) {
@@ -74,20 +74,20 @@ fn get_item_impl_conversion(mut item_impl: syn::ItemImpl, types_used: &mut HashS
                 Some(_) => quote_spanned! { fn_name.span() => .await },
                 None => quote_spanned!(fn_name.span() => ),
             };
-            
+
             let directives: String = method.attrs.drain_filter(|attr| attr.path.is_ident("directives"))
                 .map(|attr| {
                     let tokens = attr.tokens.into();
                     syn::parse::<AppliedDirective>(tokens).unwrap().string.value()
                 }).collect::<Vec<String>>().join(" ");
-            
+
             types_used.insert(fn_return_type.clone());
-            
+
             let (input_definitions, input_conversion) = method.sig.inputs
                 .iter_mut()
                 .skip(2)
                 .filter_map(|arg| match arg {
-                    FnArg::Typed(PatType { 
+                    FnArg::Typed(PatType {
                         ty,
                         pat,
                         ..
@@ -133,7 +133,7 @@ fn get_item_impl_conversion(mut item_impl: syn::ItemImpl, types_used: &mut HashS
             syn::parse_quote_spanned!{ self_name.span() =>
                 #[castle_api::async_trait]
                 impl ::castle_api::types::ResolvesFields for #self_name {
-                    async fn resolve(&self, field: &::castle_api::types::Field, ctx: &::castle_api::types::Context) -> ::core::result::Result<::castle_api::types::Value, ::castle_api::Error> {
+                    async fn resolve(&self, field: &::castle_api::types::Field, ctx: &::castle_api::types::State) -> ::core::result::Result<::castle_api::types::Value, ::castle_api::Error> {
                         match &*field.ident {
                             #(
                                 #matched_fns,

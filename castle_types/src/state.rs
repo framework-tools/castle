@@ -1,6 +1,6 @@
-pub struct Context;
+pub struct State;
 
-impl Context {
+impl State {
     pub fn new() -> Self {
         Self {}
     }

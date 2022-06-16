@@ -1,5 +1,5 @@
 use castle_api::{castle::Castle};
-use castle_types::{CastleError, Context};
+use castle_types::{CastleError, State};
 
 
 async fn create_castle() -> Castle {
@@ -25,43 +25,43 @@ async fn create_castle() -> Castle {
 
     #[castle_macro::castle(Type)]
     impl Root {
-        fn hello(&self, _ctx: &castle_api::types::Context) -> String {
+        fn hello(&self, _ctx: &castle_api::types::State) -> String {
             return "world".to_string()
         }
-        fn foo(&self, _ctx: &castle_api::types::Context, _bar: f64) -> String {
+        fn foo(&self, _ctx: &castle_api::types::State, _bar: f64) -> String {
             unimplemented!()
         }
-        fn sigma(&self, _ctx: &castle_api::types::Context) -> f64 {
+        fn sigma(&self, _ctx: &castle_api::types::State) -> f64 {
             return 69.0
         }
-        fn baz(&self, _ctx: &castle_api::types::Context, _arg: Xyz) -> String {
+        fn baz(&self, _ctx: &castle_api::types::State, _arg: Xyz) -> String {
             unimplemented!()
         }
-        fn list(&self, _ctx: &castle_api::types::Context, _arg: Vec<String>) -> String {
+        fn list(&self, _ctx: &castle_api::types::State, _arg: Vec<String>) -> String {
             unimplemented!()
         }
-        fn list2(&self, _ctx: &castle_api::types::Context, _arg: Vec<Xyz>) -> String {
+        fn list2(&self, _ctx: &castle_api::types::State, _arg: Vec<Xyz>) -> String {
             unimplemented!()
         }
-        fn foobar(&self, _ctx: &castle_api::types::Context, _arg1: f64, _arg2: String) -> String {
+        fn foobar(&self, _ctx: &castle_api::types::State, _arg1: f64, _arg2: String) -> String {
             unimplemented!()
         }
-        fn oogabooga(&self, _ctx: &castle_api::types::Context, _is_true: bool) -> String {
+        fn oogabooga(&self, _ctx: &castle_api::types::State, _is_true: bool) -> String {
             unimplemented!()
         }
-        fn some_thing(&self, _ctx: &castle_api::types::Context) -> SomeThing {
+        fn some_thing(&self, _ctx: &castle_api::types::State) -> SomeThing {
             SomeThing { hello: self.hello(_ctx), sigma: self.sigma(_ctx), thing_is_true: self.thing_is_true(_ctx) }
         }
-        fn thing_is_true(&self, _ctx: &castle_api::types::Context) -> bool {
+        fn thing_is_true(&self, _ctx: &castle_api::types::State) -> bool {
             return true
         }
-        fn high_level_obj(&self, _ctx: &castle_api::types::Context) -> HighLevelObj {
+        fn high_level_obj(&self, _ctx: &castle_api::types::State) -> HighLevelObj {
             unimplemented!()
         }
-        fn list_of_some_things(&self, _ctx: &castle_api::types::Context) -> Vec<SomeThing> {
+        fn list_of_some_things(&self, _ctx: &castle_api::types::State) -> Vec<SomeThing> {
             unimplemented!()
         }
-        fn list_of_high_level_obj(&self, _ctx: &castle_api::types::Context) -> Vec<HighLevelObj> {
+        fn list_of_high_level_obj(&self, _ctx: &castle_api::types::State) -> Vec<HighLevelObj> {
             unimplemented!()
         }
     }
@@ -76,7 +76,7 @@ async fn create_castle() -> Castle {
 
 #[tokio::test]
 async fn basic_projection_validates() {
-    let ctx = Context::new();
+    let ctx = State::new();
     let msg = r#"
     message {
         hello
@@ -366,7 +366,7 @@ async fn validates_vec_that_is_correctly_typed(){
 
 #[tokio::test]
 async fn can_validate_valid_object_projection(){
-    let ctx = Context::new();
+    let ctx = State::new();
     let msg = r#"
     message {
         some_thing {

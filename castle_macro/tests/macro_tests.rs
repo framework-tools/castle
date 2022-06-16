@@ -1,4 +1,4 @@
-use castle_api::types::{Input, Primitive, Context, Directive};
+use castle_api::types::{Input, Primitive, State, Directive};
 
 
 #[test]
@@ -44,7 +44,7 @@ fn testing_user_match() {
 
     #[castle_macro::castle(Type)]
     impl Profile {
-        fn name(&self, _ctx: &Context) -> String {
+        fn name(&self, _ctx: &State) -> String {
             "hello".to_string()
         }
     }
@@ -52,11 +52,11 @@ fn testing_user_match() {
     #[castle_macro::castle(Type)]
     impl User {
 
-        async fn first_name(&self, _ctx: &Context) -> Result<String, anyhow::Error> {
+        async fn first_name(&self, _ctx: &State) -> Result<String, anyhow::Error> {
             unimplemented!()
         }
 
-        fn profile(&self, _ctx: &Context, _arg: String) -> Profile {
+        fn profile(&self, _ctx: &State, _arg: String) -> Profile {
             unimplemented!()
         }
     }
@@ -82,7 +82,7 @@ fn testing_directives() {
     #[castle_macro::castle(Type)]
     impl Root {
         #[directives("@authenticated(a: 1) @sorted(a: 1)")]
-        fn me(&self, _ctx: &Context) -> String {
+        fn me(&self, _ctx: &State) -> String {
             unimplemented!()
         }
     }
@@ -91,7 +91,7 @@ fn testing_directives() {
 
 #[test]
 fn testing_structs_in_type() {
-    
+
     #[castle_macro::castle(Type)]
     struct Root {
         a: u32,

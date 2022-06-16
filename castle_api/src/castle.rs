@@ -1,6 +1,6 @@
 use castle_query_parser::parse_message;
 use castle_types::{
-    CastleError, Context, Directive, Message, ResolvesFields, SchemaDefinition, SchemaItem, Value,
+    CastleError, State, Directive, Message, ResolvesFields, SchemaDefinition, SchemaItem, Value,
 };
 use std::collections::HashMap;
 
@@ -56,7 +56,7 @@ impl Castle {
     pub async fn run_message(
         &self,
         query: &str,
-        ctx: &Context,
+        ctx: &State,
     ) -> Result<(Value, Vec<anyhow::Error>), CastleError> {
         Ok(execute_message(
             &*self.root,

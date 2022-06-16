@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use async_recursion::async_recursion;
 use castle_types::{
-    AppliedDirective, Context, Directive, Field, FieldDefinition, FieldKind, Message,
+    AppliedDirective, State, Directive, Field, FieldDefinition, FieldKind, Message,
     Next, Projection, ResolvesFields, SchemaDefinition, TypeDefinition, Value,
 };
 
@@ -11,7 +11,7 @@ pub async fn execute_message(
     message: Message,
     directives: &HashMap<Box<str>, Box<dyn Directive>>,
     schema: &SchemaDefinition,
-    ctx: &Context,
+    ctx: &State,
 ) -> (Value, Vec<anyhow::Error>) {
     let mut errors = Vec::new();
     let data = evaluate_map(
@@ -34,7 +34,7 @@ async fn evaluate_map(
     type_def: &TypeDefinition,
     directives: &HashMap<Box<str>, Box<dyn Directive>>,
     schema: &SchemaDefinition,
-    ctx: &Context,
+    ctx: &State,
     errors: &mut Vec<anyhow::Error>,
 ) -> HashMap<Box<str>, Value> {
     let mut map = HashMap::new();
@@ -73,7 +73,7 @@ async fn evaluate_field(
     field: Field,
     field_def: &FieldDefinition,
     remaining_directives: &[AppliedDirective],
-    ctx: &Context,
+    ctx: &State,
     directives: &HashMap<Box<str>, Box<dyn Directive>>,
     schema: &SchemaDefinition,
     errors: &mut Vec<anyhow::Error>,

@@ -51,7 +51,7 @@ enum Want {
     Projection(HashSet<Want>)
 }
 
-async fn me(wants: HashSet<Want>, context: Context) -> Result<Serde::Value, Error> {
+async fn me(wants: HashSet<Want>, context: State) -> Result<Serde::Value, Error> {
     let query: String = query!{
         let user = root.users.{context.user};
 
@@ -70,7 +70,7 @@ const castle_api = lazy_static!{
 }
 
 fn handle_request(req: Request, res: Response) {
-    let context = Context {
+    let context = State {
         user: req.cookies.user_id,
     };
 

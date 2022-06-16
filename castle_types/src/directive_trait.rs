@@ -1,4 +1,4 @@
-use crate::{Field, Inputs, Next, Value, Context};
+use crate::{Field, Inputs, Next, Value, State};
 
 #[allow(unused_variables)]
 #[async_trait::async_trait]
@@ -8,10 +8,10 @@ pub trait Directive: Send + Sync {
         field: Field,
         directive_args: &Inputs,
         next: Next,
-        context: &Context,
+        context: &State,
     ) -> Result<Value, anyhow::Error>
     where
-        Context: Send + Sync,
+        State: Send + Sync,
     {
         next.resolve(field).await
     }

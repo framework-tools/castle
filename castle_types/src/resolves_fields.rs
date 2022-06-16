@@ -1,10 +1,10 @@
 use std::{fmt::Debug};
 
-use crate::{Field, Context, Value};
+use crate::{Field, State, Value};
 
 #[async_trait::async_trait]
 pub trait ResolvesFields: Send + Sync {
-    async fn resolve(&self, field: &Field, ctx: &Context) -> Result<Value, anyhow::Error>;
+    async fn resolve(&self, field: &Field, ctx: &State) -> Result<Value, anyhow::Error>;
 }
 
 impl<RF: ResolvesFields + 'static> From<RF> for Value {
