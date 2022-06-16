@@ -4,7 +4,7 @@ use serde::{Serialize, Deserialize};
 use crate::{Number, ResolvesFields};
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(bound = "")]
+#[serde(bound = "", untagged)]
 pub enum Value {
     Bool(bool),
     Number(Number),
