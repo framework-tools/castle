@@ -119,12 +119,14 @@ fn directive_with_number_input_type_mismatch_fails() {
 #[test]
 fn field_with_custom_type_mismatch_fails() {
     #[castle_api::castle_macro(Input)]
-    struct Custom {}
+    struct Custom {
+        _x: u32
+    }
 
     struct Root;
     #[castle_macro::castle(Type)]
     impl Root {
-        fn foo(&self, _ctx: &castle_api::types::State, custom: Custom) -> String {
+        fn foo(&self, _ctx: &castle_api::types::State, _custom: Custom) -> String {
             unimplemented!()
         }
     }

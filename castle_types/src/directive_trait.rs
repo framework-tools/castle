@@ -9,10 +9,7 @@ pub trait Directive: Send + Sync {
         directive_args: &Inputs,
         next: Next,
         context: &State,
-    ) -> Result<Value, anyhow::Error>
-    where
-        State: Send + Sync,
-    {
+    ) -> Result<Value, anyhow::Error> {
         next.resolve(field).await
     }
 }
