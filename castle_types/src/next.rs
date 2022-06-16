@@ -8,7 +8,7 @@ pub struct Next {
 }
 
 impl Next {
-    async fn resolve(self, field: Field) -> Result<Value, anyhow::Error> {
+    pub async fn resolve(self, field: Field) -> Result<Value, anyhow::Error> {
         let (sender, receiver) = oneshot::channel();
         self.sender.send((sender, field)).await?;
         receiver.await?

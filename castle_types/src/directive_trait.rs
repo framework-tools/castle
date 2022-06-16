@@ -12,8 +12,7 @@ pub trait Directive: Send + Sync {
     ) -> Result<Value, anyhow::Error>
     where
         Context: Send + Sync,
-
     {
-        unimplemented!()
+        next.resolve(field).await
     }
 }
