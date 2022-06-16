@@ -1,5 +1,7 @@
 
 mod get_from_conversion;
+use std::collections::HashSet;
+
 use crate::types::get_from_conversion::get_from_conversion;
 use quote::quote_spanned;
 use syn::{
@@ -8,7 +10,7 @@ use syn::{
 use crate::{Unzip2, directives::AppliedDirective};
 
 pub fn derive_type(item_impl: Item) -> proc_macro2::TokenStream {
-    let mut types_used = vec![];
+    let mut types_used = HashSet::new();
     let (self_name, field_definitions, items): (syn::Type, Vec<syn::Expr>, Vec<syn::Item>) = match item_impl {
         Item::Impl(item_impl) => get_item_impl_conversion(item_impl, &mut types_used),
         Item::Struct(item_struct) => get_from_conversion(item_struct, &mut types_used),
@@ -56,7 +58,7 @@ pub fn derive_type(item_impl: Item) -> proc_macro2::TokenStream {
     
 }
 
-fn get_item_impl_conversion(mut item_impl: syn::ItemImpl, types_used: &mut Vec<syn::Type>) -> (syn::Type, Vec<syn::Expr>, Vec<syn::Item>) {
+fn get_item_impl_conversion(mut item_impl: syn::ItemImpl, types_used: &mut HashSet<syn::Type>) -> (syn::Type, Vec<syn::Expr>, Vec<syn::Item>) {
     let self_name = item_impl.self_ty.clone();
     let (
         matched_fns,
@@ -79,7 +81,7 @@ fn get_item_impl_conversion(mut item_impl: syn::ItemImpl, types_used: &mut Vec<s
                     syn::parse::<AppliedDirective>(tokens).unwrap().string.value()
                 }).collect::<Vec<String>>().join(" ");
             
-            types_used.push(fn_return_type.clone());
+            types_used.insert(fn_return_type.clone());
             
             let (input_definitions, input_conversion) = method.sig.inputs
                 .iter_mut()
@@ -90,7 +92,7 @@ fn get_item_impl_conversion(mut item_impl: syn::ItemImpl, types_used: &mut Vec<s
                         pat,
                         ..
                     }) => {
-                        types_used.push(*ty.clone());
+                        types_used.insert(*ty.clone());
                         Some((
                             quote_spanned!(ty.span()=>{
                                 (stringify!(#pat).into(), ::castle_api::types::InputDefinition {

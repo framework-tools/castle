@@ -1,39 +1,9 @@
 use castle_api::{castle::Castle};
-use castle_types::{CastleError, Field, Context};
+use castle_types::{CastleError, Context};
 
 
 async fn create_castle() -> Castle {
-    let schema = r#"
-        input Xyz {
-            abc: number
-        }
 
-        type Root {
-            hello: String,
-            foo(bar: number): String,
-            sigma(): number,
-            baz(arg: Xyz): String,
-            list(arg: Vec<String>): String,
-            list2(arg: Vec<Xyz>): String,
-            foobar(arg1: number arg2: String): String,
-            oogabooga(is_true: bool): String,
-            some_thing: SomeThing,
-            thing_is_true: bool,
-            high_level_obj: HighLevelObj,
-            list_of_some_things: Vec<SomeThing>,
-            list_of_high_level_obj: Vec<HighLevelObj>,
-        }
-
-        type SomeThing {
-            hello: String
-            sigma: number
-            thing_is_true: bool
-        }
-
-        type HighLevelObj {
-            some_thing: SomeThing
-        }
-    "#;
     struct Root;
     #[castle_macro::castle(Type)]
     struct SomeThing {
@@ -44,7 +14,7 @@ async fn create_castle() -> Castle {
 
     #[castle_macro::castle(Input)]
     struct Xyz {
-        abc: f64
+        _abc: f64
     }
 
     #[castle_macro::castle(Type)]
@@ -58,25 +28,25 @@ async fn create_castle() -> Castle {
         fn hello(&self, _ctx: &castle_api::types::Context) -> String {
             return "world".to_string()
         }
-        fn foo(&self, _ctx: &castle_api::types::Context, bar: f64) -> String {
+        fn foo(&self, _ctx: &castle_api::types::Context, _bar: f64) -> String {
             unimplemented!()
         }
         fn sigma(&self, _ctx: &castle_api::types::Context) -> f64 {
             return 69.0
         }
-        fn baz(&self, _ctx: &castle_api::types::Context, arg: Xyz) -> String {
+        fn baz(&self, _ctx: &castle_api::types::Context, _arg: Xyz) -> String {
             unimplemented!()
         }
-        fn list(&self, _ctx: &castle_api::types::Context, arg: Vec<String>) -> String {
+        fn list(&self, _ctx: &castle_api::types::Context, _arg: Vec<String>) -> String {
             unimplemented!()
         }
-        fn list2(&self, _ctx: &castle_api::types::Context, arg: Vec<Xyz>) -> String {
+        fn list2(&self, _ctx: &castle_api::types::Context, _arg: Vec<Xyz>) -> String {
             unimplemented!()
         }
-        fn foobar(&self, _ctx: &castle_api::types::Context, arg1: f64, arg2: String) -> String {
+        fn foobar(&self, _ctx: &castle_api::types::Context, _arg1: f64, _arg2: String) -> String {
             unimplemented!()
         }
-        fn oogabooga(&self, _ctx: &castle_api::types::Context, is_true: bool) -> String {
+        fn oogabooga(&self, _ctx: &castle_api::types::Context, _is_true: bool) -> String {
             unimplemented!()
         }
         fn some_thing(&self, _ctx: &castle_api::types::Context) -> SomeThing {

@@ -17,7 +17,7 @@ fn directive_with_definition_and_resolver_succeeds() {
     #[castle_macro::castle(Type)]
     impl Root {
         #[directives("@bar")]
-        fn foo(&self, ctx: &castle_api::types::Context) -> String {
+        fn foo(&self, _ctx: &castle_api::types::Context) -> String {
             unimplemented!()
         }
     }
@@ -37,7 +37,7 @@ fn directive_with_unspecified_arg_fails() {
     #[castle_macro::castle(Type)]
     impl Root {
         #[directives("@bar(arg: 123)")]
-        fn foo(&self, ctx: &castle_api::types::Context) -> String {
+        fn foo(&self, _ctx: &castle_api::types::Context) -> String {
             unimplemented!()
         }
     }
@@ -58,7 +58,7 @@ fn directive_with_string_input_type_mismatch_fails() {
     #[castle_macro::castle(Type)]
     impl Root {
         #[directives("@bar(arg: 123)")]
-        fn foo(&self, ctx: &castle_api::types::Context) -> String {
+        fn foo(&self, _ctx: &castle_api::types::Context) -> String {
             unimplemented!()
         }
     }
@@ -80,7 +80,7 @@ fn directive_with_matching_number_type_succeeds() {
     #[castle_macro::castle(Type)]
     impl Root {
         #[directives("@bar(arg: -123)")]
-        fn foo(&self, ctx: &castle_api::types::Context) -> String {
+        fn foo(&self, _ctx: &castle_api::types::Context) -> String {
             unimplemented!()
         }
     }
@@ -104,7 +104,7 @@ fn directive_with_number_input_type_mismatch_fails() {
     #[castle_macro::castle(Type)]
     impl Root {
         #[directives("@bar(string: \"string\")")]
-        fn foo(&self, ctx: &castle_api::types::Context) -> String {
+        fn foo(&self, _ctx: &castle_api::types::Context) -> String {
             unimplemented!()
         }
     }
@@ -124,7 +124,7 @@ fn field_with_custom_type_mismatch_fails() {
     struct Root;
     #[castle_macro::castle(Type)]
     impl Root {
-        fn foo(&self, ctx: &castle_api::types::Context, custom: Custom) -> String {
+        fn foo(&self, _ctx: &castle_api::types::Context, custom: Custom) -> String {
             unimplemented!()
         }
     }
@@ -145,7 +145,7 @@ fn directive_with_boolean_type_succeeds() {
     #[castle_macro::castle(Type)]
     impl Root {
         #[directives("@bar(arg: true)")]
-        fn foo(&self, ctx: &castle_api::types::Context) -> String {
+        fn foo(&self, _ctx: &castle_api::types::Context) -> String {
             unimplemented!()
         }
     }
@@ -157,13 +157,13 @@ fn directive_with_boolean_type_succeeds() {
 
 #[test]
 fn directive_with_array_type_succeeds() {
-    let schema = "
-    directive @bar(arg: Vec<String>) on FieldDefinition
+    // let schema = "
+    // directive @bar(arg: Vec<String>) on FieldDefinition
 
-    type Root {
-        foo: String @bar(arg: [\"string\"])
-    }
-    ";
+    // type Root {
+    //     foo: String @bar(arg: [\"string\"])
+    // }
+    // ";
     #[castle_api::castle_macro(Directive @bar(arg: Vec<String>))]
     struct MockDirective;
     impl Directive for MockDirective {}
@@ -172,7 +172,7 @@ fn directive_with_array_type_succeeds() {
     #[castle_macro::castle(Type)]
     impl Root {
         #[directives("@bar(arg: [\"a\", \"b\"])")]
-        fn foo(&self, ctx: &castle_api::types::Context) -> String {
+        fn foo(&self, _ctx: &castle_api::types::Context) -> String {
             unimplemented!()
         }
     }
@@ -192,7 +192,7 @@ fn directive_with_string_array_type() {
     #[castle_macro::castle(Type)]
     impl Root {
         #[directives(r#"@bar3(arg: ["string", "string", "string"])"#)]
-        fn foo(&self, ctx: &castle_api::types::Context) -> String {
+        fn foo(&self, _ctx: &castle_api::types::Context) -> String {
             unimplemented!()
         }
     }
@@ -211,7 +211,7 @@ fn directive_with_array_type_mismatch_fails() {
     #[castle_macro::castle(Type)]
     impl Root {
         #[directives(r#"@bar3(arg: [123, "string", "string"])"#)]
-        fn foo(&self, ctx: &castle_api::types::Context) -> String {
+        fn foo(&self, _ctx: &castle_api::types::Context) -> String {
             unimplemented!()
         }
     }
@@ -235,7 +235,7 @@ fn testing_directives_with_number_arg() {
     #[castle_macro::castle(Type)]
     impl Root {
         #[directives("@bar(arg: 1)")]
-        fn foo(&self, ctx: &castle_api::types::Context) -> String {
+        fn foo(&self, _ctx: &castle_api::types::Context) -> String {
             unimplemented!()
         }
     }

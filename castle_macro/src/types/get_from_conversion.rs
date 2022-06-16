@@ -1,10 +1,12 @@
+use std::collections::HashSet;
+
 use quote::quote_spanned;
 use syn::{Fields, spanned::Spanned};
 
 use crate::Unzip2;
 
 
-pub fn get_from_conversion(item_struct: syn::ItemStruct, types_used: &mut Vec<syn::Type>) -> (syn::Type, Vec<syn::Expr>, Vec<syn::Item>) {
+pub fn get_from_conversion(item_struct: syn::ItemStruct, types_used: &mut HashSet<syn::Type>) -> (syn::Type, Vec<syn::Expr>, Vec<syn::Item>) {
     let ident = &item_struct.ident;
     let name: syn::Type = syn::parse_quote_spanned!(item_struct.ident.span() => #ident);
 
@@ -20,7 +22,7 @@ pub fn get_from_conversion(item_struct: syn::ItemStruct, types_used: &mut Vec<sy
             let name = field.ident.as_ref().unwrap();
             let ty = &field.ty;
             let directives = "";
-
+            types_used.insert(ty.clone());
             (
                 quote_spanned!(ty.span()=> (stringify!(#name).into(), item.#name.into())),
                 syn::parse_quote_spanned!(name.span() => (
@@ -29,7 +31,7 @@ pub fn get_from_conversion(item_struct: syn::ItemStruct, types_used: &mut Vec<sy
                         ident: stringify!(#name).into(),
                         input_definitions: [].into(),
                         return_kind: <#ty as ::castle_api::types::HasKind>::kind(),
-                        directives: castle_schema_parser::parse_directives_from_str(#directives),
+                        directives: castle_api::parse_directives_from_str(#directives),
                     }
                 ))
             )
