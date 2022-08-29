@@ -2,7 +2,6 @@ use std::{collections::HashMap, fmt::Display};
 
 use crate::Primitive;
 
-
 // (ident: primitive, ident2: primitive)
 // (ident: { ident: value, ident2: value })
 // (ident: [ value, value ])
@@ -50,18 +49,50 @@ impl Input {
 }
 
 impl From<&Input> for Option<String> {
-    fn from(input: &Input) -> Self {
-        match input {
-            Input::Primitive(Primitive::String(str)) => Some(String::from(&**str)),
-            _ => None,
+    fn from(value: &Input) -> Self {
+        match value {
+            Input::Variant(Variant { ident, value: VariantType::Tuple(tuple)}) if &**ident == "Some" => {
+                match tuple.first() {
+                    Some(item) => Some(item.into()),
+                    _ => panic!("Expected value in tuple"),
+                }
+            }
+            Input::Variant(Variant { ident, value: VariantType::Unit}) if &**ident == "None" => None,
+            _ => panic!("Expected variant 'Some(..)' or 'None'"),
         }
     }
 }
 
 impl From<&Input> for String {
     fn from(input: &Input) -> Self {
-        let opt: Option<String> = input.into();
-        opt.unwrap()
+        match input {
+            Input::Primitive(Primitive::String(str)) => str.to_string(),
+            _ => panic!("Expected string"),
+        }
+    }
+}
+
+impl<'a> From<&'a Input> for Option<&'a str> {
+    fn from(value: &'a Input) -> Self {
+        match value {
+            Input::Variant(Variant { ident, value: VariantType::Tuple(tuple)}) if &**ident == "Some" => {
+                match tuple.first() {
+                    Some(item) => Some(item.into()),
+                    _ => panic!("Expected value in tuple"),
+                }
+            }
+            Input::Variant(Variant { ident, value: VariantType::Unit}) if &**ident == "None" => None,
+            _ => panic!("Expected variant 'Some(..)' or 'None'"),
+        }
+    }
+}
+
+impl<'a> From<&'a Input> for &'a str {
+    fn from(input: &'a Input) -> Self {
+        match input {
+            Input::Primitive(Primitive::String(str)) => &**str,
+            _ => panic!("Expected string"),
+        }
     }
 }
 
@@ -74,13 +105,25 @@ impl From<&Input> for bool {
     }
 }
 
+impl From<&Input> for Option<bool> {
+    fn from(input: &Input) -> Self {
+        match input {
+            Input::Variant(Variant { ident, value: VariantType::Tuple(tuple)}) if &**ident == "Some" => {
+                match tuple.first() {
+                    Some(item) => Some(item.into()),
+                    _ => panic!("Expected value in tuple"),
+                }
+            }
+            Input::Variant(Variant { ident, value: VariantType::Unit}) if &**ident == "None" => None,
+            _ => panic!("Expected variant 'Some(..)' or 'None'"),
+        }
+    }
+}
+
 impl<'a, T: From<&'a Input>> From<&'a Input> for Vec<T> {
     fn from(input: &'a Input) -> Self {
         match input {
-            Input::List(list) => list
-                .iter()
-                .map(|input| T::from(input))
-                .collect(),
+            Input::List(list) => list.iter().map(|input| T::from(input)).collect(),
             _ => vec![],
         }
     }
@@ -88,13 +131,28 @@ impl<'a, T: From<&'a Input>> From<&'a Input> for Vec<T> {
 
 // Implement From for all the primitive numeric types
 macro_rules! impl_from_input {
-    ($($t:ty, $as:ident),*) => {
+    ($($t:ty),*) => {
         $(
-            impl From<&Input> for $t {
+            impl From<&Input> for Option<$t> {
                 fn from(value: &Input) -> Self {
                     match value {
+                        Input::Variant(Variant { ident, value: VariantType::Tuple(tuple)}) if &**ident == "Some" => {
+                            match tuple.first() {
+                                Some(item) => Some(item.into()),
+                                _ => panic!("Expected value in tuple"),
+                            }
+                        }
+                        Input::Variant(Variant { ident, value: VariantType::Unit}) if &**ident == "None" => None,
+                        _ => panic!("Expected variant 'Some(..)' or 'None'"),
+                    }
+                }
+            }
+
+            impl From<&Input> for $t {
+                fn from(input: &Input) -> Self {
+                    match input {
                         Input::Primitive(Primitive::Number(number)) => number.clone().into(),
-                        _ => panic!("Cannot convert input to {}", stringify!($t)),
+                        _ => panic!("Expected number"),
                     }
                 }
             }
@@ -102,21 +160,7 @@ macro_rules! impl_from_input {
     };
 }
 
-impl_from_input!(
-    i8, as_i64,
-    i16, as_i64,
-    i32, as_i64,
-    i64, as_i64,
-    u8, as_u64,
-    u16, as_u64,
-    u32, as_u64,
-    u64, as_u64,
-    f32, as_f64,
-    f64, as_f64,
-    usize, as_u64,
-    isize, as_i64
-);
-
+impl_from_input!(i8, i16, i32, i64, u8, u16, u32, u64, f32, f64, usize, isize);
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Variant {
@@ -137,7 +181,14 @@ impl Display for Input {
             Input::Primitive(primitive) => write!(f, "{}", primitive),
             Input::Variant(variant) => write!(f, "{:#?}", variant),
             Input::Map(map) => write!(f, "{:#?}", map),
-            Input::List(list) => write!(f, "{}", list.iter().map(|item| format!("{}", item)).collect::<Vec<String>>().join(", ")),
+            Input::List(list) => write!(
+                f,
+                "{}",
+                list.iter()
+                    .map(|item| format!("{}", item))
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            ),
         }
     }
 }
@@ -147,7 +198,15 @@ impl Display for Variant {
         write!(f, "{}", self.ident)?;
         match &self.value {
             VariantType::Unit => write!(f, "()"),
-            VariantType::Tuple(tuple) => write!(f, "({})", tuple.iter().map(|val| format!("{}", val)).collect::<Vec<String>>().join(", ")),
+            VariantType::Tuple(tuple) => write!(
+                f,
+                "({})",
+                tuple
+                    .iter()
+                    .map(|val| format!("{}", val))
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            ),
             VariantType::Map(map) => write!(f, "{:#?}", map),
         }
     }

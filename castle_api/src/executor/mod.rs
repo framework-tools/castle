@@ -114,7 +114,7 @@ async fn evaluate_field(
         }
         // no more directives, so just evaluate the field
         // TODO: we are not ensuring the developer returns the correct type here, nor are we resolving fields of `Value::Object`
-        // to ensure they have no dynamic fields.
+        // to ensure they have no dynamic fields
         None => {
             let val = resolves_fields.resolve(&field, ctx).await?;
 
@@ -128,7 +128,7 @@ async fn evaluate_field(
                         evaluate_map(
                             &*sub_resolves_fields,
                             projection,
-                            schema.types.get(&field_def.ident).unwrap(),
+                            schema.types.get(&field_def.return_kind.to_string().into_boxed_str()).unwrap(),
                             directives,
                             schema,
                             ctx,
@@ -138,7 +138,36 @@ async fn evaluate_field(
                     )),
                     _ => Err(anyhow::anyhow!("Expected Value::Object or ResolvesFields")),
                 },
-                // TODO: we should be validating here, for vecs, etc, etc,
+                FieldKind::List(projection) => match val {
+                    // if the val items are a `ResolvesFields` then we need to evaluate_map for each item in the list
+                    Value::Vec(list) => {
+                        let mut new_list = Vec::new();
+
+                        for item in list {
+                            match item {
+                                Value::ResolveFields(sub_resolves_fields) => {
+                                    new_list.push(Value::Object(
+                                        evaluate_map(
+                                            &*sub_resolves_fields,
+                                            projection.clone(),
+                                            schema.types.get(&field_def.return_kind.generics[0].ident).unwrap(),
+                                            directives,
+                                            schema,
+                                            ctx,
+                                            errors,
+                                        )
+                                        .await,
+                                    ));
+                                }
+                                _ => new_list.push(item),
+                            }
+                        }
+
+                        Ok(Value::Vec(new_list))
+                    }
+                    _ => Err(anyhow::anyhow!("Expected Value::List")),
+                }
+                // TODO: we should be validating plain objects here to remove keys that weren't asked for
                 _ => Ok(val),
             }
         }

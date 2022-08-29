@@ -70,6 +70,7 @@ impl_has_kind_for_scalars! {
     f32: number,
     bool: bool,
     String: String,
+    &str: String,
     (): void,
 }
 

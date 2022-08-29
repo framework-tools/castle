@@ -11,6 +11,8 @@ use castle_types::State;
 async fn create_castle() -> Castle {
 
     struct Root;
+
+    #[derive(Clone)]
     #[castle_macro::castle(Type)]
     struct SomeThing {
         hello: String,
@@ -23,9 +25,16 @@ async fn create_castle() -> Castle {
         _abc: f64
     }
 
-    #[castle_macro::castle(Type)]
+
     struct HighLevelObj {
         some_thing: SomeThing,
+    }
+
+    #[castle_macro::castle(Type)]
+    impl HighLevelObj {
+        fn some_thing(&self, _ctx: &castle_api::types::State) -> SomeThing {
+            self.some_thing.clone()
+        }
     }
 
 
@@ -68,7 +77,25 @@ async fn create_castle() -> Castle {
             return [self.some_thing(_ctx), self.some_thing(_ctx), self.some_thing(_ctx)].into()
         }
         fn list_of_high_level_obj(&self, _ctx: &castle_api::types::State) -> Vec<HighLevelObj> {
-            unimplemented!()
+            return vec![
+                HighLevelObj {
+                    some_thing: SomeThing {
+                        hello: String::from("hello"),
+                        sigma: 1.0,
+                        thing_is_true: true
+                    }
+                },
+                HighLevelObj {
+                    some_thing: SomeThing {
+                        hello: String::from("hello"),
+                        sigma: 1.0,
+                        thing_is_true: true
+                    }
+                }
+            ]
+        }
+        fn variant(&self, _ctx: &castle_api::types::State, foo: Option<i32>) -> i32 {
+            foo.unwrap()
         }
     }
 
@@ -128,5 +155,39 @@ async fn list_of_some_things_test() {
     let a = create_castle().await
     .run_message(msg, &ctx).await
     .unwrap();
+    println!("{:#?}", a);
+}
+
+#[tokio::test]
+async fn message_with_enum_variant() {
+    let ctx = State::new();
+    let msg = "
+    message {
+        variant(foo: Some(123))
+    }
+    ";
+
+    let a = create_castle().await
+        .run_message(msg, &ctx).await
+        .unwrap();
+    println!("{:#?}", a);
+}
+
+#[tokio::test]
+async fn message_with_list_of_high_level_obj() {
+    let ctx = State::new();
+    let msg = "
+    message {
+        list_of_high_level_obj [
+            some_thing {
+                hello
+            }
+        ]
+    }
+    ";
+
+    let a = create_castle().await
+        .run_message(msg, &ctx).await
+        .unwrap();
     println!("{:#?}", a);
 }

@@ -1,7 +1,7 @@
 use std::{fmt::Debug, collections::HashMap};
 use serde::{Serialize, Deserialize};
 
-use crate::{Number, ResolvesFields};
+use crate::{Number, ResolvesFields, ConvertFrom};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(bound = "", untagged)]
@@ -16,9 +16,6 @@ pub enum Value {
     Void,
 }
 
-pub trait ConvertFrom<T> {
-    fn from(value: T) -> Self;
-}
 
 impl<IV: Into<Value>> ConvertFrom<IV> for Result<Value, anyhow::Error> {
     fn from(value: IV) -> Self {
@@ -59,6 +56,12 @@ impl From<String> for Value {
 impl From<&str> for Value {
     fn from(value: &str) -> Self {
         Value::String(value.to_string())
+    }
+}
+
+impl From<()> for Value {
+    fn from(_: ()) -> Self {
+        Value::Void
     }
 }
 
