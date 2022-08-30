@@ -26,7 +26,7 @@ fn validate_each_projection_field(
     Ok(())
 }
 
-fn validate_field_kind(
+pub(crate)fn validate_field_kind(
     input_kind: &FieldKind,
     schema: &SchemaDefinition,
     field_def: &FieldDefinition,

@@ -2,9 +2,11 @@ use std::collections::HashMap;
 
 use async_recursion::async_recursion;
 use castle_types::{
-    AppliedDirective, State, Directive, Field, FieldDefinition, FieldKind, Message,
-    Next, Projection, ResolvesFields, SchemaDefinition, TypeDefinition, Value,
+    AppliedDirective, Directive, Field, FieldDefinition, FieldKind, Message, Next, Projection,
+    ResolvesFields, SchemaDefinition, State, TypeDefinition, Value,
 };
+
+use crate::validation::validate_projection::validate_field_kind;
 
 pub async fn execute_message(
     root: &dyn ResolvesFields,
@@ -136,10 +138,49 @@ async fn evaluate_field(
                         )
                         .await,
                     )),
+
                     _ => Err(anyhow::anyhow!("Expected Value::Object or ResolvesFields")),
                 },
+
+                FieldKind::List(fields_wanted) => match val {
+                    Value::Vec(mut items) => {
+                        for item in items.iter_mut() {
+                            match item {
+                                Value::ResolveFields(sub_resolves_fields) => {
+                                    *item = Value::Object(evaluate_map(
+                                        &**sub_resolves_fields,
+                                        fields_wanted.clone(),
+                                        schema.types.get(&field_def.return_kind.generics[0].ident).unwrap(),
+                                        directives,
+                                        schema,
+                                        ctx,
+                                        errors,
+                                    ).await);
+                                }
+                                _ => {}
+                            }
+                        }
+                        Ok(Value::Vec(items))
+                    }
+                    Value::ResolveFields(sub_resolves_fields) => Ok(Value::Object(
+                        evaluate_map(
+                            &*sub_resolves_fields,
+                            fields_wanted,
+                            schema.types.get(&field_def.ident).unwrap(),
+                            directives,
+                            schema,
+                            ctx,
+                            errors,
+                        )
+                        .await,
+                    )),
+                    _ => Err(anyhow::anyhow!("Expected Value::Vec or ResolvesFields")),
+                },
                 // TODO: we should be validating here, for vecs, etc, etc,
-                _ => Ok(val),
+                other_field_kinds => {
+                    validate_field_kind(&other_field_kinds, schema, field_def, &[""])?;
+                    Ok(val)
+                }
             }
         }
     }

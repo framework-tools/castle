@@ -1,6 +1,5 @@
 use castle_api::types::{Input, Primitive, State, Directive};
 
-
 #[test]
 fn can_derive_struct() {
     #[castle_macro::castle(Input)]

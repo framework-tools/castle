@@ -11,6 +11,7 @@ pub enum Value {
     String(String),
     Vec(Vec<Value>),
     Object(HashMap<Box<str>, Value>),
+    Option(Option<Box<Value>>),
     #[serde(skip)]
     ResolveFields(Box<dyn ResolvesFields>),
     Void,
@@ -37,6 +38,15 @@ impl<IV: Into<Value>> ConvertFrom<Result<IV, anyhow::Error>> for Result<Value, a
 //         value
 //     }
 // }
+
+impl<IV: Into<Value>> From<Option<IV>> for Value {
+    fn from(opt: Option<IV>) -> Self {
+        match opt {
+            Some(value) => Value::Option(Some(Box::new(value.into()))),
+            None => Value::Option(None),
+        }
+    }
+}
 
 impl From<Number> for Value {
     fn from(number: Number) -> Self {
