@@ -17,6 +17,7 @@ mod schema_item;
 mod type_definition;
 mod value;
 mod resolves_fields;
+mod convert_from;
 
 pub use self::{
     state::State,
@@ -36,8 +37,9 @@ pub use self::{
     schema_definition::SchemaDefinition,
     schema_item::SchemaItem,
     type_definition::TypeDefinition,
-    value::{Value, ConvertFrom},
-    resolves_fields::ResolvesFields
+    value::{Value},
+    resolves_fields::ResolvesFields,
+    convert_from::{ConvertFrom},
 };
 
 pub use anyhow::Error;

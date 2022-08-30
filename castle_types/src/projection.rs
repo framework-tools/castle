@@ -38,7 +38,7 @@ pub type Projection = HashMap<Box<str>, Field>;
 ///     }
 /// }
 /// ```
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Field {
     pub ident: Box<str>,
     pub inputs: Inputs,
@@ -51,7 +51,7 @@ pub struct Field {
 
 
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum FieldKind {
     Object(Projection),
     List(Projection),

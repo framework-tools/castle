@@ -105,9 +105,7 @@ impl<R: Read> Tokenizer<R> {
                     | ']' | ',' | ';' | '@' | '(' | ')' => parse_operator(&mut self.cursor, start)?,
                     '-' => parse_number(&mut self.cursor, start)?,
                     _ if c.is_digit(10) => parse_number(&mut self.cursor, start)?,
-                    _ if c.is_ascii_alphabetic() => {
-                        parse_ident_or_keyword(&mut self.cursor, start)?
-                    }
+                    _ if c.is_ascii_alphabetic() || c == '_' => parse_ident_or_keyword(&mut self.cursor, start)?,
                     _ => Err(CastleError::syntax(
                         format!(
                             "Unexpected '{}' at line {}, column {}",

@@ -1,13 +1,13 @@
 [package]
 name = "castle_types"
-version = "0.8.0"
+version = "0.10.0"
 edition = "2021"
 license = "MIT"
 description = "all Castle types for Castle_Api"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-castle_input_cursor = { path = "../castle_input_cursor" , version = "0.8.0" }
+castle_input_cursor = { path = "../castle_input_cursor" , version = "0.10.0" }
 serde = { version = "1.0.117", features = ["derive"] }
 rmp-serde = "1.1.0"
 byte = "0.2.6"

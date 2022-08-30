@@ -23,6 +23,12 @@ impl<T> SchemaItem for Option<T> where T: SchemaItem {
     }
 }
 
+impl<T> SchemaItem for Box<T> where T: SchemaItem {
+    fn initialize_item(schema: &mut SchemaDefinition) {
+        T::initialize_item(schema);
+    }
+}
+
 
 macro_rules! impl_schema_item_for_scalars {
     (
@@ -55,5 +61,6 @@ impl_schema_item_for_scalars! {
     f32: number,
     bool: bool,
     String: String,
+    &str: String,
     (): void,
 }

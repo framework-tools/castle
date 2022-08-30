@@ -38,6 +38,28 @@ fn can_parse_single_field() {
 }
 
 #[test]
+fn can_parse_ident_with_underscore_prefix() {
+    let query = "message { _first_name }";
+
+    let expected = [(
+        "_first_name".into(),
+        Field {
+            ident: "_first_name".into(),
+            inputs: HashMap::new(),
+            rename: None,
+            kind: FieldKind::Field,
+        },
+    )]
+    .into_iter()
+    .collect::<Root>();
+
+    let actual = &parse_message(query)
+        .expect("Failed to parse query")
+        .projection;
+    assert_eq!(&expected, actual);
+}
+
+#[test]
 fn can_parse_two_fields_with_empty_args() {
     let query = "message {
         first_name()

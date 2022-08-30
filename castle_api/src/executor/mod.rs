@@ -116,7 +116,7 @@ async fn evaluate_field(
         }
         // no more directives, so just evaluate the field
         // TODO: we are not ensuring the developer returns the correct type here, nor are we resolving fields of `Value::Object`
-        // to ensure they have no dynamic fields.
+        // to ensure they have no dynamic fields
         None => {
             let val = resolves_fields.resolve(&field, ctx).await?;
 
@@ -130,7 +130,7 @@ async fn evaluate_field(
                         evaluate_map(
                             &*sub_resolves_fields,
                             projection,
-                            schema.types.get(&field_def.ident).unwrap(),
+                            schema.types.get(&field_def.return_kind.to_string().into_boxed_str()).unwrap(),
                             directives,
                             schema,
                             ctx,
@@ -138,49 +138,39 @@ async fn evaluate_field(
                         )
                         .await,
                     )),
-
                     _ => Err(anyhow::anyhow!("Expected Value::Object or ResolvesFields")),
                 },
+                FieldKind::List(projection) => match val {
+                    // if the val items are a `ResolvesFields` then we need to evaluate_map for each item in the list
+                    Value::Vec(list) => {
+                        let mut new_list = Vec::new();
 
-                FieldKind::List(fields_wanted) => match val {
-                    Value::Vec(mut items) => {
-                        for item in items.iter_mut() {
+                        for item in list {
                             match item {
                                 Value::ResolveFields(sub_resolves_fields) => {
-                                    *item = Value::Object(evaluate_map(
-                                        &**sub_resolves_fields,
-                                        fields_wanted.clone(),
-                                        schema.types.get(&field_def.return_kind.generics[0].ident).unwrap(),
-                                        directives,
-                                        schema,
-                                        ctx,
-                                        errors,
-                                    ).await);
+                                    new_list.push(Value::Object(
+                                        evaluate_map(
+                                            &*sub_resolves_fields,
+                                            projection.clone(),
+                                            schema.types.get(&field_def.return_kind.generics[0].ident).unwrap(),
+                                            directives,
+                                            schema,
+                                            ctx,
+                                            errors,
+                                        )
+                                        .await,
+                                    ));
                                 }
-                                _ => {}
+                                _ => new_list.push(item),
                             }
                         }
-                        Ok(Value::Vec(items))
+
+                        Ok(Value::Vec(new_list))
                     }
-                    Value::ResolveFields(sub_resolves_fields) => Ok(Value::Object(
-                        evaluate_map(
-                            &*sub_resolves_fields,
-                            fields_wanted,
-                            schema.types.get(&field_def.ident).unwrap(),
-                            directives,
-                            schema,
-                            ctx,
-                            errors,
-                        )
-                        .await,
-                    )),
-                    _ => Err(anyhow::anyhow!("Expected Value::Vec or ResolvesFields")),
-                },
-                // TODO: we should be validating here, for vecs, etc, etc,
-                other_field_kinds => {
-                    validate_field_kind(&other_field_kinds, schema, field_def, &[""])?;
-                    Ok(val)
+                    _ => Err(anyhow::anyhow!("Expected Value::List")),
                 }
+                // TODO: we should be validating plain objects here to remove keys that weren't asked for
+                _ => Ok(val),
             }
         }
     }
