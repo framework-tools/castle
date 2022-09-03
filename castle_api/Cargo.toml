@@ -1,6 +1,6 @@
 [package]
 name = "castle_api"
-version = "0.10.0"
+version = "0.11.0"
 edition = "2021"
 license = "MIT"
 description = "Castle API, graph api"
@@ -11,17 +11,17 @@ description = "Castle API, graph api"
 serde = { version = "1.0.117", features = ["derive"] }
 rmpv = { version = "1.0.0" }
 uuid = "1.0.0"
-castle_schema_parser = { path = "../castle_schema_parser" , version = "0.10.0" }
-castle_query_parser = { path = "../castle_query_parser" , version = "0.10.0" }
-castle_shared_parser = { path = "../castle_shared_parser" , version = "0.10.0" }
-castle_tokenizer = { path = "../castle_tokenizer" , version = "0.10.0" }
-castle_types = { path = "../castle_types" , version = "0.10.0" }
+castle_schema_parser = { path = "../castle_schema_parser" , version = "0.11.0" }
+castle_query_parser = { path = "../castle_query_parser" , version = "0.11.0" }
+castle_shared_parser = { path = "../castle_shared_parser" , version = "0.11.0" }
+castle_tokenizer = { path = "../castle_tokenizer" , version = "0.11.0" }
+castle_types = { path = "../castle_types" , version = "0.11.0" }
 async-trait = "0.1.53"
 derivative = "2.2.0"
 tokio = { version = "1.17.0", features = ["sync", "macros"]}
 async-recursion = "1.0.0"
 anyhow = "1.0.57"
-castle_macro = { path = "../castle_macro" , version = "0.10.0" }
+castle_macro = { path = "../castle_macro" , version = "0.11.0" }
 
 [dev-dependencies]
 tokio = { version = "1.17.0", features = ["macros", "rt"]}

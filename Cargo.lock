@@ -50,7 +50,7 @@ checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 
 [[package]]
 name = "castle_api"
-version = "0.10.0"
+version = "0.11.0"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -70,14 +70,14 @@ dependencies = [
 
 [[package]]
 name = "castle_input_cursor"
-version = "0.10.0"
+version = "0.11.0"
 dependencies = [
  "serde",
 ]
 
 [[package]]
 name = "castle_macro"
-version = "0.10.0"
+version = "0.11.0"
 dependencies = [
  "anyhow",
  "castle_api",
@@ -90,7 +90,7 @@ dependencies = [
 
 [[package]]
 name = "castle_query_parser"
-version = "0.10.0"
+version = "0.11.0"
 dependencies = [
  "castle_shared_parser",
  "castle_tokenizer",
@@ -99,7 +99,7 @@ dependencies = [
 
 [[package]]
 name = "castle_schema_parser"
-version = "0.10.0"
+version = "0.11.0"
 dependencies = [
  "castle_shared_parser",
  "castle_tokenizer",
@@ -111,7 +111,7 @@ dependencies = [
 
 [[package]]
 name = "castle_shared_parser"
-version = "0.10.0"
+version = "0.11.0"
 dependencies = [
  "castle_tokenizer",
  "castle_types",
@@ -119,7 +119,7 @@ dependencies = [
 
 [[package]]
 name = "castle_tokenizer"
-version = "0.10.0"
+version = "0.11.0"
 dependencies = [
  "castle_input_cursor",
  "castle_types",
@@ -129,7 +129,7 @@ dependencies = [
 
 [[package]]
 name = "castle_types"
-version = "0.10.0"
+version = "0.11.0"
 dependencies = [
  "anyhow",
  "async-recursion",

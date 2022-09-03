@@ -115,6 +115,7 @@ impl std::fmt::Display for Number {
 from_num_to_primitive!(u8, u16, u32, u64, usize, i8, i16, i32, i64, isize, f64, f32);
 
 #[derive(Debug, PartialEq, Clone, Copy, Serialize, Deserialize)]
+#[serde(untagged)]
 pub enum NumberKind {
     Float(f64),
     Int(i64),
