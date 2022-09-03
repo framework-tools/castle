@@ -2,9 +2,11 @@ use std::collections::HashMap;
 
 use async_recursion::async_recursion;
 use castle_types::{
-    AppliedDirective, State, Directive, Field, FieldDefinition, FieldKind, Message,
-    Next, Projection, ResolvesFields, SchemaDefinition, TypeDefinition, Value,
+    AppliedDirective, Directive, Field, FieldDefinition, FieldKind, Message, Next, Projection,
+    ResolvesFields, SchemaDefinition, State, TypeDefinition, Value,
 };
+
+use crate::validation::validate_projection::validate_field_kind;
 
 pub async fn execute_message(
     root: &dyn ResolvesFields,
