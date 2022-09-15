@@ -36,8 +36,6 @@ pub(crate) fn type_check_input_against_expected_type(
 ) -> Result<(), CastleError> {
     match input_value {
         // TODO: maybe implement scalar types?
-        // TODO: Uuid
-        // TODO: Option
         // TODO: Enum
 
         Input::Variant(_) => {}
@@ -95,7 +93,7 @@ pub(crate) fn check_for_unspecified_args(
         match input_defs.get(arg_ident) {
             None => Err(CastleError::Validation(
                 format!(
-                    "{} was not specififed in input definition",
+                    "{} was not specified in input definition",
                     join_paths(&[path, &[arg_ident]].concat()),
                 )
                 .into(),

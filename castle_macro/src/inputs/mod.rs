@@ -8,7 +8,7 @@ pub fn derive_input(item_struct: ItemStruct) -> proc_macro2::TokenStream {
 
     let fields = match &item_struct.fields {
         Fields::Named(fields) => fields,
-        _ => panic!("Only structs with named fields are supporte"),
+        _ => panic!("Only structs with named fields are supported"),
     };
 
     let (
