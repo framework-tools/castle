@@ -97,6 +97,9 @@ async fn create_castle() -> Castle {
         fn variant(&self, _ctx: &castle_api::types::State, foo: Option<i32>) -> i32 {
             foo.unwrap()
         }
+        fn option_return(&self, _ctx: &castle_api::types::State) -> Option<i32> {
+            Some(1)
+        }
     }
 
 
@@ -183,6 +186,21 @@ async fn message_with_list_of_high_level_obj() {
                 hello
             }
         ]
+    }
+    ";
+
+    let a = create_castle().await
+        .run_message(msg, &ctx).await
+        .unwrap();
+    println!("{:#?}", a);
+}
+
+#[tokio::test]
+async fn can_return_option() {
+    let ctx = State::new();
+    let msg = "
+    message {
+        option_return
     }
     ";
 

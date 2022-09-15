@@ -1,12 +1,12 @@
 [package]
 name = "castle_query_parser"
-version = "0.12.0"
+version = "0.13.0"
 edition = "2021"
 license = "MIT"
 description = "Castle Query Parser, parses query string for Castle Query"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-castle_tokenizer = { path = "../castle_tokenizer" , version = "0.12.0" }
-castle_shared_parser = { path = "../castle_shared_parser" , version = "0.12.0" }
-castle_types = { path = "../castle_types" , version = "0.12.0" }
+castle_tokenizer = { path = "../castle_tokenizer" , version = "0.13.0" }
+castle_shared_parser = { path = "../castle_shared_parser" , version = "0.13.0" }
+castle_types = { path = "../castle_types" , version = "0.13.0" }

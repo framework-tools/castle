@@ -58,6 +58,7 @@ fn is_scalar(kind: &Kind) -> bool {
     match &*kind.ident {
         "String" | "number" | "bool" | "void" => true,
         "Vec" if is_scalar(&kind.generics[0]) => true,
+        "Option" if is_scalar(&kind.generics[0]) => true,
         _ => false,
     }
 }
