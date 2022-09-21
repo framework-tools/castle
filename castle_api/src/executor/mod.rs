@@ -6,7 +6,6 @@ use castle_types::{
     ResolvesFields, SchemaDefinition, State, TypeDefinition, Value,
 };
 
-use crate::validation::validate_projection::validate_field_kind;
 
 pub async fn execute_message(
     root: &dyn ResolvesFields,
