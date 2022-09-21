@@ -37,7 +37,11 @@ pub(crate)fn validate_field_kind(
             true => Ok(()),
             false => Err(CastleError::Validation(format!("{} is not a scalar type", join_paths(path)).into()))
         },
-        FieldKind::Object(projection) => match schema.types.get(&field_def.return_kind.ident) {
+        FieldKind::Object(projection) => match if field_def.return_kind.ident == "Option" {
+                schema.types.get(&field_def.return_kind.generics[0].ident)
+            } else {
+                schema.types.get(&field_def.return_kind.ident)
+            } {
             Some(type_def) => validate_each_projection_field(schema, projection, type_def, path),
             None => Err(CastleError::Validation(format!("{} tried to project an fields on type {}", join_paths(path), field_def.return_kind).into()))
         },
