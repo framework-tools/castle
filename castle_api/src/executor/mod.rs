@@ -2,10 +2,9 @@ use std::collections::HashMap;
 
 use async_recursion::async_recursion;
 use castle_types::{
-    AppliedDirective, Directive, Field, FieldDefinition, FieldKind, Message, Next, Projection,
-    ResolvesFields, SchemaDefinition, State, TypeDefinition, Value,
+    AppliedDirective, Directive, Field, FieldDefinition, FieldKind, Kind, Message, Next,
+    Projection, ResolvesFields, SchemaDefinition, State, TypeDefinition, Value,
 };
-
 
 pub async fn execute_message(
     root: &dyn ResolvesFields,
@@ -69,6 +68,56 @@ async fn evaluate_map(
 }
 
 #[async_recursion]
+async fn get_wrapped_option_resolves_fields(
+    val: Value,
+    field_kind: &Kind,
+    ctx: &State,
+    projection: Projection,
+    directives: &HashMap<Box<str>, Box<dyn Directive>>,
+    schema: &SchemaDefinition,
+    errors: &mut Vec<anyhow::Error>,
+) -> Result<Value, anyhow::Error> {
+    match &*field_kind.ident == "Option" {
+        true => match val {
+            Value::Option(Some(val)) => {
+                get_wrapped_option_resolves_fields(
+                    *val,
+                    &field_kind.generics[0],
+                    ctx,
+                    projection,
+                    directives,
+                    schema,
+                    errors,
+                )
+                .await
+            }
+            Value::Option(None) => Ok(Value::Object(HashMap::new())),
+            _ => Err(anyhow::anyhow!("Expected {}, got {:?}", &field_kind, val)),
+        },
+        false => match val {
+            // TODO: we should be validating plain objects here to remove keys that weren't asked for
+            val @ Value::Object(..) => return Ok(val),
+            Value::ResolveFields(sub_resolves_fields) => Ok(Value::Object(
+                evaluate_map(
+                    &*sub_resolves_fields,
+                    projection,
+                    schema
+                        .types
+                        .get(&field_kind.to_string().into_boxed_str())
+                        .unwrap(),
+                    directives,
+                    schema,
+                    ctx,
+                    errors,
+                )
+                .await,
+            )),
+            _ => Err(anyhow::anyhow!("Expected Value::Object or ResolvesFields")),
+        },
+    }
+}
+
+#[async_recursion]
 async fn evaluate_field(
     resolves_fields: &dyn ResolvesFields,
     field: Field,
@@ -122,23 +171,18 @@ async fn evaluate_field(
             match field.kind {
                 // query tried to project a map and this is an object, so
                 // if it is a ResolvesFields, we need to resolve each field into Value::Object
-                FieldKind::Object(projection) => match val {
-                    val @ Value::Object(..) => Ok(val),
-                    // if it is a `ResolvesFields` then we need to evaluate_map
-                    Value::ResolveFields(sub_resolves_fields) => Ok(Value::Object(
-                        evaluate_map(
-                            &*sub_resolves_fields,
-                            projection,
-                            schema.types.get(&field_def.return_kind.to_string().into_boxed_str()).unwrap(),
-                            directives,
-                            schema,
-                            ctx,
-                            errors,
-                        )
-                        .await,
-                    )),
-                    _ => Err(anyhow::anyhow!("Expected Value::Object or ResolvesFields")),
-                },
+                FieldKind::Object(projection) => {
+                    get_wrapped_option_resolves_fields(
+                        val,
+                        &field_def.return_kind,
+                        ctx,
+                        projection,
+                        directives,
+                        schema,
+                        errors,
+                    )
+                    .await
+                }
                 FieldKind::List(projection) => match val {
                     // if the val items are a `ResolvesFields` then we need to evaluate_map for each item in the list
                     Value::Vec(list) => {
@@ -151,7 +195,10 @@ async fn evaluate_field(
                                         evaluate_map(
                                             &*sub_resolves_fields,
                                             projection.clone(),
-                                            schema.types.get(&field_def.return_kind.generics[0].ident).unwrap(),
+                                            schema
+                                                .types
+                                                .get(&field_def.return_kind.generics[0].ident)
+                                                .unwrap(),
                                             directives,
                                             schema,
                                             ctx,
@@ -167,8 +214,7 @@ async fn evaluate_field(
                         Ok(Value::Vec(new_list))
                     }
                     _ => Err(anyhow::anyhow!("Expected Value::List")),
-                }
-                // TODO: we should be validating plain objects here to remove keys that weren't asked for
+                },
                 _ => Ok(val),
             }
         }
