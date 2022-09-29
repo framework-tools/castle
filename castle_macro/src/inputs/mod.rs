@@ -21,22 +21,24 @@ pub fn derive_input(item_struct: ItemStruct) -> proc_macro2::TokenStream {
         .map(|field| {
             let name = field.ident.as_ref().unwrap();
             let ty = &field.ty;
-            quote_spanned!(ty.span()=> #name: inputs.get(stringify!(#name)).unwrap().into())
+            quote_spanned!(ty.span()=> #name: inputs.get(stringify!(#name)).unwrap().try_into()?)
         });
 
-        
+
 
     quote_spanned! {item_struct.span() =>
         #item_struct
 
-        impl ::core::convert::From<&::castle_api::types::Input> for #name {
-            fn from(input: &::castle_api::types::Input) -> Self {
+        impl ::core::convert::TryFrom<&::castle_api::types::Input> for #name {
+            type Error = ::castle_api::types::CastleError;
+
+            fn try_from(input: &::castle_api::types::Input) -> Result<Self, Self::Error> {
                 let inputs = input.as_map().unwrap();
-                #name {
+                Ok(#name {
                     #(
                         #field_conversions,
                     )*
-                }
+                })
             }
         }
 

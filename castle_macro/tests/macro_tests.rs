@@ -9,11 +9,11 @@ fn can_derive_struct() {
         bar3: String
     }
 
-    let converted: Foo = Foo::from(&Input::Map([
+    let converted: Foo = Foo::try_from(&Input::Map([
         ("bar".into(), Input::Primitive(Primitive::Number(1u32.into()))),
         ("bar2".into(), Input::Primitive(Primitive::Number(2u32.into()))),
         ("bar3".into(), Input::Primitive(Primitive::String("hello".into()))),
-    ].into()));
+    ].into())).unwrap();
 
     assert_eq!(converted.bar, 1);
     assert_eq!(converted.bar2, 2);

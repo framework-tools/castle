@@ -42,7 +42,7 @@ pub fn get_from_conversion(item_struct: syn::ItemStruct, types_used: &mut HashSe
         field_definitions,
         [
             syn::Item::Struct(item_struct.clone()),
-            syn::parse_quote_spanned!(item_struct.span() => 
+            syn::parse_quote_spanned!(item_struct.span() =>
                 impl From<#name> for ::castle_api::types::Value {
                     fn from(item: #name) -> Self {
                         ::castle_api::types::Value::Object([

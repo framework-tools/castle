@@ -151,7 +151,9 @@ async fn list_of_some_things_test() {
     let ctx = State::new();
     let msg = "
     message {
-        list_of_some_things()
+        list_of_some_things() [
+
+        ]
     }
     ";
 

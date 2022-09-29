@@ -30,11 +30,6 @@ impl<IV: Into<Value>> ConvertFrom<Result<IV, anyhow::Error>> for Result<Value, a
     }
 }
 
-// impl<T> ConvertFrom<T> for T {
-//     fn from(value: T) -> Self {
-//         value
-//     }
-// }
 
 impl<IV: Into<Value>> From<Option<IV>> for Value {
     fn from(opt: Option<IV>) -> Self {

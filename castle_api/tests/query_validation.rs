@@ -12,9 +12,10 @@ async fn create_castle() -> Castle {
         thing_is_true: bool
     }
 
+    #[allow(dead_code)]
     #[castle_macro::castle(Input)]
     struct Xyz {
-        _abc: f64
+        abc: f64
     }
 
     #[castle_macro::castle(Type)]
@@ -23,30 +24,31 @@ async fn create_castle() -> Castle {
     }
 
 
+    #[allow(unused_variables)]
     #[castle_macro::castle(Type)]
     impl Root {
         fn hello(&self, _ctx: &castle_api::types::State) -> String {
             return "world".to_string()
         }
-        fn foo(&self, _ctx: &castle_api::types::State, _bar: f64) -> String {
+        fn foo(&self, _ctx: &castle_api::types::State, bar: f64) -> String {
             unimplemented!()
         }
         fn sigma(&self, _ctx: &castle_api::types::State) -> f64 {
             return 69.0
         }
-        fn baz(&self, _ctx: &castle_api::types::State, _arg: Xyz) -> String {
+        fn baz(&self, _ctx: &castle_api::types::State, arg: Xyz) -> String {
             unimplemented!()
         }
-        fn list(&self, _ctx: &castle_api::types::State, _arg: Vec<String>) -> String {
+        fn list(&self, _ctx: &castle_api::types::State, arg: Vec<String>) -> String {
             unimplemented!()
         }
-        fn list2(&self, _ctx: &castle_api::types::State, _arg: Vec<Xyz>) -> String {
+        fn list2(&self, _ctx: &castle_api::types::State, arg: Vec<Xyz>) -> String {
             unimplemented!()
         }
-        fn foobar(&self, _ctx: &castle_api::types::State, _arg1: f64, _arg2: String) -> String {
+        fn foobar(&self, _ctx: &castle_api::types::State, arg1: f64, arg2: String) -> String {
             unimplemented!()
         }
-        fn oogabooga(&self, _ctx: &castle_api::types::State, _is_true: bool) -> String {
+        fn oogabooga(&self, _ctx: &castle_api::types::State, is_true: bool) -> String {
             unimplemented!()
         }
         fn some_thing(&self, _ctx: &castle_api::types::State) -> SomeThing {
@@ -525,3 +527,15 @@ async fn fails_for_invalid_field_multiple_layers_of_nesting() {
         .unwrap_err();
 }
 
+#[tokio::test]
+async fn fails_if_number_type_mismatch() {
+    let msg = r#"
+    message {
+        foobar(arg1: None, arg2: "string")
+    }
+    "#;
+
+    create_castle()
+        .await.parse_and_validate_message(msg)
+        .unwrap_err();
+}

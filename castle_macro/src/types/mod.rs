@@ -102,7 +102,7 @@ fn get_item_impl_conversion(mut item_impl: syn::ItemImpl, types_used: &mut HashS
                                     directives: vec![],
                                 })
                             }),
-                            quote_spanned!(ty.span() => field.inputs.get(stringify!(#pat)).unwrap().into()),
+                            quote_spanned!(ty.span() => field.inputs.get(stringify!(#pat)).unwrap().try_into()?),
                         ))
                     }
                     _ => panic!("unexpected argument type"),

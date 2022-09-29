@@ -54,11 +54,12 @@ fn get_nested_option_type(kind: &Kind) -> &Kind {
 }
 
 fn validate_list(schema: &SchemaDefinition, field_def: &FieldDefinition, projection: &Projection, path: &[&str]) -> Result<(), CastleError> {
-    match (&*field_def.return_kind.ident, schema.types.get(&field_def.return_kind.generics[0].ident)) {
-        ("Vec", Some(type_def)) if !is_scalar(&field_def.return_kind) => {
-            validate_each_projection_field(schema, projection, type_def, path)
+    match &*field_def.return_kind.ident {
+        "Vec" => match schema.types.get(&field_def.return_kind.generics[0].ident) {
+            Some(type_def) => validate_each_projection_field(schema, projection, type_def, path),
+            None => Err(CastleError::Validation(format!("{} tried to project an fields on type {}", join_paths(path), field_def.return_kind).into()))
         },
-        _ => Err(CastleError::Validation(format!("{} tried to project an fields on type {}", join_paths(path), field_def.return_kind).into()))?,
+        _ => Err(CastleError::Validation(format!("{} tried to project an fields on type {}", join_paths(path), field_def.return_kind).into()))
     }
 }
 

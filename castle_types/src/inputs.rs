@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fmt::Display};
 
-use crate::Primitive;
+use crate::{Primitive, CastleError};
 
 // (ident: primitive, ident2: primitive)
 // (ident: { ident: value, ident2: value })
@@ -48,83 +48,96 @@ impl Input {
     }
 }
 
-impl From<&Input> for Option<String> {
-    fn from(value: &Input) -> Self {
-        match value {
-            Input::Variant(Variant { ident, value: VariantType::Tuple(tuple)}) if &**ident == "Some" => {
-                match tuple.first() {
-                    Some(item) => Some(item.into()),
-                    _ => panic!("Expected value in tuple"),
-                }
-            }
-            Input::Variant(Variant { ident, value: VariantType::Unit}) if &**ident == "None" => None,
-            _ => panic!("Expected variant 'Some(..)' or 'None'"),
-        }
-    }
-}
+impl TryFrom<&Input> for Option<String> {
+    type Error = CastleError;
 
-impl From<&Input> for String {
-    fn from(input: &Input) -> Self {
-        match input {
-            Input::Primitive(Primitive::String(str)) => str.to_string(),
-            _ => panic!("Expected string"),
-        }
-    }
-}
-
-impl<'a> From<&'a Input> for Option<&'a str> {
-    fn from(value: &'a Input) -> Self {
-        match value {
-            Input::Variant(Variant { ident, value: VariantType::Tuple(tuple)}) if &**ident == "Some" => {
-                match tuple.first() {
-                    Some(item) => Some(item.into()),
-                    _ => panic!("Expected value in tuple"),
-                }
-            }
-            Input::Variant(Variant { ident, value: VariantType::Unit}) if &**ident == "None" => None,
-            _ => panic!("Expected variant 'Some(..)' or 'None'"),
-        }
-    }
-}
-
-impl<'a> From<&'a Input> for &'a str {
-    fn from(input: &'a Input) -> Self {
-        match input {
-            Input::Primitive(Primitive::String(str)) => &**str,
-            _ => panic!("Expected string"),
-        }
-    }
-}
-
-impl From<&Input> for bool {
-    fn from(input: &Input) -> Self {
-        match input {
-            Input::Primitive(Primitive::Boolean(bool)) => *bool,
-            _ => panic!("Expected bool"),
-        }
-    }
-}
-
-impl From<&Input> for Option<bool> {
-    fn from(input: &Input) -> Self {
+    fn try_from(input: &Input) -> Result<Self, Self::Error> {
         match input {
             Input::Variant(Variant { ident, value: VariantType::Tuple(tuple)}) if &**ident == "Some" => {
                 match tuple.first() {
-                    Some(item) => Some(item.into()),
-                    _ => panic!("Expected value in tuple"),
+                    Some(item) => Ok(Some(item.try_into()?)),
+                    _ => Err(CastleError::Validation("Expected value in tuple".into())),
                 }
-            }
-            Input::Variant(Variant { ident, value: VariantType::Unit}) if &**ident == "None" => None,
-            _ => panic!("Expected variant 'Some(..)' or 'None'"),
+            },
+            Input::Variant(Variant { ident, value: VariantType::Unit}) if &**ident == "None" => Ok(None),
+            _ => Err(CastleError::Validation("Expected variant 'Some(..)' or 'None'".into())),
         }
     }
 }
 
-impl<'a, T: From<&'a Input>> From<&'a Input> for Vec<T> {
-    fn from(input: &'a Input) -> Self {
+impl TryFrom<&Input> for String {
+    type Error = CastleError;
+
+    fn try_from(input: &Input) -> Result<Self, Self::Error> {
         match input {
-            Input::List(list) => list.iter().map(|input| T::from(input)).collect(),
-            _ => vec![],
+            Input::Primitive(Primitive::String(str)) => Ok(str.to_string()),
+            _ => Err(CastleError::Validation("Expected string".into())),
+        }
+    }
+}
+
+impl<'a> TryFrom<&'a Input> for Option<&'a str> {
+    type Error = CastleError;
+
+    fn try_from(input: &'a Input) -> Result<Self, Self::Error> {
+        match input {
+            Input::Variant(Variant { ident, value: VariantType::Tuple(tuple)}) if &**ident == "Some" => {
+                match tuple.first() {
+                    Some(item) => Ok(Some(item.try_into()?)),
+                    _ => Err(CastleError::Validation("Expected value in tuple".into())),
+                }
+            }
+            Input::Variant(Variant { ident, value: VariantType::Unit}) if &**ident == "None" => Ok(None),
+            _ => Err(CastleError::Validation("Expected variant 'Some(..)' or 'None'".into())),
+        }
+    }
+}
+
+impl<'a> TryFrom<&'a Input> for &'a str {
+    type Error = CastleError;
+
+    fn try_from(input: &'a Input) -> Result<Self, Self::Error> {
+        match input {
+            Input::Primitive(Primitive::String(str)) => Ok(&**str),
+            _ => Err(CastleError::Validation("Expected string".into())),
+        }
+    }
+}
+
+impl TryFrom<&Input> for bool {
+    type Error = CastleError;
+
+    fn try_from(input: &Input) -> Result<Self, Self::Error> {
+        match input {
+            Input::Primitive(Primitive::Boolean(bool)) => Ok(*bool),
+            _ => Err(CastleError::Validation("Expected boolean".into())),
+        }
+    }
+}
+
+impl TryFrom<&Input> for Option<bool> {
+    type Error = CastleError;
+
+    fn try_from(input: &Input) -> Result<Self, Self::Error> {
+        match input {
+            Input::Variant(Variant { ident, value: VariantType::Tuple(tuple)}) if &**ident == "Some" => {
+                match tuple.first() {
+                    Some(item) => Ok(Some(item.try_into()?)),
+                    _ => panic!("Expected value in tuple"),
+                }
+            }
+            Input::Variant(Variant { ident, value: VariantType::Unit}) if &**ident == "None" => Ok(None),
+            _ => Err(CastleError::Validation("Expected variant 'Some(..)' or 'None'".into())),
+        }
+    }
+}
+
+impl<'a, T: TryFrom<&'a Input, Error = CastleError>> TryFrom<&'a Input> for Vec<T> {
+    type Error = CastleError;
+    fn try_from(input: &'a Input) -> Result<Self, Self::Error> {
+        match input {
+            Input::List(list) => list.iter().map(|input| T::try_from(input)).collect(),
+            _ => Ok(vec![]),
         }
     }
 }
@@ -133,26 +146,30 @@ impl<'a, T: From<&'a Input>> From<&'a Input> for Vec<T> {
 macro_rules! impl_from_input {
     ($($t:ty),*) => {
         $(
-            impl From<&Input> for Option<$t> {
-                fn from(value: &Input) -> Self {
-                    match value {
+            impl TryFrom<&Input> for Option<$t> {
+                type Error = CastleError;
+
+                fn try_from(input: &Input) -> Result<Self, Self::Error> {
+                    match input {
                         Input::Variant(Variant { ident, value: VariantType::Tuple(tuple)}) if &**ident == "Some" => {
                             match tuple.first() {
-                                Some(item) => Some(item.into()),
-                                _ => panic!("Expected value in tuple"),
+                                Some(item) => Ok(Some(item.try_into()?)),
+                                _ => Err(CastleError::Validation("Expected value in tuple".into())),
                             }
                         }
-                        Input::Variant(Variant { ident, value: VariantType::Unit}) if &**ident == "None" => None,
-                        _ => panic!("Expected variant 'Some(..)' or 'None'"),
+                        Input::Variant(Variant { ident, value: VariantType::Unit}) if &**ident == "None" => Ok(None),
+                        _ => Err(CastleError::Validation("Expected variant 'Some(..)' or 'None'".into())),
                     }
                 }
             }
 
-            impl From<&Input> for $t {
-                fn from(input: &Input) -> Self {
+            impl TryFrom<&Input> for $t {
+                type Error = CastleError;
+
+                fn try_from(input: &Input) -> Result<Self, Self::Error> {
                     match input {
-                        Input::Primitive(Primitive::Number(number)) => number.clone().into(),
-                        _ => panic!("Expected number"),
+                        Input::Primitive(Primitive::Number(number)) => Ok(number.clone().into()),
+                        _ => Err(CastleError::Validation("Expected number".into())),
                     }
                 }
             }
@@ -179,7 +196,7 @@ impl Display for Input {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Input::Primitive(primitive) => write!(f, "{}", primitive),
-            Input::Variant(variant) => write!(f, "{:#?}", variant),
+            Input::Variant(variant) => write!(f, "{}", variant),
             Input::Map(map) => write!(f, "{:#?}", map),
             Input::List(list) => write!(
                 f,
