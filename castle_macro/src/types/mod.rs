@@ -78,7 +78,7 @@ fn get_item_impl_conversion(mut item_impl: syn::ItemImpl, types_used: &mut HashS
             let directives: String = method.attrs.drain_filter(|attr| attr.path.is_ident("directives"))
                 .map(|attr| {
                     let tokens = attr.tokens.into();
-                    syn::parse::<AppliedDirective>(tokens).unwrap().string.value()
+                    syn::parse::<AppliedDirective>(tokens).unwrap().tokens.to_string()
                 }).collect::<Vec<String>>().join(" ");
 
             types_used.insert(fn_return_type.clone());

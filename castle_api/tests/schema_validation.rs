@@ -16,7 +16,7 @@ fn directive_with_definition_and_resolver_succeeds() {
     struct Root;
     #[castle_macro::castle(Type)]
     impl Root {
-        #[directives("@bar")]
+        #[directives(@bar)]
         fn foo(&self, _ctx: &castle_api::types::State) -> String {
             unimplemented!()
         }
@@ -36,7 +36,7 @@ fn directive_with_unspecified_arg_fails() {
     struct Root;
     #[castle_macro::castle(Type)]
     impl Root {
-        #[directives("@bar(arg: 123)")]
+        #[directives(@bar(arg: 123))]
         fn foo(&self, _ctx: &castle_api::types::State) -> String {
             unimplemented!()
         }
@@ -57,7 +57,7 @@ fn directive_with_string_input_type_mismatch_fails() {
     struct Root;
     #[castle_macro::castle(Type)]
     impl Root {
-        #[directives("@bar(arg: 123)")]
+        #[directives(@bar(arg: 123))]
         fn foo(&self, _ctx: &castle_api::types::State) -> String {
             unimplemented!()
         }
@@ -79,7 +79,7 @@ fn directive_with_matching_number_type_succeeds() {
     struct Root;
     #[castle_macro::castle(Type)]
     impl Root {
-        #[directives("@bar(arg: -123)")]
+        #[directives(@bar(arg: -123))]
         fn foo(&self, _ctx: &castle_api::types::State) -> String {
             unimplemented!()
         }
@@ -103,7 +103,7 @@ fn directive_with_number_input_type_mismatch_fails() {
     struct Root;
     #[castle_macro::castle(Type)]
     impl Root {
-        #[directives("@bar(string: \"string\")")]
+        #[directives(@bar(string: "string"))]
         fn foo(&self, _ctx: &castle_api::types::State) -> String {
             unimplemented!()
         }
@@ -146,7 +146,7 @@ fn directive_with_boolean_type_succeeds() {
     struct Root;
     #[castle_macro::castle(Type)]
     impl Root {
-        #[directives("@bar(arg: true)")]
+        #[directives(@bar(arg: true))]
         fn foo(&self, _ctx: &castle_api::types::State) -> String {
             unimplemented!()
         }
@@ -173,7 +173,7 @@ fn directive_with_array_type_succeeds() {
     struct Root;
     #[castle_macro::castle(Type)]
     impl Root {
-        #[directives("@bar(arg: [\"a\", \"b\"])")]
+        #[directives(@bar(arg: ["a", "b"]))]
         fn foo(&self, _ctx: &castle_api::types::State) -> String {
             unimplemented!()
         }
@@ -193,7 +193,7 @@ fn directive_with_string_array_type() {
     struct Root;
     #[castle_macro::castle(Type)]
     impl Root {
-        #[directives(r#"@bar3(arg: ["string", "string", "string"])"#)]
+        #[directives(@bar3(arg: ["string", "string", "string"]))]
         fn foo(&self, _ctx: &castle_api::types::State) -> String {
             unimplemented!()
         }
@@ -212,7 +212,7 @@ fn directive_with_array_type_mismatch_fails() {
     struct Root;
     #[castle_macro::castle(Type)]
     impl Root {
-        #[directives(r#"@bar3(arg: [123, "string", "string"])"#)]
+        #[directives(@bar3(arg: [123, "string", "string"]))]
         fn foo(&self, _ctx: &castle_api::types::State) -> String {
             unimplemented!()
         }
@@ -236,7 +236,7 @@ fn testing_directives_with_number_arg() {
     struct Root;
     #[castle_macro::castle(Type)]
     impl Root {
-        #[directives("@bar(arg: 1)")]
+        #[directives(@bar(arg: 1))]
         fn foo(&self, _ctx: &castle_api::types::State) -> String {
             unimplemented!()
         }

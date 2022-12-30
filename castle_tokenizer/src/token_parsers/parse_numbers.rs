@@ -28,6 +28,8 @@ pub fn parse_number(cursor: &mut Cursor<impl Read>, start_pos: Position) -> Resu
 
     let mut buf = vec![ch];
 
+    println!("buf: {:?}", buf);
+
     loop {
         let c = cursor.peek()?;
 
@@ -49,6 +51,9 @@ pub fn parse_number(cursor: &mut Cursor<impl Read>, start_pos: Position) -> Resu
                         break // could be a field access
                     }
                 },
+                b' ' => {
+                    cursor.next_byte()?; // ignore whitespace
+                }
                 _ => {
                     break;
                 }

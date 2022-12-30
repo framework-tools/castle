@@ -1,3 +1,4 @@
+use proc_macro2::TokenStream;
 use quote::quote_spanned;
 use syn::{Ident, Result, parse::{Parse, ParseStream}, ItemStruct, spanned::Spanned};
 
@@ -26,7 +27,7 @@ impl Parse for DirectiveDefinitionAttribute {
 #[derive(Debug)]
 pub struct AppliedDirective {
     pub paren_token: syn::token::Paren,
-    pub string: syn::LitStr,
+    pub tokens: TokenStream,
 }
 
 impl Parse for AppliedDirective {
@@ -34,7 +35,7 @@ impl Parse for AppliedDirective {
         let content;
         Ok(Self {
             paren_token: syn::parenthesized!(content in input),
-            string: content.parse()?,
+            tokens: content.parse()?,
         })
     }
 }
