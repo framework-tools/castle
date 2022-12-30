@@ -1,15 +1,15 @@
 [package]
 name = "castle_schema_parser"
-version = "0.20.1"
+version = "0.20.2"
 edition = "2021"
 license = "MIT"
 description = "Castle Schema Parser"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-castle_tokenizer = { path = "../castle_tokenizer" , version = "0.20.1" }
-castle_shared_parser = { path = "../castle_shared_parser" , version = "0.20.1" }
-castle_types = { path = "../castle_types" , version = "0.20.1" }
+castle_tokenizer = { path = "../castle_tokenizer" , version = "0.20.2" }
+castle_shared_parser = { path = "../castle_shared_parser" , version = "0.20.2" }
+castle_types = { path = "../castle_types" , version = "0.20.2" }
 syn = { version = "1.0.95", features = ["full"] }
 quote = "1.0.18"
 proc-macro2 = "1.0.39"
