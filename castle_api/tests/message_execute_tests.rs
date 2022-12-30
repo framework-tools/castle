@@ -1,5 +1,5 @@
 use castle_api::Castle;
-use castle_types::State;
+use castle_types::{State, Directive, Field, Inputs, Next, Value};
 
 
 
@@ -25,6 +25,23 @@ async fn create_castle() -> Castle {
         _abc: f64
     }
 
+    #[castle_macro::castle(Directive @test_directive(string: String))]
+    struct TestDirective;
+
+    #[async_trait::async_trait]
+    impl Directive for TestDirective {
+        async fn field_visitor(
+            &self,
+            field: Field,
+            directive_args: &Inputs,
+            next: Next,
+            context: &State,
+        ) -> Result<Value, anyhow::Error> {
+            let string = directive_args.get("string").unwrap().to_string();
+            assert_eq!(string, "hello world");
+            next.resolve(field).await
+        }
+    }
 
     struct HighLevelObj {
         some_thing: SomeThing,
@@ -40,6 +57,8 @@ async fn create_castle() -> Castle {
 
     #[castle_macro::castle(Type)]
     impl Root {
+
+        #[directives(@test_directive(string: "hello world"))]
         fn hello(&self, _ctx: &castle_api::types::State) -> String {
             return "world".to_string()
         }
@@ -106,10 +125,31 @@ async fn create_castle() -> Castle {
 
 
     castle_api::castle::CastleBuilder::new(Root)
+        .add_directive("test_directive", TestDirective)
         .build()
         .unwrap()
 }
 
+#[tokio::test]
+async fn test_hello_world() {
+    let ctx = State::new();
+    let msg = "
+    message {
+        hello
+    }
+    ";
+
+    let a = create_castle().await
+    .run_message(msg, &ctx).await
+    .unwrap();
+
+    assert_eq!(
+        a.0,
+        Value::Object([
+            ("hello".into(), Value::String("world".to_string()))
+        ].into())
+    )
+}
 
 #[tokio::test]
 async fn can_validate_valid_object_projection(){
